@@ -155,6 +155,11 @@ function route() {
   else if (page === "ask") { view.innerHTML = askPage(); bindAsk(); }
   else view.innerHTML = homePage();
   bindCards(view);
+  const ys = $("year-select");
+  if (ys) ys.addEventListener("change", () => {
+    const u = ys.dataset.uni, y = ys.value;
+    location.hash = y ? `#exams/${encodeURIComponent(u)}/${encodeURIComponent(y)}` : u ? `#exams/${encodeURIComponent(u)}` : "#exams";
+  });
   showLastUpdated();
   if (!route.first) route.first = true; else window.scrollTo({ top: 0 });
 }
@@ -236,7 +241,7 @@ function examsPage(arg) {
   const years = [...new Set(inUni.map(yearOf))].sort((a, b) => (parseInt(b) || -1) - (parseInt(a) || -1));
   const year = years.includes(selYear) ? selYear : "";
   const list = inUni.filter((i) => !year || yearOf(i) === year);
-  const href = (u, y) => "#exams" + (u ? "/" + encodeURIComponent(u) + (y ? "/" + encodeURIComponent(y) : "") : "");
+  const href = (u, y) => (y ? `#exams/${encodeURIComponent(u)}/${encodeURIComponent(y)}` : u ? `#exams/${encodeURIComponent(u)}` : "#exams");
 
   // 大学のタブ
   const uniTabs = ["", ...unis].map((u) => {
@@ -244,11 +249,16 @@ function examsPage(arg) {
     return `<button class="tab" role="tab" aria-selected="${u === uni}" data-href="${href(u)}">${esc(u || "すべて")}<span class="count">${n}</span></button>`;
   }).join("");
 
-  // 年のタブ（大学を選んだときだけ）
-  const yearTabs = uni && years.length ? `<div class="subtabs">${["", ...years].map((y) => {
-    const n = y ? inUni.filter((i) => yearOf(i) === y).length : inUni.length;
-    return `<button class="subtab" aria-pressed="${y === year}" data-href="${href(uni, y)}">${esc(y ? yearText(y) : "すべての年")}<span class="count">${n}</span></button>`;
-  }).join("")}</div>` : "";
+  // 年のプルダウン（ドロップダウン）
+  const yearTabs = years.length ? `<div class="year-picker">
+    <label for="year-select">表示年：</label>
+    <select id="year-select" data-uni="${esc(uni)}">
+      <option value="">すべて</option>
+      ${years.map((y) => `<option value="${esc(y)}"${y === year ? " selected" : ""}>${esc(/^\d+$/.test(y) ? y : y)}</option>`).join("")}
+    </select>
+    <span>年</span>
+    <span class="count">${list.length} 問</span>
+  </div>` : "";
 
   // 年ごとにまとめる（新しい年が上）
   const groups = years.filter((y) => !year || y === year).map((y) => `
