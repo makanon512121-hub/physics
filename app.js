@@ -17,6 +17,8 @@ const COLUMNS = {
   links: ["リンク", "link", "links"],
   tags: ["タグ", "tags"],
 };
+// 英語表示のときに使う列（なくてもOK）：「タイトル_en」のように、見出しの後ろに _en をつけた列
+const EN_KEYS = ["title", "category", "type", "university", "description", "links", "tags"];
 
 // 分野の書き方のゆれをそろえる（「電磁気」と書いても「電磁気学」に入ります）
 const CATEGORY_ALIAS = {
@@ -45,13 +47,68 @@ const ENTRY_ICONS = {
 };
 const PLAY = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13L14 8z"/></svg>`;
 
-const data = { items: [], loaded: false, error: "", commitTime: null, changelog: [] };
+const data = { items: [], loaded: false, error: false, commitTime: null, changelog: [] };
 const $ = (id) => document.getElementById(id);
 
+// ---------- 言語（日本語 / English） ----------
+const LANG_KEY = "physics-hp-lang";
+let lang = "ja";
+try { if (localStorage.getItem(LANG_KEY) === "en") lang = "en"; } catch (e) {}
+const en = () => lang === "en";
+const L = (ja, english) => (en() ? english : ja); // 日本語と英語のどちらかを返す
+
+const NAV_TEXT = {
+  exams: ["過去問研究", "Past Exams"], anime: ["アニメーション集", "Animations"],
+  ask: ["質問箱", "Q&A"], updates: ["更新内容", "Updates"],
+};
+const CATEGORY_EN = { "力学": "Mechanics", "電磁気学": "Electromagnetism", "熱力学": "Thermodynamics", "波動": "Waves", "原子": "Atomic Physics", "その他": "Other" };
+const GRADE_EN = { "中1": "Junior high 1", "中2": "Junior high 2", "中3": "Junior high 3", "高1": "High school 1", "高2": "High school 2", "高3": "High school 3", "浪人": "Gap year (rōnin)", "社会人": "Working adult", "その他": "Other" };
+
+// 表示用の名前（データやURLは日本語のまま）
+function catName(name) {
+  if (!en()) return name;
+  const it = data.items.find((i) => i.category === name && i.en.category);
+  return CATEGORY_EN[name] || (it && it.en.category) || name;
+}
+function uniName(name) {
+  if (!en()) return name;
+  if (name === "その他") return "Other";
+  const it = data.items.find((i) => i.university === name && i.en.university);
+  return (it && it.en.university) || name;
+}
+function tagName(tag) {
+  if (!en()) return tag;
+  for (const i of data.items) { const k = i.tagList.indexOf(tag); if (k >= 0 && i.en.tagList[k]) return i.en.tagList[k]; }
+  return tag;
+}
+const yearName = (y) => (y === "年なし" ? L(y, "No year") : /^\d+$/.test(y) ? L(`${y}年`, y) : y);
+const tx = (item, key) => (en() && item.en[key]) || item[key]; // 記事の文字：英語列があれば英語
+const TYPE_EN = { "入試問題": "Entrance exam", "過去問": "Past exam", "解説": "Explanation", "動画": "Video", "演習": "Practice" };
+const typeName = (item) => (en() && (item.en.type || TYPE_EN[item.type])) || item.type;
+
+function setLang(next) {
+  lang = next;
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  applyLang();
+  route();
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = L(CONFIG.siteTitle, CONFIG.siteTitleEn || CONFIG.siteTitle);
+  $("logo-text").textContent = document.title;
+  $("footer-text").textContent = L(CONFIG.footerText, CONFIG.footerTextEn || CONFIG.footerText);
+  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = L(...NAV_TEXT[el.dataset.t]); });
+  const btn = $("lang-btn");
+  btn.textContent = L("EN", "日本語");
+  btn.title = L("Switch to English", "日本語に切りかえる");
+  $("modal-close").setAttribute("aria-label", L("閉じる", "Close"));
+  showVisitors();
+}
+
 // ---------- 起動 ----------
-document.title = CONFIG.siteTitle;
-$("logo-text").textContent = CONFIG.siteTitle;
-$("footer-text").textContent = CONFIG.footerText;
+$("lang-btn").addEventListener("click", () => setLang(en() ? "ja" : "en"));
+applyLang();
 window.addEventListener("hashchange", route);
 route();
 load();
@@ -65,11 +122,11 @@ async function load() {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(res.status);
     const text = await res.text();
-    if (text.trim().startsWith("<")) throw new Error("CSVではなくHTMLが返ってきました");
+    if (text.trim().startsWith("<")) throw new Error("HTML instead of CSV");
     data.items = toItems(parseCSV(text));
   } catch (e) {
     console.error(e);
-    data.error = "データを読み込めませんでした。config.js のURLが「CSV形式でウェブに公開」したものか確認してください。";
+    data.error = true;
   }
   data.loaded = true;
   route();
@@ -103,10 +160,16 @@ function toItems(rows) {
   for (const [key, names] of Object.entries(COLUMNS)) {
     index[key] = header.findIndex((h) => names.some((n) => n.toLowerCase() === h.toLowerCase()));
   }
+  const enIndex = {};
+  for (const key of EN_KEYS) {
+    enIndex[key] = header.findIndex((h) => COLUMNS[key].some((n) => [n + "_en", n + "（英語）", n + "(英語)"].includes(h.toLowerCase())));
+  }
   return rows.slice(1)
     .map((r, n) => {
       const item = { order: n };
       for (const key in index) item[key] = index[key] >= 0 ? (r[index[key]] || "").trim() : "";
+      item.en = {};
+      for (const key in enIndex) item.en[key] = enIndex[key] >= 0 ? (r[enIndex[key]] || "").trim() : "";
       item.category = CATEGORY_ALIAS[item.category] || item.category;
       item.videoId = youtubeId(item.youtube);
       // 大学名が入っている、または種類に「入試」「過去問」がある行 → 過去問研究
@@ -116,7 +179,15 @@ function toItems(rows) {
       item.isAnime = /アニメ/.test(item.type) || !item.isExam;
       item.linkList = parseLinks(item.links);
       // 「タグ」列：「中２、理科１」のように区切って書く（分野と同じタグは省く）
-      item.tagList = [...new Set(String(item.tags || "").split(/[、,，\s]+/).map((t) => t.trim()).filter((t) => t && t !== item.category))];
+      // 英語のタグ（タグ_en）は日本語のタグと同じ順番で書く（英語はカンマ区切り）
+      const jaTags = String(item.tags || "").split(/[、,，\s]+/).map((t) => t.trim());
+      const enTags = String(item.en.tags || "").split(/[、,，]+/).map((t) => t.trim());
+      item.tagList = []; item.en.tagList = [];
+      jaTags.forEach((t, k) => {
+        if (!t || t === item.category || item.tagList.includes(t)) return;
+        item.tagList.push(t); item.en.tagList.push(enTags[k] || "");
+      });
+      item.en.linkList = parseLinks(item.en.links);
       return item;
     })
     .filter((item) => item.title);
@@ -128,7 +199,7 @@ function parseLinks(text) {
     const m = part.match(/(https?:\/\/\S+|[^\s]+\.html?(?:[?#]\S*)?)/);
     if (!m) return null;
     const label = part.replace(m[0], "").replace(/[|｜:：]/g, " ").trim();
-    return { url: m[0], label: label || `リンク${n + 1}` };
+    return { url: m[0], label, n: n + 1 };
   }).filter(Boolean);
 }
 
@@ -171,9 +242,14 @@ function route() {
 }
 
 function loadingOr(html) {
-  if (!data.loaded) return `<p class="status">読み込み中…</p>`;
-  if (data.error) return `<p class="notice ng">${esc(data.error)}</p>`;
+  if (!data.loaded) return `<p class="status">${L("読み込み中…", "Loading…")}</p>`;
+  if (data.error) return errorHtml();
   return html;
+}
+
+function errorHtml() {
+  return `<p class="notice ng">${L("データを読み込めませんでした。config.js のURLが「CSV形式でウェブに公開」したものか確認してください。",
+    "Could not load the data. Please try again later.")}</p>`;
 }
 
 // ---------- トップ ----------
@@ -183,14 +259,16 @@ function homePage() {
   // 新着：更新日時があれば新しい順、なければシートの下の行から
   const latest = [...data.items].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0) || b.order - a.order).slice(0, 6);
   const unis = new Set(exams.map((i) => i.university).filter(Boolean));
-  const heroTitle = esc(CONFIG.heroTitle).replace(/(物理)/, '<span class="grad">$1</span>');
+  const heroTitle = en()
+    ? esc(CONFIG.heroTitleEn || CONFIG.heroTitle).replace(/(physics)/i, '<span class="grad">$1</span>')
+    : esc(CONFIG.heroTitle).replace(/(物理)/, '<span class="grad">$1</span>');
   return `
   <section class="hero">
     ${orbitSvg()}
     <div class="wrap">
       <span class="eyebrow">Physics Lab</span>
       <h1>${heroTitle}</h1>
-      <p>${esc(CONFIG.heroText)}</p>
+      <p>${esc(L(CONFIG.heroText, CONFIG.heroTextEn || CONFIG.heroText))}</p>
       ${lastUpdatedHtml()}
     </div>
   </section>
@@ -198,28 +276,28 @@ function homePage() {
     <div class="entries">
       <a class="entry" href="#exams">
         <span class="entry-icon">${ENTRY_ICONS.exams}</span>
-        <h2>過去問研究</h2>
-        <p>大学ごとに入試問題を研究。年の新しい順に並んでいます。</p>
-        <span class="more">${data.loaded ? `${unis.size}大学・${exams.length}問` : "見る"} →</span>
+        <h2>${L(...NAV_TEXT.exams)}</h2>
+        <p>${L("大学ごとに入試問題を研究。年の新しい順に並んでいます。", "Entrance exam problems by university, newest year first.")}</p>
+        <span class="more">${data.loaded ? L(`${unis.size}大学・${exams.length}問`, `${unis.size} universities · ${exams.length} problems`) : L("見る", "View")} →</span>
       </a>
       <a class="entry" href="#anime">
         <span class="entry-icon">${ENTRY_ICONS.anime}</span>
-        <h2>アニメーション集</h2>
-        <p>力学・電磁気学・熱力学・波動・原子の5分野から選べます。</p>
-        <span class="more">${data.loaded ? `${animes.length}本` : "見る"} →</span>
+        <h2>${L(...NAV_TEXT.anime)}</h2>
+        <p>${L("力学・電磁気学・熱力学・波動・原子の5分野から選べます。", "Choose from five fields: mechanics, electromagnetism, thermodynamics, waves and atomic physics.")}</p>
+        <span class="more">${data.loaded ? L(`${animes.length}本`, `${animes.length} animations`) : L("見る", "View")} →</span>
       </a>
       <a class="entry" href="#ask">
         <span class="entry-icon">${ENTRY_ICONS.ask}</span>
-        <h2>質問箱</h2>
-        <p>わからないところを気軽に質問してください。</p>
-        <span class="more">質問する →</span>
+        <h2>${L(...NAV_TEXT.ask)}</h2>
+        <p>${L("わからないところを気軽に質問してください。", "Feel free to ask about anything you don't understand.")}</p>
+        <span class="more">${L("質問する", "Ask a question")} →</span>
       </a>
     </div>
   </div>
   <section class="section">
     <div class="wrap">
-      <div class="section-title"><h2>新着</h2></div>
-      ${loadingOr(latest.length ? `<div class="grid">${latest.map(card).join("")}</div>` : `<p class="empty">まだ記事がありません。</p>`)}
+      <div class="section-title"><h2>${L("新着", "Latest")}</h2></div>
+      ${loadingOr(latest.length ? `<div class="grid">${latest.map((i) => card(i)).join("")}</div>` : `<p class="empty">${L("まだ記事がありません。", "Nothing here yet.")}</p>`)}
     </div>
   </section>`;
 }
@@ -239,7 +317,6 @@ function examsPage(arg) {
   const exams = data.items.filter((i) => i.isExam);
   const uniOf = (i) => i.university || "その他";
   const yearOf = (i) => i.year || "年なし";
-  const yearText = (y) => (/^\d+$/.test(y) ? `${y}年` : y);
   const [selUni = "", selYear = ""] = (arg || "").split("/");
   const unis = [...new Set(exams.map(uniOf))];
   const uni = unis.includes(selUni) ? selUni : "";
@@ -252,32 +329,32 @@ function examsPage(arg) {
   // 大学のタブ
   const uniTabs = ["", ...unis].map((u) => {
     const n = u ? exams.filter((i) => uniOf(i) === u).length : exams.length;
-    return `<button class="tab" role="tab" aria-selected="${u === uni}" data-href="${href(u)}">${esc(u || "すべて")}<span class="count">${n}</span></button>`;
+    return `<button class="tab" role="tab" aria-selected="${u === uni}" data-href="${href(u)}">${esc(u ? uniName(u) : L("すべて", "All"))}<span class="count">${n}</span></button>`;
   }).join("");
 
   // 年のプルダウン（ドロップダウン）
   const yearTabs = years.length ? `<div class="year-picker">
-    <label for="year-select">表示年：</label>
+    <label for="year-select">${L("表示年：", "Year:")}</label>
     <select id="year-select" data-uni="${esc(uni)}">
-      <option value="">すべて</option>
-      ${years.map((y) => `<option value="${esc(y)}"${y === year ? " selected" : ""}>${esc(/^\d+$/.test(y) ? y : y)}</option>`).join("")}
+      <option value="">${L("すべて", "All")}</option>
+      ${years.map((y) => `<option value="${esc(y)}"${y === year ? " selected" : ""}>${esc(y === "年なし" ? yearName(y) : y)}</option>`).join("")}
     </select>
-    <span>年</span>
-    <span class="count">${list.length} 問</span>
+    ${L("<span>年</span>", "")}
+    <span class="count">${L(`${list.length} 問`, `${list.length} problem${list.length === 1 ? "" : "s"}`)}</span>
   </div>` : "";
 
   // 年ごとにまとめる（新しい年が上）
   const groups = years.filter((y) => !year || y === year).map((y) => `
     <div class="year-group">
-      <h3 class="year-label">${esc(yearText(y))}</h3>
+      <h3 class="year-label">${esc(yearName(y))}</h3>
       <div class="grid">${list.filter((i) => yearOf(i) === y).map((i) => card(i, !!uni)).join("")}</div>
     </div>`).join("");
 
-  return pageHead("Past Exams", "過去問研究", "大学名のタブを押すと、その大学の問題だけが表示されます。") + `
+  return pageHead("Past Exams", L(...NAV_TEXT.exams), L("大学名のタブを押すと、その大学の問題だけが表示されます。", "Tap a university tab to show only that university's problems.")) + `
   <section class="section"><div class="wrap">
     ${loadingOr(exams.length
       ? `<div class="tabs" role="tablist">${uniTabs}</div>${yearTabs}${groups}`
-      : `<p class="empty">まだ過去問がありません。スプレッドシートの「大学」列に大学名を入れると、ここに表示されます。</p>`)}
+      : `<p class="empty">${L("まだ過去問がありません。スプレッドシートの「大学」列に大学名を入れると、ここに表示されます。", "No past exams yet.")}</p>`)}
   </div></section>`;
 }
 
@@ -297,15 +374,15 @@ function animeCategories() {
 function catTile(c, small) {
   return `<a class="cat${small ? " small" : ""}" style="--c:${c.color}" href="#anime/${encodeURIComponent(c.name)}">
     <span class="cat-icon">${c.icon}</span>
-    <h3>${esc(c.name)}</h3>
-    ${small ? "" : `<span class="num">${data.loaded ? `${c.items.length} 本` : ""}</span>`}
+    <h3>${esc(catName(c.name))}</h3>
+    ${small ? "" : `<span class="num">${data.loaded ? L(`${c.items.length} 本`, `${c.items.length} item${c.items.length === 1 ? "" : "s"}`) : ""}</span>`}
   </a>`;
 }
 
 function animePage() {
-  return pageHead("Animations", "アニメーション集", "分野を選ぶと、その分野のアニメーションが一覧で見られます。") + `
+  return pageHead("Animations", L(...NAV_TEXT.anime), L("分野を選ぶと、その分野のアニメーションが一覧で見られます。", "Choose a field to see its animations.")) + `
   <section class="section"><div class="wrap">
-    ${data.error ? `<p class="notice ng">${esc(data.error)}</p>` : ""}
+    ${data.error ? errorHtml() : ""}
     <div class="cats">${animeCategories().map((c) => catTile(c)).join("")}</div>
   </div></section>`;
 }
@@ -321,14 +398,14 @@ function animeCategoryPage(arg) {
   const list = c.items.filter((i) => !tag || i.tagList.includes(tag));
   const base = "#anime/" + encodeURIComponent(c.name);
   const chips = tags.length ? `<div class="tag-filter">${["", ...tags].map((t) =>
-    `<button class="subtab" aria-pressed="${t === tag}" data-href="${t ? base + "/" + encodeURIComponent(t) : base}">${esc(t || "すべて")}<span class="count">${t ? c.items.filter((i) => i.tagList.includes(t)).length : c.items.length}</span></button>`
+    `<button class="subtab" aria-pressed="${t === tag}" data-href="${t ? base + "/" + encodeURIComponent(t) : base}">${esc(t ? tagName(t) : L("すべて", "All"))}<span class="count">${t ? c.items.filter((i) => i.tagList.includes(t)).length : c.items.length}</span></button>`
   ).join("")}</div>` : "";
-  return pageHead("Animations", c.name, "", { href: "#anime", label: "アニメーション集" }) + `
+  return pageHead("Animations", catName(c.name), "", { href: "#anime", label: L(...NAV_TEXT.anime) }) + `
   <section class="section"><div class="wrap">
     ${loadingOr(c.items.length
       ? `${chips}<div class="grid">${list.map((i) => card(i)).join("")}</div>`
-      : `<p class="empty">「${esc(c.name)}」のアニメーションはまだありません。</p>`)}
-    <div class="section-title" style="margin-top:56px"><h2>ほかの分野</h2></div>
+      : `<p class="empty">${L(`「${esc(c.name)}」のアニメーションはまだありません。`, `No animations in ${esc(catName(c.name))} yet.`)}</p>`)}
+    <div class="section-title" style="margin-top:56px"><h2>${L("ほかの分野", "Other fields")}</h2></div>
     <div class="cats">${others.map((x) => catTile(x, true)).join("")}</div>
   </div></section>`;
 }
@@ -338,35 +415,45 @@ function askPage() {
   const GRADES = ["中1", "中2", "中3", "高1", "高2", "高3", "浪人", "社会人", "その他"];
   const cats = [...CONFIG.categories, "その他"];
   const ready = !!(CONFIG.questionUrl || "").trim();
-  return pageHead("Q &amp; A", "質問箱", "物理のわからないところ、過去問の解き方など、なんでも送ってください。") + `
+  // data-label：スプレッドシートとメールに使う項目名（英語表示でも日本語のまま送ります）
+  const lab = (id, ja, english, extra = "") => `<label for="${id}">${L(ja, english)}${extra}</label>`;
+  const req = `<span class="req">${L("必須", "Required")}</span>`;
+  const opt = (ja, english) => `<span class="opt">${L(ja, english)}</span>`;
+  const none = `<option value="なし" selected>${L("なし", "None")}</option>`;
+  return pageHead("Q &amp; A", L(...NAV_TEXT.ask), L("物理のわからないところ、過去問の解き方など、なんでも送ってください。", "Send us anything: physics you don't understand, how to solve a past exam problem, and more.")) + `
   <section class="section"><div class="wrap ask-grid">
     <div class="ask-info">
-      <h2>質問のコツ</h2>
-      <ul>
-        <li>どの問題か（大学・年・問題番号など）を書いてください。</li>
-        <li>どこまでわかって、どこでつまずいたかを書くと、答えやすくなります。</li>
-        <li>返信がほしい場合はメールアドレスを入れてください。</li>
-        <li>大学入試以外の質問でもOKです。</li>
-      </ul>
+      <h2>${L("質問のコツ", "Tips for asking")}</h2>
+      <ul>${L([
+        "どの問題か（大学・年・問題番号など）を書いてください。",
+        "どこまでわかって、どこでつまずいたかを書くと、答えやすくなります。",
+        "返信がほしい場合はメールアドレスを入れてください。",
+        "大学入試以外の質問でもOKです。",
+      ], [
+        "Say which problem it is (university, year, problem number, etc.).",
+        "Tell us how far you got and where you got stuck. That makes it easier to answer.",
+        "If you would like a reply, enter your email address.",
+        "Questions that are not about entrance exams are welcome too.",
+      ]).map((t) => `<li>${t}</li>`).join("")}</ul>
     </div>
     <form class="form" id="ask-form" novalidate>
-      ${ready ? "" : `<p class="notice info">質問箱は準備中です。</p>`}
-      <div class="field"><label for="q-name">お名前<span class="req">必須</span><span class="opt">フルネームで</span></label><input id="q-name" name="name" autocomplete="name" required></div>
-      <div class="field"><label for="q-grade">学年<span class="req">必須</span></label><select id="q-grade" name="grade" required>
-        <option value="">選んでください</option>${GRADES.map((g) => `<option>${g}</option>`).join("")}
+      ${ready ? "" : `<p class="notice info">${L("質問箱は準備中です。", "The Q&A box is not ready yet.")}</p>`}
+      <div class="field">${lab("q-name", "お名前", "Name", req + opt("フルネームで", "Full name"))}<input id="q-name" name="name" data-label="お名前" autocomplete="name" required></div>
+      <div class="field">${lab("q-grade", "学年", "Grade", req)}<select id="q-grade" name="grade" data-label="学年" required>
+        <option value="">${L("選んでください", "Choose")}</option>${GRADES.map((g) => `<option value="${g}">${L(g, GRADE_EN[g])}</option>`).join("")}
       </select></div>
-      <div class="field"><label for="q-klass">組</label><select id="q-klass" name="klass">
-        ${[...Array(10)].map((_, i) => `<option>${i + 1}</option>`).join("")}<option selected>なし</option>
+      <div class="field">${lab("q-klass", "組", "Class")}<select id="q-klass" name="klass" data-label="組">
+        ${[...Array(10)].map((_, i) => `<option>${i + 1}</option>`).join("")}${none}
       </select></div>
-      <div class="field"><label for="q-number">番号</label><select id="q-number" name="number">
-        ${[...Array(45)].map((_, i) => `<option>${i + 1}</option>`).join("")}<option selected>なし</option>
+      <div class="field">${lab("q-number", "番号", "Student number")}<select id="q-number" name="number" data-label="番号">
+        ${[...Array(45)].map((_, i) => `<option>${i + 1}</option>`).join("")}${none}
       </select></div>
-      <div class="field"><label for="q-email">メールアドレス<span class="opt">返信がほしい場合</span></label><input id="q-email" name="email" type="email" autocomplete="email"></div>
-      <div class="field"><label for="q-cat">分野</label><select id="q-cat" name="category">${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div>
-      <div class="field"><label for="q-body">質問内容<span class="req">必須</span></label><textarea id="q-body" name="question" required></textarea></div>
+      <div class="field">${lab("q-email", "メールアドレス", "Email", opt("返信がほしい場合", "If you want a reply"))}<input id="q-email" name="email" data-label="メールアドレス" type="email" autocomplete="email"></div>
+      <div class="field">${lab("q-cat", "分野", "Field")}<select id="q-cat" name="category" data-label="分野">${cats.map((c) => `<option value="${esc(c)}">${esc(catName(c))}</option>`).join("")}</select></div>
+      <div class="field">${lab("q-body", "質問内容", "Question", req)}<textarea id="q-body" name="question" data-label="質問内容" required></textarea></div>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div id="ask-result"></div>
-      <div><button class="btn" type="submit" ${ready ? "" : "disabled"}>送信する</button></div>
+      <div><button class="btn" type="submit" ${ready ? "" : "disabled"}>${L("送信する", "Send")}</button></div>
     </form>
   </div></section>`;
 }
@@ -378,32 +465,32 @@ function bindAsk() {
     const result = $("ask-result");
     const fd = new FormData(form);
     const missing = [];
-    if (!String(fd.get("name") || "").trim()) missing.push("お名前");
-    if (!fd.get("grade")) missing.push("学年");
-    if (!String(fd.get("question") || "").trim()) missing.push("質問内容");
+    if (!String(fd.get("name") || "").trim()) missing.push(L("お名前", "Name"));
+    if (!fd.get("grade")) missing.push(L("学年", "Grade"));
+    if (!String(fd.get("question") || "").trim()) missing.push(L("質問内容", "Question"));
     if (missing.length) {
-      result.innerHTML = `<p class="notice ng">${missing.join("・")}を入力してください。</p>`;
+      result.innerHTML = `<p class="notice ng">${L(`${missing.join("・")}を入力してください。`, `Please fill in: ${missing.join(", ")}.`)}</p>`;
       return;
     }
     const btn = form.querySelector("button");
-    btn.disabled = true; btn.textContent = "送信中…";
+    btn.disabled = true; btn.textContent = L("送信中…", "Sending…");
     try {
       // Apps Script へ送信（相手のサーバーの都合で返事は読めないので、送れたら成功とします）
       // 項目名（ラベル）とメールの件名も一緒に送る → Apps Script 側は項目が増えても書きかえ不要
       const fields = [...form.elements].filter((el) => el.name && el.name !== "website" && el.id)
-        .map((el) => [el.name, (form.querySelector(`label[for="${el.id}"]`)?.childNodes[0]?.textContent || el.name).trim()]);
+        .map((el) => [el.name, el.dataset.label || el.name]);
       fd.set("_fields", JSON.stringify(fields));
       const g = (k) => String(fd.get(k) || "").trim();
       const who = [g("grade"), g("klass") && g("klass") !== "なし" ? g("klass") + "組" : "", g("number") && g("number") !== "なし" ? g("number") + "番" : ""].filter(Boolean);
       fd.set("_subject", `${who.length ? who[0] + (who.length > 1 ? " " + who.slice(1).join("") : "") : ""}・${g("category")}：${g("question").replace(/\s+/g, " ").slice(0, 30)}`);
       await fetch(CONFIG.questionUrl, { method: "POST", mode: "no-cors", body: new URLSearchParams(fd) });
       form.reset();
-      result.innerHTML = `<p class="notice ok">送信しました。ありがとうございます！</p>`;
+      result.innerHTML = `<p class="notice ok">${L("送信しました。ありがとうございます！", "Sent. Thank you!")}</p>`;
     } catch (err) {
       console.error(err);
-      result.innerHTML = `<p class="notice ng">送信できませんでした。時間をおいてもう一度お試しください。</p>`;
+      result.innerHTML = `<p class="notice ng">${L("送信できませんでした。時間をおいてもう一度お試しください。", "Could not send. Please try again later.")}</p>`;
     }
-    btn.disabled = false; btn.textContent = "送信する";
+    btn.disabled = false; btn.textContent = L("送信する", "Send");
   });
 }
 
@@ -414,14 +501,20 @@ function colorOf(item) {
 
 function tagsHtml(item, hideUni) {
   const t = [];
-  if (item.category) t.push(`<span class="tag">${esc(item.category)}</span>`);
-  for (const tag of item.tagList) t.push(`<span class="tag grade">${esc(tag)}</span>`);
-  if (item.type && !/アニメ/.test(item.type)) t.push(`<span class="tag plain">${esc(item.type)}</span>`);
+  if (item.category) t.push(`<span class="tag">${esc(catName(item.category))}</span>`);
+  item.tagList.forEach((tag, k) => t.push(`<span class="tag grade">${esc((en() && item.en.tagList[k]) || tag)}</span>`));
+  if (item.type && !/アニメ/.test(item.type)) t.push(`<span class="tag plain">${esc(typeName(item))}</span>`);
   if (item.isExam) {
-    if (item.university && !hideUni) t.push(`<span class="tag exam">${esc(item.university)}</span>`);
-    if (item.year) t.push(`<span class="tag exam">${esc(/^\d+$/.test(item.year) ? item.year + "年" : item.year)}</span>`);
+    if (item.university && !hideUni) t.push(`<span class="tag exam">${esc(tx(item, "university"))}</span>`);
+    if (item.year) t.push(`<span class="tag exam">${esc(yearName(item.year))}</span>`);
   }
   return t.join("");
+}
+
+// 「リンク」の表示名（英語表示で リンク_en があればそちら）
+function linksOf(item) {
+  const list = en() && item.en.linkList.length ? item.en.linkList : item.linkList;
+  return list.map((l) => ({ url: l.url, label: l.label || L(`リンク${l.n}`, `Link ${l.n}`) }));
 }
 
 function card(item, hideUni) {
@@ -434,15 +527,15 @@ function card(item, hideUni) {
     media = `<span class="placeholder">${ICONS[item.category] || ICONS.other}</span>`;
   }
   if (item.linkList.length) {
-    media += `<span class="badge">${item.linkList.map((l) => esc(l.label)).join(" / ")}</span>`;
+    media += `<span class="badge">${linksOf(item).map((l) => esc(l.label)).join(" / ")}</span>`;
   }
   return `<button class="card" style="--c:${colorOf(item)}" data-item="${item.order}">
     <div class="thumb-wrap">${media}</div>
     <div class="card-body">
       <div class="tags">${tagsHtml(item, hideUni === true)}</div>
-      <h3 class="card-title">${esc(item.title)}</h3>
-      <p class="card-desc">${esc(item.description)}</p>
-      ${item.updatedAt ? `<p class="card-time">${formatDate(item.updatedAt)} 更新</p>` : ""}
+      <h3 class="card-title">${esc(tx(item, "title"))}</h3>
+      <p class="card-desc">${esc(tx(item, "description"))}</p>
+      ${item.updatedAt ? `<p class="card-time">${updatedText(item.updatedAt)}</p>` : ""}
     </div>
   </button>`;
 }
@@ -461,25 +554,25 @@ function openModal(item) {
   let media = "";
   if (item.videoId) {
     media = `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${item.videoId}?autoplay=1&rel=0"
-      title="${esc(item.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+      title="${esc(tx(item, "title"))}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
   } else if (item.image && !item.linkList.length) {
     media = `<img class="modal-img" alt="" src="${esc(imageUrl(item.image))}">`;
   }
   if (item.linkList.length) {
-    media += `<div class="choices">${item.linkList.map((l) => `
+    media += `<div class="choices">${linksOf(item).map((l) => `
       <a class="choice" href="${esc(l.url)}"${/^https?:/.test(l.url) ? ' target="_blank" rel="noopener"' : ""}>
-        <span class="choice-label">${esc(l.label)}</span><span class="choice-go">開く →</span>
+        <span class="choice-label">${esc(l.label)}</span><span class="choice-go">${L("開く", "Open")} →</span>
       </a>`).join("")}</div>`;
   }
   $("modal-media").innerHTML = media;
   $("modal-tags").innerHTML = tagsHtml(item);
   document.querySelector(".modal-box").style.setProperty("--c", colorOf(item));
-  $("modal-title").textContent = item.title;
-  $("modal-desc").textContent = item.description + (item.updatedAt ? `\n\n${formatDate(item.updatedAt)} 更新` : "");
+  $("modal-title").textContent = tx(item, "title");
+  $("modal-desc").textContent = tx(item, "description") + (item.updatedAt ? `\n\n${updatedText(item.updatedAt)}` : "");
   const links = [];
-  if (item.pdf) links.push(`<a class="btn" href="${esc(item.pdf)}" target="_blank" rel="noopener">問題・解答（PDF）を開く</a>`);
-  if (item.image && item.videoId) links.push(`<a class="btn ghost" href="${esc(item.image)}" target="_blank" rel="noopener">画像を開く</a>`);
-  if (item.videoId) links.push(`<a class="btn ghost" href="https://www.youtube.com/watch?v=${item.videoId}" target="_blank" rel="noopener">YouTubeで見る</a>`);
+  if (item.pdf) links.push(`<a class="btn" href="${esc(item.pdf)}" target="_blank" rel="noopener">${L("問題・解答（PDF）を開く", "Open problem & solution (PDF)")}</a>`);
+  if (item.image && item.videoId) links.push(`<a class="btn ghost" href="${esc(item.image)}" target="_blank" rel="noopener">${L("画像を開く", "Open image")}</a>`);
+  if (item.videoId) links.push(`<a class="btn ghost" href="https://www.youtube.com/watch?v=${item.videoId}" target="_blank" rel="noopener">${L("YouTubeで見る", "Watch on YouTube")}</a>`);
   $("modal-links").innerHTML = links.join("");
   $("modal").hidden = false;
   document.body.style.overflow = "hidden";
@@ -516,10 +609,16 @@ function parseDate(text) {
   return isNaN(d) ? null : d;
 }
 
-function formatDate(d) {
-  const p = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${p(d.getHours())}:${p(d.getMinutes())}`;
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function formatDay(d) {
+  return L(`${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`, `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`);
 }
+function formatTime(d) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+const formatDate = (d) => `${formatDay(d)} ${formatTime(d)}`;
+const updatedText = (d) => L(`${formatDate(d)} 更新`, `Updated ${formatDate(d)}`);
 
 // サイト全体の最終更新：スプレッドシートの更新日時と、GitHubに最後に反映した時刻の新しいほう
 function lastUpdated() {
@@ -529,14 +628,16 @@ function lastUpdated() {
   return times.length ? new Date(Math.max(...times)) : null;
 }
 
+const lastText = (d) => L(`最終更新：${formatDate(d)}`, `Last updated: ${formatDate(d)}`);
+
 function lastUpdatedHtml() {
   const d = lastUpdated();
-  return `<a class="last-updated" href="#updates" id="last-updated" ${d ? "" : "hidden"}>最終更新：${d ? formatDate(d) : ""}</a>`;
+  return `<a class="last-updated" href="#updates" id="last-updated" ${d ? "" : "hidden"}>${d ? lastText(d) : ""}</a>`;
 }
 
 function showLastUpdated() {
   const d = lastUpdated();
-  const text = d ? `最終更新：${formatDate(d)}` : "";
+  const text = d ? lastText(d) : "";
   const el = $("last-updated");
   if (el && d) { el.hidden = false; el.textContent = text; }
   $("footer-updated").textContent = text;
@@ -562,7 +663,8 @@ async function loadChangelog() {
     const res = await fetch("changelog.csv", { cache: "no-store" });
     if (!res.ok) return;
     const rows = parseCSV(await res.text()).slice(1);
-    data.changelog = rows.map((r) => ({ date: parseDate(r[0]), text: (r[1] || "").trim(), href: (r[2] || "").trim() }))
+    // 4列目「内容_en」があれば英語表示で使う
+    data.changelog = rows.map((r) => ({ date: parseDate(r[0]), text: (r[1] || "").trim(), href: (r[2] || "").trim(), textEn: (r[3] || "").trim() }))
       .filter((e) => e.date && e.text);
     if (location.hash.startsWith("#updates")) route();
     showLastUpdated();
@@ -575,28 +677,30 @@ function updateEntries() {
   for (const i of data.items) {
     if (!i.updatedAt || list.some((e) => e.text.includes(i.title))) continue;
     const where = i.isAnime ? i.category || "アニメーション集" : "過去問研究";
-    list.push({ date: i.updatedAt, text: `${where}の「${i.title}」を追加・更新しました。`, item: i.order, kind: "item" });
+    const whereEn = i.isAnime ? (i.category ? catName(i.category) : "Animations") : "Past Exams";
+    list.push({ date: i.updatedAt, text: `${where}の「${i.title}」を追加・更新しました。`,
+      textEn: `Added or updated "${i.en.title || i.title}" in ${whereEn}.`, item: i.order, kind: "item" });
   }
   return list.sort((a, b) => b.date - a.date);
 }
 
 function updatesPage() {
   const list = updateEntries();
-  const days = [...new Set(list.map((e) => formatDate(e.date).split(" ")[0]))];
+  const days = [...new Set(list.map((e) => formatDay(e.date)))];
   const body = days.map((day) => `
     <div class="log-day">
       <h3 class="year-label">${esc(day)}</h3>
-      <ul class="log">${list.filter((e) => formatDate(e.date).startsWith(day + " ")).map((e) => {
-        const time = formatDate(e.date).split(" ")[1];
-        const inner = `<span class="log-time">${time}</span><span class="log-text">${esc(e.text)}</span>`;
-        if (e.item != null) return `<li><button class="log-link" data-item="${e.item}">${inner}<span class="log-go">見る →</span></button></li>`;
-        if (e.href) return `<li><a class="log-link" href="${esc(e.href)}">${inner}<span class="log-go">見る →</span></a></li>`;
+      <ul class="log">${list.filter((e) => formatDay(e.date) === day).map((e) => {
+        const time = formatTime(e.date);
+        const inner = `<span class="log-time">${time}</span><span class="log-text">${esc(L(e.text, e.textEn || e.text))}</span>`;
+        if (e.item != null) return `<li><button class="log-link" data-item="${e.item}">${inner}<span class="log-go">${L("見る", "View")} →</span></button></li>`;
+        if (e.href) return `<li><a class="log-link" href="${esc(e.href)}">${inner}<span class="log-go">${L("見る", "View")} →</span></a></li>`;
         return `<li><div class="log-link">${inner}</div></li>`;
       }).join("")}</ul>
     </div>`).join("");
-  return pageHead("Updates", "更新内容", "追加した過去問とアニメーションの一覧です。押すとその場所に移動します。") + `
+  return pageHead("Updates", L(...NAV_TEXT.updates), L("追加した過去問とアニメーションの一覧です。押すとその場所に移動します。", "New past exams and animations. Tap one to go there.")) + `
   <section class="section"><div class="wrap">
-    ${loadingOr(list.length ? body : `<p class="empty">まだ更新履歴がありません。</p>`)}
+    ${loadingOr(list.length ? body : `<p class="empty">${L("まだ更新履歴がありません。", "No updates yet.")}</p>`)}
   </div></section>`;
 }
 
@@ -618,8 +722,12 @@ function setupCounter() {
   // 累計の訪問者数をページ下に表示
   fetch(`https://${code}.goatcounter.com/counter/TOTAL.json`)
     .then((r) => (r.ok ? r.json() : null))
-    .then((j) => { if (j && j.count) $("footer-visitors").textContent = `訪問者数（累計）：${j.count}人`; })
+    .then((j) => { if (j && j.count) { data.visitors = j.count; showVisitors(); } })
     .catch(() => {});
+}
+
+function showVisitors() {
+  if (data.visitors) $("footer-visitors").textContent = L(`訪問者数（累計）：${data.visitors}人`, `Visitors (total): ${data.visitors}`);
 }
 
 function esc(s) {

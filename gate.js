@@ -23,7 +23,16 @@
     "#pw-gate input{font:inherit;font-size:1rem;color:#e9edf7;background:#0b1020;border:1px solid #232c45;border-radius:12px;padding:12px 14px}" +
     "#pw-gate input:focus{outline:2px solid #4f7cff;outline-offset:-1px}" +
     "#pw-gate button{font:inherit;font-weight:700;border:0;border-radius:999px;padding:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#4f7cff,#9b5cff)}" +
-    "#pw-gate .err{color:#ff8a9a;font-size:.85rem;min-height:1.2em}";
+    "#pw-gate .err{color:#ff8a9a;font-size:.85rem;min-height:1.2em}" +
+    "#pw-gate .top{display:flex;justify-content:space-between;align-items:center}" +
+    "#pw-gate button.lang{font-size:.78rem;padding:5px 12px;background:transparent;border:1px solid #33405f;color:#e9edf7}";
+  // 言語（サイトの「EN」ボタンと同じ設定を使う）
+  var LANG_KEY = "physics-hp-lang", lang = "ja";
+  try { if (localStorage.getItem(LANG_KEY) === "en") lang = "en"; } catch (e) {}
+  var TEXT = {
+    ja: { title: "パスワードを入力してください", text: "このサイトを見るにはパスワードが必要です。", label: "パスワード", open: "ひらく", wrong: "パスワードがちがいます。", lang: "English" },
+    en: { title: "Enter the password", text: "A password is required to view this site.", label: "Password", open: "Open", wrong: "Wrong password.", lang: "日本語" },
+  };
   document.head.appendChild(hide);
 
   function sha256(text) {
@@ -36,12 +45,29 @@
     var box = document.createElement("div");
     box.id = "pw-gate";
     box.innerHTML =
-      '<form autocomplete="on"><div class="mark">Φ</div><h1>パスワードを入力してください</h1>' +
-      "<p>このサイトを見るにはパスワードが必要です。</p>" +
-      '<input type="password" name="password" autocomplete="current-password" aria-label="パスワード" required>' +
-      '<div class="err" aria-live="polite"></div><button type="submit">ひらく</button></form>';
+      '<form autocomplete="on"><div class="top"><div class="mark">Φ</div><button type="button" class="lang"></button></div><h1></h1><p></p>' +
+      '<input type="password" name="password" autocomplete="current-password" required>' +
+      '<div class="err" aria-live="polite"></div><button type="submit" class="go"></button></form>';
     document.body.appendChild(box);
     var form = box.querySelector("form"), input = box.querySelector("input"), err = box.querySelector(".err");
+    function paint() {
+      var t = TEXT[lang];
+      document.documentElement.lang = lang;
+      box.querySelector("h1").textContent = t.title;
+      box.querySelector("p").textContent = t.text;
+      input.setAttribute("aria-label", t.label);
+      box.querySelector(".go").textContent = t.open;
+      box.querySelector(".lang").textContent = t.lang;
+      if (err.textContent) err.textContent = t.wrong;
+    }
+    paint();
+    box.querySelector(".lang").addEventListener("click", function () {
+      lang = lang === "en" ? "ja" : "en";
+      try { localStorage.setItem(LANG_KEY, lang); } catch (x) {}
+      paint();
+      if (typeof setLang === "function") setLang(lang); // サイトの表示も合わせる
+      input.focus();
+    });
     input.focus();
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -51,7 +77,7 @@
           box.remove();
           hide.remove();
         } else {
-          err.textContent = "パスワードがちがいます。";
+          err.textContent = TEXT[lang].wrong;
           input.select();
         }
       });

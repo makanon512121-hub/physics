@@ -29,4 +29,10 @@ const CONFIG = {
 
   // フッターに表示する文字
   footerText: "© 物理のHP",
+
+  // ↓↓↓ 英語表示（右上の「EN」ボタン）のときに使う文字 ↓↓↓
+  siteTitleEn: "Physics HP",
+  heroTitleEn: "See physics in motion.\nTest it with past exams.",
+  heroTextEn: "From mechanics to atomic physics: animations and studies of university entrance exam problems. If anything is unclear, ask in the Q&A box.",
+  footerTextEn: "© Physics HP",
 };

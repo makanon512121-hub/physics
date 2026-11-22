@@ -55,7 +55,13 @@ a { color: inherit; }
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   font-family: Inter, sans-serif; font-weight: 800;
 }
-.nav-links { display: flex; gap: 4px; overflow-x: auto; }
+.nav-links { display: flex; gap: 4px; overflow-x: auto; margin-left: auto; }
+.lang-btn {
+  flex: none; font: inherit; font-family: Inter, 'Noto Sans JP', sans-serif; font-size: .78rem; font-weight: 700;
+  color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.28); border-radius: 999px;
+  padding: 5px 10px; cursor: pointer; white-space: nowrap;
+}
+.lang-btn:hover { background: rgba(255,255,255,.12); }
 .nav-links a {
   color: rgba(255,255,255,.72); text-decoration: none; font-size: .9rem; font-weight: 500;
   padding: 6px 12px; border-radius: 999px; white-space: nowrap;
@@ -66,6 +72,8 @@ a { color: inherit; }
   .logo span:last-child { display: none; }
   .nav-links { gap: 0; }
   .nav-links a { padding: 6px 7px; font-size: .78rem; }
+  .nav-inner { gap: 6px; }
+  .lang-btn { padding: 4px 8px; font-size: .72rem; }
 }
 
 /* ===== トップの大きな見出し ===== */
