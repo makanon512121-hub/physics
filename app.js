@@ -699,7 +699,7 @@ function updatesPage() {
         return `<li><div class="log-link">${inner}</div></li>`;
       }).join("")}</ul>
     </div>`).join("");
-  return pageHead("Updates", L(...NAV_TEXT.updates), L("追加した過去問とアニメーションの一覧です。押すとその場所に移動します。", "New past exams and animations. Tap one to go there.")) + `
+  return pageHead("Updates", L(...NAV_TEXT.updates), L("追加した過去問・アニメーションと、新しい機能の一覧です。押すとその場所に移動します。", "New past exams, animations and features. Tap one to go there.")) + `
   <section class="section"><div class="wrap">
     ${loadingOr(list.length ? body : `<p class="empty">${L("まだ更新履歴がありません。", "No updates yet.")}</p>`)}
   </div></section>`;
