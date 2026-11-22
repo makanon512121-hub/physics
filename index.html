@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>物理のHP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1 id="site-title">物理のHP</h1>
+      <p id="site-desc" class="desc"></p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="filters" aria-label="絞り込み">
+      <input id="search" type="search" placeholder="キーワードで検索（例：ドップラー、東大）">
+      <div class="filter-row">
+        <span class="filter-label">種類</span>
+        <div id="type-chips" class="chips"></div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">分野</span>
+        <div id="cat-chips" class="chips"></div>
+      </div>
+    </section>
+
+    <p id="status" class="status">読み込み中…</p>
+    <section id="grid" class="grid" aria-live="polite"></section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap" id="footer-text"></div>
+  </footer>
+
+  <!-- くわしく見るウィンドウ -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-bg" data-close></div>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" data-close aria-label="閉じる">×</button>
+      <div id="modal-media"></div>
+      <div class="modal-body">
+        <div id="modal-tags" class="tags"></div>
+        <h2 id="modal-title"></h2>
+        <p id="modal-desc"></p>
+        <div id="modal-links" class="links"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
