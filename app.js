@@ -56,6 +56,7 @@ window.addEventListener("hashchange", route);
 route();
 load();
 loadCommitTime();
+setupCounter();
 
 async function load() {
   loadChangelog();
@@ -597,6 +598,28 @@ function updatesPage() {
   <section class="section"><div class="wrap">
     ${loadingOr(list.length ? body : `<p class="empty">まだ更新履歴がありません。</p>`)}
   </div></section>`;
+}
+
+// ---------- 訪問者数（GoatCounter） ----------
+// config.js の goatcounterCode を入れると、公開中のサイト（github.io）でだけ数えます。
+function setupCounter() {
+  const code = String(CONFIG.goatcounterCode || "").trim();
+  if (!code || !/\.github\.io$/.test(location.hostname)) return;
+  const count = () => window.goatcounter && window.goatcounter.count &&
+    window.goatcounter.count({ path: location.pathname + (location.hash || "#home"), title: document.title });
+  window.goatcounter = { no_onload: true };
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://gc.zgo.at/count.js";
+  s.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
+  s.onload = count;
+  document.head.appendChild(s);
+  window.addEventListener("hashchange", count);
+  // 累計の訪問者数をページ下に表示
+  fetch(`https://${code}.goatcounter.com/counter/TOTAL.json`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => { if (j && j.count) $("footer-visitors").textContent = `訪問者数（累計）：${j.count}人`; })
+    .catch(() => {});
 }
 
 function esc(s) {
