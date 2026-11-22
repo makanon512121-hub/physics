@@ -719,8 +719,8 @@ function linksPage() {
     "Official pages where each university publishes its past entrance exams. Links open in a new tab.")) + `
   <section class="section"><div class="wrap">
     ${groups || `<p class="empty">${L("まだリンクがありません。", "No links yet.")}</p>`}
-    <p class="link-foot">${L("※ 公開している年度や科目は大学によってちがいます。ページの場所が変わっていたら教えてください。",
-      "Note: the years and subjects available differ by university.")}</p>
+    <p class="link-foot">${L("※ 公開している年度や科目は大学によってちがいます。ページの場所が変わっていたら教えてください。なお、リンクが間違っている場合の責任は一切とれません。不安であれば必ず自分でしっかりと調べてください。",
+      "Note: the years and subjects available differ by university. We cannot take any responsibility if a link is wrong. If you are unsure, please check for yourself.")}</p>
   </div></section>`;
 }
 
