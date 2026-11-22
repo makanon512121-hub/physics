@@ -59,6 +59,8 @@ const CONFIG = {
       items: [
         { name: "早稲田大学", nameEn: "Waseda University", url: "https://www.waseda.jp/inst/admission/undergraduate/past-test/", note: "過去の入試問題", noteEn: "Past entrance exams" },
         { name: "慶應義塾大学", nameEn: "Keio University", url: "https://www.keio.ac.jp/ja/admissions/faculty/examinations/general-admissions/", info: true, note: "学部の過去問の公開ページはないため、一般選抜の入試情報ページ", noteEn: "No official past-exam page; general admission info" },
+        { name: "上智大学", nameEn: "Sophia University", url: "https://adm.sophia.ac.jp/jpn/gakubu_ippan_ad/ippan_kaitourei/", note: "一般選抜の試験問題・解答例・出題の意図", noteEn: "General admission: questions, answers and aims" },
+        { name: "東京理科大学", nameEn: "Tokyo University of Science", url: "https://www.tus.ac.jp/admissions/university/data/", info: true, note: "一般選抜の過去問の公開ページはないため、過去の入試データのページ", noteEn: "No official past-exam page; past admission data" },
       ],
     },
   ],
