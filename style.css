@@ -153,6 +153,14 @@ a { color: inherit; }
 .tab:hover { color: var(--text); }
 .tab[aria-selected="true"] { color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent2)); }
 .tab .count { font-family: Inter, sans-serif; font-size: .75rem; opacity: .7; margin-left: 4px; }
+.subtabs { display: flex; flex-wrap: wrap; gap: 8px; margin: -12px 0 28px; }
+.subtab {
+  border: 1px solid var(--line); background: var(--surface); color: var(--sub); font: inherit; font-weight: 700; font-size: .85rem;
+  padding: 5px 14px; border-radius: 999px; cursor: pointer;
+}
+.subtab:hover { color: var(--text); }
+.subtab[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--surface); }
+.subtab .count { font-family: Inter, sans-serif; font-size: .72rem; opacity: .7; margin-left: 4px; }
 .year-group { margin-bottom: 36px; }
 .year-label {
   font-family: Inter, sans-serif; font-weight: 800; font-size: 1.05rem; margin: 0 0 14px;

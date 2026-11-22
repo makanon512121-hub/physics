@@ -9,7 +9,7 @@ const COLUMNS = {
   type: ["種類", "type"],
   youtube: ["YouTube", "youtube", "動画", "動画URL"],
   university: ["大学", "university"],
-  year: ["年度", "year"],
+  year: ["年", "年度", "year"],
   image: ["画像", "image"],
   pdf: ["PDF", "pdf"],
   description: ["説明", "description"],
@@ -188,7 +188,7 @@ function homePage() {
       <a class="entry" href="#exams">
         <span class="entry-icon">${ENTRY_ICONS.exams}</span>
         <h2>過去問研究</h2>
-        <p>大学ごとに入試問題を研究。年度順に並んでいます。</p>
+        <p>大学ごとに入試問題を研究。年の新しい順に並んでいます。</p>
         <span class="more">${data.loaded ? `${unis.size}大学・${exams.length}問` : "見る"} →</span>
       </a>
       <a class="entry" href="#anime">
@@ -223,30 +223,44 @@ function pageHead(eyebrow, title, text, crumb) {
 }
 
 // ---------- 過去問研究 ----------
-function examsPage(selected) {
+// #exams / #exams/大学名 / #exams/大学名/年
+function examsPage(arg) {
   const exams = data.items.filter((i) => i.isExam);
-  const unis = [...new Set(exams.map((i) => i.university || "その他"))];
-  const current = unis.includes(selected) ? selected : "すべて";
-  const list = exams.filter((i) => current === "すべて" || (i.university || "その他") === current);
+  const uniOf = (i) => i.university || "その他";
+  const yearOf = (i) => i.year || "年なし";
+  const yearText = (y) => (/^\d+$/.test(y) ? `${y}年` : y);
+  const [selUni = "", selYear = ""] = (arg || "").split("/");
+  const unis = [...new Set(exams.map(uniOf))];
+  const uni = unis.includes(selUni) ? selUni : "";
+  const inUni = exams.filter((i) => !uni || uniOf(i) === uni);
+  const years = [...new Set(inUni.map(yearOf))].sort((a, b) => (parseInt(b) || -1) - (parseInt(a) || -1));
+  const year = years.includes(selYear) ? selYear : "";
+  const list = inUni.filter((i) => !year || yearOf(i) === year);
+  const href = (u, y) => "#exams" + (u ? "/" + encodeURIComponent(u) + (y ? "/" + encodeURIComponent(y) : "") : "");
 
-  const tabs = ["すべて", ...unis].map((u) => {
-    const n = u === "すべて" ? exams.length : exams.filter((i) => (i.university || "その他") === u).length;
-    return `<button class="tab" role="tab" aria-selected="${u === current}" data-href="#exams/${encodeURIComponent(u === "すべて" ? "" : u)}">${esc(u)}<span class="count">${n}</span></button>`;
+  // 大学のタブ
+  const uniTabs = ["", ...unis].map((u) => {
+    const n = u ? exams.filter((i) => uniOf(i) === u).length : exams.length;
+    return `<button class="tab" role="tab" aria-selected="${u === uni}" data-href="${href(u)}">${esc(u || "すべて")}<span class="count">${n}</span></button>`;
   }).join("");
 
-  // 年度ごとにまとめる（新しい年度が上）
-  const years = [...new Set(list.map((i) => i.year || "年度なし"))]
-    .sort((a, b) => (parseInt(b) || -1) - (parseInt(a) || -1));
-  const groups = years.map((y) => `
+  // 年のタブ（大学を選んだときだけ）
+  const yearTabs = uni && years.length ? `<div class="subtabs">${["", ...years].map((y) => {
+    const n = y ? inUni.filter((i) => yearOf(i) === y).length : inUni.length;
+    return `<button class="subtab" aria-pressed="${y === year}" data-href="${href(uni, y)}">${esc(y ? yearText(y) : "すべての年")}<span class="count">${n}</span></button>`;
+  }).join("")}</div>` : "";
+
+  // 年ごとにまとめる（新しい年が上）
+  const groups = years.filter((y) => !year || y === year).map((y) => `
     <div class="year-group">
-      <h3 class="year-label">${esc(y)}${/^\d+$/.test(y) ? "年度" : ""}</h3>
-      <div class="grid">${list.filter((i) => (i.year || "年度なし") === y).map((i) => card(i, current !== "すべて")).join("")}</div>
+      <h3 class="year-label">${esc(yearText(y))}</h3>
+      <div class="grid">${list.filter((i) => yearOf(i) === y).map((i) => card(i, !!uni)).join("")}</div>
     </div>`).join("");
 
   return pageHead("Past Exams", "過去問研究", "大学名のタブを押すと、その大学の問題だけが表示されます。") + `
   <section class="section"><div class="wrap">
     ${loadingOr(exams.length
-      ? `<div class="tabs" role="tablist">${tabs}</div>${groups}`
+      ? `<div class="tabs" role="tablist">${uniTabs}</div>${yearTabs}${groups}`
       : `<p class="empty">まだ過去問がありません。スプレッドシートの「大学」列に大学名を入れると、ここに表示されます。</p>`)}
   </div></section>`;
 }
@@ -303,7 +317,7 @@ function askPage() {
     <div class="ask-info">
       <h2>質問のコツ</h2>
       <ul>
-        <li>どの問題か（大学・年度・問題番号など）を書いてください。</li>
+        <li>どの問題か（大学・年・問題番号など）を書いてください。</li>
         <li>どこまでわかって、どこでつまずいたかを書くと、答えやすくなります。</li>
         <li>返信がほしい場合はメールアドレスを入れてください。</li>
       </ul>
@@ -356,8 +370,8 @@ function tagsHtml(item, hideUni) {
   if (item.category) t.push(`<span class="tag">${esc(item.category)}</span>`);
   if (item.type && !/アニメ/.test(item.type)) t.push(`<span class="tag plain">${esc(item.type)}</span>`);
   if (item.isExam) {
-    const exam = [hideUni ? "" : item.university, item.year && `${item.year}年度`].filter(Boolean).join(" ");
-    if (exam) t.push(`<span class="tag exam">${esc(exam)}</span>`);
+    if (item.university && !hideUni) t.push(`<span class="tag exam">${esc(item.university)}</span>`);
+    if (item.year) t.push(`<span class="tag exam">${esc(/^\d+$/.test(item.year) ? item.year + "年" : item.year)}</span>`);
   }
   return t.join("");
 }
