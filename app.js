@@ -388,6 +388,13 @@ function bindAsk() {
     btn.disabled = true; btn.textContent = "送信中…";
     try {
       // Apps Script へ送信（相手のサーバーの都合で返事は読めないので、送れたら成功とします）
+      // 項目名（ラベル）とメールの件名も一緒に送る → Apps Script 側は項目が増えても書きかえ不要
+      const fields = [...form.elements].filter((el) => el.name && el.name !== "website" && el.id)
+        .map((el) => [el.name, (form.querySelector(`label[for="${el.id}"]`)?.childNodes[0]?.textContent || el.name).trim()]);
+      fd.set("_fields", JSON.stringify(fields));
+      const g = (k) => String(fd.get(k) || "").trim();
+      const who = [g("grade"), g("klass") && g("klass") !== "なし" ? g("klass") + "組" : "", g("number") && g("number") !== "なし" ? g("number") + "番" : ""].filter(Boolean);
+      fd.set("_subject", `${who.length ? who[0] + (who.length > 1 ? " " + who.slice(1).join("") : "") : ""}・${g("category")}：${g("question").replace(/\s+/g, " ").slice(0, 30)}`);
       await fetch(CONFIG.questionUrl, { method: "POST", mode: "no-cors", body: new URLSearchParams(fd) });
       form.reset();
       result.innerHTML = `<p class="notice ok">送信しました。ありがとうございます！</p>`;
