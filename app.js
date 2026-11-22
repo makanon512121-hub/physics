@@ -59,7 +59,7 @@ const L = (ja, english) => (en() ? english : ja); // 日本語と英語のどち
 
 const NAV_TEXT = {
   exams: ["過去問研究", "Past Exams"], anime: ["アニメーション集", "Animations"],
-  ask: ["質問箱", "Q&A"], updates: ["更新内容", "Updates"],
+  ask: ["質問箱", "Q&A"], updates: ["更新内容", "Updates"], links: ["リンク集", "Links"],
 };
 const CATEGORY_EN = { "力学": "Mechanics", "電磁気学": "Electromagnetism", "熱力学": "Thermodynamics", "波動": "Waves", "原子": "Atomic Physics", "その他": "Other" };
 const GRADE_EN = { "中1": "Junior high 1", "中2": "Junior high 2", "中3": "Junior high 3", "高1": "High school 1", "高2": "High school 2", "高3": "High school 3", "浪人": "Gap year (rōnin)", "社会人": "Working adult", "その他": "Other" };
@@ -230,6 +230,7 @@ function route() {
   else if (page === "anime") view.innerHTML = animePage();
   else if (page === "ask") { view.innerHTML = askPage(); bindAsk(); }
   else if (page === "updates") view.innerHTML = updatesPage();
+  else if (page === "links") view.innerHTML = linksPage();
   else view.innerHTML = homePage();
   bindCards(view);
   const ys = $("year-select");
@@ -701,6 +702,25 @@ function updatesPage() {
   return pageHead("Updates", L(...NAV_TEXT.updates), L("追加した過去問とアニメーションの一覧です。押すとその場所に移動します。", "New past exams and animations. Tap one to go there.")) + `
   <section class="section"><div class="wrap">
     ${loadingOr(list.length ? body : `<p class="empty">${L("まだ更新履歴がありません。", "No updates yet.")}</p>`)}
+  </div></section>`;
+}
+
+// ---------- リンク集 ----------
+// 中身は config.js の links に書きます
+function linksPage() {
+  const groups = (CONFIG.links || []).map((g) => `
+    <div class="log-day">
+      <h3 class="year-label">${esc(L(g.group, g.groupEn || g.group))}</h3>
+      <ul class="log">${(g.items || []).map((l) => `<li><a class="log-link" href="${esc(l.url)}" target="_blank" rel="noopener">
+        <span class="log-text"><strong class="link-name">${esc(L(l.name, l.nameEn || l.name))}</strong>${l.note ? `<span class="link-note">${esc(L(l.note, l.noteEn || l.note))}</span>` : ""}</span>
+        <span class="log-go">${L("開く", "Open")} ↗</span></a></li>`).join("")}</ul>
+    </div>`).join("");
+  return pageHead("Links", L(...NAV_TEXT.links), L("各大学が公式サイトで公開している入試問題（過去問）のページです。押すと新しいタブで開きます。",
+    "Official pages where each university publishes its past entrance exams. Links open in a new tab.")) + `
+  <section class="section"><div class="wrap">
+    ${groups || `<p class="empty">${L("まだリンクがありません。", "No links yet.")}</p>`}
+    <p class="link-foot">${L("※ 公開している年度や科目は大学によってちがいます。ページの場所が変わっていたら教えてください。",
+      "Note: the years and subjects available differ by university.")}</p>
   </div></section>`;
 }
 

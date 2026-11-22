@@ -69,10 +69,11 @@ a { color: inherit; }
 .nav-links a:hover { color: #fff; }
 .nav-links a.active { color: #fff; background: rgba(255,255,255,.12); }
 @media (max-width: 600px) {
-  .logo span:last-child { display: none; }
   .nav-links { gap: 0; }
   .nav-links a { padding: 6px 7px; font-size: .78rem; }
-  .nav-inner { gap: 6px; }
+  .nav-inner { gap: 6px; flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 6px; }
+  .nav-links { order: 3; width: 100%; justify-content: space-between; }
+  .nav-links a { padding: 6px 5px; font-size: .74rem; }
   .lang-btn { padding: 4px 8px; font-size: .72rem; }
 }
 
@@ -289,6 +290,9 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
 .log-text { flex: 1; }
 .log-go { flex: 0 0 auto; font-size: .82rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
 @media (max-width: 600px) { .log-link { flex-wrap: wrap; gap: 4px 12px; } .log-go { margin-left: auto; } }
+.link-name { display: block; font-size: 1.02rem; }
+.link-note { display: block; margin-top: 2px; font-size: .85rem; color: var(--sub); }
+.link-foot { margin-top: 8px; font-size: .85rem; color: var(--sub); }
 a.last-updated { text-decoration: none; }
 a.last-updated:hover { color: #fff !important; border-color: rgba(255,255,255,.4); }
 
