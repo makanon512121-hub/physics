@@ -25,7 +25,7 @@ const CONFIG = {
 
   // ↓↓↓ 訪問者数：GoatCounter（無料）に登録したときの「コード名」（例："mknphysics"）↓↓↓
   // 空のままだと数えません。
-  goatcounterCode: "",
+  goatcounterCode: "mknphysics",
 
   // フッターに表示する文字
   footerText: "© 物理のHP",
