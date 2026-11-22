@@ -98,8 +98,18 @@ a { color: inherit; }
   filter: blur(10px);
 }
 .hero .wrap { position: relative; z-index: 1; }
-.hero-orbit { position: absolute; right: 4%; top: 50%; transform: translateY(-50%); width: 340px; opacity: .9; z-index: 1; }
-@media (max-width: 860px) { .hero-orbit { display: none; } }
+.hero-anim { position: absolute; right: 4%; top: 50%; transform: translateY(-50%); width: 340px; z-index: 2; }
+.hero-anim canvas { display: block; width: 100%; aspect-ratio: 1; cursor: pointer; touch-action: pan-y; -webkit-tap-highlight-color: transparent; border-radius: 50%; }
+.hero-anim canvas:focus-visible { outline: 2px solid rgba(159,180,255,.6); outline-offset: 4px; }
+.hero-anim.swap canvas { animation: hero-swap .5s ease; }
+@keyframes hero-swap { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+.hero-hint {
+  position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  font-size: .72rem; color: rgba(255,255,255,.45); letter-spacing: .05em;
+}
+@media (max-width: 860px) {
+  .hero-anim { position: relative; right: auto; top: auto; transform: none; width: min(260px, 70vw); margin: 24px auto -36px; }
+}
 .eyebrow {
   display: inline-block; font-family: Inter, sans-serif; font-size: .75rem; font-weight: 700;
   letter-spacing: .18em; text-transform: uppercase; color: #9fb4ff;

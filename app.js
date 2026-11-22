@@ -233,6 +233,8 @@ function route() {
   else if (page === "links") view.innerHTML = linksPage();
   else view.innerHTML = homePage();
   bindCards(view);
+  const heroAnim = view.querySelector(".hero-anim");
+  if (heroAnim && typeof HeroAnim !== "undefined") HeroAnim.mount(heroAnim);
   const ys = $("year-select");
   if (ys) ys.addEventListener("change", () => {
     const u = ys.dataset.uni, y = ys.value;
@@ -265,12 +267,15 @@ function homePage() {
     : esc(CONFIG.heroTitle).replace(/(物理)/, '<span class="grad">$1</span>');
   return `
   <section class="hero">
-    ${orbitSvg()}
     <div class="wrap">
       <span class="eyebrow">Physics Lab</span>
       <h1>${heroTitle}</h1>
       <p>${esc(L(CONFIG.heroText, CONFIG.heroTextEn || CONFIG.heroText))}</p>
       ${lastUpdatedHtml()}
+    </div>
+    <div class="hero-anim">
+      <canvas tabindex="0" role="button" aria-label="${L("アニメーションを切りかえる", "Switch animation")}"></canvas>
+      <span class="hero-hint">${L("タップで切りかえ", "Tap to switch")}</span>
     </div>
   </section>
   <div class="wrap">
@@ -586,20 +591,6 @@ function closeModal() {
 }
 document.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeModal));
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("modal").hidden) closeModal(); });
-
-// トップの飾り（原子の軌道）
-function orbitSvg() {
-  return `<svg class="hero-orbit" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-    <defs><linearGradient id="og" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb0ff"/><stop offset="1" stop-color="#c9a6ff"/></linearGradient></defs>
-    <g stroke="url(#og)" stroke-width="1.2" opacity=".8">
-      <ellipse cx="100" cy="100" rx="90" ry="34"/>
-      <ellipse cx="100" cy="100" rx="90" ry="34" transform="rotate(60 100 100)"/>
-      <ellipse cx="100" cy="100" rx="90" ry="34" transform="rotate(-60 100 100)"/>
-    </g>
-    <circle cx="100" cy="100" r="10" fill="url(#og)"/>
-    <circle r="4" fill="#fff"><animateMotion dur="6s" repeatCount="indefinite" path="M10,100 a90,34 0 1,0 180,0 a90,34 0 1,0 -180,0"/></circle>
-  </svg>`;
-}
 
 // ---------- 更新日時 ----------
 // 「2026/11/22 17:53:00」「2026-11-22 17:53」「2026年11月22日 17時53分」などを読む
