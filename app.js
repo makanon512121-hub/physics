@@ -354,6 +354,12 @@ function askPage() {
       <div class="field"><label for="q-grade">学年<span class="req">必須</span></label><select id="q-grade" name="grade" required>
         <option value="">選んでください</option>${GRADES.map((g) => `<option>${g}</option>`).join("")}
       </select></div>
+      <div class="field"><label for="q-klass">組</label><select id="q-klass" name="klass">
+        ${[...Array(10)].map((_, i) => `<option>${i + 1}</option>`).join("")}<option selected>なし</option>
+      </select></div>
+      <div class="field"><label for="q-number">番号</label><select id="q-number" name="number">
+        ${[...Array(45)].map((_, i) => `<option>${i + 1}</option>`).join("")}<option selected>なし</option>
+      </select></div>
       <div class="field"><label for="q-email">メールアドレス<span class="opt">返信がほしい場合</span></label><input id="q-email" name="email" type="email" autocomplete="email"></div>
       <div class="field"><label for="q-cat">分野</label><select id="q-cat" name="category">${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div>
       <div class="field"><label for="q-body">質問内容<span class="req">必須</span></label><textarea id="q-body" name="question" required></textarea></div>
