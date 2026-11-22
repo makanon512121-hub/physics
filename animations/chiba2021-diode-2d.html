@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ダイオード回路アニメーション（2D）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* layout idea: 回路図とグラフを縦に密着させ、同じ色＝同じ点（d,e,f）で対応させる計測器風の1画面 */
+:root{
+  --bg:#eef0f4; --surface:#fcfcfb; --line:#d5d9e0; --ink:#14171c; --ink2:#4d535c; --muted:#8a909a;
+  --vd:#2a78d6; --ve:#eb6834; --vf:#1baf7a; --q1:#6250d6; --q2:#e34948; --gnd:#9aa0aa;
+  --font-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --font-num:"Roboto Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#111318; --surface:#1a1c21; --line:#30343c; --ink:#f0efec; --ink2:#c3c4c8; --muted:#868b94;
+    --vd:#3987e5; --ve:#d95926; --vf:#199e70; --q1:#9085e9; --q2:#e66767; --gnd:#6b717b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#111318; --surface:#1a1c21; --line:#30343c; --ink:#f0efec; --ink2:#c3c4c8; --muted:#868b94;
+  --vd:#3987e5; --ve:#d95926; --vf:#199e70; --q1:#9085e9; --q2:#e66767; --gnd:#6b717b;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1000px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:12px}
+header h1{font-size:19px;margin:0;font-weight:700;text-wrap:balance}
+header p{margin:2px 0 0;color:var(--ink2);font-size:13px}
+.grid{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:820px){.grid{grid-template-columns:1fr 1fr;align-items:start}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 10px 8px}
+.panel h2{font-size:12px;font-weight:700;color:var(--ink2);margin:0 0 4px;letter-spacing:.04em}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--font-body);fill:var(--ink)}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums}
+svg .num{font-family:var(--font-num)}
+
+/* circuit */
+.wire{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.n-d{stroke:var(--vd)} .n-e{stroke:var(--ve)} .n-f{stroke:var(--vf)} .n-g{stroke:var(--gnd)}
+.wire.off{stroke-dasharray:1 7;opacity:.75}
+.diode:not(.on) path,.diode:not(.on) line{stroke-dasharray:3 3.5}
+.plate{stroke-width:4;stroke-linecap:round}
+.flow{fill:none;stroke:var(--ink);stroke-width:6.5;stroke-linecap:round;stroke-dasharray:.1 15;visibility:hidden}
+.flow.on{visibility:visible}
+.diode path,.diode line{stroke:var(--muted);stroke-width:2.2;fill:var(--surface);stroke-linejoin:round;stroke-linecap:round}
+.diode.on path{fill:var(--ink);stroke:var(--ink)} .diode.on line{stroke:var(--ink)}
+.pill rect{fill:var(--surface);stroke:var(--muted);stroke-width:1}
+.pill text{font-size:9.5px;font-weight:700;fill:var(--muted);text-anchor:middle}
+.pill.on rect{fill:var(--ink);stroke:var(--ink)} .pill.on text{fill:var(--surface)}
+.lbl{font-size:10.5px} .lbl b{font-weight:700}
+.sub{font-size:9.5px;fill:var(--ink2)}
+.sym{font-size:10px;font-weight:700;text-anchor:middle;dominant-baseline:central;fill:var(--ink)}
+.src rect{fill:var(--surface);stroke:var(--ink2);stroke-width:1.4}
+.src text{font-size:11px;text-anchor:middle}
+
+/* caption */
+.caption{font-size:14px;line-height:1.55;min-height:4.7em}
+.caption strong{font-weight:700}
+.cond{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:12.5px;color:var(--ink2);margin-top:6px;border-top:1px solid var(--line);padding-top:6px}
+.cond .k{font-weight:700;color:var(--ink)}
+
+/* legend / readout */
+.legend{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12.5px;margin-bottom:2px}
+.legend span.it{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.sw{width:14px;height:3px;border-radius:2px;display:inline-block}
+.graph{touch-action:pan-y;cursor:ew-resize;user-select:none;-webkit-user-select:none}
+.grid-l{stroke:var(--line);stroke-width:1}
+.zero{stroke:var(--muted);stroke-width:1}
+.tick{font-size:9px;fill:var(--muted)}
+.series{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.cursor{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3}
+.dot{stroke:var(--surface);stroke-width:2}
+.strip{fill:var(--ink)}
+.strip-bg{fill:var(--line);opacity:.55}
+
+/* transport */
+.transport{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer;min-height:36px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--vd);outline-offset:2px}
+#play{background:var(--ink);color:var(--surface);border-color:var(--ink);font-weight:700;min-width:104px}
+.seg{display:inline-flex;border:1px solid var(--muted);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:34px;padding:4px 10px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+#tread{margin-left:auto;font-size:14px}
+input[type=range]{width:100%;accent-color:var(--ink);margin:0;height:28px}
+.jumps{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.jumps button{flex:0 0 auto;font-size:12.5px;padding:4px 10px;min-height:34px;white-space:nowrap}
+.note{font-size:12px;color:var(--ink2);margin:0}
+.sitenav{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px}.sitenav a{color:var(--ink2);text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px}.sitenav a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a><a href="chiba2021-diode-3d.html">3D版（電位の立体図）を見る →</a></nav>
+  <header>
+    <h1>千葉大入試 ダイオード D₃・D₄ の ON/OFF と電位の動き</h1>
+    <p>回路図の線の色とグラフの線の色は同じ点を表します。数値は V（電位）、CV（電荷）の何倍かで表示。</p>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel" aria-label="回路図">
+        <div class="num" id="tcirc" style="font-size:17px;font-weight:500;line-height:1.2;padding:2px 4px 0">t = 0.00T</div>
+        <svg id="circuit" viewBox="0 0 360 244" role="img" aria-label="電源、C1、D3、D4、C2 の回路図">
+          <!-- g net -->
+          <path class="wire n-g" d="M50,148 V210 H310 V138 M50,210 V220 M38,220 H62 M43,225 H57 M47,230 H53"/>
+          <!-- d net -->
+          <path class="wire n-d" d="M50,112 V50 H112"/>
+          <!-- e net -->
+          <path class="wire n-e" d="M128,50 H190"/>
+          <path class="wire n-e br3 off" d="M190,50 H235"/>
+          <path class="wire n-e br4 off" d="M190,50 V120"/>
+          <path class="wire n-g br4 off" d="M190,210 V142"/>
+          <!-- f net -->
+          <path class="wire n-f" d="M310,50 V122"/>
+          <path class="wire n-f br3 off" d="M257,50 H310"/>
+          <!-- current flow overlays -->
+          <path id="flow3" class="flow" d="M50,210 V50 H112 M128,50 H310 V122 M310,138 V210 H50"/>
+          <path id="flow4" class="flow" d="M190,210 V50 H128 M112,50 H50 V210 H190"/>
+          <!-- capacitor plates -->
+          <line class="plate n-d" x1="112" y1="27" x2="112" y2="73"/>
+          <line class="plate n-e" x1="128" y1="27" x2="128" y2="73"/>
+          <line class="plate n-f" x1="287" y1="122" x2="333" y2="122"/>
+          <line class="plate n-g" x1="287" y1="138" x2="333" y2="138"/>
+          <g id="symC1L"></g><g id="symC1R"></g><g id="symC2T"></g><g id="symC2B"></g>
+          <!-- source -->
+          <g class="src"><rect x="27" y="112" width="46" height="36" rx="3"/><text x="50" y="134">電源</text></g>
+          <!-- diodes -->
+          <g id="d3" class="diode"><path d="M235,39 L235,61 L257,50 Z"/><line x1="257" y1="39" x2="257" y2="61"/></g>
+          <g id="d4" class="diode"><path d="M179,142 L201,142 L190,120 Z"/><line x1="179" y1="120" x2="201" y2="120"/></g>
+          <g id="p3" class="pill"><rect x="221" y="67" width="50" height="16" rx="8"/><text x="246" y="78.5">D₃ OFF</text></g>
+          <g id="p4" class="pill"><rect x="124" y="123" width="50" height="16" rx="8"/><text x="149" y="134.5">D₄ OFF</text></g>
+          <!-- nodes -->
+          <circle cx="50" cy="50" r="4" fill="var(--vd)"/><circle cx="190" cy="50" r="4" fill="var(--ve)"/>
+          <circle cx="310" cy="50" r="4" fill="var(--vf)"/><circle cx="190" cy="210" r="3.5" fill="var(--gnd)"/>
+          <circle cx="50" cy="210" r="3.5" fill="var(--gnd)"/>
+          <text class="lbl" x="26" y="20"><tspan font-weight="700">d</tspan> <tspan class="num" id="vVd">0.00V</tspan></text>
+          <text class="lbl" x="190" y="20" text-anchor="middle"><tspan font-weight="700">e</tspan> <tspan class="num" id="vVe">0.00V</tspan></text>
+          <text class="lbl" x="336" y="20" text-anchor="end"><tspan font-weight="700">f</tspan> <tspan class="num" id="vVf">0.00V</tspan></text>
+          <text class="sub" x="70" y="232"><tspan font-weight="700">g</tspan>　0（基準）</text>
+          <text class="sub" x="196" y="226" font-weight="700">h</text>
+          <!-- capacitor readouts -->
+          <text class="sub" x="120" y="92" text-anchor="middle">C₁ 電圧 Vd−Ve <tspan class="num" id="u1">0.00V</tspan></text>
+          <text class="sub" x="120" y="105" text-anchor="middle">e側極板 <tspan class="num" id="q1">0.00CV</tspan></text>
+          <text class="sub" x="302" y="170" text-anchor="end">C₂ 電圧 Vf <tspan class="num" id="u2">0.00V</tspan></text>
+          <text class="sub" x="302" y="183" text-anchor="end">上側極板 <tspan class="num" id="q2">0.00CV</tspan></text>
+        </svg>
+      </section>
+
+      <section class="panel">
+        <div class="caption" id="caption" aria-live="off"></div>
+        <div class="cond">
+          <span class="k">D₃（e→f）</span><span id="c3"></span>
+          <span class="k">D₄（h→e）</span><span id="c4"></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel">
+        <div class="row" style="justify-content:space-between;margin-bottom:4px">
+          <h2 style="margin:0">電位（g 基準）</h2>
+          <div class="seg" id="range" role="group" aria-label="時間軸の表示範囲">
+            <button type="button" data-r="7" aria-pressed="true">7T まで</button>
+            <button type="button" data-r="25" aria-pressed="false">25T まで</button>
+          </div>
+        </div>
+        <div class="legend">
+          <span class="it"><i class="sw" style="background:var(--vd)"></i>Vd <b class="num" id="lVd"></b></span>
+          <span class="it"><i class="sw" style="background:var(--ve)"></i>Ve <b class="num" id="lVe"></b></span>
+          <span class="it"><i class="sw" style="background:var(--vf)"></i>Vf <b class="num" id="lVf"></b></span>
+        </div>
+        <svg id="g1" class="graph" viewBox="0 0 360 184" role="img" aria-label="Vd, Ve, Vf の時間変化。下の帯は D3, D4 が ON の区間"></svg>
+      </section>
+
+      <section class="panel transport">
+        <div class="row">
+          <button id="play" type="button">▶ 再生</button>
+          <div class="seg" id="speed" role="group" aria-label="再生速度">
+            <button type="button" data-sp="0.4" aria-pressed="false">ゆっくり</button>
+            <button type="button" data-sp="1" aria-pressed="true">標準</button>
+            <button type="button" data-sp="2.2" aria-pressed="false">速い</button>
+          </div>
+          <span id="tread" class="num">t = 0.00T</span>
+        </div>
+        <input id="scrub" type="range" min="0" max="7" step="0.005" value="0" aria-label="時刻">
+        <div class="jumps" aria-label="設問の時刻へ移動">
+          <button type="button" data-t="1">(3) t=T</button>
+          <button type="button" data-t="1.25">(4) t_A=5T/4</button>
+          <button type="button" data-t="2.5">(5) 5T/2</button>
+          <button type="button" data-t="2.75">(6) t_B=11T/4</button>
+          <button type="button" data-t="4">(7) 4T</button>
+          <button type="button" data-t="7">(8) t₃=7T</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>コンデンサーの電荷</h2>
+        <div class="legend">
+          <span class="it"><i class="sw" style="background:var(--q1)"></i>C₁ e側極板 <b class="num" id="lQ1"></b></span>
+          <span class="it"><i class="sw" style="background:var(--q2)"></i>C₂ 上側極板 <b class="num" id="lQ2"></b></span>
+        </div>
+        <svg id="g2" class="graph" viewBox="0 0 360 162" role="img" aria-label="C1 の e 側極板と C2 の上側極板の電荷の時間変化"></svg>
+      </section>
+      <p class="note">「25T まで」に切り替えると、t₁〜t₉ の Vf（白丸）が V/2, 5V/4, 13V/8, … と 2V に近づく様子が見えます。グラフを指でなぞると、その時刻の回路の状態に移動します。黒い点の流れが電流の向きです。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var NPT=400, SIMMAX=25, TMAX=7, N=NPT*SIMMAX, EPS=1e-9;
+function vdAt(t){
+  if(t<0.5) return 2*t;
+  if(t<1) return 1;
+  var u=(t-1)%3;
+  if(u<1) return 1-2*u;
+  if(u<1.5) return -1;
+  if(u<2.5) return -1+2*(u-1.5);
+  return 1;
+}
+// ---- simulate (exact at samples: charge conservation / clamp) ----
+var VD=new Float64Array(N+1), VE=new Float64Array(N+1), VF=new Float64Array(N+1),
+    Q1=new Float64Array(N+1), MODE=new Uint8Array(N+1);
+(function(){
+  var U1=0,U2=0;
+  for(var i=0;i<=N;i++){
+    var vd=vdAt(i/NPT), ve=vd-U1, m=0;
+    if(ve>U2+EPS){ var k=U2-U1; U2=(vd+k)/2; U1=vd-U2; m=1; }
+    else if(ve<-EPS){ U1=vd; m=2; }
+    VD[i]=vd; VE[i]=vd-U1; VF[i]=U2; Q1[i]=-U1; MODE[i]=m;
+  }
+})();
+function lerp(A,t){ var x=Math.min(TMAX,Math.max(0,t))*NPT, i=Math.min(N-1,Math.floor(x)), f=x-i; return A[i]+(A[i+1]-A[i])*f; }
+function modeAt(t){ return MODE[Math.min(N,Math.floor(t*NPT+1e-6)+1)]; }
+
+// ---- graphs ----
+var NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(text!=null) e.textContent=text; if(parent) parent.appendChild(e); return e; }
+var X0=32,X1=352,YMIN=-1.2,YMAX=2.15;
+function xOf(t){ return X0+(X1-X0)*t/TMAX; }
+function makeGraph(svg,opt){
+  var Y0=10,Y1=opt.plotBottom,cur,dots;
+  function yOf(v){ return Y1-(Y1-Y0)*(v-YMIN)/(YMAX-YMIN); }
+  function build(){
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  var NV=NPT*TMAX;
+  [-1,1,2].forEach(function(v){ el("line",{class:"grid-l",x1:X0,x2:X1,y1:yOf(v),y2:yOf(v)},svg); });
+  el("line",{class:"zero",x1:X0,x2:X1,y1:yOf(0),y2:yOf(0)},svg);
+  [[-1,"−"+opt.unit],[0,"0"],[1,opt.unit],[2,"2"+opt.unit]].forEach(function(p){
+    el("text",{class:"tick",x:X0-4,y:yOf(p[0])+3,"text-anchor":"end"},svg,p[1]); });
+  for(var k=0;k<=TMAX;k++){
+    if(TMAX>7&&k!==0&&k%3!==1) continue;
+    el("line",{class:"grid-l",x1:xOf(k),x2:xOf(k),y1:Y0,y2:Y1},svg);
+    el("text",{class:"tick",x:xOf(k),y:Y1+11,"text-anchor":"middle"},svg,k===0?"0":(k===1?"T":k+"T"));
+  }
+  if(opt.limit){
+    el("line",{x1:X0,x2:X1,y1:yOf(2),y2:yOf(2),stroke:"var(--ink2)","stroke-width":1,"stroke-dasharray":"5 4"},svg);
+    el("text",{class:"tick",x:X0+5,y:yOf(2)-4,style:"fill:var(--ink2)"},svg,"V∞ = 2V（十分時間が経つと Vf はここへ）");
+  }
+  opt.series.forEach(function(s){
+    var d="";
+    for(var i=0;i<=NV;i+=20) d+=(i?"L":"M")+xOf(i/NPT).toFixed(2)+","+yOf(s.arr[i]).toFixed(2);
+    el("path",{class:"series",d:d,stroke:"var("+s.color+")"},svg);
+  });
+  var bottom=Y1;
+  if(opt.strips){
+    [["D₃",1,Y1+18],["D₄",2,Y1+28]].forEach(function(r){
+      el("text",{class:"tick",x:X0-4,y:r[2]+6,"text-anchor":"end",style:"fill:var(--ink2);font-weight:700"},svg,r[0]);
+      el("rect",{class:"strip-bg",x:X0,y:r[2],width:X1-X0,height:7,rx:2},svg);
+      var st=-1;
+      for(var i=1;i<=NV+1;i++){
+        var on=i<=NV&&MODE[i]===r[1];
+        if(on&&st<0) st=i-1;
+        if(!on&&st>=0){ el("rect",{class:"strip",x:xOf(st/NPT),y:r[2],width:xOf((i-1)/NPT)-xOf(st/NPT),height:7,rx:2},svg); st=-1; }
+      }
+      bottom=r[2]+7;
+    });
+  }
+  if(opt.marks){ for(var n=1;1+3*(n-1)<=TMAX;n++){ var tn=1+3*(n-1);
+    el("circle",{cx:xOf(tn),cy:yOf(VF[tn*NPT]),r:3,fill:"var(--surface)",stroke:"var(--vf)","stroke-width":1.6},svg); } }
+  cur=el("line",{class:"cursor",x1:0,x2:0,y1:Y0-4,y2:bottom+2},svg);
+  dots=opt.series.map(function(s){ return el("circle",{class:"dot",r:4.5,fill:"var("+s.color+")"},svg); });
+  }
+  build();
+  // scrubbing
+  function tFromEvent(ev){ var r=svg.getBoundingClientRect(); var x=(ev.clientX-r.left)/r.width*360; return Math.min(TMAX,Math.max(0,(x-X0)/(X1-X0)*TMAX)); }
+  var drag=false;
+  svg.addEventListener("pointerdown",function(ev){ drag=true; try{svg.setPointerCapture(ev.pointerId);}catch(e){} pause(); setT(tFromEvent(ev)); });
+  svg.addEventListener("pointermove",function(ev){ if(drag) setT(tFromEvent(ev)); });
+  ["pointerup","pointercancel"].forEach(function(n){ svg.addEventListener(n,function(){ drag=false; }); });
+  function upd(t){
+    var x=xOf(t); cur.setAttribute("x1",x); cur.setAttribute("x2",x);
+    opt.series.forEach(function(s,j){ dots[j].setAttribute("cx",x); dots[j].setAttribute("cy",yOf(lerp(s.arr,t))); });
+  }
+  upd.build=build;
+  return upd;
+}
+var upd1=makeGraph(document.getElementById("g1"),{plotBottom:132,unit:"V",limit:true,strips:true,marks:true,
+  series:[{arr:VD,color:"--vd"},{arr:VE,color:"--ve"},{arr:VF,color:"--vf"}]});
+var upd2=makeGraph(document.getElementById("g2"),{plotBottom:140,unit:"CV",
+  series:[{arr:Q1,color:"--q1"},{arr:VF,color:"--q2"}]});
+
+// ---- circuit ----
+function $(id){ return document.getElementById(id); }
+function fmt(v,u){ if(Math.abs(v)<0.005) return "0.00"+u; return (v>0?"+":"−")+Math.abs(v).toFixed(2)+u; }
+function syms(g,q,pos){
+  var n=Math.min(6,Math.round(Math.abs(q)/0.25)), key=n+(q>0?"p":"m");
+  if(g.getAttribute("data-k")===key) return; g.setAttribute("data-k",key);
+  while(g.firstChild) g.removeChild(g.firstChild);
+  for(var j=0;j<n;j++){ var p=pos(j,n); el("text",{class:"sym",x:p[0],y:p[1]},g,q>0?"+":"−"); }
+}
+var flow3=$("flow3"), flow4=$("flow4"), phase=0, lastCap="";
+function render(){
+  var vd=lerp(VD,t), ve=lerp(VE,t), vf=lerp(VF,t), u1=vd-ve, m=modeAt(t);
+  var slope=vdAt(t+1e-4)-vdAt(t);
+  $("vVd").textContent=fmt(vd,"V"); $("vVe").textContent=fmt(ve,"V"); $("vVf").textContent=fmt(vf,"V");
+  $("lVd").textContent=fmt(vd,"V"); $("lVe").textContent=fmt(ve,"V"); $("lVf").textContent=fmt(vf,"V");
+  $("u1").textContent=fmt(u1,"V"); $("q1").textContent=fmt(-u1,"CV");
+  $("u2").textContent=fmt(vf,"V"); $("q2").textContent=fmt(vf,"CV");
+  $("lQ1").textContent=fmt(-u1,"CV"); $("lQ2").textContent=fmt(vf,"CV");
+  var OFF=[-10,10,-18,18,-26,26];
+  syms($("symC1L"),u1,function(j){ return [103,50+OFF[j]*0.9]; });
+  syms($("symC1R"),-u1,function(j){ return [137,50+OFF[j]*0.9]; });
+  syms($("symC2T"),vf,function(j){ return [310+OFF[j]*0.85,114]; });
+  syms($("symC2B"),-vf,function(j){ return [310+OFF[j]*0.85,147]; });
+  var on3=m===1, on4=m===2;
+  $("d3").classList.toggle("on",on3); $("p3").classList.toggle("on",on3); $("p3").lastElementChild.textContent="D₃ "+(on3?"ON":"OFF");
+  $("d4").classList.toggle("on",on4); $("p4").classList.toggle("on",on4); $("p4").lastElementChild.textContent="D₄ "+(on4?"ON":"OFF");
+  Array.prototype.forEach.call(document.querySelectorAll(".br3"),function(e){ e.classList.toggle("off",!on3); });
+  Array.prototype.forEach.call(document.querySelectorAll(".br4"),function(e){ e.classList.toggle("off",!on4); });
+  flow3.classList.toggle("on",on3); flow4.classList.toggle("on",on4);
+  var cap;
+  if(on3) cap="<strong>D₃ ON・D₄ OFF</strong>　Vd が上昇中。電流が d→C₁→e→D₃→f→C₂ と流れ、C₁ と C₂ が直列で充電される。Ve = Vf のまま、Vd の半分の速さで上がる。";
+  else if(on4) cap="<strong>D₄ ON・D₃ OFF</strong>　Vd が下降中。電流が h→D₄→e→C₁→d と流れ、Ve は 0 に固定。C₁ だけが充電され、e側極板の正電荷が増える。C₂ は切り離されて Vf は一定。";
+  else if(slope>0) cap="<strong>両方 OFF</strong>　Vd が上昇中。電流は 0 で C₁ の電荷は保存されるので、Ve は Vd と同じ幅で上がる。Ve が Vf に追いつくと D₃ が ON。";
+  else if(slope<0) cap="<strong>両方 OFF</strong>　Vd が下降中。電流は 0 で C₁ の電荷は保存されるので、Ve は Vd と同じ幅で下がる。Ve が 0 まで下がると D₄ が ON。";
+  else cap="<strong>電流 0</strong>　Vd が一定なので電荷は動かない。C₁、C₂ の電荷も電位もそのまま。";
+  if(cap!==lastCap){ $("caption").innerHTML=cap; lastCap=cap; }
+  $("c3").textContent=on3?"Ve = Vf で ON。電流 e→f":(vf-ve>0.005?"Ve（"+fmt(ve,"V")+"）< Vf（"+fmt(vf,"V")+"）なので OFF":"Ve = Vf だが電流 0");
+  $("c4").textContent=on4?"Ve = 0 で ON。電流 h→e":(ve>0.005?"Ve（"+fmt(ve,"V")+"）> 0 なので OFF":"Ve = 0 だが電流 0");
+  $("tread").textContent="t = "+t.toFixed(2)+"T"; $("tcirc").textContent="t = "+t.toFixed(2)+"T";
+  if(document.activeElement!==scrub||playing) scrub.value=t;
+  upd1(t); upd2(t);
+}
+
+// ---- transport ----
+var t=0, playing=false, speed=1, last=0, scrub=$("scrub"), playBtn=$("play");
+var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function setT(v){ t=Math.min(TMAX,Math.max(0,v)); render(); }
+function pause(){ playing=false; playBtn.textContent="▶ 再生"; }
+function play(){ if(t>=TMAX-1e-6) t=0; playing=true; playBtn.textContent="❚❚ 一時停止"; }
+playBtn.addEventListener("click",function(){ playing?pause():play(); });
+scrub.addEventListener("input",function(){ pause(); setT(parseFloat(scrub.value)); });
+var SUBN=["","₁","₂","₃","₄","₅","₆","₇","₈","₉"];
+for(var jn=4;jn<=9;jn++){ var jb=document.createElement("button"); jb.type="button"; jb.setAttribute("data-t",1+3*(jn-1)); jb.textContent="t"+SUBN[jn]+"="+(1+3*(jn-1))+"T"; document.querySelector(".jumps").appendChild(jb); }
+function setRange(r){
+  TMAX=r; scrub.max=r; if(t>r) t=r;
+  Array.prototype.forEach.call(document.querySelectorAll("#range button"),function(o){ o.setAttribute("aria-pressed",parseFloat(o.getAttribute("data-r"))===r?"true":"false"); });
+  upd1.build(); upd2.build(); render();
+}
+Array.prototype.forEach.call(document.querySelectorAll("#range button"),function(b){
+  b.addEventListener("click",function(){ setRange(parseFloat(b.getAttribute("data-r"))); }); });
+Array.prototype.forEach.call(document.querySelectorAll(".jumps button"),function(b){
+  b.addEventListener("click",function(){ pause(); var v=parseFloat(b.getAttribute("data-t")); if(v>TMAX) setRange(SIMMAX); setT(v); }); });
+Array.prototype.forEach.call(document.querySelectorAll("#speed button"),function(b){
+  b.addEventListener("click",function(){ speed=parseFloat(b.getAttribute("data-sp"));
+    Array.prototype.forEach.call(document.querySelectorAll("#speed button"),function(o){ o.setAttribute("aria-pressed",o===b?"true":"false"); }); }); });
+function frame(now){
+  var dt=Math.min(0.1,(now-last)/1000); last=now;
+  if(playing){ t+=dt*speed/3.2; if(t>=TMAX){ t=TMAX; pause(); } render(); }
+  if(!reduce){ phase=(phase+dt*34)%15.1; flow3.style.strokeDashoffset=-phase; flow4.style.strokeDashoffset=-phase; }
+  requestAnimationFrame(frame);
+}
+if(reduce){ setT(0.75); } else { render(); play(); }
+requestAnimationFrame(function(n){ last=n; requestAnimationFrame(frame); });
+})();
+</script>
+</body>
+</html>

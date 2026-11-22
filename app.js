@@ -14,6 +14,7 @@ const COLUMNS = {
   pdf: ["PDF", "pdf"],
   description: ["説明", "description"],
   updated: ["更新日時", "更新日", "updated"],
+  links: ["リンク", "link", "links"],
 };
 
 // 分野の書き方のゆれをそろえる（「電磁気」と書いても「電磁気学」に入ります）
@@ -108,9 +109,22 @@ function toItems(rows) {
       // 大学名が入っている、または種類に「入試」「過去問」がある行 → 過去問研究
       item.updatedAt = parseDate(item.updated);
       item.isExam = !!item.university || /入試|過去問/.test(item.type);
+      // 種類が「アニメーション」なら、大学名があってもアニメーション集にも出す
+      item.isAnime = /アニメ/.test(item.type) || !item.isExam;
+      item.linkList = parseLinks(item.links);
       return item;
     })
     .filter((item) => item.title);
+}
+
+// 「リンク」列を読む：1行に1つ「表示名 URL」（セル内改行は Alt+Enter）。「、」「;」区切りもOK
+function parseLinks(text) {
+  return String(text || "").split(/\n|、|;/).map((part, n) => {
+    const m = part.match(/(https?:\/\/\S+|[^\s]+\.html?(?:[?#]\S*)?)/);
+    if (!m) return null;
+    const label = part.replace(m[0], "").replace(/[|｜:：]/g, " ").trim();
+    return { url: m[0], label: label || `リンク${n + 1}` };
+  }).filter(Boolean);
 }
 
 // YouTubeのURLから動画IDを取り出す（watch?v= / youtu.be / shorts / embed / live / IDだけ、どれでもOK）
@@ -153,7 +167,7 @@ function loadingOr(html) {
 
 // ---------- トップ ----------
 function homePage() {
-  const animes = data.items.filter((i) => !i.isExam);
+  const animes = data.items.filter((i) => i.isAnime);
   const exams = data.items.filter((i) => i.isExam);
   // 新着：更新日時があれば新しい順、なければシートの下の行から
   const latest = [...data.items].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0) || b.order - a.order).slice(0, 6);
@@ -239,7 +253,7 @@ function examsPage(selected) {
 
 // ---------- アニメーション集 ----------
 function animeCategories() {
-  const animes = data.items.filter((i) => !i.isExam);
+  const animes = data.items.filter((i) => i.isAnime);
   const cats = [...CONFIG.categories];
   for (const i of animes) if (i.category && !cats.includes(i.category)) cats.push(i.category);
   return cats.map((name, n) => ({
@@ -357,6 +371,9 @@ function card(item, hideUni) {
   } else {
     media = `<span class="placeholder">${ICONS[item.category] || ICONS.other}</span>`;
   }
+  if (item.linkList.length) {
+    media += `<span class="badge">${item.linkList.map((l) => esc(l.label)).join(" / ")}</span>`;
+  }
   return `<button class="card" style="--c:${colorOf(item)}" data-item="${item.order}">
     <div class="thumb-wrap">${media}</div>
     <div class="card-body">
@@ -383,12 +400,18 @@ function openModal(item) {
   if (item.videoId) {
     media = `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${item.videoId}?autoplay=1&rel=0"
       title="${esc(item.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
-  } else if (item.image) {
+  } else if (item.image && !item.linkList.length) {
     media = `<img class="modal-img" alt="" src="${esc(imageUrl(item.image))}">`;
+  }
+  if (item.linkList.length) {
+    media += `<div class="choices">${item.linkList.map((l) => `
+      <a class="choice" href="${esc(l.url)}"${/^https?:/.test(l.url) ? ' target="_blank" rel="noopener"' : ""}>
+        <span class="choice-label">${esc(l.label)}</span><span class="choice-go">開く →</span>
+      </a>`).join("")}</div>`;
   }
   $("modal-media").innerHTML = media;
   $("modal-tags").innerHTML = tagsHtml(item);
-  $("modal-tags").style.setProperty("--c", colorOf(item));
+  document.querySelector(".modal-box").style.setProperty("--c", colorOf(item));
   $("modal-title").textContent = item.title;
   $("modal-desc").textContent = item.description + (item.updatedAt ? `\n\n${formatDate(item.updatedAt)} 更新` : "");
   const links = [];

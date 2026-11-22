@@ -229,6 +229,20 @@ a { color: inherit; }
 .tag.plain { --c: #64748b; }
 .tag.exam { --c: #16a34a; }
 
+.badge {
+  position: absolute; right: 12px; bottom: 12px; padding: 3px 10px; border-radius: 999px;
+  background: rgba(10, 15, 31, .78); color: #fff; font-size: .75rem; font-weight: 700;
+}
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 56px 24px 0; }
+.choice {
+  display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border-radius: 14px; text-decoration: none;
+  border: 1px solid var(--line); background: color-mix(in srgb, var(--c, var(--accent)) 8%, var(--surface));
+  transition: transform .2s, border-color .2s;
+}
+.choice:hover { transform: translateY(-2px); border-color: var(--c, var(--accent)); }
+.choice-label { font-size: 1.15rem; font-weight: 900; }
+.choice-go { font-size: .85rem; font-weight: 700; color: var(--c, var(--accent)); }
+
 /* ===== 質問箱 ===== */
 .ask-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; align-items: start; }
 @media (max-width: 860px) { .ask-grid { grid-template-columns: 1fr; } }
