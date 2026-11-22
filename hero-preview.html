@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>トップのアニメーション案</title>
+  <meta name="robots" content="noindex">
+  <script src="config.js?v=20261122-20"></script>
+  <script src="gate.js?v=20261122-20"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --hero: #0a0f1f; --bg: #f4f6fb; --text: #0f1729; --sub: #5d6880; --line: #e3e7f0; --accent: #4f7cff; }
+    @media (prefers-color-scheme: dark) { :root { --hero: #060a16; --bg: #0b1020; --text: #e9edf7; --sub: #9aa5bf; --line: #232c45; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: "Noto Sans JP", system-ui, sans-serif; line-height: 1.7; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+    @media (max-width: 600px) { .wrap { padding: 0 16px; } }
+    header.top { padding: 40px 0 8px; }
+    header.top h1 { margin: 0 0 4px; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+    header.top p { margin: 0; color: var(--sub); }
+    header.top a { color: var(--accent); font-weight: 700; }
+    .pat { margin: 36px 0 0; }
+    .pat-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+    .pat-head .num { font-family: Inter, sans-serif; font-weight: 800; color: var(--accent); }
+    .pat-head h2 { margin: 0; font-size: 1.15rem; }
+    .pat-head p { margin: 0; color: var(--sub); font-size: .9rem; flex-basis: 100%; }
+    .hero {
+      position: relative; overflow: hidden; border-radius: 20px; background: var(--hero); color: #fff;
+      min-height: 380px; display: grid; grid-template-columns: 1fr 340px; align-items: center; gap: 24px; padding: 40px 48px;
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: -40% -10% auto auto; width: 720px; height: 720px; border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(79,124,255,.35), transparent 70%); pointer-events: none;
+    }
+    .hero::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 48px 48px; mask-image: radial-gradient(ellipse at 60% 30%, #000 20%, transparent 70%);
+    }
+    .hero .text { position: relative; z-index: 1; }
+    .eyebrow { font-family: Inter, sans-serif; font-size: .78rem; font-weight: 700; letter-spacing: .2em; color: #8fb0ff; text-transform: uppercase; }
+    .hero h3 { margin: 10px 0 12px; font-size: clamp(1.6rem, 3.6vw, 2.6rem); line-height: 1.3; font-weight: 900; }
+    .grad { background: linear-gradient(135deg, #8fb0ff, #c9a6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero .text p { margin: 0; color: rgba(255,255,255,.72); max-width: 460px; font-size: .95rem; }
+    .hero canvas, .hero svg { position: relative; z-index: 1; width: 340px; height: 340px; display: block; }
+    .hero canvas { touch-action: pan-y; }
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; padding: 28px 20px; min-height: 0; justify-items: center; }
+      .hero .text { justify-self: stretch; }
+      .hero canvas, .hero svg { width: min(300px, 100%); height: auto; aspect-ratio: 1; }
+    }
+    footer { padding: 40px 0 60px; color: var(--sub); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <header class="top"><div class="wrap">
+    <h1>トップのアニメーション案（4パターン）</h1>
+    <p>いまのトップページは変わっていません。気に入った番号を教えてください。<a href="./#home">← サイトにもどる</a></p>
+  </div></header>
+
+  <main class="wrap">
+    <section class="pat">
+      <div class="pat-head"><span class="num">0</span><h2>いまのアニメーション（くらべる用）</h2></div>
+      <div class="hero">
+        <div class="text"><span class="eyebrow">Physics Lab</span><h3>動きで分かる<span class="grad">物理</span>。<br>過去問で確かめる物理。</h3><p>力学から原子まで、アニメーションと大学入試の過去問研究をまとめています。</p></div>
+        <svg viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <defs><linearGradient id="og" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb0ff"/><stop offset="1" stop-color="#c9a6ff"/></linearGradient></defs>
+          <g stroke="url(#og)" stroke-width="1.2" opacity=".8">
+            <ellipse cx="100" cy="100" rx="90" ry="34"/><ellipse cx="100" cy="100" rx="90" ry="34" transform="rotate(60 100 100)"/><ellipse cx="100" cy="100" rx="90" ry="34" transform="rotate(-60 100 100)"/>
+          </g>
+          <circle cx="100" cy="100" r="10" fill="url(#og)"/>
+          <circle r="4" fill="#fff"><animateMotion dur="6s" repeatCount="indefinite" path="M10,100 a90,34 0 1,0 180,0 a90,34 0 1,0 -180,0"/></circle>
+        </svg>
+      </div>
+    </section>
+
+    <section class="pat">
+      <div class="pat-head"><span class="num">1</span><h2>電子のジャンプと光</h2><p>電子が3つの軌道を行き来します。外から内へ落ちるときに光（光子）が飛び出し、内から外へ上がるときは光を吸収します。</p></div>
+      <div class="hero"><div class="text"><span class="eyebrow">Physics Lab</span><h3>動きで分かる<span class="grad">物理</span>。<br>過去問で確かめる物理。</h3><p>力学から原子まで、アニメーションと大学入試の過去問研究をまとめています。</p></div><canvas id="c1" aria-hidden="true"></canvas></div>
+    </section>
+
+    <section class="pat">
+      <div class="pat-head"><span class="num">2</span><h2>電場の矢印</h2><p>＋の電荷とーの電荷のまわりの電場を矢印で表示します。マウスや指を動かすと、ーの電荷がついてきます（何もしないときは自動で動きます）。</p></div>
+      <div class="hero" id="h2"><div class="text"><span class="eyebrow">Physics Lab</span><h3>動きで分かる<span class="grad">物理</span>。<br>過去問で確かめる物理。</h3><p>力学から原子まで、アニメーションと大学入試の過去問研究をまとめています。</p></div><canvas id="c2" aria-hidden="true"></canvas></div>
+    </section>
+
+    <section class="pat">
+      <div class="pat-head"><span class="num">3</span><h2>惑星の軌道</h2><p>恒星のまわりを3つの惑星が万有引力で回り、光る軌跡を残します。近いほど速く動く（ケプラーの法則）のが見えます。</p></div>
+      <div class="hero"><div class="text"><span class="eyebrow">Physics Lab</span><h3>動きで分かる<span class="grad">物理</span>。<br>過去問で確かめる物理。</h3><p>力学から原子まで、アニメーションと大学入試の過去問研究をまとめています。</p></div><canvas id="c3" aria-hidden="true"></canvas></div>
+    </section>
+
+    <section class="pat">
+      <div class="pat-head"><span class="num">4</span><h2>2つの波源の干渉</h2><p>2つの点から出た波が重なり、強め合う所と弱め合う所（節線）のしま模様ができます。</p></div>
+      <div class="hero"><div class="text"><span class="eyebrow">Physics Lab</span><h3>動きで分かる<span class="grad">物理</span>。<br>過去問で確かめる物理。</h3><p>力学から原子まで、アニメーションと大学入試の過去問研究をまとめています。</p></div><canvas id="c4" aria-hidden="true"></canvas></div>
+    </section>
+  </main>
+  <footer class="wrap">このページはメニューには出ていない確認用ページです。</footer>
+
+<script>
+(function () {
+  const S = 340; // 描く大きさ（CSSピクセル）
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function setup(id) {
+    const c = document.getElementById(id), dpr = Math.min(devicePixelRatio || 1, 2);
+    c.width = S * dpr; c.height = S * dpr;
+    const g = c.getContext("2d"); g.scale(dpr, dpr);
+    return { c, g };
+  }
+  function loop(draw) {
+    let last = performance.now();
+    function f(now) { const dt = Math.min((now - last) / 1000, 0.05); last = now; draw(dt, now / 1000); if (!reduce) requestAnimationFrame(f); }
+    requestAnimationFrame(f);
+  }
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const ease = (t) => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  function gradStroke(g) {
+    const gr = g.createLinearGradient(0, 0, S, S); gr.addColorStop(0, "#8fb0ff"); gr.addColorStop(1, "#c9a6ff"); return gr;
+  }
+  function glowDot(g, x, y, r, color, glow) {
+    const gr = g.createRadialGradient(x, y, 0, x, y, glow);
+    gr.addColorStop(0, color); gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, glow, 0, 7); g.fill();
+    g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+  }
+
+  // ---------- 1. 電子のジャンプ ----------
+  (function () {
+    const { g } = setup("c1"), cx = S / 2, cy = S / 2;
+    const R = [52, 96, 140];
+    const COL = { "2-1": "#7aa2ff", "1-0": "#b48cff", "2-0": "#e07cff" }; // 落差が大きいほど紫に
+    let level = 2, from = 2, to = 2, t = 1, ang = 0, wait = 1.6;
+    const photons = [];
+    function rOf() { return t >= 1 ? R[level] : lerp(R[from], R[to], ease(t)); }
+    loop((dt) => {
+      g.clearRect(0, 0, S, S);
+      const stroke = gradStroke(g);
+      R.forEach((r, k) => {
+        g.strokeStyle = stroke; g.globalAlpha = k === level || (t < 1 && (k === from || k === to)) ? .75 : .35;
+        g.lineWidth = 1.3; g.setLineDash(k === level ? [] : [3, 5]);
+        g.beginPath(); g.arc(cx, cy, r, 0, 7); g.stroke();
+      });
+      g.setLineDash([]); g.globalAlpha = 1;
+      // 原子核
+      const ng = g.createRadialGradient(cx, cy, 0, cx, cy, 26);
+      ng.addColorStop(0, "rgba(201,166,255,.9)"); ng.addColorStop(.45, "rgba(143,176,255,.5)"); ng.addColorStop(1, "rgba(143,176,255,0)");
+      g.fillStyle = ng; g.beginPath(); g.arc(cx, cy, 26, 0, 7); g.fill();
+      g.fillStyle = stroke; g.beginPath(); g.arc(cx, cy, 9, 0, 7); g.fill();
+      // 電子：内側ほど速く回る
+      const r = rOf();
+      ang += dt * 95 / Math.pow(r, 1.2) * 1.6;
+      if (t < 1) { t += dt / .45; if (t >= 1) { t = 1; level = to; } }
+      else if ((wait -= dt) <= 0) {
+        from = level; to = [0, 1, 2].filter((k) => k !== level)[Math.random() < .5 ? 0 : 1];
+        const down = to < from, key = Math.max(from, to) + "-" + Math.min(from, to);
+        const ex = cx + Math.cos(ang) * R[from], ey = cy + Math.sin(ang) * R[from];
+        const dir = ang + (Math.random() - .5) * 1.2;
+        if (down) photons.push({ x: ex, y: ey, dir, d: 0, color: COL[key], out: true });
+        else photons.push({ x: ex + Math.cos(dir) * 170, y: ey + Math.sin(dir) * 170, dir: dir + Math.PI, d: 0, color: COL[key], out: false, tx: ex, ty: ey });
+        t = 0; wait = 1.4 + Math.random() * 1.4;
+      }
+      const ex = cx + Math.cos(ang) * r, ey = cy + Math.sin(ang) * r;
+      // 光子（波打つ線）
+      for (let i = photons.length - 1; i >= 0; i--) {
+        const p = photons[i]; p.d += dt * 210;
+        const L = 46, k = 2 * Math.PI / 11, cs = Math.cos(p.dir), sn = Math.sin(p.dir);
+        const alpha = p.out ? Math.max(0, 1 - p.d / 190) : Math.min(1, p.d / 60);
+        g.strokeStyle = p.color; g.lineWidth = 2; g.globalAlpha = alpha; g.shadowColor = p.color; g.shadowBlur = 10;
+        g.beginPath();
+        for (let s = 0; s <= L; s += 1.5) {
+          const along = p.d - s, w = Math.sin(k * along - p.d * .25) * 5 * Math.sin(Math.PI * s / L);
+          const x = p.x + cs * along - sn * w, y = p.y + sn * along + cs * w;
+          s ? g.lineTo(x, y) : g.moveTo(x, y);
+        }
+        g.stroke(); g.shadowBlur = 0; g.globalAlpha = 1;
+        if (p.out && p.d > 200) photons.splice(i, 1);
+        if (!p.out && p.d > 170) photons.splice(i, 1);
+      }
+      // 遷移の瞬間のきらめき
+      const flash = t < 1 ? Math.sin(Math.PI * t) : 0;
+      glowDot(g, ex, ey, 4.5, `rgba(201,166,255,${.35 + .5 * flash})`, 16 + 14 * flash);
+    });
+  })();
+
+  // ---------- 2. 電場の矢印 ----------
+  (function () {
+    const { c, g } = setup("c2"), hero = document.getElementById("h2");
+    const pos = { x: S * .32, y: S * .5 };
+    let neg = { x: S * .7, y: S * .5 }, target = null, idle = 0;
+    function setTarget(e) {
+      const r = c.getBoundingClientRect(), sc = S / r.width;
+      target = { x: (e.clientX - r.left) * sc, y: (e.clientY - r.top) * sc }; idle = 0;
+    }
+    hero.addEventListener("pointermove", setTarget);
+    hero.addEventListener("pointerdown", setTarget);
+    hero.addEventListener("pointerleave", () => { target = null; });
+    const step = 22;
+    loop((dt, time) => {
+      idle += dt;
+      const auto = { x: S / 2 + Math.cos(time * .6) * 105, y: S / 2 + Math.sin(time * .9) * 95 };
+      const tg = target && idle < 3 ? { x: Math.max(14, Math.min(S - 14, target.x)), y: Math.max(14, Math.min(S - 14, target.y)) } : auto;
+      neg.x = lerp(neg.x, tg.x, 1 - Math.exp(-dt * 6)); neg.y = lerp(neg.y, tg.y, 1 - Math.exp(-dt * 6));
+      g.clearRect(0, 0, S, S);
+      const stroke = gradStroke(g);
+      for (let y = step / 2; y < S; y += step) for (let x = step / 2; x < S; x += step) {
+        const fx = field(x, y);
+        const m = Math.hypot(fx.x, fx.y);
+        if (!m) continue;
+        const d0 = Math.hypot(x - S / 2, y - S / 2); // 円形にフェード
+        const edge = Math.max(0, 1 - Math.pow(d0 / (S * .52), 4));
+        const near = Math.min(Math.hypot(x - pos.x, y - pos.y), Math.hypot(x - neg.x, y - neg.y));
+        if (near < 12) continue;
+        const s = Math.max(0, Math.min(1, Math.log10(m * 1e5) / 2.6));
+        const len = 7 + 9 * s, ux = fx.x / m, uy = fx.y / m;
+        g.globalAlpha = (.3 + .7 * s) * edge;
+        g.strokeStyle = stroke; g.fillStyle = stroke; g.lineWidth = 1.4;
+        const x1 = x - ux * len / 2, y1 = y - uy * len / 2, x2 = x + ux * len / 2, y2 = y + uy * len / 2;
+        g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+        g.beginPath(); g.moveTo(x2 + ux * 2, y2 + uy * 2);
+        g.lineTo(x2 - ux * 3.5 - uy * 3, y2 - uy * 3.5 + ux * 3); g.lineTo(x2 - ux * 3.5 + uy * 3, y2 - uy * 3.5 - ux * 3); g.fill();
+      }
+      g.globalAlpha = 1;
+      charge(pos.x, pos.y, "#ff8fb1", "+");
+      charge(neg.x, neg.y, "#7fb2ff", "−");
+    });
+    function field(x, y) {
+      let ex = 0, ey = 0;
+      for (const [q, p] of [[1, pos], [-1, neg]]) {
+        const dx = x - p.x, dy = y - p.y, r2 = dx * dx + dy * dy + 40, r = Math.sqrt(r2);
+        ex += q * dx / (r2 * r); ey += q * dy / (r2 * r);
+      }
+      return { x: ex, y: ey };
+    }
+    function charge(x, y, col, sign) {
+      glowDot(g, x, y, 0, col.replace(")", ""), 24);
+      g.fillStyle = col; g.beginPath(); g.arc(x, y, 10, 0, 7); g.fill();
+      g.fillStyle = "#0a0f1f"; g.font = "800 15px Inter, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(sign, x, y + 1);
+    }
+  })();
+
+  // ---------- 3. 惑星の軌道 ----------
+  (function () {
+    const { g } = setup("c3"), cx = S / 2, cy = S / 2, GM = 1.3e5;
+    // 近日点距離とその速さ（楕円になるよう円軌道より少し速く）
+    const planets = [
+      { r: 48, e: 1.08, size: 3.5, col: "143,176,255" },
+      { r: 82, e: 1.16, size: 4.5, col: "201,166,255" },
+      { r: 118, e: 1.06, size: 5.5, col: "255,170,210" },
+    ].map((p, k) => {
+      const a0 = k * 2.1, v = Math.sqrt(GM / p.r) * p.e;
+      return { ...p, x: cx + Math.cos(a0) * p.r, y: cy + Math.sin(a0) * p.r, vx: -Math.sin(a0) * v, vy: Math.cos(a0) * v, trail: [] };
+    });
+    loop((dt) => {
+      const n = 12, h = dt / n;
+      for (const p of planets) for (let i = 0; i < n; i++) {
+        let dx = cx - p.x, dy = cy - p.y, r2 = dx * dx + dy * dy, r = Math.sqrt(r2);
+        const a = GM / r2;
+        p.vx += a * dx / r * h; p.vy += a * dy / r * h;
+        p.x += p.vx * h; p.y += p.vy * h;
+      }
+      for (const p of planets) { p.trail.push([p.x, p.y]); if (p.trail.length > 240) p.trail.shift(); }
+      g.clearRect(0, 0, S, S);
+      // 恒星
+      const sg = g.createRadialGradient(cx, cy, 0, cx, cy, 40);
+      sg.addColorStop(0, "rgba(255,236,200,1)"); sg.addColorStop(.25, "rgba(255,200,150,.7)"); sg.addColorStop(1, "rgba(255,170,120,0)");
+      g.fillStyle = sg; g.beginPath(); g.arc(cx, cy, 40, 0, 7); g.fill();
+      g.fillStyle = "#fff6e6"; g.beginPath(); g.arc(cx, cy, 10, 0, 7); g.fill();
+      for (const p of planets) {
+        g.lineCap = "round";
+        for (let i = 1; i < p.trail.length; i++) {
+          const a = i / p.trail.length;
+          g.strokeStyle = `rgba(${p.col},${a * a * .85})`; g.lineWidth = p.size * .8 * a + .4;
+          g.beginPath(); g.moveTo(...p.trail[i - 1]); g.lineTo(...p.trail[i]); g.stroke();
+        }
+        glowDot(g, p.x, p.y, p.size, `rgba(${p.col},.6)`, p.size * 4);
+      }
+    });
+  })();
+
+  // ---------- 4. 2つの波源の干渉 ----------
+  (function () {
+    const { g } = setup("c4"), N = 120, cell = S / N;
+    const off = document.createElement("canvas"); off.width = off.height = N;
+    const og = off.getContext("2d"), img = og.createImageData(N, N);
+    const src = [{ x: S / 2 - 34, y: S / 2 }, { x: S / 2 + 34, y: S / 2 }];
+    const k = 2 * Math.PI / 30;
+    const dist = src.map((s) => { const a = new Float32Array(N * N); for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) a[j * N + i] = Math.hypot((i + .5) * cell - s.x, (j + .5) * cell - s.y); return a; });
+    loop((dt, time) => {
+      const w = time * 3.2, d = img.data;
+      for (let p = 0; p < N * N; p++) {
+        const r1 = dist[0][p], r2 = dist[1][p];
+        const v = Math.sin(k * r1 - w) / Math.sqrt(1 + r1 / 40) + Math.sin(k * r2 - w) / Math.sqrt(1 + r2 / 40); // -2..2
+        const i = p % N, j = (p / N) | 0, dc = Math.hypot(i - N / 2 + .5, j - N / 2 + .5) / (N / 2);
+        const edge = Math.max(0, 1 - Math.pow(dc, 3));
+        const t = (v + 2) / 4; // 0..1
+        d[p * 4] = lerp(70, 220, t); d[p * 4 + 1] = lerp(90, 190, t); d[p * 4 + 2] = 255;
+        d[p * 4 + 3] = 255 * edge * Math.min(1, Math.abs(v) * .55) * (v > 0 ? 1 : .55);
+      }
+      og.putImageData(img, 0, 0);
+      g.clearRect(0, 0, S, S);
+      g.imageSmoothingEnabled = true; g.drawImage(off, 0, 0, S, S);
+      for (const s of src) glowDot(g, s.x, s.y, 3.5, "rgba(201,166,255,.8)", 14);
+    });
+  })();
+})();
+</script>
+</body>
