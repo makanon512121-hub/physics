@@ -14,7 +14,7 @@ const CONFIG = {
 
   // ↓↓↓ 質問箱：Apps Scriptを「ウェブアプリ」としてデプロイしたURLを貼ります ↓↓↓
   // 空のままだと「準備中」と表示されます。（やり方は 使い方ガイド.md の「質問箱」）
-  questionUrl: "",
+  questionUrl: "https://script.google.com/macros/s/AKfycbzTRMAtQgEXKkmxsSEvKpAjhOmPvIidU2UEJ8Z5sslN5gSkRO6vfw96nw0YQoX22LEc/exec",
 
   // アニメーション集の分野（この順番で並びます）
   categories: ["力学", "電磁気学", "熱力学", "波動", "原子"],
