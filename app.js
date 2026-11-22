@@ -13,6 +13,7 @@ const COLUMNS = {
   image: ["画像", "image"],
   pdf: ["PDF", "pdf"],
   description: ["説明", "description"],
+  updated: ["更新日時", "更新日", "updated"],
 };
 
 // 分野の書き方のゆれをそろえる（「電磁気」と書いても「電磁気学」に入ります）
@@ -42,7 +43,7 @@ const ENTRY_ICONS = {
 };
 const PLAY = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13L14 8z"/></svg>`;
 
-const data = { items: [], loaded: false, error: "" };
+const data = { items: [], loaded: false, error: "", commitTime: null };
 const $ = (id) => document.getElementById(id);
 
 // ---------- 起動 ----------
@@ -52,6 +53,7 @@ $("footer-text").textContent = CONFIG.footerText;
 window.addEventListener("hashchange", route);
 route();
 load();
+loadCommitTime();
 
 async function load() {
   const url = (CONFIG.sheetCsvUrl || "").trim() || "sample-data.csv";
@@ -104,6 +106,7 @@ function toItems(rows) {
       item.category = CATEGORY_ALIAS[item.category] || item.category;
       item.videoId = youtubeId(item.youtube);
       // 大学名が入っている、または種類に「入試」「過去問」がある行 → 過去問研究
+      item.updatedAt = parseDate(item.updated);
       item.isExam = !!item.university || /入試|過去問/.test(item.type);
       return item;
     })
@@ -138,6 +141,7 @@ function route() {
   else if (page === "ask") { view.innerHTML = askPage(); bindAsk(); }
   else view.innerHTML = homePage();
   bindCards(view);
+  showLastUpdated();
   if (!route.first) route.first = true; else window.scrollTo({ top: 0 });
 }
 
@@ -151,7 +155,8 @@ function loadingOr(html) {
 function homePage() {
   const animes = data.items.filter((i) => !i.isExam);
   const exams = data.items.filter((i) => i.isExam);
-  const latest = data.items.slice(-6).reverse();
+  // 新着：更新日時があれば新しい順、なければシートの下の行から
+  const latest = [...data.items].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0) || b.order - a.order).slice(0, 6);
   const unis = new Set(exams.map((i) => i.university).filter(Boolean));
   const heroTitle = esc(CONFIG.heroTitle).replace(/(物理)/, '<span class="grad">$1</span>');
   return `
@@ -161,6 +166,7 @@ function homePage() {
       <span class="eyebrow">Physics Lab</span>
       <h1>${heroTitle}</h1>
       <p>${esc(CONFIG.heroText)}</p>
+      ${lastUpdatedHtml()}
     </div>
   </section>
   <div class="wrap">
@@ -357,6 +363,7 @@ function card(item, hideUni) {
       <div class="tags">${tagsHtml(item, hideUni === true)}</div>
       <h3 class="card-title">${esc(item.title)}</h3>
       <p class="card-desc">${esc(item.description)}</p>
+      ${item.updatedAt ? `<p class="card-time">${formatDate(item.updatedAt)} 更新</p>` : ""}
     </div>
   </button>`;
 }
@@ -383,7 +390,7 @@ function openModal(item) {
   $("modal-tags").innerHTML = tagsHtml(item);
   $("modal-tags").style.setProperty("--c", colorOf(item));
   $("modal-title").textContent = item.title;
-  $("modal-desc").textContent = item.description;
+  $("modal-desc").textContent = item.description + (item.updatedAt ? `\n\n${formatDate(item.updatedAt)} 更新` : "");
   const links = [];
   if (item.pdf) links.push(`<a class="btn" href="${esc(item.pdf)}" target="_blank" rel="noopener">問題・解答（PDF）を開く</a>`);
   if (item.image && item.videoId) links.push(`<a class="btn ghost" href="${esc(item.image)}" target="_blank" rel="noopener">画像を開く</a>`);
@@ -413,6 +420,53 @@ function orbitSvg() {
     <circle cx="100" cy="100" r="10" fill="url(#og)"/>
     <circle r="4" fill="#fff"><animateMotion dur="6s" repeatCount="indefinite" path="M10,100 a90,34 0 1,0 180,0 a90,34 0 1,0 -180,0"/></circle>
   </svg>`;
+}
+
+// ---------- 更新日時 ----------
+// 「2026/11/22 17:53:00」「2026-11-22 17:53」「2026年11月22日 17時53分」などを読む
+function parseDate(text) {
+  const m = String(text || "").match(/(\d{4})\D(\d{1,2})\D(\d{1,2})\D*(?:(\d{1,2})\D(\d{1,2}))?/);
+  if (!m) return null;
+  const d = new Date(+m[1], m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+  return isNaN(d) ? null : d;
+}
+
+function formatDate(d) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// サイト全体の最終更新：スプレッドシートの更新日時と、GitHubに最後に反映した時刻の新しいほう
+function lastUpdated() {
+  const times = data.items.map((i) => i.updatedAt).filter(Boolean);
+  if (data.commitTime) times.push(data.commitTime);
+  return times.length ? new Date(Math.max(...times)) : null;
+}
+
+function lastUpdatedHtml() {
+  const d = lastUpdated();
+  return `<p class="last-updated" id="last-updated" ${d ? "" : "hidden"}>最終更新：${d ? formatDate(d) : ""}</p>`;
+}
+
+function showLastUpdated() {
+  const d = lastUpdated();
+  const text = d ? `最終更新：${formatDate(d)}` : "";
+  const el = $("last-updated");
+  if (el && d) { el.hidden = false; el.textContent = text; }
+  $("footer-updated").textContent = text;
+}
+
+async function loadCommitTime() {
+  const m = location.hostname.match(/^([\w-]+)\.github\.io$/);
+  if (!m) return;
+  const repo = location.pathname.split("/")[1] || `${m[1]}.github.io`;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${m[1]}/${repo}/commits?per_page=1`);
+    if (!res.ok) return;
+    const [c] = await res.json();
+    data.commitTime = new Date(c.commit.committer.date);
+    showLastUpdated();
+  } catch (e) { /* 取れなくても表示しないだけ */ }
 }
 
 function esc(s) {

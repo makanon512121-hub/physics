@@ -212,6 +212,14 @@ a { color: inherit; }
   margin: 0; color: var(--sub); font-size: .87rem;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+.card-time { margin: 8px 0 0; font-family: Inter, "Noto Sans JP", sans-serif; font-size: .75rem; color: var(--sub); }
+.last-updated {
+  display: inline-block; margin: 22px 0 0 !important; padding: 4px 12px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16); font-size: .8rem; color: rgba(255,255,255,.75) !important;
+}
+.last-updated[hidden] { display: none; }
+.footer-updated { margin-left: 16px; }
+.footer-updated:empty { display: none; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .tag {
   font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 999px;
