@@ -580,7 +580,7 @@ function updatesPage() {
         return `<li><div class="log-link">${inner}</div></li>`;
       }).join("")}</ul>
     </div>`).join("");
-  return pageHead("Updates", "更新内容", "いつ、何を更新したかの一覧です。押すとその場所に移動します。") + `
+  return pageHead("Updates", "更新内容", "追加した過去問とアニメーションの一覧です。押すとその場所に移動します。") + `
   <section class="section"><div class="wrap">
     ${loadingOr(list.length ? body : `<p class="empty">まだ更新履歴がありません。</p>`)}
   </div></section>`;
