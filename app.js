@@ -15,32 +15,58 @@ const COLUMNS = {
   description: ["説明", "description"],
 };
 
-const state = { items: [], type: "すべて", category: "すべて", query: "" };
+// 分野の書き方のゆれをそろえる（「電磁気」と書いても「電磁気学」に入ります）
+const CATEGORY_ALIAS = {
+  "電磁気": "電磁気学", "電磁": "電磁気学", "電気": "電磁気学", "磁気": "電磁気学",
+  "熱": "熱力学", "熱学": "熱力学",
+  "波": "波動", "光": "波動", "音": "波動",
+  "原子物理": "原子", "原子物理学": "原子", "量子": "原子", "原子核": "原子",
+};
+
+// 分野ごとの色とアイコン
+const ICONS = {
+  "力学": `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 40 C 14 8, 30 8, 42 40" stroke-dasharray="1 6"/><circle cx="31" cy="17" r="5" fill="currentColor" stroke="none"/><path d="M4 42h40"/></svg>`,
+  "電磁気学": `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M27 4 12 27h11l-3 17 16-24H25z" fill="currentColor" fill-opacity=".15"/></svg>`,
+  "熱力学": `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M24 44c-8 0-13-6-13-13 0-9 9-12 9-24 6 4 9 9 9 15 2-2 3-4 3-7 5 4 6 10 6 16 0 7-6 13-14 13z" fill="currentColor" fill-opacity=".15"/></svg>`,
+  "波動": `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M3 24c4-12 8-12 12 0s8 12 12 0 8-12 12 0 6 8 6 8"/><path d="M3 36c4-6 8-6 12 0s8 6 12 0 8-6 12 0" opacity=".4"/></svg>`,
+  "原子": `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5"><ellipse cx="24" cy="24" rx="20" ry="8"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="20" ry="8" transform="rotate(-60 24 24)"/><circle cx="24" cy="24" r="4" fill="currentColor"/></svg>`,
+  "other": `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3"><circle cx="24" cy="24" r="16"/><path d="M24 14v20M14 24h20" stroke-linecap="round"/></svg>`,
+};
+const COLORS = { "力学": "#3b82f6", "電磁気学": "#8b5cf6", "熱力学": "#f97316", "波動": "#14b8a6", "原子": "#ec4899" };
+const EXTRA_COLORS = ["#0ea5e9", "#84cc16", "#eab308", "#f43f5e", "#6366f1"];
+
+const ENTRY_ICONS = {
+  exams: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M14 4v6h6M8 13h8M8 17h5"/></svg>`,
+  anime: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z" fill="currentColor"/></svg>`,
+  ask: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 10a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 16.5h.01"/></svg>`,
+};
+const PLAY = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13L14 8z"/></svg>`;
+
+const data = { items: [], loaded: false, error: "" };
 const $ = (id) => document.getElementById(id);
 
 // ---------- 起動 ----------
 document.title = CONFIG.siteTitle;
-$("site-title").textContent = CONFIG.siteTitle;
-$("site-desc").textContent = CONFIG.siteDescription;
+$("logo-text").textContent = CONFIG.siteTitle;
 $("footer-text").textContent = CONFIG.footerText;
+window.addEventListener("hashchange", route);
+route();
 load();
 
 async function load() {
-  const url = CONFIG.sheetCsvUrl.trim() || "sample-data.csv";
+  const url = (CONFIG.sheetCsvUrl || "").trim() || "sample-data.csv";
   try {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(res.status);
     const text = await res.text();
     if (text.trim().startsWith("<")) throw new Error("CSVではなくHTMLが返ってきました");
-    state.items = toItems(parseCSV(text));
-    buildChips();
-    render();
+    data.items = toItems(parseCSV(text));
   } catch (e) {
     console.error(e);
-    $("status").textContent = CONFIG.sheetCsvUrl
-      ? "データを読み込めませんでした。config.js のURLが「CSV形式でウェブに公開」したものか確認してください。"
-      : "サンプルデータを読み込めませんでした（パソコンでファイルを直接ひらいた場合は表示されません。GitHub Pagesに公開すると表示されます）。";
+    data.error = "データを読み込めませんでした。config.js のURLが「CSV形式でウェブに公開」したものか確認してください。";
   }
+  data.loaded = true;
+  route();
 }
 
 // ---------- CSVを読む ----------
@@ -72,17 +98,19 @@ function toItems(rows) {
     index[key] = header.findIndex((h) => names.some((n) => n.toLowerCase() === h.toLowerCase()));
   }
   return rows.slice(1)
-    .map((r) => {
-      const item = {};
+    .map((r, n) => {
+      const item = { order: n };
       for (const key in index) item[key] = index[key] >= 0 ? (r[index[key]] || "").trim() : "";
+      item.category = CATEGORY_ALIAS[item.category] || item.category;
       item.videoId = youtubeId(item.youtube);
+      // 大学名が入っている、または種類に「入試」「過去問」がある行 → 過去問研究
+      item.isExam = !!item.university || /入試|過去問/.test(item.type);
       return item;
     })
     .filter((item) => item.title);
 }
 
-// ---------- YouTubeのURLから動画IDを取り出す ----------
-// watch?v= / youtu.be / shorts / embed / live / IDだけ、どれでもOK
+// YouTubeのURLから動画IDを取り出す（watch?v= / youtu.be / shorts / embed / live / IDだけ、どれでもOK）
 function youtubeId(text) {
   if (!text) return "";
   if (/^[\w-]{11}$/.test(text)) return text;
@@ -96,76 +124,253 @@ function imageUrl(url) {
   return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1200` : url;
 }
 
-// ---------- 絞り込みボタン ----------
-function buildChips() {
-  makeChips("type-chips", "type");
-  makeChips("cat-chips", "category");
+// ---------- ページの切りかえ ----------
+// #home / #exams / #exams/大学名 / #anime / #anime/分野 / #ask
+function route() {
+  const [page, ...rest] = decodeURIComponent(location.hash.slice(1)).split("/");
+  const arg = rest.join("/");
+  if (!$("modal").hidden) closeModal();
+  document.querySelectorAll("[data-nav]").forEach((a) => a.classList.toggle("active", a.dataset.nav === page));
+  const view = $("view");
+  if (page === "exams") view.innerHTML = examsPage(arg);
+  else if (page === "anime" && arg) view.innerHTML = animeCategoryPage(arg);
+  else if (page === "anime") view.innerHTML = animePage();
+  else if (page === "ask") { view.innerHTML = askPage(); bindAsk(); }
+  else view.innerHTML = homePage();
+  bindCards(view);
+  if (!route.first) route.first = true; else window.scrollTo({ top: 0 });
 }
 
-function makeChips(containerId, key) {
-  const values = ["すべて", ...new Set(state.items.map((i) => i[key]).filter(Boolean))];
-  const box = $(containerId);
-  box.innerHTML = "";
-  for (const v of values) {
-    const b = document.createElement("button");
-    b.className = "chip";
-    b.textContent = v;
-    b.setAttribute("aria-pressed", String(state[key] === v));
-    b.onclick = () => {
-      state[key] = v;
-      box.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c === b)));
-      render();
-    };
-    box.appendChild(b);
-  }
+function loadingOr(html) {
+  if (!data.loaded) return `<p class="status">読み込み中…</p>`;
+  if (data.error) return `<p class="notice ng">${esc(data.error)}</p>`;
+  return html;
 }
 
-$("search").addEventListener("input", (e) => { state.query = e.target.value.trim().toLowerCase(); render(); });
-
-// ---------- 一覧を表示 ----------
-function render() {
-  const list = state.items.filter((i) =>
-    (state.type === "すべて" || i.type === state.type) &&
-    (state.category === "すべて" || i.category === state.category) &&
-    (!state.query || Object.values(i).join(" ").toLowerCase().includes(state.query))
-  );
-  $("status").textContent = `${list.length} 件`;
-  const grid = $("grid");
-  grid.innerHTML = "";
-  for (const item of list) grid.appendChild(card(item));
+// ---------- トップ ----------
+function homePage() {
+  const animes = data.items.filter((i) => !i.isExam);
+  const exams = data.items.filter((i) => i.isExam);
+  const latest = data.items.slice(-6).reverse();
+  const unis = new Set(exams.map((i) => i.university).filter(Boolean));
+  const heroTitle = esc(CONFIG.heroTitle).replace(/(物理)/, '<span class="grad">$1</span>');
+  return `
+  <section class="hero">
+    ${orbitSvg()}
+    <div class="wrap">
+      <span class="eyebrow">Physics Lab</span>
+      <h1>${heroTitle}</h1>
+      <p>${esc(CONFIG.heroText)}</p>
+    </div>
+  </section>
+  <div class="wrap">
+    <div class="entries">
+      <a class="entry" href="#exams">
+        <span class="entry-icon">${ENTRY_ICONS.exams}</span>
+        <h2>過去問研究</h2>
+        <p>大学ごとに入試問題を研究。年度順に並んでいます。</p>
+        <span class="more">${data.loaded ? `${unis.size}大学・${exams.length}問` : "見る"} →</span>
+      </a>
+      <a class="entry" href="#anime">
+        <span class="entry-icon">${ENTRY_ICONS.anime}</span>
+        <h2>アニメーション集</h2>
+        <p>力学・電磁気学・熱力学・波動・原子の5分野から選べます。</p>
+        <span class="more">${data.loaded ? `${animes.length}本` : "見る"} →</span>
+      </a>
+      <a class="entry" href="#ask">
+        <span class="entry-icon">${ENTRY_ICONS.ask}</span>
+        <h2>質問箱</h2>
+        <p>わからないところを気軽に質問してください。</p>
+        <span class="more">質問する →</span>
+      </a>
+    </div>
+  </div>
+  <section class="section">
+    <div class="wrap">
+      <div class="section-title"><h2>新着</h2></div>
+      ${loadingOr(latest.length ? `<div class="grid">${latest.map(card).join("")}</div>` : `<p class="empty">まだ記事がありません。</p>`)}
+    </div>
+  </section>`;
 }
 
-function tagsHtml(item) {
+function pageHead(eyebrow, title, text, crumb) {
+  return `<header class="page-head"><div class="wrap">
+    ${crumb ? `<a class="crumb" href="${crumb.href}">← ${esc(crumb.label)}</a><br>` : ""}
+    <span class="eyebrow">${eyebrow}</span>
+    <h1>${esc(title)}</h1>
+    ${text ? `<p>${esc(text)}</p>` : ""}
+  </div></header>`;
+}
+
+// ---------- 過去問研究 ----------
+function examsPage(selected) {
+  const exams = data.items.filter((i) => i.isExam);
+  const unis = [...new Set(exams.map((i) => i.university || "その他"))];
+  const current = unis.includes(selected) ? selected : "すべて";
+  const list = exams.filter((i) => current === "すべて" || (i.university || "その他") === current);
+
+  const tabs = ["すべて", ...unis].map((u) => {
+    const n = u === "すべて" ? exams.length : exams.filter((i) => (i.university || "その他") === u).length;
+    return `<button class="tab" role="tab" aria-selected="${u === current}" data-href="#exams/${encodeURIComponent(u === "すべて" ? "" : u)}">${esc(u)}<span class="count">${n}</span></button>`;
+  }).join("");
+
+  // 年度ごとにまとめる（新しい年度が上）
+  const years = [...new Set(list.map((i) => i.year || "年度なし"))]
+    .sort((a, b) => (parseInt(b) || -1) - (parseInt(a) || -1));
+  const groups = years.map((y) => `
+    <div class="year-group">
+      <h3 class="year-label">${esc(y)}${/^\d+$/.test(y) ? "年度" : ""}</h3>
+      <div class="grid">${list.filter((i) => (i.year || "年度なし") === y).map((i) => card(i, current !== "すべて")).join("")}</div>
+    </div>`).join("");
+
+  return pageHead("Past Exams", "過去問研究", "大学名のタブを押すと、その大学の問題だけが表示されます。") + `
+  <section class="section"><div class="wrap">
+    ${loadingOr(exams.length
+      ? `<div class="tabs" role="tablist">${tabs}</div>${groups}`
+      : `<p class="empty">まだ過去問がありません。スプレッドシートの「大学」列に大学名を入れると、ここに表示されます。</p>`)}
+  </div></section>`;
+}
+
+// ---------- アニメーション集 ----------
+function animeCategories() {
+  const animes = data.items.filter((i) => !i.isExam);
+  const cats = [...CONFIG.categories];
+  for (const i of animes) if (i.category && !cats.includes(i.category)) cats.push(i.category);
+  return cats.map((name, n) => ({
+    name,
+    color: COLORS[name] || EXTRA_COLORS[n % EXTRA_COLORS.length],
+    icon: ICONS[name] || ICONS.other,
+    items: animes.filter((i) => i.category === name),
+  }));
+}
+
+function catTile(c, small) {
+  return `<a class="cat${small ? " small" : ""}" style="--c:${c.color}" href="#anime/${encodeURIComponent(c.name)}">
+    <span class="cat-icon">${c.icon}</span>
+    <h3>${esc(c.name)}</h3>
+    ${small ? "" : `<span class="num">${data.loaded ? `${c.items.length} 本` : ""}</span>`}
+  </a>`;
+}
+
+function animePage() {
+  return pageHead("Animations", "アニメーション集", "分野を選ぶと、その分野のアニメーションが一覧で見られます。") + `
+  <section class="section"><div class="wrap">
+    ${data.error ? `<p class="notice ng">${esc(data.error)}</p>` : ""}
+    <div class="cats">${animeCategories().map((c) => catTile(c)).join("")}</div>
+  </div></section>`;
+}
+
+function animeCategoryPage(name) {
+  const cats = animeCategories();
+  const c = cats.find((x) => x.name === name) || { name, color: "#64748b", icon: ICONS.other, items: [] };
+  const others = cats.filter((x) => x.name !== name);
+  return pageHead("Animations", c.name, "", { href: "#anime", label: "アニメーション集" }) + `
+  <section class="section"><div class="wrap">
+    ${loadingOr(c.items.length
+      ? `<div class="grid">${c.items.map((i) => card(i)).join("")}</div>`
+      : `<p class="empty">「${esc(c.name)}」のアニメーションはまだありません。</p>`)}
+    <div class="section-title" style="margin-top:56px"><h2>ほかの分野</h2></div>
+    <div class="cats">${others.map((x) => catTile(x, true)).join("")}</div>
+  </div></section>`;
+}
+
+// ---------- 質問箱 ----------
+function askPage() {
+  const cats = [...CONFIG.categories, "その他"];
+  const ready = !!(CONFIG.questionUrl || "").trim();
+  return pageHead("Q &amp; A", "質問箱", "物理のわからないところ、過去問の解き方など、なんでも送ってください。") + `
+  <section class="section"><div class="wrap ask-grid">
+    <div class="ask-info">
+      <h2>質問のコツ</h2>
+      <ul>
+        <li>どの問題か（大学・年度・問題番号など）を書いてください。</li>
+        <li>どこまでわかって、どこでつまずいたかを書くと、答えやすくなります。</li>
+        <li>返信がほしい場合はメールアドレスを入れてください。</li>
+      </ul>
+    </div>
+    <form class="form" id="ask-form" novalidate>
+      ${ready ? "" : `<p class="notice info">質問箱は準備中です。</p>`}
+      <div class="field"><label for="q-name">お名前<span class="opt">任意・ニックネームOK</span></label><input id="q-name" name="name" autocomplete="nickname"></div>
+      <div class="field"><label for="q-email">メールアドレス<span class="opt">返信がほしい場合</span></label><input id="q-email" name="email" type="email" autocomplete="email"></div>
+      <div class="field"><label for="q-cat">分野</label><select id="q-cat" name="category">${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div>
+      <div class="field"><label for="q-body">質問内容</label><textarea id="q-body" name="question" required></textarea></div>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div id="ask-result"></div>
+      <div><button class="btn" type="submit" ${ready ? "" : "disabled"}>送信する</button></div>
+    </form>
+  </div></section>`;
+}
+
+function bindAsk() {
+  const form = $("ask-form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const result = $("ask-result");
+    const fd = new FormData(form);
+    if (!fd.get("question").trim()) {
+      result.innerHTML = `<p class="notice ng">質問内容を入力してください。</p>`;
+      return;
+    }
+    const btn = form.querySelector("button");
+    btn.disabled = true; btn.textContent = "送信中…";
+    try {
+      // Apps Script へ送信（相手のサーバーの都合で返事は読めないので、送れたら成功とします）
+      await fetch(CONFIG.questionUrl, { method: "POST", mode: "no-cors", body: new URLSearchParams(fd) });
+      form.reset();
+      result.innerHTML = `<p class="notice ok">送信しました。ありがとうございます！</p>`;
+    } catch (err) {
+      console.error(err);
+      result.innerHTML = `<p class="notice ng">送信できませんでした。時間をおいてもう一度お試しください。</p>`;
+    }
+    btn.disabled = false; btn.textContent = "送信する";
+  });
+}
+
+// ---------- カード ----------
+function colorOf(item) {
+  return COLORS[item.category] || "#64748b";
+}
+
+function tagsHtml(item, hideUni) {
   const t = [];
-  if (item.type) t.push(`<span class="tag type">${esc(item.type)}</span>`);
   if (item.category) t.push(`<span class="tag">${esc(item.category)}</span>`);
-  const exam = [item.university, item.year && `${item.year}年`].filter(Boolean).join(" ");
-  if (exam) t.push(`<span class="tag exam">${esc(exam)}</span>`);
+  if (item.type && !/アニメ/.test(item.type)) t.push(`<span class="tag plain">${esc(item.type)}</span>`);
+  if (item.isExam) {
+    const exam = [hideUni ? "" : item.university, item.year && `${item.year}年度`].filter(Boolean).join(" ");
+    if (exam) t.push(`<span class="tag exam">${esc(exam)}</span>`);
+  }
   return t.join("");
 }
 
-function card(item) {
-  const el = document.createElement("button");
-  el.className = "card";
+function card(item, hideUni) {
   let media;
   if (item.videoId) {
-    media = `<div class="thumb-wrap"><img class="thumb" loading="lazy" alt="" onerror="this.style.visibility='hidden'" src="https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg"><span class="play">▶</span></div>`;
+    media = `<img class="thumb" loading="lazy" alt="" onerror="this.style.visibility='hidden'" src="https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg"><span class="play">${PLAY}</span>`;
   } else if (item.image) {
     media = `<img class="thumb" loading="lazy" alt="" src="${esc(imageUrl(item.image))}">`;
   } else {
-    media = `<div class="placeholder">${esc(item.category || "物理")}</div>`;
+    media = `<span class="placeholder">${ICONS[item.category] || ICONS.other}</span>`;
   }
-  el.innerHTML = `${media}
+  return `<button class="card" style="--c:${colorOf(item)}" data-item="${item.order}">
+    <div class="thumb-wrap">${media}</div>
     <div class="card-body">
-      <div class="tags">${tagsHtml(item)}</div>
+      <div class="tags">${tagsHtml(item, hideUni === true)}</div>
       <h3 class="card-title">${esc(item.title)}</h3>
       <p class="card-desc">${esc(item.description)}</p>
-    </div>`;
-  el.onclick = () => openModal(item);
-  return el;
+    </div>
+  </button>`;
 }
 
-// ---------- くわしく見る ----------
+function bindCards(root) {
+  root.querySelectorAll("[data-item]").forEach((el) => {
+    el.onclick = () => openModal(data.items.find((i) => i.order === +el.dataset.item));
+  });
+  root.querySelectorAll("[data-href]").forEach((el) => {
+    el.onclick = () => { location.hash = el.dataset.href.replace(/\/$/, ""); };
+  });
+}
+
+// ---------- 動画ウィンドウ ----------
 function openModal(item) {
   let media = "";
   if (item.videoId) {
@@ -176,12 +381,13 @@ function openModal(item) {
   }
   $("modal-media").innerHTML = media;
   $("modal-tags").innerHTML = tagsHtml(item);
+  $("modal-tags").style.setProperty("--c", colorOf(item));
   $("modal-title").textContent = item.title;
   $("modal-desc").textContent = item.description;
   const links = [];
   if (item.pdf) links.push(`<a class="btn" href="${esc(item.pdf)}" target="_blank" rel="noopener">問題・解答（PDF）を開く</a>`);
-  if (item.image && item.videoId) links.push(`<a class="btn outline" href="${esc(item.image)}" target="_blank" rel="noopener">画像を開く</a>`);
-  if (item.videoId) links.push(`<a class="btn outline" href="https://www.youtube.com/watch?v=${item.videoId}" target="_blank" rel="noopener">YouTubeで見る</a>`);
+  if (item.image && item.videoId) links.push(`<a class="btn ghost" href="${esc(item.image)}" target="_blank" rel="noopener">画像を開く</a>`);
+  if (item.videoId) links.push(`<a class="btn ghost" href="https://www.youtube.com/watch?v=${item.videoId}" target="_blank" rel="noopener">YouTubeで見る</a>`);
   $("modal-links").innerHTML = links.join("");
   $("modal").hidden = false;
   document.body.style.overflow = "hidden";
@@ -194,6 +400,20 @@ function closeModal() {
 }
 document.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeModal));
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("modal").hidden) closeModal(); });
+
+// トップの飾り（原子の軌道）
+function orbitSvg() {
+  return `<svg class="hero-orbit" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+    <defs><linearGradient id="og" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb0ff"/><stop offset="1" stop-color="#c9a6ff"/></linearGradient></defs>
+    <g stroke="url(#og)" stroke-width="1.2" opacity=".8">
+      <ellipse cx="100" cy="100" rx="90" ry="34"/>
+      <ellipse cx="100" cy="100" rx="90" ry="34" transform="rotate(60 100 100)"/>
+      <ellipse cx="100" cy="100" rx="90" ry="34" transform="rotate(-60 100 100)"/>
+    </g>
+    <circle cx="100" cy="100" r="10" fill="url(#og)"/>
+    <circle r="4" fill="#fff"><animateMotion dur="6s" repeatCount="indefinite" path="M10,100 a90,34 0 1,0 180,0 a90,34 0 1,0 -180,0"/></circle>
+  </svg>`;
+}
 
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
