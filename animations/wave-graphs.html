@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>波のグラフ y-x と y-t</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap">
+<style>
+/* VOICE: 授業で投影できる、落ち着いて明快な理科教材
+   IDEA: 「写真（y-x）」と「ビデオ（y-t）」を同じ高さで並べた実験記録
+   PICTURE: 左に動く波形、右に注目点の振動が記録されていく2枚のグラフ。点線で同じ変位をつなぐ
+   COLOUR and TYPE: 深い海の青＋白、注目点だけオレンジ。Zen Kaku Gothic New
+   LAYOUT: 細い見出し帯 → 2枚のグラフ → 読み取り値 → 操作 → 解説 */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#07131d);--ink:light-dark(#10202e,#e6eef5);--mute:light-dark(#5b6b78,#93a4b3);
+--grid:light-dark(#e6ebef,#17283a);--line:light-dark(#d5dde3,#1d3040);--axis:light-dark(#7d8d9a,#6a7d8d);
+--wave:light-dark(#0b5cad,#5cb0ff);--pt:light-dark(#e2531a,#ff8a4c);--deep:light-dark(#0a3557,#0b2236);
+--chip:light-dark(#f1f5f8,#0d1d2a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;overflow-x:clip}
+.band{padding:clamp(18px,3vw,40px) max(4vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+header{background:var(--deep);color:#fff;padding-block:18px}
+header h1{margin:0;font-size:clamp(24px,3.4vw,34px);line-height:1.15;text-wrap:balance}
+header p{margin:6px 0 0;color:#c6d8e8;font-size:15px}
+.figs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:12px 12px 6px}
+.panel h2{margin:0 0 4px;font-size:17px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.panel h2 small{font-size:13px;color:var(--mute);font-weight:400}
+.tag{display:inline-block;padding:1px 9px;border-radius:99px;color:#fff;font-size:14px}
+.fig{position:relative;height:clamp(240px,30vw,330px)}
+.fig>canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+#yx{cursor:ew-resize}
+.read{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.read div{background:var(--chip);border-radius:10px;padding:8px 14px;font-size:14px;color:var(--mute)}
+.read b{display:block;color:var(--ink);font-size:18px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#mv.up b{color:var(--pt)}#mv.dn b{color:var(--wave)}
+.controls{padding:12px 16px 16px}.controls .ctl:first-child{margin-top:0}.read{margin-bottom:0}
+.ctl{display:flex;flex-wrap:wrap;gap:14px 22px;margin-top:18px;align-items:flex-end}
+.grp{display:flex;flex-direction:column;gap:4px}
+.lab{font-size:13px;color:var(--mute)}
+button{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:44px;padding:0 14px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pt);outline-offset:2px}
+.seg{display:flex}.seg button{border-radius:0;margin-left:-1px}.seg button:first-child{border-radius:8px 0 0 8px;margin:0}.seg button:last-child{border-radius:0 8px 8px 0}
+.seg button[aria-pressed=true]{background:var(--wave);border-color:var(--wave);color:#fff;position:relative}
+#play{background:var(--pt);border-color:var(--pt);color:#fff;font-weight:700;min-width:120px}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+input[type=range]{width:min(300px,80vw);height:44px;accent-color:var(--pt)}
+label.chk{display:flex;align-items:center;gap:8px;min-height:44px;font-size:15px;cursor:pointer}
+label.chk input{width:20px;height:20px;accent-color:var(--wave)}
+.notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;border-top:1px solid var(--line)}
+.notes h3{margin:0 0 6px;font-size:18px}
+.notes p{margin:0;max-width:70ch}
+.try{margin-top:22px;padding:16px 18px;border-radius:12px;background:var(--chip)}
+.try h3{margin:0 0 6px;font-size:17px}.try ol{margin:0;padding-left:1.4em}
+.fig3{height:clamp(320px,46vw,520px)}.fig3>canvas{touch-action:none;cursor:grab}
+.cap{margin:4px 0 6px;font-size:15px;color:var(--mute);max-width:80ch}
+[data-view][aria-pressed=true]{border-color:var(--ink);font-weight:700}
+@media(max-width:760px){.figs,.notes{grid-template-columns:minmax(0,1fr)}}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:#c6d8e8;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:#fff}
+</style>
+</head>
+<body>
+<header class="band"><div class="wrap">
+<div class="sitenav"><a href="../#anime/%E6%B3%A2%E5%8B%95">← 物理のHPに戻る</a></div>
+<h1>y-xグラフは「写真」、y-tグラフは「ビデオ」</h1>
+<p>オレンジの点（注目点）の動きが、右のy-tグラフに記録されていきます。左のグラフをドラッグすると注目点を動かせます。</p>
+</div></header>
+
+<main class="band"><div class="wrap">
+<section class="panel controls">
+<div class="ctl">
+  <div class="grp"><span class="lab">時間</span>
+    <div class="row"><button id="play">一時停止</button><button id="back">− T/4</button><button id="fwd">+ T/4</button><button id="reset">t = 0 に戻す</button></div>
+  </div>
+  <div class="grp"><span class="lab">注目点の位置 x₀ = <span id="x0v">2</span> m</span>
+    <input type="range" id="x0" min="0" max="8" step="0.25" value="2"></div>
+</div>
+<div class="ctl wavev">
+  <div class="grp"><span class="lab">波の速さ v = <b id="vv">2</b> m/s（周期 T はそのまま、波長 λ = vT が変わる）</span>
+    <input type="range" id="vs" min="0.5" max="8" step="0.25" value="2" aria-label="波の速さ"></div>
+  <div class="grp"><span class="lab">波の向き</span>
+    <div class="seg" role="group" aria-label="波の向き"><button data-k="dir" data-v="1" aria-pressed="true">→ +x 向き</button><button data-k="dir" data-v="-1" aria-pressed="false">← −x 向き</button></div></div>
+</div>
+<div class="ctl" id="segs"></div>
+<div class="ctl">
+  <label class="chk"><input type="checkbox" id="ghost" checked>少し後（T/8後）の波形を点線で表示</label>
+  <label class="chk"><input type="checkbox" id="future">y-tグラフの「この先」を点線で表示</label>
+</div>
+</section>
+<div style="height:18px"></div>
+<div class="figs">
+  <section class="panel">
+    <h2><span class="tag" style="background:var(--wave)">y-x</span>時刻 t における波形<small>横軸は位置 x</small></h2>
+    <div class="fig"><canvas id="yx" aria-label="y-xグラフ"></canvas></div>
+  </section>
+  <section class="panel">
+    <h2><span class="tag" style="background:var(--pt)">y-t</span>注目点の変位の時間変化<small>横軸は時刻 t</small></h2>
+    <div class="fig"><canvas id="yt" aria-label="y-tグラフ"></canvas></div>
+  </section>
+</div>
+
+<div class="read">
+  <div>時刻<b id="rt">0.00 s</b></div>
+  <div>注目点<b id="rx">x = 2 m</b></div>
+  <div>注目点の変位<b id="ry">0.0 cm</b></div>
+  <div id="mv">注目点の動き<b id="rm">上向き</b></div>
+  <div>波の速さ v = λ/T<b id="rv">2 m/s</b></div>
+  <div>式<b id="rf">y = A sin 2π(t/T − x/λ)</b></div>
+</div>
+
+<section class="panel" style="margin-top:18px">
+  <h2><span class="tag" style="background:var(--ink);color:var(--bg)">3D</span>変位 y を x と t の両方で描いた曲面<small>ドラッグで回転</small></h2>
+  <div class="row" style="margin:6px 0 4px">
+    <button data-view="iso" aria-pressed="true">斜めから見る</button>
+    <button data-view="yx">t軸の方向から見る → y-x</button>
+    <button data-view="yt">x軸の方向から見る → y-t</button>
+  </div>
+  <div class="fig fig3"><canvas id="d3" aria-label="3Dグラフ"></canvas></div>
+  <p class="cap">曲面を <b style="color:var(--wave)">t 一定の面で切った断面（青）が y-x グラフ</b>、<b style="color:var(--pt)">x 一定の面で切った断面（オレンジ）が y-t グラフ</b>。時間がたつと青い断面が t 軸に沿って奥へ進みます。</p>
+</section>
+
+</div></main>
+
+<section class="band"><div class="wrap">
+<div class="notes" style="padding-top:22px">
+  <div><h3>y-x グラフ ＝ 写真</h3><p>ある瞬間の媒質全体の変位を撮ったもの。横軸は位置 x で、山から次の山までが<strong>波長 λ</strong>。時間がたつと波形全体が速さ v で平行移動します。</p></div>
+  <div><h3>y-t グラフ ＝ ビデオ</h3><p>1つの点だけに注目して、その変位を時間の順に記録したもの。横軸は時刻 t で、山から次の山までが<strong>周期 T</strong>。媒質の点は上下に単振動するだけで、横には進みません。</p></div>
+  <div><h3>y-x から点の動きを読む</h3><p>波形を進行方向に少しだけずらして（点線）、注目点の位置で点線が上にあれば上向き、下にあれば下向きに動きます。山と谷の点は一瞬止まっています。</p></div>
+</div>
+<div class="try"><h3>試してみよう</h3><ol>
+  <li>進行方向を −x 向きにすると、y-t グラフはどう変わる？</li>
+  <li>注目点を λ/4 だけ右にずらすと、y-t グラフは何秒ずれる？（+x 向きのとき）</li>
+  <li>一時停止して、y-x グラフだけを見て注目点の動きを予想 → 再生して確かめる。</li>
+</ol></div>
+</div></section>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const S={A:2,lam:4,T:2,dir:1,x0:2,t:0,speed:0.5,play:!matchMedia('(prefers-reduced-motion: reduce)').matches,ghost:true,future:false};
+const XMAX=8,TMAX=8,YMAX=4,FONT='"Zen Kaku Gothic New","Hiragino Sans",sans-serif';
+const M={l:44,r:16,t:30,b:40};
+const mod=(a,b)=>((a%b)+b)%b;
+const fmt=n=>+n.toFixed(2);
+const ph=(x,t)=>2*Math.PI*(t/S.T-S.dir*x/S.lam);
+const y=(x,t)=>S.A*Math.sin(ph(x,t));
+const vy=(x,t)=>S.A*2*Math.PI/S.T*Math.cos(ph(x,t));
+const probe=document.createElement('i');probe.style.display='none';document.body.appendChild(probe);
+const colors=()=>{const o={};for(const v of['ink','mute','grid','axis','wave','pt','bg']){probe.style.color=`var(--${v})`;o[v]=getComputedStyle(probe).color}return o};
+const cyx=$('yx'),cyt=$('yt');
+
+function frame(c,xmax){
+  const r=c.getBoundingClientRect(),d=window.devicePixelRatio||1,w=Math.round(r.width),h=Math.round(r.height);
+  if(c.width!==w*d||c.height!==h*d){c.width=w*d;c.height=h*d}
+  const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);
+  const pw=w-M.l-M.r,ph2=h-M.t-M.b;
+  return{g,w,h,pw,X:v=>M.l+v/xmax*pw,Y:v=>M.t+ph2/2-v/YMAX*ph2/2};
+}
+function axes(f,k,xmax,unit){
+  const{g,w,X,Y}=f;
+  g.lineWidth=1;g.strokeStyle=k.grid;g.beginPath();
+  for(let i=1;i<=xmax;i++){g.moveTo(X(i)+.5,Y(YMAX));g.lineTo(X(i)+.5,Y(-YMAX))}
+  for(let j=-YMAX;j<=YMAX;j++){if(j){g.moveTo(X(0),Y(j)+.5);g.lineTo(X(xmax),Y(j)+.5)}}
+  g.stroke();
+  g.strokeStyle=k.axis;g.lineWidth=1.5;g.beginPath();
+  g.moveTo(X(0),Y(0));g.lineTo(X(xmax)+8,Y(0));g.moveTo(X(0),Y(-YMAX));g.lineTo(X(0),Y(YMAX)-8);g.stroke();
+  g.fillStyle=k.mute;g.font=`12px ${FONT}`;g.textAlign='center';g.textBaseline='top';
+  const st=w<420?2:1;
+  for(let i=0;i<=xmax;i+=st)g.fillText(i,X(i),Y(-YMAX)+5);
+  g.textAlign='right';g.fillText(unit,X(xmax)+M.r-2,Y(-YMAX)+22);
+  g.textBaseline='middle';
+  for(const j of[-4,-2,0,2,4])g.fillText(j,M.l-7,Y(j));
+  g.textAlign='left';g.textBaseline='top';g.fillText('y [cm]',4,8);
+}
+function curve(f,fn,a,b,n=300){
+  const{g,X,Y}=f;g.beginPath();
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;i?g.lineTo(X(x),Y(fn(x))):g.moveTo(X(x),Y(fn(x)))}
+  g.stroke();
+}
+function bracket(f,a,b,label,col){
+  const{g,X,Y}=f,py=Y(S.A)-12,x1=X(a),x2=X(b);
+  g.strokeStyle=col;g.fillStyle=col;g.lineWidth=1.5;g.setLineDash([3,3]);g.beginPath();
+  g.moveTo(x1,Y(S.A));g.lineTo(x1,py-4);g.moveTo(x2,Y(S.A));g.lineTo(x2,py-4);g.stroke();g.setLineDash([]);
+  g.beginPath();g.moveTo(x1,py);g.lineTo(x2,py);
+  g.moveTo(x1+6,py-4);g.lineTo(x1,py);g.lineTo(x1+6,py+4);g.moveTo(x2-6,py-4);g.lineTo(x2,py);g.lineTo(x2-6,py+4);g.stroke();
+  g.font=`bold 14px ${FONT}`;g.textAlign='center';g.textBaseline='bottom';
+  const tw=g.measureText(label).width+10;g.fillStyle=k0.bg;g.fillRect((x1+x2)/2-tw/2,py-20,tw,18);
+  g.fillStyle=col;g.fillText(label,(x1+x2)/2,py-3);
+}
+function dot(f,x,yv,k){const{g,X,Y}=f;g.beginPath();g.arc(X(x),Y(yv),7,0,7);g.fillStyle=k.pt;g.fill();g.lineWidth=2.5;g.strokeStyle=k.bg;g.stroke()}
+let k0;
+
+function drawYX(k){
+  const f=frame(cyx,XMAX),{g,w,X,Y}=f;axes(f,k,XMAX,'x [m]');
+  if(S.ghost){g.setLineDash([6,5]);g.strokeStyle=k.mute;g.lineWidth=1.8;curve(f,x=>y(x,S.t+S.T/8),0,XMAX);g.setLineDash([])}
+  g.strokeStyle=k.wave;g.lineWidth=3;curve(f,x=>y(x,S.t),0,XMAX);
+  g.fillStyle=k.wave;for(let x=0;x<=XMAX;x+=0.5){g.beginPath();g.arc(X(x),Y(y(x,S.t)),2.6,0,7);g.fill()}
+  const xc=mod(S.dir*(S.t/S.T-0.25)*S.lam,S.lam);
+  if(xc+S.lam<=XMAX+1e-6)bracket(f,xc,xc+S.lam,`λ = ${fmt(S.lam)} m`,k.wave);
+  else{g.fillStyle=k.wave;g.font=`bold 14px ${FONT}`;g.textAlign='left';g.textBaseline='top';g.fillText(`λ = ${fmt(S.lam)} m`,M.l+8,8)}
+  const py=y(S.x0,S.t),px=X(S.x0);
+  g.strokeStyle=k.pt;g.lineWidth=1.5;g.setLineDash([4,4]);g.beginPath();
+  g.moveTo(px,Y(0));g.lineTo(px,Y(py));g.moveTo(px,Y(py));g.lineTo(w,Y(py));g.stroke();g.setLineDash([]);
+  const v=vy(S.x0,S.t)/(S.A*2*Math.PI/S.T),len=v*40;
+  if(Math.abs(len)>4){const y0=Y(py),y1=y0-len,s=Math.sign(len);
+    g.strokeStyle=k.pt;g.lineWidth=3;g.beginPath();g.moveTo(px,y0);g.lineTo(px,y1);g.stroke();
+    g.fillStyle=k.pt;g.beginPath();g.moveTo(px,y1-s*7);g.lineTo(px-6,y1+s*2);g.lineTo(px+6,y1+s*2);g.closePath();g.fill()}
+  dot(f,S.x0,py,k);
+  g.fillStyle=k.wave;g.font=`bold 14px ${FONT}`;g.textAlign='right';g.textBaseline='top';
+  g.fillText((S.dir>0?'進行方向 →':'← 進行方向')+'  v = '+fmt(S.lam/S.T)+' m/s',X(XMAX),8);
+}
+function drawYT(k){
+  const f=frame(cyt,TMAX),{g,X,Y}=f;axes(f,k,TMAX,'t [s]');
+  const fn=t=>y(S.x0,t),py=fn(S.t);
+  if(S.future){g.setLineDash([6,5]);g.strokeStyle=k.mute;g.lineWidth=1.8;curve(f,fn,0,TMAX);g.setLineDash([])}
+  g.strokeStyle=k.axis;g.lineWidth=1;g.beginPath();g.moveTo(X(S.t)+.5,Y(YMAX));g.lineTo(X(S.t)+.5,Y(-YMAX));g.stroke();
+  g.strokeStyle=k.pt;g.lineWidth=1.5;g.setLineDash([4,4]);g.beginPath();g.moveTo(M.l,Y(py));g.lineTo(X(S.t),Y(py));g.stroke();g.setLineDash([]);
+  if(S.t>0){g.strokeStyle=k.pt;g.lineWidth=3;curve(f,fn,0,S.t,Math.max(2,Math.ceil(S.t*60)))}
+  const tc=mod((0.25+S.dir*S.x0/S.lam)*S.T,S.T);
+  if(tc+S.T<=TMAX+1e-6&&(S.future||S.t>=tc+S.T))bracket(f,tc,tc+S.T,`T = ${S.T} s`,k.pt);
+  dot(f,S.t,py,k);
+  g.fillStyle=k.pt;g.font=`bold 14px ${FONT}`;g.textAlign='right';g.textBaseline='top';
+  g.fillText(`x = ${S.x0} m の点`,X(TMAX),8);
+}
+function readout(){
+  const py=y(S.x0,S.t),v=vy(S.x0,S.t)/(S.A*2*Math.PI/S.T);
+  $('rt').textContent=S.t.toFixed(2)+' s';
+  $('rx').textContent=`x = ${S.x0} m`;
+  $('ry').textContent=(Math.abs(py)<0.05?0:py).toFixed(1)+' cm';
+  const mv=$('mv');
+  if(Math.abs(v)<0.06){mv.className='';$('rm').textContent=py>0?'一瞬止まる（山）':'一瞬止まる（谷）'}
+  else if(v>0){mv.className='up';$('rm').textContent='上向き ↑'}else{mv.className='dn';$('rm').textContent='下向き ↓'}
+  $('rv').textContent=`${fmt(S.lam)}/${S.T} = ${+(S.lam/S.T).toFixed(2)} m/s`;
+  $('rf').textContent=`y = ${S.A} sin 2π(t/${S.T} ${S.dir>0?'−':'+'} x/${fmt(S.lam)})`;
+}
+const V={yaw:0.55,pitch:0.5,ty:null,tp:null};
+const c3=$('d3');
+function P(f,x,t,yv){
+  const u=(x/XMAX-0.5)*2,w=(t/TMAX-0.5)*2,v=yv/YMAX*0.55;
+  const cy=Math.cos(V.yaw),sy=Math.sin(V.yaw),cp=Math.cos(V.pitch),sp=Math.sin(V.pitch);
+  const rx=u*cy+w*sy,rz=-u*sy+w*cy;
+  return[f.cx+rx*f.s,f.cy-(v*cp+rz*sp)*f.s];
+}
+function draw3d(k){
+  const r=c3.getBoundingClientRect(),d=window.devicePixelRatio||1,w=Math.round(r.width),h=Math.round(r.height);
+  if(c3.width!==w*d||c3.height!==h*d){c3.width=w*d;c3.height=h*d}
+  const g=c3.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);
+  const f={cx:w/2,cy:h*0.5,s:Math.min(w*0.34,h*0.46)};
+  const L=pts=>{g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()};
+  const Q=pts=>{g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill()};
+  const samp=(fn,a,b,n)=>{const o=[];for(let i=0;i<=n;i++)o.push(fn(a+(b-a)*i/n));return o};
+  const ob=Math.min(1,(Math.min(Math.abs(Math.sin(V.yaw)),Math.abs(Math.cos(V.yaw)))*2+Math.abs(Math.sin(V.pitch)))*1.5);
+  // 床のグリッド
+  g.strokeStyle=k.grid;g.lineWidth=1;
+  for(let i=0;i<=8;i++){L([P(f,i,0,0),P(f,i,TMAX,0)]);L([P(f,0,i,0),P(f,XMAX,i,0)])}
+  // 切断面
+  g.globalAlpha=.08;g.fillStyle=k.wave;Q([P(f,0,S.t,-YMAX),P(f,XMAX,S.t,-YMAX),P(f,XMAX,S.t,YMAX),P(f,0,S.t,YMAX)]);
+  g.fillStyle=k.pt;Q([P(f,S.x0,0,-YMAX),P(f,S.x0,TMAX,-YMAX),P(f,S.x0,TMAX,YMAX),P(f,S.x0,0,YMAX)]);
+  // 曲面メッシュ
+  g.strokeStyle=k.wave;g.lineWidth=1;g.globalAlpha=.04+.2*ob;
+  for(let t=0;t<=TMAX+1e-9;t+=S.T/8)L(samp(x=>P(f,x,t,y(x,t)),0,XMAX,80));
+  for(let x=0;x<=XMAX+1e-9;x+=0.5)L(samp(t=>P(f,x,t,y(x,t)),0,TMAX,200));
+  g.globalAlpha=1;
+  // 軸
+  g.strokeStyle=k.axis;g.lineWidth=1.5;
+  L([P(f,0,0,0),P(f,XMAX,0,0)]);L([P(f,0,0,0),P(f,0,TMAX,0)]);L([P(f,0,0,-YMAX),P(f,0,0,YMAX)]);
+  const len=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  g.fillStyle=k.mute;g.font=`12px ${FONT}`;
+  if(len(P(f,0,0,0),P(f,XMAX,0,0))>80){g.textAlign='center';g.textBaseline='top';for(let i=2;i<=8;i+=2){const p=P(f,i,0,0);g.fillText(i,p[0],p[1]+4)}}
+  if(len(P(f,0,0,0),P(f,0,TMAX,0))>80){g.textAlign='right';g.textBaseline='middle';for(let i=2;i<=8;i+=2){const p=P(f,0,i,0);g.fillText(i,p[0]-6,p[1])}}
+  g.font=`bold 14px ${FONT}`;g.fillStyle=k.ink;g.textAlign='center';g.textBaseline='middle';
+  for(const[p,s]of[[P(f,XMAX+0.9,0,0),'x [m]'],[P(f,0,TMAX+0.9,0),'t [s]'],[P(f,0,0,YMAX+0.8),'y']])g.fillText(s,p[0],p[1]);
+  // y-t 断面（オレンジ）
+  g.strokeStyle=k.pt;g.lineWidth=2;g.globalAlpha=.35;L(samp(t=>P(f,S.x0,t,y(S.x0,t)),0,TMAX,240));g.globalAlpha=1;
+  if(S.t>0){g.lineWidth=3.5;L(samp(t=>P(f,S.x0,t,y(S.x0,t)),0,S.t,Math.max(2,Math.ceil(S.t*40))))}
+  // y-x 断面（青）
+  g.strokeStyle=k.wave;g.lineWidth=3.5;L(samp(x=>P(f,x,S.t,y(x,S.t)),0,XMAX,160));
+  const q=P(f,S.x0,S.t,y(S.x0,S.t));
+  g.beginPath();g.arc(q[0],q[1],7,0,7);g.fillStyle=k.pt;g.fill();g.lineWidth=2.5;g.strokeStyle=k.bg;g.stroke();
+  // ラベル
+  g.font=`bold 13px ${FONT}`;g.textAlign='left';g.textBaseline='middle';
+  const a=P(f,XMAX,S.t,y(XMAX,S.t)),b=P(f,S.x0,TMAX,y(S.x0,TMAX));
+  g.fillStyle=k.wave;g.fillText(`y-x（t = ${S.t.toFixed(2)} s）`,Math.min(a[0]+10,w-140),a[1]);
+  g.fillStyle=k.pt;g.fillText(`y-t（x = ${S.x0} m）`,Math.min(b[0]+10,w-120),b[1]-14);
+}
+const views={iso:[0.55,0.5],yx:[0,0],yt:[Math.PI/2,0]};
+const setView=name=>{const[ty,tp]=views[name];V.ty=ty+2*Math.PI*Math.round((V.yaw-ty)/(2*Math.PI));V.tp=tp;
+  for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed',b.dataset.view===name)};
+for(const b of document.querySelectorAll('[data-view]'))b.onclick=()=>setView(b.dataset.view);
+let rot=null;
+c3.addEventListener('pointerdown',e=>{rot={x:e.clientX,y:e.clientY,yaw:V.yaw,p:V.pitch};V.ty=null;c3.setPointerCapture(e.pointerId);
+  for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed',false)});
+c3.addEventListener('pointermove',e=>{if(!rot)return;V.yaw=rot.yaw+(e.clientX-rot.x)*0.01;V.pitch=Math.min(1.5,Math.max(-0.3,rot.p+(e.clientY-rot.y)*0.01))});
+c3.addEventListener('pointerup',()=>{rot=null});c3.addEventListener('pointercancel',()=>{rot=null});
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(S.play){S.t+=dt*S.speed;if(S.t>=TMAX)S.t=0}
+  if(V.ty!==null){V.yaw+=(V.ty-V.yaw)*0.12;V.pitch+=(V.tp-V.pitch)*0.12;if(Math.abs(V.ty-V.yaw)+Math.abs(V.tp-V.pitch)<1e-3){V.yaw=V.ty;V.pitch=V.tp;V.ty=null}}
+  k0=colors();drawYX(k0);drawYT(k0);draw3d(k0);readout();
+  requestAnimationFrame(loop);
+}
+
+const segs=[['speed','再生速度',[[0.25,'×0.25'],[0.5,'×0.5'],[1,'×1']]],
+  ['A','振幅 A',[[1,'1 cm'],[2,'2 cm'],[3,'3 cm']]],['lam','波長 λ',[[2,'2 m'],[4,'4 m'],[8,'8 m']]],['T','周期 T',[[1,'1 s'],[2,'2 s'],[4,'4 s']]]];
+$('segs').innerHTML=segs.map(([key,lab,opts])=>`<div class="grp"><span class="lab">${lab}</span><div class="seg" role="group" aria-label="${lab}">${opts.map(([v,t])=>`<button data-k="${key}" data-v="${v}" aria-pressed="${S[key]==v}">${t}</button>`).join('')}</div></div>`).join('');
+function sync(){
+  for(const b of document.querySelectorAll('button[data-k]'))b.setAttribute('aria-pressed',Math.abs(S[b.dataset.k]-b.dataset.v)<1e-9);
+  const v=S.lam/S.T;$('vs').value=v;$('vv').textContent=fmt(v);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;S[b.dataset.k]=+b.dataset.v;sync()});
+$('vs').oninput=e=>{S.lam=+e.target.value*S.T;sync()};
+
+const setPlay=p=>{S.play=p;$('play').textContent=p?'一時停止':'▶ 再生'};setPlay(S.play);
+$('play').onclick=()=>setPlay(!S.play);
+const step=d=>{setPlay(false);const q=S.T/4;S.t=Math.min(TMAX,Math.max(0,Math.round(S.t/q)*q+d*q))};
+$('back').onclick=()=>step(-1);$('fwd').onclick=()=>step(1);
+$('reset').onclick=()=>{S.t=0};
+const setX=x=>{S.x0=x;$('x0').value=x;$('x0v').textContent=x};
+$('x0').oninput=e=>setX(+e.target.value);
+$('ghost').onchange=e=>{S.ghost=e.target.checked};
+$('future').onchange=e=>{S.future=e.target.checked};
+let drag=false;
+const pick=e=>{const r=cyx.getBoundingClientRect(),pw=r.width-M.l-M.r;let x=(e.clientX-r.left-M.l)/pw*XMAX;setX(Math.round(Math.min(XMAX,Math.max(0,x))*4)/4)};
+cyx.addEventListener('pointerdown',e=>{drag=true;cyx.setPointerCapture(e.pointerId);pick(e)});
+cyx.addEventListener('pointermove',e=>{if(drag)pick(e)});
+cyx.addEventListener('pointerup',()=>{drag=false});cyx.addEventListener('pointercancel',()=>{drag=false});
+
+requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
