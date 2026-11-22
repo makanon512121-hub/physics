@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>力の合成・分解ゲーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+/*
+VOICE: 理科室の方眼ノート。明るく、でも授業で使える正確さ。
+IDEA: 方眼紙のワークシート。合力モードと分力モードをタブで切りかえ。
+PICTURE: 大きな方眼の盤面そのもの。答え合わせで平行四辺形が描かれる。
+COLOUR and TYPE: 方眼紙の白と水色の罫線、F1朱色・F2青・合力緑。夜は黒板。Zen Maru Gothic。
+LAYOUT: 上にタブと題とスコア、中央に盤面、右（狭い画面では下）に説明。
+*/
+:root{color-scheme:light dark;
+--bg:light-dark(#f4f8f3,#14201c);--paper:light-dark(#fffffb,#1d2b26);--ink:light-dark(#1b2a33,#eef3ea);
+--sub:light-dark(#5b6b72,#a9b8b0);--line:light-dark(#cfe6ec,#2e4640);--line2:light-dark(#9ccbd8,#46665d);
+--f1:light-dark(#e0452b,#ff7a5e);--f2:light-dark(#1f6fd1,#6fb0ff);--r:light-dark(#139a55,#4fdc8f);--bad:light-dark(#c8102e,#ff6b81);
+--btn:light-dark(#1b2a33,#eef3ea);--btnink:light-dark(#fff,#14201c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;overflow-x:clip}
+.wrap{max-width:1100px;margin:0 auto;padding:clamp(16px,3vw,36px) max(4vw,14px)}
+.tabs{display:inline-flex;background:var(--paper);border:2px solid var(--btn);border-radius:14px;padding:3px;gap:3px;margin-bottom:14px}
+.tabs a{display:flex;align-items:center;min-height:42px;padding:0 20px;border-radius:10px;font-weight:700;color:var(--ink);text-decoration:none}
+.tabs a[aria-current=page]{background:var(--btn);color:var(--btnink)}
+.tabs a:focus-visible{outline:3px solid var(--f2);outline-offset:2px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.05;margin:0;font-weight:900}
+.lead{color:var(--sub);font-size:15px;margin-top:4px}
+.score{display:flex;gap:18px;font-size:15px;color:var(--sub)}
+.score b{display:block;font-size:26px;color:var(--ink);line-height:1.1;font-variant-numeric:tabular-nums}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+.board{background:var(--paper);border-radius:18px;box-shadow:0 1px 0 var(--line2),0 12px 30px -18px rgba(0,0,0,.35);padding:10px}
+svg#g{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:manipulation;cursor:crosshair;overflow:hidden}
+.msg{min-height:3.2em;font-size:18px;font-weight:700;margin:12px 4px 4px;text-wrap:balance}
+.msg.ok{color:var(--r)}.msg.ng{color:var(--bad)}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+button{font:inherit;font-weight:700;font-size:16px;min-height:46px;padding:0 18px;border-radius:12px;border:2px solid var(--btn);background:transparent;color:var(--ink);cursor:pointer}
+button.main-b{background:var(--btn);color:var(--btnink)}
+button:disabled{opacity:.35;cursor:default}
+button:focus-visible{outline:3px solid var(--f2);outline-offset:2px}
+.lv{display:flex;gap:6px;flex-wrap:wrap}
+.lv button{min-height:44px;padding:0 14px;font-size:15px}
+.lv button[aria-pressed=true]{background:var(--btn);color:var(--btnink)}
+aside h2{font-size:18px;margin:18px 0 6px}
+aside h2:first-child{margin-top:0}
+aside p,aside li{font-size:15px;color:var(--sub);margin:4px 0}
+aside ol{padding-left:1.3em;margin:4px 0}
+.key{display:flex;flex-direction:column;gap:6px;font-size:15px}
+.key span{display:flex;align-items:center;gap:8px}
+.key i{display:inline-block;width:28px;height:4px;border-radius:2px}
+.key i.dash{height:0;border-top:3px dashed}
+.prog{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px}
+.prog div{height:100%;background:var(--r);width:0;transition:width .3s}
+[hidden]{display:none!important}
+@media(max-width:820px){.main{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:dr .7s ease-out forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.pop{animation:pp .35s ease-out}
+@keyframes pp{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.sitenav{display:flex;justify-content:flex-start;margin-bottom:12px;font-size:14px}.sitenav a{color:var(--sub);text-decoration:none;border:2px solid var(--line2);background:var(--paper);border-radius:999px;padding:4px 14px;font-weight:700}.sitenav a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<nav class="tabs" aria-label="モード">
+  <a href="#gouryoku" id="tabG">合力あて</a>
+  <a href="#bunryoku" id="tabB">分力あて</a>
+</nav>
+<header>
+  <div>
+    <h1 id="ttl">合力あてゲーム</h1>
+    <div class="lead" id="lead"></div>
+  </div>
+  <div class="score">
+    <div>問題<b id="qn">1/10</b></div>
+    <div>正解<b id="sc">0</b></div>
+    <div>連続<b id="st">0</b></div>
+  </div>
+</header>
+<div class="main">
+  <div>
+    <div class="board"><svg id="g" viewBox="0 0 13 13" role="img" aria-label="方眼の盤面"></svg></div>
+    <div class="prog"><div id="pg"></div></div>
+    <div class="msg" id="msg"></div>
+    <div class="ctrl">
+      <button id="hint">ヒント（平行線）</button>
+      <button id="undo" hidden>1つもどす</button>
+      <button id="next" class="main-b" disabled>次の問題 →</button>
+    </div>
+  </div>
+  <aside>
+    <h2>レベル</h2>
+    <div class="lv" id="lv">
+      <button data-l="0" aria-pressed="false">かんたん</button>
+      <button data-l="1" aria-pressed="true">ふつう</button>
+      <button data-l="2" aria-pressed="false">むずかしい</button>
+    </div>
+    <p id="lvdesc"></p>
+    <h2>矢印の色</h2>
+    <div class="key" id="keyG">
+      <span><i style="background:var(--f1)"></i>力 F₁</span>
+      <span><i style="background:var(--f2)"></i>力 F₂</span>
+      <span><i style="background:var(--r)"></i>合力 F（答え）</span>
+    </div>
+    <div class="key" id="keyB" hidden>
+      <span><i style="background:var(--r)"></i>もとの力 F</span>
+      <span><i class="dash" style="border-color:var(--f1)"></i>分力 F₁ の向き</span>
+      <span><i class="dash" style="border-color:var(--f2)"></i>分力 F₂ の向き</span>
+    </div>
+    <div id="howG">
+      <h2>合力の作図のしかた</h2>
+      <ol>
+        <li>F₁ の先から、F₂ と平行な線をひく。</li>
+        <li>F₂ の先から、F₁ と平行な線をひく。</li>
+        <li>2本の線が交わる点が、合力の矢印の先。</li>
+      </ol>
+      <p>F₁ と F₂ を2辺とする平行四辺形の対角線が合力です。</p>
+    </div>
+    <div id="howB" hidden>
+      <h2>分力の作図のしかた</h2>
+      <ol>
+        <li>F の先から、F₂ の向きの線と平行な線をひく。F₁ の向きの線と交わった点が F₁ の先。</li>
+        <li>F の先から、F₁ の向きの線と平行な線をひく。F₂ の向きの線と交わった点が F₂ の先。</li>
+      </ol>
+      <p>F を対角線とし、2つの向きにそった平行四辺形をつくります。そのとなり合う2辺が分力です。</p>
+    </div>
+    <p>1マス＝1Nとして考えよう。</p>
+  </aside>
+</div>
+</div>
+<script>
+{
+const N=12,TOTAL=10,svg=document.getElementById('g'),NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const LV={
+  g:['F₁ は横向き、F₂ は縦向き。直角に交わる2力です。','いろいろな向きの2力。平行四辺形をイメージしよう。','2力が開いた角度（鈍角）や作用点の位置もいろいろ。'],
+  b:['横と縦の2つの向きに分解します。','いろいろな向きに分解します。','2つの向きが開いた角度（鈍角）や作用点の位置もいろいろ。']
+};
+let mode='g',level=1,q=0,score=0,streak=0,best=0,cur=null,answered=false,hintOn=false,taps=[];
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const nz=(a,b)=>{let v;do v=rnd(a,b);while(v===0);return v};
+
+function make(){
+  for(let t=0;t<800;t++){
+    let o=[6,6],a,b;
+    if(level===0){a=[nz(-4,4),0];b=[0,nz(-4,4)];if(Math.random()<.5)[a,b]=[b,a]}
+    else{a=[rnd(-4,4),rnd(-4,4)];b=[rnd(-4,4),rnd(-4,4)];if(level===2)o=[rnd(3,9),rnd(3,9)]}
+    const cross=a[0]*b[1]-a[1]*b[0],dot=a[0]*b[0]+a[1]*b[1];
+    if(!cross)continue;
+    if(Math.hypot(...a)<2||Math.hypot(...b)<2)continue;
+    if(level===1&&dot<0)continue;
+    if(level===2&&dot>=0&&Math.random()<.6)continue;
+    const r=[a[0]+b[0],a[1]+b[1]];
+    if(!r[0]&&!r[1])continue;
+    if([a,b,r].map(v=>[o[0]+v[0],o[1]+v[1]]).some(p=>p[0]<0||p[0]>N||p[1]<0||p[1]>N))continue;
+    return{o,a,b,r};
+  }
+}
+const X=x=>x+.5,Y=y=>N-y+.5;
+const add=(p,v)=>[p[0]+v[0],p[1]+v[1]];
+const same=(p,q)=>p[0]===q[0]&&p[1]===q[1];
+function el(tag,at,parent=svg){const e=document.createElementNS(NS,tag);for(const k in at){const v=at[k];if(typeof v==='string'&&v.startsWith('var('))e.style.setProperty(k,v);else e.setAttribute(k,v)}parent.appendChild(e);return e}
+function arrow(o,v,color,anim,w=.14){
+  const x1=X(o[0]),y1=Y(o[1]),x2=X(o[0]+v[0]),y2=Y(o[1]+v[1]);
+  const L=Math.hypot(x2-x1,y2-y1),ux=(x2-x1)/L,uy=(y2-y1)/L,h=.45,hw=.24;
+  const g=el('g',{});
+  const ln=el('line',{x1,y1,x2:x2-ux*h*.8,y2:y2-uy*h*.8,stroke:color,'stroke-width':w,'stroke-linecap':'round'},g);
+  const hd=el('polygon',{points:`${x2},${y2} ${x2-ux*h-uy*hw},${y2-uy*h+ux*hw} ${x2-ux*h+uy*hw},${y2-uy*h-ux*hw}`,fill:color},g);
+  if(anim){ln.setAttribute('class','draw');ln.style.setProperty('--len',L);hd.style.opacity=0;hd.style.transition='opacity .2s .6s';requestAnimationFrame(()=>requestAnimationFrame(()=>hd.style.opacity=1))}
+}
+function text(t,x,y,color,size=.55){
+  el('text',{x,y,fill:color,'font-size':size,'font-weight':900,'text-anchor':'middle','dominant-baseline':'middle','font-family':'Zen Maru Gothic,sans-serif',stroke:'var(--paper)','stroke-width':.14,'paint-order':'stroke'}).textContent=t;
+}
+function label(t,o,v,color){const L=Math.hypot(...v);text(t,X(o[0]+v[0])+v[0]/L*.55,Y(o[1]+v[1])-v[1]/L*.55,color)}
+function dashed(p,v,color,ext=1,w=.06){el('line',{x1:X(p[0]),y1:Y(p[1]),x2:X(p[0]+v[0]*ext),y2:Y(p[1]+v[1]*ext),stroke:color,'stroke-width':w,'stroke-dasharray':'.2 .15'})}
+// 作用点を通る向きの線（盤面いっぱい）
+function dirLine(o,v,color,name){
+  const tm=s=>{let t=1e9;[0,1].forEach(i=>{if(s*v[i]>0)t=Math.min(t,(N-o[i])/(s*v[i]));if(s*v[i]<0)t=Math.min(t,-o[i]/(s*v[i]))});return t};
+  const tp=tm(1),tn=tm(-1);
+  el('line',{x1:X(o[0]-v[0]*tn),y1:Y(o[1]-v[1]*tn),x2:X(o[0]+v[0]*tp),y2:Y(o[1]+v[1]*tp),stroke:color,'stroke-width':.07,'stroke-dasharray':'.3 .18','stroke-opacity':.85});
+  const L=Math.hypot(...v),k=Math.max(tp-.9/L,0),px=-v[1]/L*.45,py=v[0]/L*.45;
+  text(name,X(o[0]+v[0]*k+px),Y(o[1]+v[1]*k+py),color,.42);
+}
+function mark(p,color){el('circle',{cx:X(p[0]),cy:Y(p[1]),r:.26,fill:color,'fill-opacity':.25,stroke:color,'stroke-width':.07,class:'pop',style:`transform-origin:${X(p[0])}px ${Y(p[1])}px`})}
+function cross(p){const g=el('g',{class:'pop',style:`transform-origin:${X(p[0])}px ${Y(p[1])}px`});[[-1,-1,1,1],[-1,1,1,-1]].forEach(d=>el('line',{x1:X(p[0])+d[0]*.25,y1:Y(p[1])+d[1]*.25,x2:X(p[0])+d[2]*.25,y2:Y(p[1])+d[3]*.25,stroke:'var(--bad)','stroke-width':.12,'stroke-linecap':'round'},g))}
+function ring(p,color){el('circle',{cx:X(p[0]),cy:Y(p[1]),r:.34,fill:'none',stroke:color,'stroke-width':.08,class:'pop',style:`transform-origin:${X(p[0])}px ${Y(p[1])}px`})}
+let hov=null;
+function draw(){
+  svg.innerHTML='';
+  for(let i=0;i<=N;i++){
+    el('line',{x1:X(i),y1:Y(0),x2:X(i),y2:Y(N),stroke:'var(--line)','stroke-width':.04});
+    el('line',{x1:X(0),y1:Y(i),x2:X(N),y2:Y(i),stroke:'var(--line)','stroke-width':.04});
+  }
+  for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)el('circle',{cx:X(i),cy:Y(j),r:.06,fill:'var(--line2)'});
+  if(cur){
+    const {o,a,b,r}=cur,A=add(o,a),B=add(o,b),R=add(o,r);
+    if(mode==='g'){
+      if(hintOn||answered){dashed(A,b,'var(--sub)',answered?1:1.6);dashed(B,a,'var(--sub)',answered?1:1.6)}
+      arrow(o,a,'var(--f1)');arrow(o,b,'var(--f2)');label('F₁',o,a,'var(--f1)');label('F₂',o,b,'var(--f2)');
+      if(answered){arrow(o,r,'var(--r)',true,.18);label('F',o,r,'var(--r)');if(!same(taps[0],R))cross(taps[0]);ring(R,'var(--r)')}
+    }else{
+      dirLine(o,a,'var(--f1)','F₁の向き');dirLine(o,b,'var(--f2)','F₂の向き');
+      if(hintOn||answered){dashed(R,[-b[0],-b[1]],'var(--sub)',answered?1:1.6);dashed(R,[-a[0],-a[1]],'var(--sub)',answered?1:1.6)}
+      arrow(o,r,'var(--r)',false,.18);label('F',o,r,'var(--r)');
+      if(answered){
+        arrow(o,a,'var(--f1)',true);arrow(o,b,'var(--f2)',true);label('F₁',o,a,'var(--f1)');label('F₂',o,b,'var(--f2)');
+        taps.forEach(t=>{if(!same(t,A)&&!same(t,B))cross(t)});
+        ring(A,'var(--f1)');ring(B,'var(--f2)');
+      }else{
+        if(taps[0])mark(taps[0],'var(--ink)');
+      }
+    }
+    el('circle',{cx:X(o[0]),cy:Y(o[1]),r:.2,fill:'var(--ink)'});
+    text('O',X(o[0])-.4,Y(o[1])+.45,'var(--ink)',.45);
+  }
+  hov=el('circle',{r:.22,fill:'var(--ink)','fill-opacity':.18,stroke:'var(--ink)','stroke-width':.04,visibility:'hidden'});
+}
+function pt(e){
+  const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;
+  const s=p.matrixTransform(svg.getScreenCTM().inverse());
+  const gx=Math.round(s.x-.5),gy=Math.round(N-(s.y-.5));
+  return gx<0||gx>N||gy<0||gy>N?null:[gx,gy];
+}
+function dir(d){
+  const s=[];
+  if(d[0])s.push(`${d[0]>0?'左':'右'}に${Math.abs(d[0])}マス`);
+  if(d[1])s.push(`${d[1]>0?'下':'上'}に${Math.abs(d[1])}マス`);
+  return s.join('、');
+}
+function say(t,c=''){const m=$('msg');m.className='msg '+c;m.textContent=t}
+function prompt(){
+  if(mode==='g')say('合力の矢印の先だと思う点をタップしよう。');
+  else say(taps.length?'あと1つ。もう一方の分力の矢印の先をタップしよう。':'2つの分力の矢印の先をタップしよう（順番は自由）。');
+}
+function judge(ok,detail){
+  answered=true;
+  if(ok){score++;streak++;best=Math.max(best,streak);say((hintOn?'正解！':'正解！ヒントなしでお見事。')+(streak>=3?` ${streak}問連続！`:''),'ok')}
+  else{streak=0;say(detail,'ng')}
+  $('next').disabled=false;$('hint').disabled=true;$('undo').hidden=true;
+  upd();draw();$('next').focus();
+}
+svg.addEventListener('pointermove',e=>{if(answered||!cur||!hov||e.pointerType!=='mouse')return;const p=pt(e);if(!p){hov.setAttribute('visibility','hidden');return}hov.setAttribute('cx',X(p[0]));hov.setAttribute('cy',Y(p[1]));hov.setAttribute('visibility','visible')});
+svg.addEventListener('pointerleave',()=>hov&&hov.setAttribute('visibility','hidden'));
+svg.addEventListener('click',e=>{
+  if(answered||!cur)return;const p=pt(e);if(!p)return;
+  const {o,a,b,r}=cur;
+  taps.push(p);
+  if(mode==='g'){
+    const R=add(o,r);
+    judge(same(p,R),`おしい！答えは緑の◯。あなたの点（×）から${dir([p[0]-R[0],p[1]-R[1]])}のところ。平行四辺形の対角線をたしかめよう。`);
+  }else if(taps.length===2&&same(taps[0],taps[1])){
+    taps.pop();
+  }else if(taps.length===1){
+    $('undo').hidden=false;prompt();draw();
+  }else{
+    const A=add(o,a),B=add(o,b),[t0,t1]=taps;
+    const ok=(same(t0,A)&&same(t1,B))||(same(t0,B)&&same(t1,A));
+    const hit=[A,B].filter(p=>taps.some(t=>same(t,p))).length;
+    judge(ok,`おしい！${hit?'1つは合っています。':'2つともちがいます。'}正解は◯の点。F の先からひいた平行線と、それぞれの向きの線が交わるところです。`);
+  }
+});
+function upd(){
+  $('qn').textContent=`${Math.min(q+1,TOTAL)}/${TOTAL}`;$('sc').textContent=score;$('st').textContent=streak;
+  $('pg').style.width=((q+(answered?1:0))/TOTAL*100)+'%';
+}
+function newQ(){
+  cur=make();answered=false;hintOn=false;taps=[];
+  $('hint').disabled=false;$('next').disabled=true;$('undo').hidden=true;
+  prompt();upd();draw();
+}
+function finish(){
+  cur=null;draw();
+  const c=score===TOTAL?'パーフェクト！平行四辺形マスターです。':score>=7?'よくできました！あと少しで満点。':'作図のしかたを確認して、もう一度やってみよう。';
+  say(`おわり！ ${TOTAL}問中 ${score}問正解（最高 ${best}連続）。${c}`);
+  $('next').textContent='もう一度あそぶ';$('next').disabled=false;$('hint').disabled=true;$('undo').hidden=true;
+  $('pg').style.width='100%';
+}
+function restart(){q=0;score=0;streak=0;best=0;$('next').textContent='次の問題 →';newQ()}
+$('next').addEventListener('click',()=>{
+  if(!cur){restart();return}
+  q++;if(q>=TOTAL){finish();return}
+  if(q===TOTAL-1)$('next').textContent='結果を見る';
+  newQ();
+});
+$('hint').addEventListener('click',()=>{
+  hintOn=true;$('hint').disabled=true;
+  say(mode==='g'?'点線（各矢印の先からひいた平行線）が交わるところが答え！':'F の先からひいた点線が、それぞれの向きの線と交わるところが分力の先！');
+  draw();
+});
+$('undo').addEventListener('click',()=>{taps=[];$('undo').hidden=true;prompt();draw()});
+$('lv').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;level=+b.dataset.l;
+  document.querySelectorAll('#lv button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  $('lvdesc').textContent=LV[mode][level];restart();
+});
+function setMode(){
+  mode=location.hash==='#bunryoku'?'b':'g';
+  const g=mode==='g';
+  $('tabG').toggleAttribute('aria-current',false);$('tabB').toggleAttribute('aria-current',false);
+  $(g?'tabG':'tabB').setAttribute('aria-current','page');
+  $('ttl').textContent=g?'合力あてゲーム':'分力あてゲーム';
+  $('lead').textContent=g?'2つの力 F₁・F₂ の合力の矢印の先は、どのマス目の点？':'力 F を点線の2つの向きに分解。分力 F₁・F₂ の矢印の先はどの点？';
+  ['keyG','howG'].forEach(id=>$(id).hidden=!g);['keyB','howB'].forEach(id=>$(id).hidden=g);
+  $('lvdesc').textContent=LV[mode][level];
+  restart();
+}
+window.addEventListener('hashchange',setMode);
+setMode();
+}
+</script>
+</body>
+</html>

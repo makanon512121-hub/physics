@@ -15,6 +15,7 @@ const COLUMNS = {
   description: ["説明", "description"],
   updated: ["更新日時", "更新日", "updated"],
   links: ["リンク", "link", "links"],
+  tags: ["タグ", "tags"],
 };
 
 // 分野の書き方のゆれをそろえる（「電磁気」と書いても「電磁気学」に入ります）
@@ -112,6 +113,8 @@ function toItems(rows) {
       // 種類が「アニメーション」なら、大学名があってもアニメーション集にも出す
       item.isAnime = /アニメ/.test(item.type) || !item.isExam;
       item.linkList = parseLinks(item.links);
+      // 「タグ」列：「中２、理科１」のように区切って書く（分野と同じタグは省く）
+      item.tagList = [...new Set(String(item.tags || "").split(/[、,，\s]+/).map((t) => t.trim()).filter((t) => t && t !== item.category))];
       return item;
     })
     .filter((item) => item.title);
@@ -304,14 +307,23 @@ function animePage() {
   </div></section>`;
 }
 
-function animeCategoryPage(name) {
+// #anime/分野 / #anime/分野/タグ
+function animeCategoryPage(arg) {
+  const [name, selTag = ""] = arg.split("/");
   const cats = animeCategories();
   const c = cats.find((x) => x.name === name) || { name, color: "#64748b", icon: ICONS.other, items: [] };
   const others = cats.filter((x) => x.name !== name);
+  const tags = [...new Set(c.items.flatMap((i) => i.tagList))];
+  const tag = tags.includes(selTag) ? selTag : "";
+  const list = c.items.filter((i) => !tag || i.tagList.includes(tag));
+  const base = "#anime/" + encodeURIComponent(c.name);
+  const chips = tags.length ? `<div class="tag-filter">${["", ...tags].map((t) =>
+    `<button class="subtab" aria-pressed="${t === tag}" data-href="${t ? base + "/" + encodeURIComponent(t) : base}">${esc(t || "すべて")}<span class="count">${t ? c.items.filter((i) => i.tagList.includes(t)).length : c.items.length}</span></button>`
+  ).join("")}</div>` : "";
   return pageHead("Animations", c.name, "", { href: "#anime", label: "アニメーション集" }) + `
   <section class="section"><div class="wrap">
     ${loadingOr(c.items.length
-      ? `<div class="grid">${c.items.map((i) => card(i)).join("")}</div>`
+      ? `${chips}<div class="grid">${list.map((i) => card(i)).join("")}</div>`
       : `<p class="empty">「${esc(c.name)}」のアニメーションはまだありません。</p>`)}
     <div class="section-title" style="margin-top:56px"><h2>ほかの分野</h2></div>
     <div class="cats">${others.map((x) => catTile(x, true)).join("")}</div>
@@ -378,6 +390,7 @@ function colorOf(item) {
 function tagsHtml(item, hideUni) {
   const t = [];
   if (item.category) t.push(`<span class="tag">${esc(item.category)}</span>`);
+  for (const tag of item.tagList) t.push(`<span class="tag grade">${esc(tag)}</span>`);
   if (item.type && !/アニメ/.test(item.type)) t.push(`<span class="tag plain">${esc(item.type)}</span>`);
   if (item.isExam) {
     if (item.university && !hideUni) t.push(`<span class="tag exam">${esc(item.university)}</span>`);
