@@ -332,6 +332,7 @@ function animeCategoryPage(arg) {
 
 // ---------- 質問箱 ----------
 function askPage() {
+  const GRADES = ["中1", "中2", "中3", "高1", "高2", "高3", "浪人", "社会人", "その他"];
   const cats = [...CONFIG.categories, "その他"];
   const ready = !!(CONFIG.questionUrl || "").trim();
   return pageHead("Q &amp; A", "質問箱", "物理のわからないところ、過去問の解き方など、なんでも送ってください。") + `
@@ -342,14 +343,18 @@ function askPage() {
         <li>どの問題か（大学・年・問題番号など）を書いてください。</li>
         <li>どこまでわかって、どこでつまずいたかを書くと、答えやすくなります。</li>
         <li>返信がほしい場合はメールアドレスを入れてください。</li>
+        <li>大学入試以外の質問でもOKです。</li>
       </ul>
     </div>
     <form class="form" id="ask-form" novalidate>
       ${ready ? "" : `<p class="notice info">質問箱は準備中です。</p>`}
-      <div class="field"><label for="q-name">お名前<span class="opt">任意・ニックネームOK</span></label><input id="q-name" name="name" autocomplete="nickname"></div>
+      <div class="field"><label for="q-name">お名前<span class="req">必須</span><span class="opt">フルネームで</span></label><input id="q-name" name="name" autocomplete="name" required></div>
+      <div class="field"><label for="q-grade">学年<span class="req">必須</span></label><select id="q-grade" name="grade" required>
+        <option value="">選んでください</option>${GRADES.map((g) => `<option>${g}</option>`).join("")}
+      </select></div>
       <div class="field"><label for="q-email">メールアドレス<span class="opt">返信がほしい場合</span></label><input id="q-email" name="email" type="email" autocomplete="email"></div>
       <div class="field"><label for="q-cat">分野</label><select id="q-cat" name="category">${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div>
-      <div class="field"><label for="q-body">質問内容</label><textarea id="q-body" name="question" required></textarea></div>
+      <div class="field"><label for="q-body">質問内容<span class="req">必須</span></label><textarea id="q-body" name="question" required></textarea></div>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div id="ask-result"></div>
       <div><button class="btn" type="submit" ${ready ? "" : "disabled"}>送信する</button></div>
@@ -363,8 +368,12 @@ function bindAsk() {
     e.preventDefault();
     const result = $("ask-result");
     const fd = new FormData(form);
-    if (!fd.get("question").trim()) {
-      result.innerHTML = `<p class="notice ng">質問内容を入力してください。</p>`;
+    const missing = [];
+    if (!String(fd.get("name") || "").trim()) missing.push("お名前");
+    if (!fd.get("grade")) missing.push("学年");
+    if (!String(fd.get("question") || "").trim()) missing.push("質問内容");
+    if (missing.length) {
+      result.innerHTML = `<p class="notice ng">${missing.join("・")}を入力してください。</p>`;
       return;
     }
     const btn = form.querySelector("button");

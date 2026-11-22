@@ -278,6 +278,7 @@ a { color: inherit; }
 }
 .field { display: grid; gap: 6px; }
 .field label { font-weight: 700; font-size: .9rem; }
+.field .req { font-size: .7rem; font-weight: 700; color: #fff; background: #e11d48; border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
 .field .opt { font-weight: 400; color: var(--sub); font-size: .8rem; margin-left: 6px; }
 .field input, .field select, .field textarea {
   font: inherit; color: var(--text); background: var(--bg);
