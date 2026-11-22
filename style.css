@@ -291,6 +291,7 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
 .log-go { flex: 0 0 auto; font-size: .82rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
 @media (max-width: 600px) { .log-link { flex-wrap: wrap; gap: 4px 12px; } .log-go { margin-left: auto; } }
 .link-name { display: block; font-size: 1.02rem; }
+.link-info { margin-left: 8px; vertical-align: 2px; font-size: .7rem; }
 .link-note { display: block; margin-top: 2px; font-size: .85rem; color: var(--sub); }
 .link-foot { margin-top: 8px; font-size: .85rem; color: var(--sub); }
 a.last-updated { text-decoration: none; }

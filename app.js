@@ -712,7 +712,7 @@ function linksPage() {
     <div class="log-day">
       <h3 class="year-label">${esc(L(g.group, g.groupEn || g.group))}</h3>
       <ul class="log">${(g.items || []).map((l) => `<li><a class="log-link" href="${esc(l.url)}" target="_blank" rel="noopener">
-        <span class="log-text"><strong class="link-name">${esc(L(l.name, l.nameEn || l.name))}</strong>${l.note ? `<span class="link-note">${esc(L(l.note, l.noteEn || l.note))}</span>` : ""}</span>
+        <span class="log-text"><strong class="link-name">${esc(L(l.name, l.nameEn || l.name))}${l.info ? `<span class="tag plain link-info">${L("入試情報", "Admission info")}</span>` : ""}</strong>${l.note ? `<span class="link-note">${esc(L(l.note, l.noteEn || l.note))}</span>` : ""}</span>
         <span class="log-go">${L("開く", "Open")} ↗</span></a></li>`).join("")}</ul>
     </div>`).join("");
   return pageHead("Links", L(...NAV_TEXT.links), L("各大学が公式サイトで公開している入試問題（過去問）のページです。押すと新しいタブで開きます。",

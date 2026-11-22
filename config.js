@@ -29,6 +29,7 @@ const CONFIG = {
 
   // ↓↓↓ リンク集（メニューの「リンク集」）↓↓↓
   // 1つのリンク = { name: "大学名", nameEn: "英語名", url: "URL", note: "ひとこと", noteEn: "英語のひとこと" }
+  // 過去問そのものではなく入試情報のページなら info: true をつけると「入試情報」の印がつきます
   // 足したいときは { … }, の行をコピーして書きかえるだけ。グループ（見出し）も同じようにコピーで増やせます。
   links: [
     {
@@ -40,15 +41,24 @@ const CONFIG = {
         { name: "名古屋大学", nameEn: "Nagoya University", url: "https://www.nagoya-u.ac.jp/admissions/exam/data/answer/index.html", note: "試験問題・解答例等", noteEn: "Questions and model answers" },
         { name: "京都大学", nameEn: "Kyoto University", url: "https://www.kyoto-u.ac.jp/ja/admissions/undergrad/past-eq/r8-eq", note: "試験問題・解答例・出題意図（令和8年度）", noteEn: "Questions, answers and aims (2026)" },
         { name: "大阪大学", nameEn: "Osaka University", url: "https://www.osaka-u.ac.jp/ja/admissions/faculty/admission/official.html", note: "過去入試問題の公表状況一覧", noteEn: "List of published past exams" },
+        { name: "九州大学", nameEn: "Kyushu University", url: "https://www.kyushu-u.ac.jp/ja/admission/faculty/general/", info: true, note: "過去問の公開ページはないため、一般選抜の入試情報ページ", noteEn: "No official past-exam page; general admission info" },
       ],
     },
     {
-      group: "その他の大学", groupEn: "Other universities",
+      group: "その他の国立大学", groupEn: "Other national universities",
       items: [
         { name: "東京科学大学（旧 東京工業大学）", nameEn: "Institute of Science Tokyo (formerly Tokyo Tech)", url: "https://admissions.isct.ac.jp/ja/013/undergraduate/examination-questions", note: "過去の入試問題・出題の意図等", noteEn: "Past questions and their aims" },
         { name: "一橋大学", nameEn: "Hitotsubashi University", url: "https://juken.hit-u.ac.jp/admission/info/ito_26.html", note: "入試問題・出題の意図等（令和8年度）", noteEn: "Questions and their aims (2026)" },
         { name: "千葉大学", nameEn: "Chiba University", url: "https://www.chiba-u.jp/admissions/gakubu/past-eq/r8zenki.html", note: "一般選抜（前期日程）過去問題（令和8年度）", noteEn: "General admission (first stage) past questions (2026)" },
         { name: "神戸大学", nameEn: "Kobe University", url: "https://www.office.kobe-u.ac.jp/stdnt-examinavi/juken/past_exam/", note: "過年度入試問題", noteEn: "Past exam questions" },
+        { name: "筑波大学", nameEn: "University of Tsukuba", url: "https://ac.tsukuba.ac.jp/examination/exam_questions/", note: "過去問題（年度ごと）", noteEn: "Past questions by year" },
+      ],
+    },
+    {
+      group: "私立大学", groupEn: "Private universities",
+      items: [
+        { name: "早稲田大学", nameEn: "Waseda University", url: "https://www.waseda.jp/inst/admission/undergraduate/past-test/", note: "過去の入試問題", noteEn: "Past entrance exams" },
+        { name: "慶應義塾大学", nameEn: "Keio University", url: "https://www.keio.ac.jp/ja/admissions/faculty/examinations/general-admissions/", info: true, note: "学部の過去問の公開ページはないため、一般選抜の入試情報ページ", noteEn: "No official past-exam page; general admission info" },
       ],
     },
   ],
