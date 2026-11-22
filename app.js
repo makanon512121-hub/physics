@@ -45,7 +45,7 @@ const ENTRY_ICONS = {
 };
 const PLAY = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13L14 8z"/></svg>`;
 
-const data = { items: [], loaded: false, error: "", commitTime: null };
+const data = { items: [], loaded: false, error: "", commitTime: null, changelog: [] };
 const $ = (id) => document.getElementById(id);
 
 // ---------- 起動 ----------
@@ -58,6 +58,7 @@ load();
 loadCommitTime();
 
 async function load() {
+  loadChangelog();
   const url = (CONFIG.sheetCsvUrl || "").trim() || "sample-data.csv";
   try {
     const res = await fetch(url, { cache: "no-store" });
@@ -156,6 +157,7 @@ function route() {
   else if (page === "anime" && arg) view.innerHTML = animeCategoryPage(arg);
   else if (page === "anime") view.innerHTML = animePage();
   else if (page === "ask") { view.innerHTML = askPage(); bindAsk(); }
+  else if (page === "updates") view.innerHTML = updatesPage();
   else view.innerHTML = homePage();
   bindCards(view);
   const ys = $("year-select");
@@ -509,12 +511,13 @@ function formatDate(d) {
 function lastUpdated() {
   const times = data.items.map((i) => i.updatedAt).filter(Boolean);
   if (data.commitTime) times.push(data.commitTime);
+  for (const e of data.changelog) times.push(e.date);
   return times.length ? new Date(Math.max(...times)) : null;
 }
 
 function lastUpdatedHtml() {
   const d = lastUpdated();
-  return `<p class="last-updated" id="last-updated" ${d ? "" : "hidden"}>最終更新：${d ? formatDate(d) : ""}</p>`;
+  return `<a class="last-updated" href="#updates" id="last-updated" ${d ? "" : "hidden"}>最終更新：${d ? formatDate(d) : ""}</a>`;
 }
 
 function showLastUpdated() {
@@ -536,6 +539,51 @@ async function loadCommitTime() {
     data.commitTime = new Date(c.commit.committer.date);
     showLastUpdated();
   } catch (e) { /* 取れなくても表示しないだけ */ }
+}
+
+// ---------- 更新内容 ----------
+// changelog.csv（日時,内容,リンク）＋ スプレッドシートで「更新日時」が入っている記事
+async function loadChangelog() {
+  try {
+    const res = await fetch("changelog.csv", { cache: "no-store" });
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text()).slice(1);
+    data.changelog = rows.map((r) => ({ date: parseDate(r[0]), text: (r[1] || "").trim(), href: (r[2] || "").trim() }))
+      .filter((e) => e.date && e.text);
+    if (location.hash.startsWith("#updates")) route();
+    showLastUpdated();
+  } catch (e) { /* なくても動く */ }
+}
+
+function updateEntries() {
+  const list = data.changelog.map((e) => ({ ...e, kind: "site" }));
+  // 更新履歴に書かれていない記事は、更新日時から自動で載せる
+  for (const i of data.items) {
+    if (!i.updatedAt || list.some((e) => e.text.includes(i.title))) continue;
+    const where = i.isAnime ? i.category || "アニメーション集" : "過去問研究";
+    list.push({ date: i.updatedAt, text: `${where}の「${i.title}」を追加・更新しました。`, item: i.order, kind: "item" });
+  }
+  return list.sort((a, b) => b.date - a.date);
+}
+
+function updatesPage() {
+  const list = updateEntries();
+  const days = [...new Set(list.map((e) => formatDate(e.date).split(" ")[0]))];
+  const body = days.map((day) => `
+    <div class="log-day">
+      <h3 class="year-label">${esc(day)}</h3>
+      <ul class="log">${list.filter((e) => formatDate(e.date).startsWith(day + " ")).map((e) => {
+        const time = formatDate(e.date).split(" ")[1];
+        const inner = `<span class="log-time">${time}</span><span class="log-text">${esc(e.text)}</span>`;
+        if (e.item != null) return `<li><button class="log-link" data-item="${e.item}">${inner}<span class="log-go">見る →</span></button></li>`;
+        if (e.href) return `<li><a class="log-link" href="${esc(e.href)}">${inner}<span class="log-go">見る →</span></a></li>`;
+        return `<li><div class="log-link">${inner}</div></li>`;
+      }).join("")}</ul>
+    </div>`).join("");
+  return pageHead("Updates", "更新内容", "いつ、何を更新したかの一覧です。押すとその場所に移動します。") + `
+  <section class="section"><div class="wrap">
+    ${loadingOr(list.length ? body : `<p class="empty">まだ更新履歴がありません。</p>`)}
+  </div></section>`;
 }
 
 function esc(s) {
