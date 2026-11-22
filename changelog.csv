@@ -12,4 +12,4 @@
 2026/11/22 19:22,日本語と英語を切りかえられるようにしました（右上の「EN」ボタン）。,#home,You can now switch between Japanese and English (EN button at the top right).
 2026/11/22 19:42,「リンク集」ページを追加しました。旧帝大などの公式の過去問ページへのリンクです。,#links,Added the Links page with official past-exam pages of major universities.
 2026/11/22 19:49,リンク集に九州大学・筑波大学・早稲田大学・慶應義塾大学・上智大学・東京理科大学を追加しました。,#links,"Added Kyushu, Tsukuba, Waseda, Keio, Sophia and Tokyo University of Science to the Links page."
-2026/11/22 21:54,トップページのアニメーションを4種類（電子のジャンプ・電場の矢印・惑星の軌道・波の干渉）にしました。タップすると切りかわります。,#home,"The top-page animation now has four types (electron jumps, electric field, planetary orbits, wave interference). Tap to switch."
+2026/11/22 21:54,トップページのアニメーションを4種類（電子のジャンプ・電場の矢印・惑星の軌道・波の干渉）にしました。アニメーションを押すと切りかわります。,#home,"The top-page animation now has four types (electron jumps, electric field, planetary orbits, wave interference). Tap it to switch."

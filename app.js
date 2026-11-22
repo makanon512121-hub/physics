@@ -275,7 +275,6 @@ function homePage() {
     </div>
     <div class="hero-anim">
       <canvas tabindex="0" role="button" aria-label="${L("アニメーションを切りかえる", "Switch animation")}"></canvas>
-      <span class="hero-hint">${L("タップで切りかえ", "Tap to switch")}</span>
     </div>
   </section>
   <div class="wrap">
