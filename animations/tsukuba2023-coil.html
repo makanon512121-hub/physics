@@ -62,6 +62,10 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--i);outline-offs
   <button id="mR" aria-pressed="true">抵抗Rのみ（問1〜4）</button>
   <button id="mC" aria-pressed="false">コンデンサーCを挿入（問5〜7）</button>
 </div>
+<div class="tabs" role="group" aria-label="磁場の向き">
+  <button id="bOut" aria-pressed="true">磁場 ⊙（紙面裏→表）</button>
+  <button id="bIn" aria-pressed="false">磁場 ⊗（紙面表→裏）</button>
+</div>
 
 <div class="fig" id="sceneBox"><canvas id="scene"></canvas></div>
 
@@ -83,7 +87,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--i);outline-offs
 <script>
 {
 const $=id=>document.getElementById(id);
-let mode='R', t=-1, playing=false, speed=0.6, tau=0.3, phase=0, last=null;
+let bdir=1, mode='R', t=-1, playing=false, speed=0.6, tau=0.3, phase=0, last=null;
 const tEnd=()=>mode==='R'?2:4;
 const probe=document.createElement('i');probe.style.display='none';document.body.appendChild(probe);
 const css=n=>{probe.style.color=`var(${n})`;return getComputedStyle(probe).color};
@@ -99,6 +103,8 @@ function st(tt){
   const F=(tt>0&&tt<1)?I:0;
   return{phi,V,I,F,Q};
 }
+/* 磁場の向きを反映（bdir=1:⊙, -1:⊗）。Φ・V・I・Q の符号が反転、外力Fは同じ */
+function sb(tt){const s=st(tt);return{phi:s.phi*bdir,V:s.V*bdir,I:s.I*bdir,F:s.F,Q:s.Q*bdir}}
 /* エネルギー（数値積分） */
 let E=[];const dE=0.002;
 function buildE(){
@@ -109,15 +115,21 @@ const en=tt=>E[clamp(Math.round((tt+1)/dE),0,E.length-1)];
 
 /* ---- グラフ設定 ---- */
 const G=[
- {k:'phi',n:'磁束 Φ',u:'単位 Ba²',c:'--phi',lo:-0.15,hi:1.15,ticks:[[1,'Ba²']]},
- {k:'V',n:'誘導起電力 V',u:'単位 Bav',c:'--v',lo:-0.15,hi:1.2,ticks:[[1,'Bav']]},
+ {k:'phi',n:'磁束 Φ',u:'紙面裏→表を正・単位 Ba²',c:'--phi',lo:-0.15,hi:1.15,ticks:[[1,'Ba²']]},
+ {k:'V',n:'誘導起電力 V',u:'時計回りを正・単位 Bav',c:'--v',lo:-0.15,hi:1.2,ticks:[[1,'Bav']]},
  {k:'I',n:'電流 I',u:'時計回りを正・単位 Bav/R',c:'--i',lo:-1.15,hi:1.2,ticks:[[1,'Bav/R']]},
  {k:'F',n:'外力 F',u:'x軸正向きを正・単位 (Ba)²v/R',c:'--f',lo:-0.15,hi:1.2,ticks:[[1,'(Ba)²v/R']]},
- {k:'Q',n:'電荷 Q',u:'単位 CBav',c:'--q',lo:-0.15,hi:1.15,ticks:[[1,'CBav']],c_only:1}
+ {k:'Q',n:'電荷 Q',u:'右の極板を正・単位 CBav',c:'--q',lo:-0.15,hi:1.15,ticks:[[1,'CBav']],c_only:1}
 ];
 function buildRows(){
   $('graphs').innerHTML=G.filter(g=>!g.c_only||mode==='C').map(g=>`<div class="row"><div class="lab"><strong style="color:var(${g.c})">${g.n}</strong><small>${g.u}</small></div><div class="g"><canvas data-k="${g.k}"></canvas></div></div>`).join('');
-  if(mode==='R')G[2].lo=-0.15;else G[2].lo=-1.15;
+  // 磁場の向きに合わせて縦軸の範囲と目盛りを決める
+  const base={phi:['Ba²',1.15],V:['Bav',1.2],Q:['CBav',1.15]};
+  for(const g of G){
+    if(g.k==='F')continue;
+    if(g.k==='I'){const two=mode==='C';g.lo=two||bdir<0?-1.15:-0.15;g.hi=two||bdir>0?1.2:0.15;g.ticks=[[bdir,(bdir<0?'−':'')+'Bav/R']];continue}
+    const[u,h]=base[g.k];g.lo=bdir>0?-0.15:-h;g.hi=bdir>0?h:0.15;g.ticks=[[bdir,(bdir<0?'−':'')+u]];
+  }
 }
 
 function fit(cv){const r=cv.getBoundingClientRect(),d=devicePixelRatio||1;if(cv.width!==Math.round(r.width*d)||cv.height!==Math.round(r.height*d)){cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d)}const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);return[x,r.width,r.height]}
@@ -135,11 +147,11 @@ function drawGraph(cv){
   for(let k=-1;k<=te;k++){const lab=k===0?'0':(k===1?'a/v':k===-1?'−a/v':k+'a/v');x.fillText(lab,X(k),H-6)}
   x.textAlign='left';
   for(const[v,s]of g.ticks){x.setLineDash([3,3]);x.strokeStyle=line;x.beginPath();x.moveTo(L,Y(v));x.lineTo(W-Rr,Y(v));x.stroke();x.setLineDash([]);x.fillText(s,X(-1)+4,Y(v)-4)}
-  const path=(a,b)=>{x.beginPath();let first=true,prev=null;for(let tt=a;tt<=b+1e-9;tt+=0.004){const v=st(tt)[g.k];if(prev!==null&&Math.abs(v-prev)>0.3){x.lineTo(X(tt),Y(prev))}first?x.moveTo(X(tt),Y(v)):x.lineTo(X(tt),Y(v));first=false;prev=v}x.stroke()};
+  const path=(a,b)=>{x.beginPath();let first=true,prev=null;for(let tt=a;tt<=b+1e-9;tt+=0.004){const v=sb(tt)[g.k];if(prev!==null&&Math.abs(v-prev)>0.3){x.lineTo(X(tt),Y(prev))}first?x.moveTo(X(tt),Y(v)):x.lineTo(X(tt),Y(v));first=false;prev=v}x.stroke()};
   x.strokeStyle=col;x.globalAlpha=0.22;x.lineWidth=2;path(-1,te);
   x.globalAlpha=1;x.lineWidth=3;path(-1,t);
   x.strokeStyle=ink;x.lineWidth=1;x.beginPath();x.moveTo(X(t),T);x.lineTo(X(t),H-B);x.stroke();
-  x.fillStyle=col;x.beginPath();x.arc(X(t),Y(st(t)[g.k]),5,0,7);x.fill();
+  x.fillStyle=col;x.beginPath();x.arc(X(t),Y(sb(t)[g.k]),5,0,7);x.fill();
 }
 
 /* ---- アニメーション画面 ---- */
@@ -150,13 +162,14 @@ function drawScene(){
   const xmin=-2.3,xmax=tEnd()+0.5,ymin=-0.45,ymax=1.75;
   const S=Math.min(W/(xmax-xmin),H/(ymax-ymin)),ox=(W-(xmax-xmin)*S)/2-xmin*S,oy=(H-(ymax-ymin)*S)/2+ymax*S;
   const sx=v=>ox+v*S,sy=v=>oy-v*S;
-  const ink=css('--ink'),sub=css('--sub'),s=st(t),fs=Math.max(13,Math.min(17,S*.16));
+  const ink=css('--ink'),sub=css('--sub'),s=sb(t),fs=Math.max(13,Math.min(17,S*.16));
   x.clearRect(0,0,W,H);x.font=`${fs}px "Zen Kaku Gothic New",sans-serif`;
   // 磁場
   x.fillStyle=css('--field');x.fillRect(sx(0),0,W-sx(0),H);
   x.strokeStyle=sub;x.fillStyle=sub;x.lineWidth=1.2;
-  for(let gx=0.25;gx<xmax;gx+=0.5)for(let gy=-0.25;gy<ymax;gy+=0.5){x.beginPath();x.arc(sx(gx),sy(gy),5,0,7);x.stroke();x.beginPath();x.arc(sx(gx),sy(gy),1.6,0,7);x.fill()}
-  x.fillText('磁場 B（紙面裏→表 ⊙）',sx(0)+8,fs+6);
+  for(let gx=0.25;gx<xmax;gx+=0.5)for(let gy=-0.25;gy<ymax;gy+=0.5){const cx=sx(gx),cy=sy(gy);x.beginPath();x.arc(cx,cy,5,0,7);x.stroke();
+    if(bdir>0){x.beginPath();x.arc(cx,cy,1.6,0,7);x.fill()}else{x.beginPath();x.moveTo(cx-3.5,cy-3.5);x.lineTo(cx+3.5,cy+3.5);x.moveTo(cx+3.5,cy-3.5);x.lineTo(cx-3.5,cy+3.5);x.stroke()}}
+  x.fillText(bdir>0?'磁場 B（紙面裏→表 ⊙）':'磁場 B（紙面表→裏 ⊗）',sx(0)+8,fs+6);
   // 軸
   x.strokeStyle=ink;x.lineWidth=1.2;arrow(x,sx(xmin+.05),sy(0),sx(xmax-.05),sy(0),ink,1.2);arrow(x,sx(0),sy(ymin+.05),sx(0),sy(ymax-.1),ink,1.2);
   x.fillStyle=ink;x.fillText('x',sx(xmax-.05)-fs,sy(0)+fs+2);x.fillText('y',sx(0)+6,sy(ymax-.1)+fs);x.fillText('O',sx(0)-fs-2,sy(0)+fs+2);
@@ -196,7 +209,7 @@ function drawScene(){
 
 /* ---- 数値表示 ---- */
 function readout(){
-  const s=st(t),e=en(t),f=v=>(Math.abs(v)<5e-4?0:v).toFixed(3);
+  const s=sb(t),e=en(t),f=v=>(Math.abs(v)<5e-4?0:v).toFixed(3);
   const items=[['t',f(t),'a/v'],['Φ',f(s.phi),'Ba²'],['V',f(s.V),'Bav'],['I',f(s.I),'Bav/R'],['F',f(s.F),'(Ba)²v/R']];
   if(mode==='C')items.push(['Q',f(s.Q),'CBav']);
   items.push(['外力の仕事 W',f(e.W),'B²a³v/R'],['ジュール熱 J',f(e.J),'B²a³v/R']);
@@ -205,21 +218,27 @@ function readout(){
 }
 
 function note(){
-  $('note').innerHTML=mode==='R'
+  let h=mode==='R'
   ?`<h2>見どころ（問1〜4）</h2><p>0 < t < a/v の間だけ Φ が一定の割合 Bav で増えるので、V = Bav・I = Bav/R（時計回り）が一定になります。磁場から右辺に −x 向きの力 f = (Ba)²v/R がはたらき、速さを保つための外力 F はそれとつりあう +x 向き。コイル全体が磁場に入ると Φ が変化しないので I = 0、F = 0 です。</p><p>表示の W と J を見ると、t = a/v で W = J = B²a³v/R となり、外力の仕事がすべてジュール熱になることが分かります。</p>`
   :`<h2>見どころ（問5〜7）</h2><p>侵入直後はコンデンサーが空なので I = Bav/R（問5）。その後 Q が CBav に向かって増え、I は指数関数的に減ります。コイル全体が磁場に入ると V = 0 になり、コンデンサーが放電して電流は<strong>反時計回り</strong>に流れ、十分時間がたつと I = 0、Q = 0（問6）。</p><p>グラフの形：V は（イ）、Q は（ク）、I は（カ）、F は（オ）。放電中は左右の辺の力が打ち消し合うので外力は 0 です。侵入中は W = J + U、放電中は U がジュール熱に変わります。RC のスライダーで減衰の速さを変えて比べてみてください。</p>`;
+  if(bdir<0){
+    h=h.replace(/反時計回り/g,'\u0000').replace(/時計回り/g,'反時計回り').replace(/\u0000/g,'時計回り');
+    h+=`<p><strong>磁場が ⊗（紙面表→裏）のとき：</strong>レンツの法則により電流の向きが逆（侵入中は反時計回り）になり、グラフの Φ・V・I・Q の符号が反転します。ただし電流と磁場の両方が逆になるので、磁場からの力 f と外力 F の向きは変わりません。（問題の図は ⊙ なので、グラフの形の答え（イ）（ク）などは ⊙ のときのものです。）</p>`;
+  }
+  $('note').innerHTML=h;
 }
 
 function render(){drawScene();document.querySelectorAll('.g canvas').forEach(drawGraph);readout();$('t').value=t}
 
+function setB(b){bdir=b;$('bOut').setAttribute('aria-pressed',b>0);$('bIn').setAttribute('aria-pressed',b<0);buildRows();note();render()}
 function setMode(m){mode=m;$('mR').setAttribute('aria-pressed',m==='R');$('mC').setAttribute('aria-pressed',m==='C');$('tauBox').classList.toggle('hide',m==='R');$('t').max=tEnd();t=-1;phase=0;playing=false;$('play').textContent='▶ 再生';buildRows();buildE();note();render()}
 
 function loop(ts){
-  if(playing){const dt=last==null?0:Math.min(.05,(ts-last)/1000);t+=dt*speed;phase+=st(t).I*dt*1.4;
+  if(playing){const dt=last==null?0:Math.min(.05,(ts-last)/1000);t+=dt*speed;phase+=sb(t).I*dt*1.4;
     if(t>=tEnd()){t=tEnd();playing=false;$('play').textContent='▶ 再生'}render()}
   last=ts;requestAnimationFrame(loop)}
 
-$('mR').onclick=()=>setMode('R');$('mC').onclick=()=>setMode('C');
+$('mR').onclick=()=>setMode('R');$('bOut').onclick=()=>setB(1);$('bIn').onclick=()=>setB(-1);$('mC').onclick=()=>setMode('C');
 $('play').onclick=()=>{if(t>=tEnd())t=-1;playing=!playing;$('play').textContent=playing?'❚❚ 一時停止':'▶ 再生'};
 $('reset').onclick=()=>{t=-1;phase=0;render()};
 $('t').oninput=e=>{t=+e.target.value;render()};
