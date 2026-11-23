@@ -268,6 +268,7 @@ function homePage() {
   return `
   <section class="hero">
     <div class="wrap">
+      ${todayWordHtml()}
       <span class="eyebrow">Physics Lab</span>
       <h1>${heroTitle}</h1>
       <p>${esc(L(CONFIG.heroText, CONFIG.heroTextEn || CONFIG.heroText))}</p>
@@ -305,6 +306,12 @@ function homePage() {
       ${loadingOr(latest.length ? `<div class="grid">${latest.map((i) => card(i)).join("")}</div>` : `<p class="empty">${L("まだ記事がありません。", "Nothing here yet.")}</p>`)}
     </div>
   </section>`;
+}
+
+// 今日の一言（config.js の todayWord）
+function todayWordHtml() {
+  const w = String(L(CONFIG.todayWord || "", CONFIG.todayWordEn || CONFIG.todayWord || "")).trim();
+  return w ? `<p class="today-word"><span class="today-label">${L("今日の一言", "Today's note")}</span><span>${esc(w)}</span></p>` : "";
 }
 
 function pageHead(eyebrow, title, text, crumb) {

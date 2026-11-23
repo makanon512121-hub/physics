@@ -304,6 +304,17 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
 .link-info { margin-left: 8px; vertical-align: 2px; font-size: .7rem; }
 .link-note { display: block; margin-top: 2px; font-size: .85rem; color: var(--sub); }
 .link-foot { margin-top: 8px; font-size: .85rem; color: var(--sub); }
+.hero p.today-word {
+  display: inline-flex; align-items: center; gap: 10px; max-width: 100%; line-height: 1.5;
+  margin: 0 0 18px; padding: 5px 14px 5px 6px; border-radius: 999px; font-size: .82rem; color: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14);
+}
+@media (max-width: 600px) { .hero p.today-word { border-radius: 14px; font-size: .78rem; } }
+.today-label {
+  flex: none; font-size: .7rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+}
+.hero p.today-word + .eyebrow { display: block; }
 a.last-updated { text-decoration: none; }
 a.last-updated:hover { color: #fff !important; border-color: rgba(255,255,255,.4); }
 
