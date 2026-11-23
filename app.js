@@ -510,8 +510,8 @@ function tagsHtml(item, hideUni) {
   item.tagList.forEach((tag, k) => t.push(`<span class="tag grade">${esc((en() && item.en.tagList[k]) || tag)}</span>`));
   if (item.type && !/アニメ/.test(item.type)) t.push(`<span class="tag plain">${esc(typeName(item))}</span>`);
   if (item.isExam) {
-    if (item.university && !hideUni) t.push(`<span class="tag exam">${esc(tx(item, "university"))}</span>`);
-    if (item.year) t.push(`<span class="tag exam">${esc(yearName(item.year))}</span>`);
+    if (item.university && !hideUni && !item.tagList.includes(item.university)) t.push(`<span class="tag exam">${esc(tx(item, "university"))}</span>`);
+    if (item.year && !item.tagList.includes(item.year + "年") && !item.tagList.includes(item.year)) t.push(`<span class="tag exam">${esc(yearName(item.year))}</span>`);
   }
   return t.join("");
 }

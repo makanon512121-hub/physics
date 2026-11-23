@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>磁場に侵入するコイル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/*
+VOICE: 落ち着いた理科の実験ノート。教室で投影しても読める大きさ。
+IDEA: 問題の図1そのものが動き出し、下のグラフが同時に描かれていく。
+PICTURE: 灰色の磁場領域へ進むコイル。電流の粒・力の矢印・貫く磁束の色。
+COLOUR and TYPE: 白地に濃紺、各物理量に固有色（Φ紫・V青・I赤・F緑・Q橙）。Zen Kaku Gothic New。
+LAYOUT: 上にアニメーション、その下に操作、時間軸をそろえたグラフを縦に並べる。
+*/
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0d1424);--ink:light-dark(#0b1f4b,#e6ecfa);--sub:light-dark(#55617d,#9aa7c4);--line:light-dark(#d9dfeb,#26324d);--field:light-dark(#e6e8ee,#1d2638);--panel:light-dark(#f4f6fb,#121b2e);
+--phi:light-dark(#6a4bc4,#a58cff);--v:light-dark(#0b6bcb,#5aa9ff);--i:light-dark(#e0115f,#ff5c93);--f:light-dark(#16804a,#4fd18a);--q:light-dark(#c76a00,#ffb347);--j:light-dark(#8a5a00,#e0b060)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Zen Kaku Gothic New",system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:1100px;margin:0 auto;padding:clamp(16px,3vw,36px) max(4vw,14px)}
+h1{font-size:clamp(24px,4vw,36px);line-height:1.15;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--sub);margin:0 0 16px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button,.ctl button{font:inherit;font-weight:700;min-height:44px;padding:0 18px;border-radius:10px;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--i);outline-offset:2px}
+.fig{position:relative;height:clamp(240px,40vw,400px);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg)}
+.fig>canvas{position:absolute;inset:0;width:100%;height:100%}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:12px 0}
+.ctl label{display:flex;white-space:nowrap;align-items:center;gap:8px;font-size:15px;color:var(--sub)}
+.ctl input[type=range]{width:150px;accent-color:var(--ink);height:44px}
+#scrub{flex:1 1 260px}#scrub input{width:100%}
+.hide{display:none!important}
+.read{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:4px 0 18px}
+.read div{background:var(--panel);border-radius:10px;padding:8px 12px}
+.read b{display:block;font-size:20px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.read span{font-size:13px;color:var(--sub)}
+.graphs{display:grid;gap:4px}
+.row{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:stretch;border-top:1px solid var(--line)}
+.row .lab{padding:10px 8px 6px 0;font-size:15px}
+.row .lab strong{font-size:17px}
+.row .lab small{display:block;color:var(--sub);font-size:13px}
+.row .g{position:relative;height:120px}.row .g canvas{position:absolute;inset:0;width:100%;height:100%}
+.note{background:var(--panel);border-radius:12px;padding:14px 18px;margin-top:18px;font-size:15px}
+.note h2{font-size:18px;margin:0 0 6px}
+.note p{margin:6px 0}
+@media(max-width:600px){.row{grid-template-columns:1fr}.row .lab{padding-bottom:0}.row .g{height:100px}.ctl input[type=range]{width:110px}}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--sub);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>磁場に侵入する正方形コイル</h1>
+<p class="lead">コイルの動きと同時に、磁束Φ・誘導起電力V・電流I・外力F（コンデンサー付きでは電荷Q）のグラフが描かれます。時間の単位は a/v です。</p>
+
+<div class="tabs" role="group" aria-label="回路">
+  <button id="mR" aria-pressed="true">抵抗Rのみ（問1〜4）</button>
+  <button id="mC" aria-pressed="false">コンデンサーCを挿入（問5〜7）</button>
+</div>
+
+<div class="fig" id="sceneBox"><canvas id="scene"></canvas></div>
+
+<div class="ctl">
+  <button id="play">▶ 再生</button>
+  <button id="reset">最初から</button>
+  <label id="scrub">時刻 t <input type="range" id="t" min="-1" max="2" step="0.001" value="-1"></label>
+  <label>速さ <input type="range" id="spd" min="0.2" max="2" step="0.1" value="0.6"></label>
+  <label id="tauBox" class="hide">RC ÷ (a/v) = <span id="tauV">0.30</span><input type="range" id="tau" min="0.1" max="1.5" step="0.05" value="0.3"></label>
+</div>
+
+<div class="read" id="read"></div>
+
+<div class="graphs" id="graphs"></div>
+
+<div class="note" id="note"></div>
+</div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+let mode='R', t=-1, playing=false, speed=0.6, tau=0.3, phase=0, last=null;
+const tEnd=()=>mode==='R'?2:4;
+const probe=document.createElement('i');probe.style.display='none';document.body.appendChild(probe);
+const css=n=>{probe.style.color=`var(${n})`;return getComputedStyle(probe).color};
+
+/* ---- 物理（無次元：時間 a/v, Φ Ba², V Bav, I Bav/R, F B²a²v/R, Q CBav, エネルギー B²a³v/R） ---- */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function st(tt){
+  const phi=clamp(tt,0,1), V=(tt>0&&tt<1)?1:0;
+  let I=0,Q=0;
+  if(mode==='R'){I=V}
+  else if(tt>0&&tt<=1){I=Math.exp(-tt/tau);Q=1-I}
+  else if(tt>1){const q1=1-Math.exp(-1/tau),e=Math.exp(-(tt-1)/tau);Q=q1*e;I=-q1*e}
+  const F=(tt>0&&tt<1)?I:0;
+  return{phi,V,I,F,Q};
+}
+/* エネルギー（数値積分） */
+let E=[];const dE=0.002;
+function buildE(){
+  E=[];let W=0,J=0;
+  for(let tt=-1;tt<=tEnd()+1e-9;tt+=dE){const s=st(tt);E.push({W,J,U:mode==='C'?tau/2*s.Q*s.Q:0});W+=s.F*dE;J+=s.I*s.I*dE}
+}
+const en=tt=>E[clamp(Math.round((tt+1)/dE),0,E.length-1)];
+
+/* ---- グラフ設定 ---- */
+const G=[
+ {k:'phi',n:'磁束 Φ',u:'単位 Ba²',c:'--phi',lo:-0.15,hi:1.15,ticks:[[1,'Ba²']]},
+ {k:'V',n:'誘導起電力 V',u:'単位 Bav',c:'--v',lo:-0.15,hi:1.2,ticks:[[1,'Bav']]},
+ {k:'I',n:'電流 I',u:'時計回りを正・単位 Bav/R',c:'--i',lo:-1.15,hi:1.2,ticks:[[1,'Bav/R']]},
+ {k:'F',n:'外力 F',u:'x軸正向きを正・単位 (Ba)²v/R',c:'--f',lo:-0.15,hi:1.2,ticks:[[1,'(Ba)²v/R']]},
+ {k:'Q',n:'電荷 Q',u:'単位 CBav',c:'--q',lo:-0.15,hi:1.15,ticks:[[1,'CBav']],c_only:1}
+];
+function buildRows(){
+  $('graphs').innerHTML=G.filter(g=>!g.c_only||mode==='C').map(g=>`<div class="row"><div class="lab"><strong style="color:var(${g.c})">${g.n}</strong><small>${g.u}</small></div><div class="g"><canvas data-k="${g.k}"></canvas></div></div>`).join('');
+  if(mode==='R')G[2].lo=-0.15;else G[2].lo=-1.15;
+}
+
+function fit(cv){const r=cv.getBoundingClientRect(),d=devicePixelRatio||1;if(cv.width!==Math.round(r.width*d)||cv.height!==Math.round(r.height*d)){cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d)}const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);return[x,r.width,r.height]}
+
+function drawGraph(cv){
+  const g=G.find(o=>o.k===cv.dataset.k),[x,W,H]=fit(cv);
+  const L=26,Rr=26,T=8,B=22,te=tEnd();
+  const X=tt=>L+(tt+1)/(te+1)*(W-L-Rr),Y=v=>T+(g.hi-v)/(g.hi-g.lo)*(H-T-B);
+  const ink=css('--ink'),sub=css('--sub'),line=css('--line'),col=css(g.c);
+  x.clearRect(0,0,W,H);x.font='13px "Zen Kaku Gothic New",sans-serif';
+  x.strokeStyle=line;x.lineWidth=1;
+  for(let k=-1;k<=te;k++){x.beginPath();x.moveTo(X(k),T);x.lineTo(X(k),H-B);x.stroke()}
+  x.strokeStyle=sub;x.beginPath();x.moveTo(L,Y(0));x.lineTo(W-Rr,Y(0));x.stroke();
+  x.fillStyle=sub;x.textAlign='center';
+  for(let k=-1;k<=te;k++){const lab=k===0?'0':(k===1?'a/v':k===-1?'−a/v':k+'a/v');x.fillText(lab,X(k),H-6)}
+  x.textAlign='left';
+  for(const[v,s]of g.ticks){x.setLineDash([3,3]);x.strokeStyle=line;x.beginPath();x.moveTo(L,Y(v));x.lineTo(W-Rr,Y(v));x.stroke();x.setLineDash([]);x.fillText(s,X(-1)+4,Y(v)-4)}
+  const path=(a,b)=>{x.beginPath();let first=true,prev=null;for(let tt=a;tt<=b+1e-9;tt+=0.004){const v=st(tt)[g.k];if(prev!==null&&Math.abs(v-prev)>0.3){x.lineTo(X(tt),Y(prev))}first?x.moveTo(X(tt),Y(v)):x.lineTo(X(tt),Y(v));first=false;prev=v}x.stroke()};
+  x.strokeStyle=col;x.globalAlpha=0.22;x.lineWidth=2;path(-1,te);
+  x.globalAlpha=1;x.lineWidth=3;path(-1,t);
+  x.strokeStyle=ink;x.lineWidth=1;x.beginPath();x.moveTo(X(t),T);x.lineTo(X(t),H-B);x.stroke();
+  x.fillStyle=col;x.beginPath();x.arc(X(t),Y(st(t)[g.k]),5,0,7);x.fill();
+}
+
+/* ---- アニメーション画面 ---- */
+function arrow(x,x1,y1,x2,y2,col,w){const a=Math.atan2(y2-y1,x2-x1),h=Math.min(12,Math.hypot(x2-x1,y2-y1)*.6+4);x.strokeStyle=x.fillStyle=col;x.lineWidth=w;x.beginPath();x.moveTo(x1,y1);x.lineTo(x2-Math.cos(a)*h*.6,y2-Math.sin(a)*h*.6);x.stroke();x.beginPath();x.moveTo(x2,y2);x.lineTo(x2-h*Math.cos(a-.45),y2-h*Math.sin(a-.45));x.lineTo(x2-h*Math.cos(a+.45),y2-h*Math.sin(a+.45));x.closePath();x.fill()}
+
+function drawScene(){
+  const cv=$('scene'),[x,W,H]=fit(cv);
+  const xmin=-2.3,xmax=tEnd()+0.5,ymin=-0.45,ymax=1.75;
+  const S=Math.min(W/(xmax-xmin),H/(ymax-ymin)),ox=(W-(xmax-xmin)*S)/2-xmin*S,oy=(H-(ymax-ymin)*S)/2+ymax*S;
+  const sx=v=>ox+v*S,sy=v=>oy-v*S;
+  const ink=css('--ink'),sub=css('--sub'),s=st(t),fs=Math.max(13,Math.min(17,S*.16));
+  x.clearRect(0,0,W,H);x.font=`${fs}px "Zen Kaku Gothic New",sans-serif`;
+  // 磁場
+  x.fillStyle=css('--field');x.fillRect(sx(0),0,W-sx(0),H);
+  x.strokeStyle=sub;x.fillStyle=sub;x.lineWidth=1.2;
+  for(let gx=0.25;gx<xmax;gx+=0.5)for(let gy=-0.25;gy<ymax;gy+=0.5){x.beginPath();x.arc(sx(gx),sy(gy),5,0,7);x.stroke();x.beginPath();x.arc(sx(gx),sy(gy),1.6,0,7);x.fill()}
+  x.fillText('磁場 B（紙面裏→表 ⊙）',sx(0)+8,fs+6);
+  // 軸
+  x.strokeStyle=ink;x.lineWidth=1.2;arrow(x,sx(xmin+.05),sy(0),sx(xmax-.05),sy(0),ink,1.2);arrow(x,sx(0),sy(ymin+.05),sx(0),sy(ymax-.1),ink,1.2);
+  x.fillStyle=ink;x.fillText('x',sx(xmax-.05)-fs,sy(0)+fs+2);x.fillText('y',sx(0)+6,sy(ymax-.1)+fs);x.fillText('O',sx(0)-fs-2,sy(0)+fs+2);
+  const L=t-1,R=t;
+  // 貫く磁束
+  const a0=Math.max(0,L),a1=Math.max(0,R);
+  if(a1>a0){x.fillStyle=css('--phi');x.globalAlpha=.28;x.fillRect(sx(a0),sy(1),(a1-a0)*S,S);x.globalAlpha=1;
+    if((a1-a0)*S>fs*2.2){x.fillStyle=css('--phi');x.font=`700 ${fs+2}px "Zen Kaku Gothic New",sans-serif`;x.textAlign='center';x.fillText('Φ',sx((a0+a1)/2),sy(.5)+fs/3);x.textAlign='left';x.font=`${fs}px "Zen Kaku Gothic New",sans-serif`}}
+  // コイル
+  const mid=L+.5,gap=.07;
+  x.strokeStyle=ink;x.lineWidth=4;x.lineCap='round';x.beginPath();
+  if(mode==='C'){x.moveTo(sx(mid-gap),sy(0));x.lineTo(sx(L),sy(0));x.lineTo(sx(L),sy(1));x.lineTo(sx(R),sy(1));x.lineTo(sx(R),sy(0));x.lineTo(sx(mid+gap),sy(0))}
+  else{x.rect(sx(L),sy(1),S,S)}
+  x.stroke();x.lineCap='butt';
+  if(mode==='C'){const ph=.16;x.lineWidth=4;x.beginPath();x.moveTo(sx(mid-gap),sy(-ph));x.lineTo(sx(mid-gap),sy(ph));x.moveTo(sx(mid+gap),sy(-ph));x.lineTo(sx(mid+gap),sy(ph));x.stroke();
+    const n=Math.round(Math.abs(s.Q)*4);x.font=`700 ${fs}px sans-serif`;x.textAlign='center';
+    for(let k=0;k<n;k++){const yy=sy(-ph+.04+k*(2*ph-.08)/3);x.fillStyle=css('--q');x.fillText(s.Q>0?'+':'−',sx(mid+gap)+fs*.6,yy+fs/3);x.fillText(s.Q>0?'−':'+',sx(mid-gap)-fs*.6,yy+fs/3)}
+    x.textAlign='left';x.font=`${fs}px "Zen Kaku Gothic New",sans-serif`;x.fillStyle=ink;x.fillText('C',sx(mid)-fs/3,sy(-ph)+fs+4)}
+  x.fillStyle=ink;x.fillText('R',sx(L)-fs*1.1,sy(0)+fs);
+  // 電流の粒（時計回り：上辺→右辺→下辺→左辺）
+  const pos=p=>{p=((p%4)+4)%4;return p<1?[L+p,1]:p<2?[R,2-p]:p<3?[R-(p-2),0]:[L,p-3]};
+  const amp=Math.abs(s.I);
+  if(amp>0.01){x.fillStyle=css('--i');x.globalAlpha=Math.min(1,.35+amp);
+    for(let k=0;k<20;k++){const[px,py]=pos(k*.2+phase);if(mode==='C'&&py===0&&Math.abs(px-mid)<gap+.03)continue;x.beginPath();x.arc(sx(px),sy(py),3+3*amp,0,7);x.fill()}
+    x.globalAlpha=1;const d=s.I>0?1:-1,c=css('--i');
+    arrow(x,sx(L+.5-.12*d),sy(1)-14,sx(L+.5+.12*d),sy(1)-14,c,2.5);
+    x.fillStyle=c;x.font=`700 ${fs}px "Zen Kaku Gothic New",sans-serif`;x.fillText(s.I>0?'時計回り':'反時計回り',sx(L+.5)-fs*2,sy(1)-24);x.font=`${fs}px "Zen Kaku Gothic New",sans-serif`}
+  // 速度
+  arrow(x,sx(L+.2),sy(1.45),sx(L+.8),sy(1.45),sub,2);x.fillStyle=sub;x.fillText('v',sx(L+.85),sy(1.45)+fs/3);
+  // 磁場からの力（縦の辺）
+  const fc=css('--i'),k=S*.55;
+  if(R>0&&amp>.01){const f=-s.I;arrow(x,sx(R),sy(.5),sx(R)+f*k,sy(.5),fc,3);x.fillStyle=fc;x.fillText('f',sx(R)+f*k+(f<0?-fs:6),sy(.5)-8)}
+  if(L>0&&amp>.01){const f=s.I;arrow(x,sx(L),sy(.5),sx(L)+f*k,sy(.5),fc,3);x.fillStyle=fc;x.fillText('f',sx(L)+f*k+(f<0?-fs:6),sy(.5)-8)}
+  // 外力
+  if(Math.abs(s.F)>.01){const fx=css('--f');arrow(x,sx(L)-s.F*k-6,sy(.25),sx(L)-6,sy(.25),fx,4);x.fillStyle=fx;x.font=`700 ${fs}px "Zen Kaku Gothic New",sans-serif`;x.fillText('F',sx(L)-s.F*k-6,sy(.25)-10)}
+}
+
+/* ---- 数値表示 ---- */
+function readout(){
+  const s=st(t),e=en(t),f=v=>(Math.abs(v)<5e-4?0:v).toFixed(3);
+  const items=[['t',f(t),'a/v'],['Φ',f(s.phi),'Ba²'],['V',f(s.V),'Bav'],['I',f(s.I),'Bav/R'],['F',f(s.F),'(Ba)²v/R']];
+  if(mode==='C')items.push(['Q',f(s.Q),'CBav']);
+  items.push(['外力の仕事 W',f(e.W),'B²a³v/R'],['ジュール熱 J',f(e.J),'B²a³v/R']);
+  if(mode==='C')items.push(['静電エネルギー U',f(e.U),'B²a³v/R']);
+  $('read').innerHTML=items.map(([a,b,c])=>`<div><span>${a}</span><b>${b}</b><span>×${c}</span></div>`).join('');
+}
+
+function note(){
+  $('note').innerHTML=mode==='R'
+  ?`<h2>見どころ（問1〜4）</h2><p>0 < t < a/v の間だけ Φ が一定の割合 Bav で増えるので、V = Bav・I = Bav/R（時計回り）が一定になります。磁場から右辺に −x 向きの力 f = (Ba)²v/R がはたらき、速さを保つための外力 F はそれとつりあう +x 向き。コイル全体が磁場に入ると Φ が変化しないので I = 0、F = 0 です。</p><p>表示の W と J を見ると、t = a/v で W = J = B²a³v/R となり、外力の仕事がすべてジュール熱になることが分かります。</p>`
+  :`<h2>見どころ（問5〜7）</h2><p>侵入直後はコンデンサーが空なので I = Bav/R（問5）。その後 Q が CBav に向かって増え、I は指数関数的に減ります。コイル全体が磁場に入ると V = 0 になり、コンデンサーが放電して電流は<strong>反時計回り</strong>に流れ、十分時間がたつと I = 0、Q = 0（問6）。</p><p>グラフの形：V は（イ）、Q は（ク）、I は（カ）、F は（オ）。放電中は左右の辺の力が打ち消し合うので外力は 0 です。侵入中は W = J + U、放電中は U がジュール熱に変わります。RC のスライダーで減衰の速さを変えて比べてみてください。</p>`;
+}
+
+function render(){drawScene();document.querySelectorAll('.g canvas').forEach(drawGraph);readout();$('t').value=t}
+
+function setMode(m){mode=m;$('mR').setAttribute('aria-pressed',m==='R');$('mC').setAttribute('aria-pressed',m==='C');$('tauBox').classList.toggle('hide',m==='R');$('t').max=tEnd();t=-1;phase=0;playing=false;$('play').textContent='▶ 再生';buildRows();buildE();note();render()}
+
+function loop(ts){
+  if(playing){const dt=last==null?0:Math.min(.05,(ts-last)/1000);t+=dt*speed;phase+=st(t).I*dt*1.4;
+    if(t>=tEnd()){t=tEnd();playing=false;$('play').textContent='▶ 再生'}render()}
+  last=ts;requestAnimationFrame(loop)}
+
+$('mR').onclick=()=>setMode('R');$('mC').onclick=()=>setMode('C');
+$('play').onclick=()=>{if(t>=tEnd())t=-1;playing=!playing;$('play').textContent=playing?'❚❚ 一時停止':'▶ 再生'};
+$('reset').onclick=()=>{t=-1;phase=0;render()};
+$('t').oninput=e=>{t=+e.target.value;render()};
+$('spd').oninput=e=>speed=+e.target.value;
+$('tau').oninput=e=>{tau=+e.target.value;$('tauV').textContent=tau.toFixed(2);buildE();render()};
+const ro=new ResizeObserver(()=>render());ro.observe(document.body);
+setMode('R');requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
