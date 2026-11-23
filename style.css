@@ -73,7 +73,7 @@ a { color: inherit; }
   .nav-links a { padding: 6px 7px; font-size: .78rem; }
   .nav-inner { gap: 6px; flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 6px; }
   .nav-links { order: 3; width: 100%; justify-content: space-between; }
-  .nav-links a { padding: 6px 5px; font-size: .74rem; }
+  .nav-links a { padding: 6px 3px; font-size: .7rem; }
   .lang-btn { padding: 4px 8px; font-size: .72rem; }
 }
 
@@ -315,6 +315,8 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
   background: linear-gradient(135deg, var(--accent), var(--accent2));
 }
 .hero p.today-word + .eyebrow { display: block; }
+.admin-box { max-width: 560px; }
+.admin-btns { display: flex; gap: 10px; flex-wrap: wrap; }
 a.last-updated { text-decoration: none; }
 a.last-updated:hover { color: #fff !important; border-color: rgba(255,255,255,.4); }
 

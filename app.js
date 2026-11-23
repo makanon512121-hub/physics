@@ -60,6 +60,7 @@ const L = (ja, english) => (en() ? english : ja); // 日本語と英語のどち
 const NAV_TEXT = {
   exams: ["過去問研究", "Past Exams"], anime: ["アニメーション集", "Animations"],
   ask: ["質問箱", "Q&A"], updates: ["更新内容", "Updates"], links: ["リンク集", "Links"],
+  admin: ["管理", "Admin"],
 };
 const CATEGORY_EN = { "力学": "Mechanics", "電磁気学": "Electromagnetism", "熱力学": "Thermodynamics", "波動": "Waves", "原子": "Atomic Physics", "その他": "Other" };
 const GRADE_EN = { "中1": "Junior high 1", "中2": "Junior high 2", "中3": "Junior high 3", "高1": "High school 1", "高2": "High school 2", "高3": "High school 3", "浪人": "Gap year (rōnin)", "社会人": "Working adult", "その他": "Other" };
@@ -112,6 +113,7 @@ applyLang();
 window.addEventListener("hashchange", route);
 route();
 load();
+loadTodayWord();
 loadCommitTime();
 setupCounter();
 
@@ -231,6 +233,7 @@ function route() {
   else if (page === "ask") { view.innerHTML = askPage(); bindAsk(); }
   else if (page === "updates") view.innerHTML = updatesPage();
   else if (page === "links") view.innerHTML = linksPage();
+  else if (page === "admin") { view.innerHTML = adminPage(); bindAdmin(); }
   else view.innerHTML = homePage();
   bindCards(view);
   const heroAnim = view.querySelector(".hero-anim");
@@ -308,9 +311,35 @@ function homePage() {
   </section>`;
 }
 
-// 今日の一言（config.js の todayWord）
+// 今日の一言：管理ページで書いたもの（Apps Script に保存）→ なければ config.js の todayWord
+const WORD_KEY = "physics-hp-word";
+function currentWord() {
+  let w = data.todayWord;
+  if (!w) { try { w = JSON.parse(localStorage.getItem(WORD_KEY) || "null"); } catch (e) { w = null; } }
+  if (!w || typeof w.word !== "string") w = { word: CONFIG.todayWord || "", wordEn: CONFIG.todayWordEn || "" };
+  return w;
+}
+async function loadTodayWord() {
+  const url = (CONFIG.questionUrl || "").trim();
+  if (!url) return;
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    const j = await res.json();
+    if (typeof j.word !== "string") return; // まだ一度も書いていない → config.js のまま
+    setTodayWord({ word: j.word, wordEn: j.wordEn || "" });
+  } catch (e) { /* 読めなければ config.js のまま */ }
+}
+function setTodayWord(w) {
+  data.todayWord = w;
+  try { localStorage.setItem(WORD_KEY, JSON.stringify(w)); } catch (e) {}
+  const el = document.querySelector(".hero .today-word"), html = todayWordHtml();
+  if (el) { if (html) el.outerHTML = html; else el.remove(); }
+  else if (html) { const eb = document.querySelector(".hero .eyebrow"); if (eb) eb.insertAdjacentHTML("beforebegin", html); }
+}
+
 function todayWordHtml() {
-  const w = String(L(CONFIG.todayWord || "", CONFIG.todayWordEn || CONFIG.todayWord || "")).trim();
+  const cw = currentWord();
+  const w = String(L(cw.word || "", cw.wordEn || cw.word || "")).trim();
   return w ? `<p class="today-word"><span class="today-label">${L("今日の一言", "Today's note")}</span><span>${esc(w)}</span></p>` : "";
 }
 
@@ -719,6 +748,78 @@ function linksPage() {
     <p class="link-foot">${L("※ 公開している年度や科目は大学によってちがいます。ページの場所が変わっていたら教えてください。なお、リンクが間違っている場合の責任は一切とれません。不安であれば必ず自分でしっかりと調べてください。",
       "Note: the years and subjects available differ by university. We cannot take any responsibility if a link is wrong. If you are unsure, please check for yourself.")}</p>
   </div></section>`;
+}
+
+// ---------- 管理（今日の一言の書きかえ） ----------
+// パスワードは Apps Script 側で確かめます（このファイルには書きません）
+const ADMIN_KEY = "physics-hp-admin";
+async function adminCall(params) {
+  const body = new URLSearchParams(params);
+  const res = await fetch(CONFIG.questionUrl, { method: "POST", body });
+  const text = await res.text();
+  try { return JSON.parse(text); } catch (e) { return { ok: false, error: "script" }; }
+}
+function adminPage() {
+  return pageHead("Admin", L(...NAV_TEXT.admin), L("今日の一言を書きかえられます。", "Update today's note.")) + `
+  <section class="section"><div class="wrap"><div class="form admin-box" id="admin-box"></div></div></section>`;
+}
+function bindAdmin() {
+  const box = $("admin-box");
+  let pw = "";
+  try { pw = sessionStorage.getItem(ADMIN_KEY) || ""; } catch (e) {}
+  const errText = (r) => r.error === "password" ? L("パスワードがちがいます。", "Wrong password.")
+    : r.error === "script" ? L("Apps Script の更新がまだのようです（使い方ガイドの「B7. 管理ページ」を見てください）。", "The Apps Script has not been updated yet.")
+    : L("うまくいきませんでした。時間をおいてもう一度お試しください。", "Something went wrong. Please try again later.");
+  function login() {
+    box.innerHTML = `
+      <div class="field"><label for="ad-pw">${L("管理パスワード", "Admin password")}</label><input id="ad-pw" type="password" autocomplete="current-password"></div>
+      <div id="ad-result"></div>
+      <div><button class="btn" id="ad-login" type="button">${L("ログイン", "Log in")}</button></div>`;
+    const go = async () => {
+      const btn = $("ad-login"), v = $("ad-pw").value;
+      if (!v) return;
+      btn.disabled = true; btn.textContent = L("確認中…", "Checking…");
+      let r;
+      try { r = await adminCall({ _action: "login", _password: v }); } catch (e) { r = { ok: false }; }
+      if (r.ok) { pw = v; try { sessionStorage.setItem(ADMIN_KEY, v); } catch (e) {} editor(r); return; }
+      $("ad-result").innerHTML = `<p class="notice ng">${errText(r)}</p>`;
+      btn.disabled = false; btn.textContent = L("ログイン", "Log in");
+    };
+    $("ad-login").onclick = go;
+    $("ad-pw").onkeydown = (e) => { if (e.key === "Enter") go(); };
+    $("ad-pw").focus();
+  }
+  function editor(r) {
+    const cw = typeof r.word === "string" ? r : currentWord();
+    box.innerHTML = `
+      <div class="field"><label for="ad-word">${L("今日の一言", "Today's note")}<span class="opt">${L("空にすると表示しません", "Leave empty to hide")}</span></label>
+        <textarea id="ad-word" maxlength="200" style="min-height:90px">${esc(cw.word || "")}</textarea></div>
+      <div class="field"><label for="ad-word-en">${L("英語表示のときの一言", "Note in English")}<span class="opt">${L("空なら日本語のまま", "Optional")}</span></label>
+        <input id="ad-word-en" maxlength="200" value="${esc(cw.wordEn || "")}"></div>
+      <div id="ad-result"></div>
+      <div class="admin-btns"><button class="btn" id="ad-save" type="button">${L("保存する", "Save")}</button>
+        <button class="btn ghost" id="ad-logout" type="button">${L("ログアウト", "Log out")}</button></div>`;
+    $("ad-save").onclick = async () => {
+      const btn = $("ad-save"), word = $("ad-word").value.trim(), wordEn = $("ad-word-en").value.trim();
+      btn.disabled = true; btn.textContent = L("保存中…", "Saving…");
+      let res;
+      try { res = await adminCall({ _action: "setWord", _password: pw, _word: word, _wordEn: wordEn }); } catch (e) { res = { ok: false }; }
+      if (res.ok) {
+        setTodayWord({ word, wordEn });
+        $("ad-result").innerHTML = `<p class="notice ok">${L("保存しました。トップページに反映されています。", "Saved. It now shows on the top page.")} <a href="#home">${L("トップを見る →", "View top page →")}</a></p>`;
+      } else {
+        $("ad-result").innerHTML = `<p class="notice ng">${errText(res)}</p>`;
+        if (res.error === "password") { try { sessionStorage.removeItem(ADMIN_KEY); } catch (e) {} }
+      }
+      btn.disabled = false; btn.textContent = L("保存する", "Save");
+    };
+    $("ad-logout").onclick = () => { pw = ""; try { sessionStorage.removeItem(ADMIN_KEY); } catch (e) {} login(); };
+  }
+  if (!(CONFIG.questionUrl || "").trim()) { box.innerHTML = `<p class="notice info">${L("Apps Script のURLが設定されていません。", "Apps Script URL is not set.")}</p>`; return; }
+  if (pw) {
+    box.innerHTML = `<p class="status">${L("読み込み中…", "Loading…")}</p>`;
+    adminCall({ _action: "login", _password: pw }).then((r) => r.ok ? editor(r) : login()).catch(login);
+  } else login();
 }
 
 // ---------- 訪問者数（GoatCounter） ----------
