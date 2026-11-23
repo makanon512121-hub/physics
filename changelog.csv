@@ -14,3 +14,4 @@
 2026/11/22 19:49,リンク集に九州大学・筑波大学・早稲田大学・慶應義塾大学・上智大学・東京理科大学を追加しました。,#links,"Added Kyushu, Tsukuba, Waseda, Keio, Sophia and Tokyo University of Science to the Links page."
 2026/11/22 21:54,トップページのアニメーションを4種類（電子のジャンプ・電場の矢印・惑星の軌道・波の干渉）にしました。アニメーションを押すと切りかわります。,#home,"The top-page animation now has four types (electron jumps, electric field, planetary orbits, wave interference). Tap it to switch."
 2026/11/23 19:06,電磁気学に「磁場に侵入する正方形コイル」（筑波大学 2023年・電磁誘導・コンデンサー）を追加しました。,#anime/電磁気学,"Added ""Square coil entering a magnetic field"" (University of Tsukuba 2023, electromagnetic induction, capacitor) to Electromagnetism."
+2026/11/23 19:35,力学に「振り子と釘（非等速円運動）」（筑波大学 2023年）を追加しました。v・m・M・l・a・g を変えて動きを確かめられます。,#anime/力学,"Added ""Pendulum and peg (non-uniform circular motion)"" (University of Tsukuba 2023) to Mechanics. Change v, m, M, l, a and g to see how the motion changes."

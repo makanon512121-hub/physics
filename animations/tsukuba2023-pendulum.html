@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>振り子と釘のシミュレーター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 理科室の黒板。落ち着いて、数値は正確に
+   IDEA: 黒板に描いた振り子の図がそのまま動き出す
+   PICTURE: 大きな黒板キャンバス（P・Q・A・B、ひも、軌跡）
+   COLOUR and TYPE: 黒板の緑、チョークの白・黄・水色・桃 / Zen Kaku Gothic New
+   LAYOUT: 上に黒板＋操作盤、下に理論値と実測値・張力グラフ */
+:root{color-scheme:light dark;--bg:light-dark(#f3f4ef,#121614);--ink:light-dark(#1b221f,#e9ede8);--mute:light-dark(#5b6661,#9aa5a0);--line:light-dark(#d5dad3,#2c3531);--card:light-dark(#ffffff,#1a201d);--board:#1f3a32;--chalk:#f4f1e6;--yel:#ffd75e;--cyan:#8fd3ff;--pink:#ff8fa3;--acc:light-dark(#1f6b55,#7fd1b0)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Zen Kaku Gothic New",system-ui,sans-serif;overflow-x:clip;font-variant-numeric:tabular-nums}
+.band{padding:clamp(18px,3vw,40px) max(4vw,14px);max-width:1280px;margin:0 auto}
+h1{font-size:clamp(24px,3.4vw,36px);line-height:1.1;margin:0 0 4px;text-wrap:balance}
+.sub{color:var(--mute);margin:0 0 18px;font-size:15px}
+.main{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:18px}
+@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.boardwrap{background:var(--board);border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgb(0 0 0/.18);display:flex;flex-direction:column}
+.fig{position:relative;min-height:400px;flex:1}.fig>canvas{position:absolute;inset:0;width:100%;height:100%}
+.status{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 14px;color:var(--chalk);font-size:14px;border-top:1px solid rgb(255 255 255/.12)}
+.status b{color:var(--yel);font-weight:700}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.row{margin-bottom:12px}
+.row label{display:flex;justify-content:space-between;font-size:15px}
+.row output{font-weight:700;white-space:nowrap}
+input[type=range]{width:100%;height:30px;accent-color:var(--acc);margin:2px 0 0}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button.pri{background:var(--acc);color:light-dark(#fff,#0f1a16);border-color:transparent;font-weight:700}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.vbar{position:relative;height:22px;border-radius:6px;overflow:hidden;display:flex;font-size:12px;margin-top:4px}
+.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;color:#16201c}
+.case{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:15px}
+.case b{color:var(--acc)}
+.lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:18px}
+@media(max-width:900px){.lower{grid-template-columns:minmax(0,1fr)}}
+h2{font-size:19px;margin:0 0 10px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+td.n{text-align:right;white-space:nowrap;font-weight:700}
+th{font-size:13px;color:var(--mute);font-weight:400}
+.gfig{position:relative;height:220px}.gfig>canvas{position:absolute;inset:0;width:100%;height:100%}
+.note{font-size:13px;color:var(--mute);margin:8px 0 0}
+@media(max-width:600px){.fig{min-height:320px}}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+</style></head><body>
+<div class="band">
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>振り子と釘 ― 非等速円運動シミュレーター</h1>
+<p class="sub">筑波大学 2023年 物理 大問1。質量 m の物体が速さ v で衝突 → 一体化した X が P のまわりを振り上がり、ひもが釘 Q にかかると半径 l−a の円運動へ。パラメータを動かすと最初からやり直します。</p>
+<div class="main">
+ <div class="boardwrap">
+  <div class="fig" id="fig"><canvas id="cv"></canvas></div>
+  <div class="status" id="status"></div>
+ </div>
+ <div class="panel">
+  <div class="btns">
+   <button class="pri" id="play">一時停止</button>
+   <button id="reset">最初から</button>
+   <button id="setv1">v = v₁</button>
+   <button id="setv2">v = v₂</button>
+  </div>
+  <div class="row"><label for="v">衝突前の速さ v<output id="ov"></output></label><input type="range" id="v" min="0" max="30" step="0.1">
+   <div class="vbar" id="vbar"></div></div>
+  <div class="row"><label for="m">ぶつける物体 m<output id="om"></output></label><input type="range" id="m" min="0.1" max="3" step="0.05"></div>
+  <div class="row"><label for="M">つり下げた物体 M<output id="oM"></output></label><input type="range" id="M" min="0.1" max="3" step="0.05"></div>
+  <div class="row"><label for="l">ひもの長さ l<output id="ol"></output></label><input type="range" id="l" min="0.5" max="2" step="0.01"></div>
+  <div class="row"><label for="a">PQ 間の距離 a（a &lt; l &lt; 2a）<output id="oa"></output></label><input type="range" id="a" min="0.26" max="0.98" step="0.01"></div>
+  <div class="row"><label for="g">重力加速度 g<output id="og"></output></label><input type="range" id="g" min="1" max="20" step="0.1"></div>
+  <div class="row"><label for="sp">再生速度<output id="osp"></output></label><input type="range" id="sp" min="0.05" max="1" step="0.05"></div>
+  <div class="case" id="case"></div>
+ </div>
+</div>
+<div class="lower">
+ <div class="panel">
+  <h2>理論値と実測値</h2>
+  <table>
+   <thead><tr><th>量</th><th>式</th><th style="text-align:right">値</th></tr></thead>
+   <tbody id="tb"></tbody>
+  </table>
+  <p class="note">実測値はシミュレーション中に X が点 B を初めて通過した瞬間の値です。</p>
+ </div>
+ <div class="panel">
+  <h2>張力 T の時間変化</h2>
+  <div class="gfig"><canvas id="gc"></canvas></div>
+  <p class="note">縦軸は T ÷ (m+M)g。桃色の区間はひもがたるんで T = 0（放物運動）。たるんだひもが再び張るときに力学的エネルギーが失われます。</p>
+ </div>
+</div>
+</div>
+<script>
+{
+const $=id=>document.getElementById(id);
+const S={m:0.5,M:1.0,v:17,l:1.0,a:0.7,g:9.8,speed:0.5};
+const H=0.0004;
+let st,running=true,trail=[],samp=[],simT=0,pre=0,meas=null,th0;
+const f2=(x,d=2)=>Number.isFinite(x)?x.toFixed(d):'—';
+function theory(){const{m,M,v,l,a,g}=S,Mt=m+M;return{Mt,VA:m*v/Mt,dE:m*M*v*v/(2*Mt),v1:Mt/m*Math.sqrt(2*g*l),v2:Mt/m*Math.sqrt(g*(5*l-3*a)),VB2:(m/Mt)**2*v*v-2*g*(2*l-a),TB:(m*m*v*v-Mt*Mt*g*(5*l-3*a))/(Mt*(l-a))}}
+const r=()=>S.l-S.a;
+function pos(){if(st.mode==='Q')return[S.a+r()*Math.cos(st.ph),r()*Math.sin(st.ph)];if(st.mode==='F')return[st.x,st.y];return[S.l*Math.sin(st.th),-S.l*Math.cos(st.th)]}
+function vel(){if(st.mode==='Q')return[-r()*st.wq*Math.sin(st.ph),r()*st.wq*Math.cos(st.ph)];if(st.mode==='F')return[st.vx,st.vy];if(st.mode==='pre')return[0,0];return[S.l*st.w*Math.cos(st.th),S.l*st.w*Math.sin(st.th)]}
+function tension(){const Mt=S.m+S.M;if(st.mode==='Q')return Mt*(r()*st.wq**2-S.g*Math.sin(st.ph));if(st.mode==='P')return Mt*(S.l*st.w**2+S.g*Math.cos(st.th));if(st.mode==='pre')return S.M*S.g;return 0}
+function energy(){const Mt=S.m+S.M,[vx,vy]=vel(),[,y]=pos();return .5*Mt*(vx*vx+vy*vy)+Mt*S.g*y}
+function rk(an,om,acc,h){const k1a=om,k1o=acc(an),k2a=om+h/2*k1o,k2o=acc(an+h/2*k1a),k3a=om+h/2*k2o,k3o=acc(an+h/2*k2a),k4a=om+h*k3o,k4o=acc(an+h*k3a);return[an+h/6*(k1a+2*k2a+2*k3a+k4a),om+h/6*(k1o+2*k2o+2*k3o+k4o)]}
+function unwrap(raw,prev){let d=raw-prev;d-=2*Math.PI*Math.round(d/(2*Math.PI));return prev+d}
+function goFree(){const[x,y]=pos(),[vx,vy]=vel();Object.assign(st,{mode:'F',x,y,vx,vy})}
+function reset(){const t=theory();st={mode:'pre',th:0,w:t.VA/S.l,ph:Math.atan2(-S.l,-S.a),wq:0,x:0,y:-S.l,vx:0,vy:0};simT=0;pre=0;trail=[];samp=[];meas=null;}
+function step(h){
+ const g=S.g,l=S.l,R=r();
+ if(st.mode==='P'){[st.th,st.w]=rk(st.th,st.w,t=>-g/l*Math.sin(t),h);
+  const[x,y]=pos();st.ph=unwrap(Math.atan2(y,x-S.a),st.ph);
+  if(st.th>Math.PI/2&&st.w>0){st.mode='Q';st.ph=0;st.wq=l*st.w/R}
+  else if(tension()<0)goFree();}
+ else if(st.mode==='Q'){const p0=st.ph;[st.ph,st.wq]=rk(st.ph,st.wq,p=>-g/R*Math.cos(p),h);
+  if(!meas&&p0<Math.PI/2&&st.ph>=Math.PI/2)meas={V:R*Math.abs(st.wq),T:tension()};
+  if(st.ph<0&&st.wq<0){st.mode='P';st.th=Math.PI/2;st.w=R*st.wq/l}
+  else if(tension()<0)goFree();}
+ else if(st.mode==='F'){st.vy-=g*h;st.x+=st.vx*h;st.y+=st.vy*h;
+  st.ph=unwrap(Math.atan2(st.y,st.x-S.a),st.ph);
+  if(st.ph>=0){const dx=st.x-S.a,dy=st.y,d=Math.hypot(dx,dy);
+   if(d>=R&&(st.vx*dx+st.vy*dy)>0){const c=Math.cos(st.ph),s=Math.sin(st.ph);st.wq=(-st.vx*s+st.vy*c)/R;st.mode='Q'}}
+  else{const d=Math.hypot(st.x,st.y);
+   if(d>=l&&(st.vx*st.x+st.vy*st.y)>0){st.th=Math.atan2(st.x,-st.y);st.w=(st.vx*Math.cos(st.th)+st.vy*Math.sin(st.th))/l;st.mode='P'}}}
+ simT+=h;
+}
+/* ---- controls ---- */
+const ids=['v','m','M','l','a','g','sp'],units={v:' m/s',m:' kg',M:' kg',l:' m',a:' m',g:' m/s²',sp:' 倍'};
+function syncUI(){const t=theory();
+ const vmax=Math.max(30,Math.ceil(t.v2*1.4));$('v').max=vmax;
+ $('a').min=(S.l*0.52).toFixed(2);$('a').max=(S.l*0.98).toFixed(2);
+ S.a=Math.min(Math.max(S.a,+$('a').min),+$('a').max);
+ const map={v:S.v,m:S.m,M:S.M,l:S.l,a:S.a,g:S.g,sp:S.speed};
+ for(const k of ids){$(k).value=map[k];$('o'+k).textContent=(+map[k]).toFixed(k==='v'||k==='g'?1:2)+units[k]}
+ const p1=Math.min(100,t.v1/vmax*100),p2=Math.min(100,t.v2/vmax*100);
+ $('vbar').innerHTML=`<div style="width:${p1}%;background:#a8d8c4">振り子</div><div style="width:${p2-p1}%;background:#ffc9d3">たるむ</div><div style="flex:1;background:#ffe596">円運動</div>`;
+ let c;if(S.v<t.v1)c='<b>v &lt; v₁</b>：X は点 P の高さに届かず、P を中心とした振り子運動をくり返します。';
+ else if(S.v<t.v2)c='<b>v₁ ≤ v &lt; v₂</b>：ひもは釘 Q にかかりますが、B に達する前（または途中）で張力が 0 になり、ひもがたるみます。';
+ else c='<b>v ≥ v₂</b>：張力が常に T ≥ 0 のまま、X は Q のまわりで円運動を続けます。';
+ $('case').innerHTML=c+`<br><span style="font-size:13px;color:var(--mute)">v₁ = ${f2(t.v1)} m/s，v₂ = ${f2(t.v2)} m/s</span>`;
+ const VB=t.VB2>=0?Math.sqrt(t.VB2):NaN;
+ const mv=meas?`${f2(meas.V)} m/s（実測）`:'—';const mt=meas?`${f2(meas.T)} N（実測）`:'—';
+ $('tb').innerHTML=[
+  ['問1 衝突直後の速さ V<sub>A</sub>','mv/(m+M)',f2(t.VA)+' m/s'],
+  ['問2 失われたエネルギー ΔE','mMv²/2(m+M)',f2(t.dE)+' J'],
+  ['問3 v₁','(m+M)/m·√(2gl)',f2(t.v1)+' m/s'],
+  ['問4 B での速さ V<sub>B</sub>','√((m/(m+M))²v²−2g(2l−a))',(t.VB2>=0?f2(VB)+' m/s':'到達しない')],
+  ['','',mv],
+  ['問5 B での張力 T','{m²v²−(m+M)²g(5l−3a)}/{(m+M)(l−a)}',(t.VB2>=0?f2(t.TB)+' N':'—')+(t.VB2>=0&&t.TB<0?'（負→B の前でたるむ）':'')],
+  ['','',mt],
+  ['問6 v₂','(m+M)/m·√(g(5l−3a))',f2(t.v2)+' m/s']
+ ].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="n">${r[2]}</td></tr>`).join('');
+}
+for(const k of ids)$(k).addEventListener('input',e=>{const x=+e.target.value;if(k==='sp')S.speed=x;else{S[k]=x;reset()}syncUI()});
+$('play').onclick=()=>{running=!running;$('play').textContent=running?'一時停止':'再生'};
+$('reset').onclick=()=>{reset();syncUI()};
+$('setv1').onclick=()=>{S.v=+theory().v1.toFixed(2);reset();syncUI()};
+$('setv2').onclick=()=>{S.v=+(theory().v2+0.01).toFixed(2);reset();syncUI()};
+/* ---- drawing ---- */
+const cv=$('cv'),cx=cv.getContext('2d'),gc=$('gc'),gx=gc.getContext('2d');
+function fit(c,ctx){const d=devicePixelRatio||1,b=c.getBoundingClientRect();c.width=b.width*d;c.height=b.height*d;ctx.setTransform(d,0,0,d,0,0);return[b.width,b.height]}
+let W=0,Hh=0,GW=0,GH=0;
+const ro1=new ResizeObserver(()=>{[W,Hh]=fit(cv,cx)});ro1.observe($('fig'));
+const ro2=new ResizeObserver(()=>{[GW,GH]=fit(gc,gx)});ro2.observe(gc.parentElement);
+function draw(){
+ const l=S.l,R=r(),xmin=-1.4*l,xmax=1.2*l,ymin=-1.18*l,ymax=Math.max(R,.1*l)+.22*l;
+ const sc=Math.min(W/(xmax-xmin),Hh/(ymax-ymin)),ox=(W-(xmax-xmin)*sc)/2,oy=(Hh-(ymax-ymin)*sc)/2;
+ const X=x=>ox+(x-xmin)*sc,Y=y=>oy+(ymax-y)*sc;
+ cx.clearRect(0,0,W,Hh);cx.lineCap='round';
+ // guide paths
+ cx.setLineDash([4,6]);cx.strokeStyle='rgba(244,241,230,.22)';cx.lineWidth=1.2;
+ cx.beginPath();cx.arc(X(0),Y(0),l*sc,0,Math.PI);cx.stroke();
+ cx.beginPath();cx.arc(X(S.a),Y(0),R*sc,0,2*Math.PI);cx.stroke();
+ cx.beginPath();cx.moveTo(X(0),Y(0));cx.lineTo(X(S.a),Y(0));cx.stroke();
+ cx.setLineDash([]);
+ // ground line
+ cx.strokeStyle='rgba(244,241,230,.15)';cx.beginPath();cx.moveTo(X(xmin),Y(-l)+12);cx.lineTo(X(.2*l),Y(-l)+12);cx.stroke();
+ // trail
+ for(let i=1;i<trail.length;i++){const a=trail[i-1],b=trail[i];cx.strokeStyle=b[2]==='F'?`rgba(255,143,163,${i/trail.length})`:`rgba(143,211,255,${i/trail.length})`;cx.lineWidth=2.5;cx.beginPath();cx.moveTo(X(a[0]),Y(a[1]));cx.lineTo(X(b[0]),Y(b[1]));cx.stroke()}
+ const [px,py]=st.mode==='pre'?[0,-l]:pos();
+ // rope
+ cx.strokeStyle='#f4f1e6';cx.lineWidth=2;cx.beginPath();cx.moveTo(X(0),Y(0));
+ const wrapped=st.mode==='Q'||(st.mode==='F'&&st.ph>=0);
+ const piv=wrapped?[S.a,0]:[0,0],L=wrapped?R:l;
+ if(wrapped)cx.lineTo(X(S.a),Y(0));
+ if(st.mode==='F'){const d=Math.hypot(px-piv[0],py-piv[1]),sag=Math.sqrt(Math.max(0,L*L-d*d))*.7;cx.quadraticCurveTo(X((piv[0]+px)/2),Y((piv[1]+py)/2-sag),X(px),Y(py))}
+ else cx.lineTo(X(px),Y(py));
+ cx.stroke();
+ // points
+ const lab=(x,y,t,dx,dy)=>{cx.fillStyle='#f4f1e6';cx.font='700 15px "Zen Kaku Gothic New",sans-serif';cx.fillText(t,X(x)+dx,Y(y)+dy)};
+ cx.fillStyle='#f4f1e6';for(const[x,y]of[[0,0],[S.a,0]]){cx.beginPath();cx.arc(X(x),Y(y),4.5,0,7);cx.fill()}
+ cx.fillStyle='#ffd75e';cx.beginPath();cx.arc(X(S.a),Y(R),3.5,0,7);cx.fill();
+ lab(0,0,'P',-18,-8);lab(S.a,0,'Q',8,-8);lab(S.a,R,'B',8,-6);lab(0,-l,'A',-6,30);
+ // masses
+ const rad=Math.max(7,Math.min(16,6+5*Math.cbrt(S.M+S.m)));
+ if(st.mode==='pre'){const xm=-.35*l*(1-pre);cx.fillStyle='#ffd75e';cx.beginPath();cx.arc(X(xm)-rad-6+ (pre>=1?6:0),Y(-l),Math.max(5,6+5*Math.cbrt(S.m))*.8,0,7);cx.fill();
+  cx.fillStyle='#f4f1e6';cx.beginPath();cx.arc(X(0),Y(-l),Math.max(6,6+5*Math.cbrt(S.M))*.9,0,7);cx.fill();
+  lab(xm,-l,'m',-rad-14,-14);lab(0,-l,'M',8,-14)}
+ else{cx.fillStyle='#ffd75e';cx.beginPath();cx.arc(X(px),Y(py),rad,0,7);cx.fill();cx.fillStyle='#1f3a32';cx.font='700 13px sans-serif';cx.textAlign='center';cx.fillText('X',X(px),Y(py)+4.5);cx.textAlign='start';
+  // velocity arrow
+  const[vx,vy]=vel(),sp=Math.hypot(vx,vy);if(sp>1e-3){const k=Math.min(.35*l,sp*.03*l)/sp;const ex=px+vx*k,ey=py+vy*k;cx.strokeStyle='#8fd3ff';cx.lineWidth=2;cx.beginPath();cx.moveTo(X(px),Y(py));cx.lineTo(X(ex),Y(ey));cx.stroke();
+   const an=Math.atan2(-(vy),vx);cx.beginPath();cx.moveTo(X(ex),Y(ey));cx.lineTo(X(ex)-9*Math.cos(an-.4),Y(ey)-9*Math.sin(an-.4));cx.moveTo(X(ex),Y(ey));cx.lineTo(X(ex)-9*Math.cos(an+.4),Y(ey)-9*Math.sin(an+.4));cx.stroke()}}
+ // status
+ const modes={pre:'衝突前',P:'P を中心に円運動',Q:'Q を中心に円運動',F:'ひもがたるんで放物運動'};
+ const[vx,vy]=vel();
+ $('status').innerHTML=`<span>状態 <b>${modes[st.mode]}</b></span><span>時刻 <b>${simT.toFixed(2)} s</b></span><span>速さ <b>${Math.hypot(vx,vy).toFixed(2)} m/s</b></span><span>張力 <b>${Math.max(0,tension()).toFixed(1)} N</b></span><span>力学的エネルギー（P基準） <b>${st.mode==='pre'?'—':energy().toFixed(2)+' J'}</b></span>`;
+ // graph
+ gx.clearRect(0,0,GW,GH);const Mg=(S.m+S.M)*S.g,span=5,t1=Math.max(span,simT),t0=t1-span;
+ let ymaxG=6;for(const s of samp)ymaxG=Math.max(ymaxG,s[1]);ymaxG=Math.ceil(ymaxG/2)*2;
+ const pl=36,pb=22,gw=GW-pl-8,gh=GH-pb-8,GXf=t=>pl+(t-t0)/span*gw,GYf=y=>8+gh-(y/ymaxG)*gh;
+ const ink=getComputedStyle(document.body).color;gx.strokeStyle=ink;gx.globalAlpha=.25;gx.lineWidth=1;gx.font='12px sans-serif';gx.fillStyle=ink;
+ for(let y=0;y<=ymaxG;y+=ymaxG/4){gx.beginPath();gx.moveTo(pl,GYf(y));gx.lineTo(pl+gw,GYf(y));gx.stroke()}
+ gx.globalAlpha=.8;for(let y=0;y<=ymaxG;y+=ymaxG/4)gx.fillText(y.toFixed(0),6,GYf(y)+4);
+ gx.fillText(`${t0.toFixed(1)} s`,pl,GH-4);gx.textAlign='right';gx.fillText(`${t1.toFixed(1)} s`,pl+gw,GH-4);gx.textAlign='start';gx.globalAlpha=1;
+ gx.lineWidth=2.2;for(let i=1;i<samp.length;i++){const a=samp[i-1],b=samp[i];if(b[0]<t0)continue;gx.strokeStyle=b[2]?'#ff6f87':'#2e9e7b';gx.beginPath();gx.moveTo(GXf(a[0]),GYf(a[1]));gx.lineTo(GXf(b[0]),GYf(b[1]));gx.stroke()}
+}
+let last=performance.now(),lastS=-1,hadMeas=false;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+ if(running){
+  if(st.mode==='pre'){pre+=dt/0.8;if(pre>=1){pre=1;st.mode='P'}}
+  else{let n=Math.ceil(dt*S.speed/H);for(let i=0;i<n;i++){step(H);if(simT-lastS>=.01){lastS=simT;samp.push([simT,Math.max(0,tension())/((S.m+S.M)*S.g),st.mode==='F']);if(samp.length>900)samp.shift()}}
+   const p=pos();trail.push([p[0],p[1],st.mode]);if(trail.length>260)trail.shift()}
+  if(!!meas!==hadMeas){hadMeas=!!meas;syncUI()}
+ }
+ if(simT<lastS)lastS=-1;
+ draw();requestAnimationFrame(loop)}
+reset();syncUI();requestAnimationFrame(loop);
+}
+</script>
+</body></html>
