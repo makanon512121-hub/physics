@@ -760,7 +760,7 @@ async function adminCall(params) {
   try { return JSON.parse(text); } catch (e) { return { ok: false, error: "script" }; }
 }
 function adminPage() {
-  return pageHead("Admin", L(...NAV_TEXT.admin), L("今日の一言を書きかえられます。", "Update today's note.")) + `
+  return pageHead("Admin", L(...NAV_TEXT.admin), "") + `
   <section class="section"><div class="wrap"><div class="form admin-box" id="admin-box"></div></div></section>`;
 }
 function bindAdmin() {
