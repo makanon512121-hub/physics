@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>動く発射台と運動量保存</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 落ち着いた教科書の図版。説明は短く、実験装置が主役
+   IDEA: 問題集の図の発射台が、なめらかな床の溝の中を本当にすべる
+   PICTURE: 横から見た床・溝・発射台・小球の放物線。重心線、速度の合成、運動量の矢印
+   COLOUR and TYPE: 白い紙、墨色、小球の速度は藍、台は青緑、相対速度は琥珀、運動量は朱。物理量は Times New Roman
+   LAYOUT: 図を大きく上に、発射ボタンと表示の切り替え、その下に設定と数値、最後に x_F–θ グラフ */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#121417);--ink:light-dark(#16181c,#e8eaed);--mute:light-dark(#5b6068,#9aa1ab);--line:light-dark(#d9dce1,#2c3037);--panel:light-dark(#f4f5f7,#1a1d22);--floor:light-dark(#e9e4da,#2a2620);--chan:light-dark(#cfc7b8,#3a342b);--cur:light-dark(#d98a00,#ffb52e);--fld:light-dark(#2f4fa8,#8aa5f2);--fld2:light-dark(#9fb0dd,#4a5c94);--plat:light-dark(#0f7d73,#3cc4b6);--frc:light-dark(#d4361f,#ff6b52);--hit:light-dark(#d4361f,#ff6b52)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+sub{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:.72em}
+sub i{font-style:italic}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,14px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.15;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 16px;max-width:72ch}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.scene{position:relative;aspect-ratio:16/8.2;min-height:300px}
+.scene canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.status{position:absolute;left:12px;top:10px;right:12px;font-size:15px;pointer-events:none}
+.status b{font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--fld);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#fire{background:var(--frc);border-color:var(--frc);color:#fff;font-weight:700;padding:0 26px}
+.tg{display:flex;flex-wrap:wrap;gap:6px;padding:12px;border-top:1px solid var(--line)}
+.tg button{font-size:14px;padding:0 12px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:8em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:10px}
+.row .lab{font-size:15px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 5.6em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:44px;accent-color:var(--fld)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:7px}
+.read b{font-weight:400;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.en{margin-top:16px}
+.en h3{font-size:15px;margin:0 0 8px}
+.ebar{display:flex;height:26px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.ebar span{height:100%;transition:width .05s linear}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;margin-top:6px;color:var(--mute)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.fig{position:relative;min-height:280px;margin-top:20px;border:1px solid var(--line);border-radius:12px}
+.fig>canvas{position:absolute;inset:0;width:100%;height:100%}
+.note{color:var(--mute);font-size:13px;margin-top:10px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}.scene{aspect-ratio:auto;height:330px}}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>動く発射台と運動量保存</h1>
+<p class="lead">筑波大学 2008年 物理 大問1の装置です。床と発射台の間に摩擦はなく、小球を撃つと発射台は反動で後ろへすべります。表示を切り替えながら、何が保存され、何が変わるのかを観察しましょう。</p>
+
+<div class="stage">
+<div class="scene" id="scene"><canvas id="sc"></canvas><div class="status" id="status"></div></div>
+<div class="bar">
+<button id="fire">発射</button>
+<button id="clear">軌跡を消す</button>
+<button id="newt" hidden>新しい的</button>
+<span style="flex:1"></span>
+<div class="seg" data-k="view"><button data-v="floor">床から見る</button><button data-v="plat">台から見る</button></div>
+</div>
+<div class="tg" id="tg"></div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div class="row"><span class="lab"><span class="v">θ</span> の基準</span><div class="seg" data-k="basis"><button data-v="floor">床に対する角</button><button data-v="plat">台に対する角</button></div></div>
+<div id="sliders"></div>
+<p class="note">解答は「床に対する角」として解いています（解説の「研究」を参照）。「台に対する角」に切り替えると、もう一方の解釈で計算します。重力加速度は <span class="v">g</span> = 9.8 <span class="u">m/s²</span>。</p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+<div class="en" id="en">
+<h3>エネルギーの配分（合計はいつも <span class="v">E</span><sub>0</sub>）</h3>
+<div class="ebar" id="ebar"></div>
+<div class="legend" id="elg"></div>
+</div>
+</section>
+</div>
+
+<div class="fig" id="figc"><canvas id="cv"></canvas></div>
+<p class="note">グラフ：横軸は発射角 <span class="v">θ</span>、縦軸は落下位置 <span class="v">x</span><sub>F</sub>。撃つたびに点が打たれます。点線は台を固定した場合です。</p>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const G=9.8,TF="'Times New Roman',Tinos,Times,serif",JF="'Noto Sans JP',sans-serif";
+const P={m:0.5,M:2,E0:10,th:50,spd:0.6,basis:"floor",view:"floor"};
+const O={cm:true,vec:true,fix:false,trail:true,theory:false,energy:true,target:false};
+const TG=[["cm","重心と運動量"],["vec","速度の合成"],["fix","台を固定した場合と比較"],["trail","軌跡を残す"],["theory","理論曲線（答え合わせ）"],["energy","エネルギーの配分"],["target","的当てモード"]];
+const SL=[["m",'<span class="v">m</span> 小球の質量',"kg",0.1,2,0.1,1],["M",'<span class="v">M</span> 発射台の質量',"kg",0.5,10,0.1,1],["E0",'<span class="v">E</span><sub>0</sub> エネルギー',"J",1,20,0.5,1],["th",'<span class="v">θ</span> 発射角',"°",5,90,1,0],["spd","再生速度","倍",0.1,1,0.05,2]];
+$("#sliders").innerHTML=SL.map(([k,n,u,a,b,s])=>`<div class="row"><label class="lab" for="s_${k}">${n}</label><div class="sl"><input type="range" id="s_${k}" min="${a}" max="${b}" step="${s}"><output id="o_${k}"></output></div></div>`).join("");
+$("#tg").innerHTML=TG.map(([k,n])=>`<button data-o="${k}">${n}</button>`).join("");
+
+/* 物理 */
+function calc(thDeg){
+ const a=thDeg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),{m,M,E0}=P;let v1x,v1y,V1;
+ if(P.basis==="floor"){const v=Math.sqrt(2*E0/(m*(1+m/M*c*c)));v1x=v*c;v1y=v*s;V1=-m/M*v1x}
+ else{const u=Math.sqrt(2*E0/(m*(M*c*c/(m+M)+s*s)));V1=-m*u*c/(m+M);v1x=u*c*M/(m+M);v1y=u*s}
+ const T=2*v1y/G;
+ return{v1x,v1y,V1,vrx:v1x-V1,vry:v1y,T,xF:v1x*T,thF:Math.atan2(v1y,v1x),thR:Math.atan2(v1y,v1x-V1)};
+}
+const fixedXF=th=>2*P.E0/P.m*Math.sin(2*th*Math.PI/180)/G;
+const key=()=>[P.m,P.M,P.E0,P.basis].join("|");
+function thMax(){let b=0,bt=0;for(let t=0;t<=90;t+=0.05){const x=calc(t).xF;if(x>b){b=x;bt=t}}return{t:bt,x:b}}
+
+let EXT=null;
+function extents(){let L=0,R=0,H=0;
+ for(let t=0;t<=90;t+=1){const c=calc(t);R=Math.max(R,c.xF,P.view==="plat"?c.xF-c.V1*c.T:0);L=Math.max(L,-c.V1*c.T);H=Math.max(H,c.v1y*c.v1y/(2*G));
+  if(O.fix){R=Math.max(R,fixedXF(t));H=Math.max(H,2*P.E0/P.m*Math.sin(t*Math.PI/180)**2/(2*G))}}
+ EXT={L:P.view==="floor"?L:0,R,H,Rmax:thMax().x};
+}
+
+/* 状態 */
+let shot=null,t=0,trails=[],target=null,msg="";
+const reset=()=>{shot=null;t=0;msg=""};
+function newTarget(){target=(0.25+Math.random()*0.65)*EXT.Rmax;reset()}
+function fire(){const c=calc(P.th);shot={...c,th:P.th,key:key(),done:false};t=0;msg=""}
+function land(){shot.done=true;
+ if(!trails.some(r=>r.key===shot.key&&r.th===shot.th))trails.push({key:shot.key,th:shot.th,c:shot});
+ if(O.target&&target!==null){const tol=0.03*EXT.Rmax,d=shot.xF-target;
+  msg=Math.abs(d)<=tol?'<b style="color:var(--hit)">命中！</b>':`<b>おしい</b>：的より ${f(Math.abs(d))} <span class="u">m</span> ${d>0?"遠い":"手前"}`}
+}
+
+/* UI */
+const f=(x,d=3)=>{const a=Math.abs(x);return a<1e-9?"0":(x<0?"−":"")+a.toPrecision(d)};
+const V=s=>`<span class="v">${s}</span>`,U=s=>`<span class="u">${s}</span>`;
+function syncUI(){
+ document.querySelectorAll(".seg").forEach(g=>{const k=g.dataset.k;g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===P[k])))});
+ document.querySelectorAll("#tg button").forEach(b=>b.setAttribute("aria-pressed",String(O[b.dataset.o])));
+ SL.forEach(([k,,u,,,,d])=>{$("#s_"+k).value=P[k];$("#o_"+k).innerHTML=`${(+P[k]).toFixed(d)} ${U(u)}`});
+ $("#newt").hidden=!O.target;$("#en").hidden=!O.energy;
+ readout();
+}
+function changed(){extents();if(O.target&&target!==null&&target>EXT.Rmax)newTarget();reset();syncUI()}
+document.querySelectorAll(".seg").forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;P[g.dataset.k]=b.dataset.v;changed()}));
+$("#tg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=b.dataset.o;O[k]=!O[k];
+ if(k==="target"){extents();if(O.target)newTarget();else{target=null;msg=""}}
+ if(k==="fix")extents();syncUI()});
+SL.forEach(([k])=>$("#s_"+k).addEventListener("input",e=>{P[k]=+e.target.value;if(k==="spd"){syncUI();return}changed()}));
+$("#fire").addEventListener("click",fire);
+$("#clear").addEventListener("click",()=>{trails=[];reset()});
+$("#newt").addEventListener("click",newTarget);
+
+function readout(){
+ const c=calc(P.th),fl=P.basis==="floor",deg=r=>(r*180/Math.PI).toFixed(1)+"°";
+ const vr=Math.hypot(c.vrx,c.vry),tm=thMax();
+ const rows=[
+  [`小球の速度 ${V("v")}<sub>1<i>x</i></sub>（水平）`,`${f(c.v1x)} ${U("m/s")}`],
+  [`小球の速度 ${V("v")}<sub>1<i>y</i></sub>（鉛直）`,`${f(c.v1y)} ${U("m/s")}`],
+  [`発射台の速度 ${V("V")}<sub>1</sub>`,`${f(c.V1)} ${U("m/s")}`,"負の値は後ろ（左）向き"],
+  [`台に対する小球の速さ ${V("v")}<sub>r</sub>`,`${f(vr)} ${U("m/s")}`],
+  fl?[`台に対する発射角 ${V("θ")}′`,deg(c.thR),`床に対する角 ${V("θ")} より小さい。tan ${V("θ")}′ = tan ${V("θ")}／(1 + ${V("m")}/${V("M")})`]
+    :[`床に対する発射角`,deg(c.thF),`台に対する角 ${V("θ")} より大きい`],
+  [`滞空時間 ${V("t")}`,`${f(c.T)} ${U("s")}`],
+  [`落下位置 ${V("x")}<sub>F</sub>`,`${f(c.xF)} ${U("m")}`],
+  [`その間に台が動く距離`,`${f(-c.V1*c.T)} ${U("m")}`]];
+ if(O.theory)rows.push([`${V("x")}<sub>F</sub> が最大になる ${V("θ")}`,`${tm.t.toFixed(1)}°`,P.M>=1e9?"":"45° より大きい"]);
+ $("#read").innerHTML=rows.map(([a,b,s])=>`<div><span>${a}</span><b>${b}</b>${s?`<small>${s}</small>`:""}</div>`).join("");
+}
+const ECOL=[["--fld","小球の運動エネルギー"],["--fld2","小球の位置エネルギー"],["--plat","発射台の運動エネルギー"]];
+$("#elg").innerHTML=ECOL.map(([c,n])=>`<span><i style="background:var(${c})"></i>${n}</span>`).join("")+`<span><i style="background:var(--line)"></i>発射前（台に蓄えたエネルギー）</span>`;
+function energy(){
+ if(!O.energy)return;
+ let w=[0,0,0,100];
+ if(shot){const tt=Math.min(t,shot.T),vy=shot.v1y-G*tt,y=shot.v1y*tt-G*tt*tt/2;
+  const kb=0.5*P.m*(shot.v1x**2+vy*vy),pb=P.m*G*y,kp=0.5*P.M*shot.V1**2,s=kb+pb+kp;w=[kb/s*100,pb/s*100,kp/s*100,0]}
+ $("#ebar").innerHTML=w.map((x,i)=>`<span style="width:${x.toFixed(2)}%;background:var(${i<3?ECOL[i][0]:"--line"})"></span>`).join("");
+}
+
+/* 色 */
+const probe=document.createElement("span");probe.hidden=true;document.body.appendChild(probe);
+let C={};const col=v=>{probe.style.color=`var(${v})`;return getComputedStyle(probe).color};
+function colors(){["--ink","--mute","--line","--floor","--chan","--cur","--fld","--fld2","--plat","--frc","--hit","--bg","--panel"].forEach(k=>C[k]=col(k))}
+
+/* 描画の道具 */
+function fit(cv){const W=cv.clientWidth,H=cv.clientHeight,d=devicePixelRatio||1;if(cv.width!==Math.round(W*d)||cv.height!==Math.round(H*d)){cv.width=Math.round(W*d);cv.height=Math.round(H*d)}const c=cv.getContext("2d");c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,W,H);return[c,W,H]}
+function arrow(c,x1,y1,x2,y2,color,w=3){const L=Math.hypot(x2-x1,y2-y1);if(L<2)return;const ux=(x2-x1)/L,uy=(y2-y1)/L,h=Math.min(11,L*0.5);
+ c.strokeStyle=color;c.fillStyle=color;c.lineWidth=w;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2-ux*h*0.8,y2-uy*h*0.8);c.stroke();
+ c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-ux*h-uy*h*0.5,y2-uy*h+ux*h*0.5);c.lineTo(x2-ux*h+uy*h*0.5,y2-uy*h-ux*h*0.5);c.closePath();c.fill()}
+/* 記号：main はイタリック、sub は [文字, イタリックか] の配列 */
+function sym(c,x,y,main,sub,color,size=18,align="left"){
+ c.font=`italic ${size}px ${TF}`;let w=c.measureText(main).width;const ss=size*0.68;let sw=0;
+ (sub||[]).forEach(([s,it])=>{c.font=`${it?"italic ":""}${ss}px ${TF}`;sw+=c.measureText(s).width});
+ let x0=align==="center"?x-(w+sw)/2:x;c.fillStyle=color;c.font=`italic ${size}px ${TF}`;c.fillText(main,x0,y);x0+=w+1;
+ (sub||[]).forEach(([s,it])=>{c.font=`${it?"italic ":""}${ss}px ${TF}`;c.fillText(s,x0,y+size*0.28);x0+=c.measureText(s).width})}
+function jtext(c,s,x,y,color,size=13,align="left"){c.font=`${size}px ${JF}`;c.fillStyle=color;c.textAlign=align;c.fillText(s,x,y);c.textAlign="left"}
+function niceStep(px){for(const s of [0.1,0.2,0.5,1,2,5,10,20,50])if(s*px>=55)return s;return 100}
+
+/* シーン */
+const sc=$("#sc");
+function drawScene(){
+ const[c,W,H]=fit(sc),Fy=H-52,left=96,top=48;
+ const s=Math.min((W-left-30)/Math.max(0.01,EXT.L+EXT.R),(Fy-top)/Math.max(0.01,EXT.H));
+ const x0=left+EXT.L*s,cur=shot||calc(P.th),tt=shot?Math.min(t,shot.T):0,Xp=shot?shot.V1*tt:0;
+ const plat=P.view==="plat",X=x=>x0+(x-(plat?Xp:0))*s,Y=y=>Fy-y*s;
+ const R=7;
+ // 床
+ c.fillStyle=C["--floor"];c.fillRect(0,Fy,W,H-Fy);
+ const pivX=X(Xp),chEnd=X(0)+14;
+ c.fillStyle=C["--chan"];c.fillRect(0,Fy,Math.max(0,chEnd),20);
+ c.strokeStyle=C["--ink"];c.lineWidth=2;c.beginPath();c.moveTo(chEnd,Fy);c.lineTo(W,Fy);c.moveTo(0,Fy+20);c.lineTo(chEnd,Fy+20);c.lineTo(chEnd,Fy);c.stroke();
+ c.strokeStyle=C["--line"];c.lineWidth=1;c.beginPath();c.moveTo(0,Fy);c.lineTo(chEnd,Fy);c.stroke();
+ // 目盛り（床に固定）
+ const st=niceStep(s),xa=(plat?Xp:0)-(x0)/s,xb=xa+W/s;
+ for(let k=Math.ceil(xa/st);k*st<=xb;k++){const xs=X(k*st),y0=Fy+(xs<chEnd?20:0);c.strokeStyle=C["--mute"];c.lineWidth=1;c.beginPath();c.moveTo(xs,y0);c.lineTo(xs,y0+7);c.stroke();
+  const v=+(k*st).toFixed(2);if(k%2===0)jtext(c,String(v),xs,y0+22,C["--mute"],12,"center")}
+ jtext(c,"床の位置 [m]",W-10,H-8,C["--mute"],12,"right");
+ // 的
+ if(O.target&&target!==null){const tx=X(target),tw=Math.max(8,0.03*EXT.Rmax*s);
+  c.fillStyle=C["--hit"];c.globalAlpha=0.25;c.fillRect(tx-tw,Fy-4,tw*2,4);c.globalAlpha=1;
+  c.strokeStyle=C["--hit"];c.lineWidth=2;c.beginPath();c.moveTo(tx,Fy);c.lineTo(tx,Fy-34);c.stroke();
+  c.fillStyle=C["--hit"];c.beginPath();c.moveTo(tx,Fy-34);c.lineTo(tx+20,Fy-28);c.lineTo(tx,Fy-22);c.fill();jtext(c,"的",tx+4,Fy-40,C["--hit"],13)}
+ // 残した軌跡（床から見たときのみ）
+ const path=(cc,upto,shift)=>{const n=48;c.beginPath();for(let i=0;i<=n;i++){const q=upto*i/n,x=cc.v1x*q-(shift?cc.V1*q:0),y=cc.v1y*q-G*q*q/2;i?c.lineTo(x0+x*s,Y(y)-R):c.moveTo(x0+x*s,Y(y)-R)}c.stroke()};
+ if(!plat&&O.trail){trails.filter(r=>r.key===key()).forEach(r=>{c.strokeStyle=C["--mute"];c.globalAlpha=0.45;c.lineWidth=1.5;path(r.c,r.c.T,false);c.globalAlpha=1;
+  const lx=X(r.c.xF);c.fillStyle=C["--mute"];c.beginPath();c.arc(lx,Fy,3,0,7);c.fill();jtext(c,r.th+"°",lx,Fy-10,C["--mute"],11,"center")})}
+ // 台を固定した場合
+ if(!plat&&O.fix){const v=Math.sqrt(2*P.E0/P.m),a=P.th*Math.PI/180,fc={v1x:v*Math.cos(a),v1y:v*Math.sin(a),V1:0,T:2*v*Math.sin(a)/G};
+  c.setLineDash([6,5]);c.strokeStyle=C["--ink"];c.lineWidth=1.5;path(fc,fc.T,false);c.setLineDash([]);
+  const top2=fc.v1y**2/(2*G);jtext(c,"台を固定した場合",X(fc.v1x*fc.T/2),Y(top2)-R-10,C["--mute"],12,"center")}
+ // いまの軌跡
+ if(shot){c.strokeStyle=C["--fld"];c.lineWidth=2.5;if(plat){const n=48;c.beginPath();for(let i=0;i<=n;i++){const q=tt*i/n,x=shot.v1x*q-shot.V1*q,y=shot.v1y*q-G*q*q/2;const xs=pivX+x*s;i?c.lineTo(xs,Y(y)-R):c.moveTo(xs,Y(y)-R)}c.stroke()}else path(shot,tt,false)}
+ // 発射台
+ const bw=78;c.fillStyle=C["--plat"];c.fillRect(pivX-bw,Fy+2,bw+10,16);
+ c.fillStyle=C["--bg"];[pivX-bw+12,pivX-6].forEach(wx=>{c.beginPath();c.arc(wx,Fy+18,4,0,7);c.fill()});
+ const a=cur.thR;c.strokeStyle=C["--ink"];c.lineWidth=9;c.lineCap="round";c.beginPath();c.moveTo(pivX-Math.cos(a)*10,Fy+Math.sin(a)*10);c.lineTo(pivX+Math.cos(a)*30,Fy-Math.sin(a)*30);c.stroke();c.lineCap="butt";
+ c.fillStyle=C["--ink"];c.beginPath();c.arc(pivX,Fy+2,5,0,7);c.fill();
+ jtext(c,"発射台",pivX-bw/2+4,Fy+14,"#fff",11,"center");
+ // 小球
+ let bx,by;if(shot){const x=shot.v1x*tt,y=shot.v1y*tt-G*tt*tt/2;bx=X(x);by=Y(y)-R}else{bx=pivX+Math.cos(a)*30;by=Fy-Math.sin(a)*30}
+ c.fillStyle=C["--fld"];c.beginPath();c.arc(bx,by,R,0,7);c.fill();c.strokeStyle=C["--bg"];c.lineWidth=1.5;c.stroke();
+ // 重心と運動量
+ if(O.cm){const xb=shot?shot.v1x*tt:0,xc=(P.m*xb+P.M*Xp)/(P.m+P.M),cx=X(xc);
+  c.setLineDash([4,4]);c.strokeStyle=C["--frc"];c.lineWidth=1.5;c.beginPath();c.moveTo(cx,top-10);c.lineTo(cx,Fy);c.stroke();c.setLineDash([]);
+  c.fillStyle=C["--frc"];c.beginPath();c.arc(cx,Fy,5,0,7);c.fill();jtext(c,"重心",cx+6,top-2,C["--frc"],13);
+  if(shot&&!shot.done){const pb=P.m*shot.v1x,kp=64/Math.max(pb,1e-9);
+   arrow(c,bx,by-16,bx+pb*kp,by-16,C["--frc"],3);sym(c,bx+pb*kp/2,by-24,"mv",[["1",0],["x",1]],C["--frc"],16,"center");
+   arrow(c,pivX-bw/2,Fy-14,pivX-bw/2+P.M*shot.V1*kp,Fy-14,C["--frc"],3);sym(c,pivX-bw/2+P.M*shot.V1*kp/2,Fy-22,"MV",[["1",0]],C["--frc"],16,"center")}}
+ // 速度の合成（右上の枠に、発射の瞬間の速度を表示）
+ if(O.vec&&shot){const w=Math.min(270,W*0.5),h=Math.min(170,H*0.46),px=W-w-10,py=38;
+  c.fillStyle=C["--bg"];c.globalAlpha=0.92;c.fillRect(px,py,w,h);c.globalAlpha=1;c.strokeStyle=C["--line"];c.lineWidth=1;c.strokeRect(px,py,w,h);
+  jtext(c,"発射の瞬間の速度（床から見て）",px+8,py+18,C["--mute"],12);
+  const vm=Math.max(shot.v1x-shot.V1,1e-9),vy=Math.max(shot.v1y,1e-9),k=Math.min((w-40)/vm,(h-54)/vy);
+  const Lx=px+20+(-shot.V1)*k,Ly=py+h-16,Bx=Lx+shot.V1*k,Cx=Lx+shot.v1x*k,Cy=Ly-shot.v1y*k;
+  c.strokeStyle=C["--line"];c.beginPath();c.moveTo(px+8,Ly);c.lineTo(px+w-8,Ly);c.stroke();
+  const arcAt=(x,y,ang,r,color,lab,fr)=>{c.strokeStyle=color;c.lineWidth=1.5;c.beginPath();c.arc(x,y,r,-ang,0);c.stroke();
+   c.font=`italic 16px ${TF}`;c.fillStyle=color;const la=ang*fr;c.fillText(lab,x+(r+6)*Math.cos(la),y-(r+6)*Math.sin(la)+5)};
+  const fl=P.basis==="floor";arcAt(Lx,Ly,shot.thF,26,C["--fld"],fl?"θ":"φ",0.2);arcAt(Bx,Ly,shot.thR,58,C["--cur"],fl?"θ′":"θ",0.25);
+  arrow(c,Lx,Ly,Bx,Ly,C["--plat"],3);arrow(c,Bx,Ly,Cx,Cy,C["--cur"],3);arrow(c,Lx,Ly,Cx,Cy,C["--fld"],3.5);
+  sym(c,(Lx+Bx)/2,Ly-7,"V",[["1",0]],C["--plat"],16,"center");
+  const mx=(Bx+Cx)/2,my=(Ly+Cy)/2;sym(c,mx-16,my-2,"v",[["r",0]],C["--cur"],17,"center");
+  sym(c,(Lx+Cx)/2+8,(Ly+Cy)/2+10,"v",[["1",0]],C["--fld"],17,"left");
+  let ex=px+w-104;const eq=[["v","1","--fld"],["=",0,"--ink"],["V","1","--plat"],["+",0,"--ink"],["v","r","--cur"]];
+  eq.forEach(([a,b,cl])=>{if(b){sym(c,ex,py+42,a,[[b,0]],C[cl],16);c.font=`italic 16px ${TF}`;ex+=c.measureText(a).width+12}else{c.font=`16px ${TF}`;c.fillStyle=C[cl];c.fillText(a,ex+2,py+42);ex+=c.measureText(a).width+8}})}
+ // 状態
+ const fd=P.view==="plat"?"台から見た様子（床が動いて見える）":"床から見た様子";
+ let st2=`${fd}　`;
+ if(!shot)st2+=O.target?"<b>的をねらって θ を決め、発射しよう</b>":"<b>発射</b> を押してください";
+ else if(!shot.done)st2+="飛行中…";
+ else st2+=`着地：${V("x")}<sub>F</sub> = ${f(shot.xF)} ${U("m")}`+(msg?"　"+msg:"");
+ if($("#status").dataset.s!==st2){$("#status").innerHTML=st2;$("#status").dataset.s=st2}
+}
+
+/* x_F–θ グラフ */
+const cv=$("#cv");
+function drawChart(){
+ const[c,W,H]=fit(cv),pl=58,pr=18,pt=34,pb=40;
+ let ym=EXT.Rmax;if(O.fix)ym=Math.max(ym,2*P.E0/P.m/G);ym*=1.12;
+ const X=d=>pl+d/90*(W-pl-pr),Y=v=>H-pb-v/ym*(H-pt-pb);
+ c.strokeStyle=C["--line"];c.lineWidth=1;c.beginPath();c.moveTo(pl,pt);c.lineTo(pl,H-pb);c.lineTo(W-pr,H-pb);c.stroke();
+ [0,15,30,45,60,75,90].forEach(d=>{jtext(c,d+"°",X(d),H-pb+18,C["--mute"],12,"center")});
+ c.setLineDash([3,4]);c.beginPath();c.moveTo(X(45),pt);c.lineTo(X(45),H-pb);c.stroke();c.setLineDash([]);
+ jtext(c,"0",pl-8,H-pb+4,C["--mute"],12,"right");jtext(c,f(ym/1.12,2),pl-8,Y(ym/1.12)+4,C["--mute"],12,"right");
+ sym(c,pl+8,pt-12,"x",[["F",0]],C["--ink"],17);c.font=`14px ${TF}`;c.fillText("[m]",pl+30,pt-12);
+ sym(c,W-pr-8,H-6,"θ",[],C["--ink"],17,"left");
+ const curve=(fn,dash,color,w)=>{c.setLineDash(dash);c.strokeStyle=color;c.lineWidth=w;c.beginPath();for(let d=0;d<=90;d+=0.5){const y=fn(d);d?c.lineTo(X(d),Y(y)):c.moveTo(X(d),Y(y))}c.stroke();c.setLineDash([])};
+ if(O.fix)curve(fixedXF,[6,5],C["--mute"],1.5);
+ if(O.theory){curve(d=>calc(d).xF,[],C["--fld"],2.5);const tm=thMax();c.strokeStyle=C["--fld"];c.setLineDash([2,3]);c.beginPath();c.moveTo(X(tm.t),Y(tm.x));c.lineTo(X(tm.t),H-pb);c.stroke();c.setLineDash([]);
+  c.fillStyle=C["--fld"];c.beginPath();c.arc(X(tm.t),Y(tm.x),5,0,7);c.fill();jtext(c,`最大 ${tm.t.toFixed(1)}°`,X(tm.t)+8,Y(tm.x)-8,C["--fld"],13)}
+ trails.filter(r=>r.key===key()).forEach(r=>{c.fillStyle=C["--cur"];c.strokeStyle=C["--bg"];c.lineWidth=1.5;c.beginPath();c.arc(X(r.th),Y(r.c.xF),5.5,0,7);c.fill();c.stroke()});
+ c.fillStyle=C["--ink"];c.beginPath();c.moveTo(X(P.th),H-pb);c.lineTo(X(P.th)-6,H-pb+9);c.lineTo(X(P.th)+6,H-pb+9);c.fill();
+ jtext(c,"45°",X(45)+4,pt+12,C["--mute"],12);
+}
+
+/* ループ */
+let prev=performance.now(),cf=0;
+function loop(now){const dt=Math.min(0.05,(now-prev)/1000);prev=now;
+ if(++cf%30===1)colors();
+ if(shot&&!shot.done){t+=dt*P.spd;if(t>=shot.T){t=shot.T;land()}}
+ drawScene();drawChart();energy();
+ requestAnimationFrame(loop)}
+colors();extents();syncUI();requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

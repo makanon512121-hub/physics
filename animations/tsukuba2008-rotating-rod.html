@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>回転棒の電磁誘導</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 落ち着いた教科書の図版。説明は短く、装置が主役
+   IDEA: 問題集の図がそのまま動き出す
+   PICTURE: 斜めから見た円形レール2つと回路。電流の粒、起電力、力、掃いた面積 ΔS
+   COLOUR and TYPE: 白い紙、墨色、電流は琥珀、磁場は藍、力は朱。物理量は Times New Roman
+   LAYOUT: 図を大きく上に、その下に状況ボタン、操作、数値、グラフ */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#121417);--ink:light-dark(#16181c,#e8eaed);--mute:light-dark(#5b6068,#9aa1ab);--line:light-dark(#d9dce1,#2c3037);--panel:light-dark(#f4f5f7,#1a1d22);--cur:light-dark(#d98a00,#ffb52e);--fld:light-dark(#2f4fa8,#7f9cf0);--frc:light-dark(#d4361f,#ff6b52);--ds:light-dark(rgba(47,79,168,.16),rgba(127,156,240,.22));--rod:light-dark(#6d737c,#b9bec6)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,14px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.15;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 16px;max-width:70ch}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stage svg{display:block;width:100%;height:auto}
+svg text{fill:var(--ink)}
+.ti{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:22px}
+.tu{font-family:"Times New Roman",Tinos,Times,serif;font-size:21px}
+.tj{font-family:"Noto Sans JP",sans-serif;font-size:13px;fill:var(--mute)!important}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--fld);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.preset{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:12px}
+.row .lab{font-size:15px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 6.2em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:44px;accent-color:var(--fld)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:10px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.read b{font-weight:400;text-align:right;white-space:nowrap}
+.read .ex{grid-column:1/-1;margin:2px 0 0;font-size:14px;line-height:1.9;background:var(--panel);border-radius:8px;padding:8px 10px}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.08em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.fig{position:relative;min-height:300px;margin-top:20px;border:1px solid var(--line);border-radius:12px}
+.fig>canvas{position:absolute;inset:0;width:100%;height:100%}
+.note{color:var(--mute);font-size:13px;margin-top:10px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>回転する金属棒と電磁誘導</h1>
+<p class="lead">筑波大学 2008年 物理 大問2の装置です。磁場の向き、回転の向き、スイッチ <span class="u">S</span>、各物理量を変えて、電流の流れ方と左の棒の動きを観察しましょう。</p>
+
+<div class="stage">
+<svg id="sv" viewBox="0 0 800 480" role="img" aria-label="2つの円形レールと金属棒、抵抗、スイッチからなる回路">
+<defs>
+<marker id="mf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--fld)"/></marker>
+<marker id="mc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--cur)"/></marker>
+<marker id="mr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--frc)"/></marker>
+<marker id="mk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker>
+</defs>
+<g id="gs"></g><g id="gd"></g>
+</svg>
+<div class="bar">
+<button class="preset" data-p="1">問1の状況</button>
+<button class="preset" data-p="2">問2の状況</button>
+<button class="preset" data-p="3">問3の状況</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">左の棒をリセット</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div class="row"><span class="lab">磁場の向き</span><div class="seg" data-k="bdir"><button data-v="1">鉛直下向き</button><button data-v="-1">鉛直上向き</button></div></div>
+<div class="row"><span class="lab">右の棒の回転</span><div class="seg" data-k="rot"><button data-v="1">反時計回り</button><button data-v="-1">時計回り</button></div></div>
+<div class="row"><span class="lab">スイッチ <span class="u">S</span></span><div class="seg" data-k="sw"><button data-v="0">開く</button><button data-v="1">閉じる</button></div></div>
+<div class="row"><span class="lab">左の棒</span><div class="seg" data-k="free"><button data-v="0">固定</button><button data-v="1">自由に回る</button></div></div>
+<div id="sliders"></div>
+<p class="note">回転の向きは上から見たときの向きです。</p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<div class="fig" id="figc"><canvas id="cv"></canvas></div>
+<p class="note">グラフ：上は左の棒の角速度 <span class="v">ω</span>′（点線は <span class="v">R</span>/(<span class="v">R</span>+<span class="v">r</span>)·<span class="v">ω</span>）、下は O′A′ 間の電流（O′→A′ の向きを正）。</p>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const st={bdir:1,rot:1,sw:0,free:0,B:1,a:0.8,w:3,r:1,R:2,J:0.05};
+const SL=[
+ ["B","磁束密度","T",0.1,2,0.1,1],
+ ["a","レールの半径","m",0.2,1,0.05,0.8],
+ ["w","右の棒の角速度","rad/s",0.5,6,0.1,3],
+ ["r","抵抗","Ω",0.1,5,0.1,1],
+ ["R","抵抗","Ω",0.1,20,0.1,2],
+ ["J","左の棒の慣性モーメント","kg·m²",0.005,0.2,0.005,0.05]];
+const SYM={B:"B",a:"a",w:"ω",r:"r",R:"R",J:"J"};
+$("#sliders").innerHTML=SL.map(([k,n,u,mn,mx,sp,d])=>`<div class="row"><label class="lab" for="s_${k}"><span class="v">${SYM[k]}</span> ${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}" value="${d}"><output id="o_${k}"></output></div></div>`).join("");
+const dec=k=>k==="J"?3:(k==="a"?2:1);
+function syncUI(){
+ document.querySelectorAll(".seg").forEach(g=>{const k=g.dataset.k;g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===st[k])))});
+ SL.forEach(([k,,u])=>{$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${st[k].toFixed(dec(k))} <span class="u">${u}</span>`});
+}
+let th=0.6,th2=2.2,w2=0,t=0,hist=[],ph={r:0,l:0,R:0},playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const resetLeft=()=>{w2=0;th2=2.2;t=0;hist=[]};
+document.querySelectorAll(".seg").forEach(g=>g.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st[g.dataset.k]=+b.dataset.v;if(g.dataset.k==="free"&&!st.free)w2=0;syncUI();buildStatic()}));
+SL.forEach(([k])=>$("#s_"+k).addEventListener("input",e=>{st[k]=+e.target.value;syncUI();buildStatic()}));
+document.querySelectorAll(".preset").forEach(b=>b.addEventListener("click",()=>{const p=+b.dataset.p;st.sw=p>1?1:0;st.free=p===3?1:0;resetLeft();syncUI();buildStatic()}));
+$("#play").addEventListener("click",()=>{playing=!playing;$("#play").textContent=playing?"一時停止":"再生"});
+$("#play").textContent=playing?"一時停止":"再生";
+$("#rst").addEventListener("click",resetLeft);
+
+/* 物理 */
+function solve(){
+ const k=0.5*st.bdir*st.B*st.a*st.a, ws=st.rot*st.w, E1=k*ws, E2=k*w2;
+ let U,I2=0;
+ if(st.sw){U=(E1+E2)/(2+st.r/st.R);I2=(E2-U)/st.r}else U=E1/(1+st.r/st.R);
+ const I1=(E1-U)/st.r, IR=U/st.R;
+ return{k,ws,E1,E2,U,I1,I2,IR,tau:-k*I2};
+}
+function step(dt){
+ const s=solve();
+ th+=s.ws*dt;
+ if(!st.free)w2=0;
+ else if(st.sw){const c=2+st.r/st.R,lam=s.k*s.k*(c-1)/(c*st.J*st.r),wi=s.ws/(1+st.r/st.R);w2=wi+(w2-wi)*Math.exp(-lam*dt)}
+ th2+=w2*dt;t+=dt;
+ const s2=solve();
+ hist.push([t,w2,-s2.I2]);while(hist.length&&hist[0][0]<t-12)hist.shift();
+ const sp=I=>Math.max(-500,Math.min(500,I*300))*dt;
+ ph.r+=sp(s2.I1);ph.l+=sp(s2.I2);ph.R+=sp(s2.IR);
+}
+
+/* 図 */
+const CY=200,CL=200,CR=600,YB=440,CX=400,YC=290,K=0.4;
+const rx=()=>62+63*(st.a-0.2)/0.8;
+const P=(cx,rho,a)=>[cx+rho*Math.cos(a),CY-rho*K*Math.sin(a)];
+const arc=(cx,rho,a0,a1,n=16)=>Array.from({length:n+1},(_,i)=>P(cx,rho,a0+(a1-a0)*i/n));
+const pts=a=>a.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+const T=(x,y,s,c,anc="middle")=>`<text x="${x}" y="${y}" class="${c}" text-anchor="${anc}">${s}</text>`;
+const near=(a,ref)=>{let d=((a-ref)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;return ref+d};
+function buildStatic(){
+ const R=rx(),ry=R*K,L=[];
+ const wire=(p,dash)=>L.push(`<polyline points="${pts(p)}" fill="none" stroke="var(--ink)" stroke-width="2"${dash?' stroke-dasharray="5 5"':""}/>`);
+ // 磁場
+ const dn=st.bdir>0;
+ [60,CL,CX,CR,740].forEach((x,i)=>{const y0=i===1||i===3?18:30,y1=i===1||i===3?CY-ry-14:150;L.push(`<line x1="${x}" y1="${dn?y0:y1}" x2="${x}" y2="${dn?y1:y0}" stroke="var(--fld)" stroke-width="3" marker-end="url(#mf)" opacity=".85"/>`)});
+ L.push(T(CX+14,60,"B","ti","start"));
+ L.push(T(CX+30,60,dn?"（鉛直下向き）":"（鉛直上向き）","tj","start"));
+ // 回路
+ wire([[CX,YC],[340,YC],[340,CY],[CL+R,CY]]);
+ wire([[CX,YC],[460,YC],[460,CY],[CR-R,CY]]);
+ [CL,CR].forEach(cx=>{wire([[cx,CY],[cx,CY+ry]],1);wire([[cx,CY+ry],[cx,YB]])});
+ wire([[CR,YB],[CX,YB]]);wire([[CX,YB],[CX,YC]]);
+ wire([[CL,YB],[270,YB]]);wire([[310,YB],[CX,YB]]);
+ // スイッチ
+ L.push(`<circle cx="270" cy="${YB}" r="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/><circle cx="310" cy="${YB}" r="4" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>`);
+ L.push(st.sw?`<line x1="270" y1="${YB}" x2="310" y2="${YB}" stroke="var(--ink)" stroke-width="3"/>`:`<line x1="270" y1="${YB}" x2="306" y2="${YB-22}" stroke="var(--ink)" stroke-width="3"/>`);
+ L.push(T(290,YB+30,"S","tu"));
+ // 抵抗
+ [[CL,350,"r"],[CX,365,"R"],[CR,350,"r"]].forEach(([x,y,n])=>{L.push(`<rect x="${x-9}" y="${y-24}" width="18" height="48" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>`);L.push(T(x+18,y+7,n,"ti","start"))});
+ // 節点
+ [[CX,YC,"C",-12,-8],[CX,YB,"D",0,30]].forEach(([x,y,n,dx,dy])=>{L.push(`<circle cx="${x}" cy="${y}" r="4.5" fill="var(--ink)"/>`);L.push(T(x+dx+(dx?0:0),y+dy,n,"tu",dx?"end":"middle"))});
+ // レール
+ [CL,CR].forEach(cx=>{L.push(`<ellipse cx="${cx}" cy="${CY}" rx="${R}" ry="${ry}" fill="none" stroke="var(--ink)" stroke-width="5"/><ellipse cx="${cx}" cy="${CY}" rx="${R}" ry="${ry}" fill="none" stroke="var(--bg)" stroke-width="2"/>`)});
+ // 回転の向き
+ const a0=Math.PI*0.35,a1=Math.PI*0.65,ar=arc(CR,R+18,st.rot>0?a0:a1,st.rot>0?a1:a0,10);
+ L.push(`<polyline points="${pts(ar)}" fill="none" stroke="var(--ink)" stroke-width="2" marker-end="url(#mk)"/>`);
+ L.push(T(CR+14,CY-ry-26,"ω","ti","start"));
+ L.push(T(CL+12,CY-ry-26,"左の棒","tj","start"),T(CR+R+8,CY+ry+22,"右の棒","tj","start"));
+ $("#gs").innerHTML=L.join("");
+}
+function polyAt(p){const seg=[];let tot=0;for(let i=1;i<p.length;i++){const l=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);seg.push(l);tot+=l}
+ return{tot,at(s){for(let i=0;i<seg.length;i++){if(s<=seg[i]||i===seg.length-1){const f=seg[i]?Math.min(1,s/seg[i]):0;return[p[i][0]+(p[i+1][0]-p[i][0])*f,p[i][1]+(p[i+1][1]-p[i][1])*f]}s-=seg[i]}}}}
+function dots(p,phase,I){const o=Math.min(1,Math.abs(I)/0.01);if(o<0.03)return"";const pl=polyAt(p),g=24,n=Math.floor(pl.tot/g);let h="";
+ for(let i=0;i<n;i++){const s=((phase+i*g)%pl.tot+pl.tot)%pl.tot,q=pl.at(s);h+=`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="3.6" fill="var(--cur)" opacity="${o.toFixed(2)}"/>`}return h}
+function rodArrow(cx,a,E){ if(Math.abs(E)<1e-6)return"";const R=rx(),tip=P(cx,R,a);
+ let ux=cx-tip[0],uy=CY-tip[1];const L=Math.hypot(ux,uy)||1;ux/=L;uy/=L; // 先端→中心
+ const sg=Math.sign(E),px=ux*sg,py=uy*sg,nx=-uy,ny=ux; // (px,py)=＋極側
+ const m=P(cx,R*0.55,a),g=4.5,lp=[m[0]+px*g,m[1]+py*g],sp=[m[0]-px*g,m[1]-py*g];
+ const plate=(q,h,w)=>`<line x1="${q[0]+nx*h}" y1="${q[1]+ny*h}" x2="${q[0]-nx*h}" y2="${q[1]-ny*h}" stroke="var(--ink)" stroke-width="${w}"/>`;
+ let h=`<line x1="${lp[0]}" y1="${lp[1]}" x2="${sp[0]}" y2="${sp[1]}" stroke="var(--bg)" stroke-width="13"/>`+plate(lp,15,3)+plate(sp,8,5);
+ const o=17;h+=`<text x="${lp[0]+px*9+nx*o}" y="${lp[1]+py*9+ny*o+5}" class="tu" text-anchor="middle" style="font-size:17px">+</text><text x="${sp[0]-px*9+nx*o}" y="${sp[1]-py*9+ny*o+5}" class="tu" text-anchor="middle" style="font-size:17px">−</text>`;
+ const q=[m[0]-nx*25,m[1]-ny*25],v=[q[0]-px*7,q[1]-py*7],e=[q[0]+px*7,q[1]+py*7];
+ h+=`<polyline points="${e[0]+nx*8},${e[1]+ny*8} ${v[0]},${v[1]} ${e[0]-nx*8},${e[1]-ny*8}" fill="none" stroke="var(--cur)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+ return h}
+function drawDyn(){
+ const s=solve(),R=rx(),ry=R*K,H=[];
+ // ΔS（右の棒が直近 0.3 秒に掃いた扇形）
+ const a0=th-s.ws*0.4,sec=[[CR,CY],...arc(CR,R,a0,th,20)];
+ H.push(`<polygon points="${pts(sec)}" fill="var(--ds)" stroke="none"/>`);
+ const mA=P(CR,R*0.6,th-s.ws*0.3);H.push(T(mA[0],mA[1]+6,"Δ<tspan font-style=\"italic\">S</tspan>","tu"));
+ // 電流の粒
+ const rA=near(th,Math.PI),lA=near(th2,0);
+ H.push(dots([[CX,YC],[460,YC],[460,CY],...arc(CR,R,Math.PI,rA),[CR,CY],[CR,YB],[CX,YB]],ph.r,s.I1));
+ H.push(dots([[CX,YC],[340,YC],[340,CY],...arc(CL,R,0,lA),[CL,CY],[CL,YB],[CX,YB]],ph.l,s.I2));
+ H.push(dots([[CX,YB],[CX,YC]],ph.R,s.IR));
+ // 棒
+ [[CL,th2,"O′","A′"],[CR,th,"O","A"]].forEach(([cx,a,o,an])=>{const tp=P(cx,R,a);
+  H.push(`<line x1="${cx}" y1="${CY}" x2="${tp[0]}" y2="${tp[1]}" stroke="var(--rod)" stroke-width="9" stroke-linecap="round"/><line x1="${cx}" y1="${CY}" x2="${tp[0]}" y2="${tp[1]}" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" opacity=".5"/><circle cx="${cx}" cy="${CY}" r="5" fill="var(--ink)"/>`);
+  const lp=P(cx,R+22,a);H.push(T(lp[0],lp[1]+7,an,"tu"));H.push(T(cx-16,CY+24,o,"tu","end"))});
+ // 起電力の矢印
+ H.push(rodArrow(CR,th,s.E1),rodArrow(CL,th2,s.E2));
+ // 左の棒にはたらく力
+ if(Math.abs(s.tau)>1e-6){const m=P(CL,R*0.78,th2),sg=Math.sign(s.tau);let dx=-Math.sin(th2)*sg,dy=-K*Math.cos(th2)*sg;const n=Math.hypot(dx,dy)||1,len=Math.min(42,16+Math.abs(s.tau)*300);
+  H.push(`<line x1="${m[0]}" y1="${m[1]}" x2="${m[0]+dx/n*len}" y2="${m[1]+dy/n*len}" stroke="var(--frc)" stroke-width="4" marker-end="url(#mr)"/>`);
+  H.push(T(m[0]+dx/n*(len+14),m[1]+dy/n*(len+14)+6,"F","ti"))}
+ $("#gd").innerHTML=H.join("");
+ return s;
+}
+
+/* 数値 */
+const f=(x,d=3)=>{const a=Math.abs(x);return a<1e-6?"0":a.toPrecision(d)};
+const V=s=>`<span class="v">${s}</span>`,U=s=>`<span class="u">${s}</span>`;
+const EX=`<p class="ex">「${V("vBl")}」の式から決めるのであれば、棒が変形しないことから ${V("v")} は導体棒の中点の速さを採用して、<span class="frac"><span>0+${V("a")}${V("ω")}</span><span>2</span></span>・${V("B")}・${V("a")} とすればよいでしょう。</p>`;
+let lastRead=0;
+function readout(s){
+ const dir1=s.E1>0?"A→O":"O→A", dirR=Math.abs(s.IR)<1e-6?"—":(s.IR>0?"D→C":"C→D");
+ const d2=Math.abs(s.I2)<1e-6?"流れない":(s.I2>0?"A′→O′":"O′→A′");
+ const hi=Math.abs(s.E2)<1e-6?"O′ と A′ は等しい":(s.E2>0?"O′ ＞ A′":"A′ ＞ O′");
+ const fd=Math.abs(s.tau)<1e-6?"はたらかない":(Math.sign(s.tau)===Math.sign(s.ws)?"右の棒の回転と同方向":"右の棒の回転と逆方向");
+ const wi=st.R/(st.R+st.r)*st.w;
+ $("#read").innerHTML=[
+  [`OA の起電力 ${V("V")} = ½${V("Ba")}²${V("ω")}`,`${f(Math.abs(s.E1))} ${U("V")}`,`向き ${dir1}　電位 ${s.E1>0?"O ＞ A":"A ＞ O"}`],
+  [`${V("R")} を流れる電流`,`${f(Math.abs(s.IR))} ${U("A")}`,`向き ${dirR}`],
+  [`O′A′ 間を流れる電流`,`${f(Math.abs(s.I2))} ${U("A")}`,`向き ${d2}`],
+  [`O′A′ の起電力 ½${V("Ba")}²${V("ω")}′`,`${f(Math.abs(s.E2))} ${U("V")}`,`電位：${hi}`],
+  [`左の棒を回そうとする力`,"",fd],
+  [`左の棒の角速度 ${V("ω")}′`,`${f(Math.abs(w2))} ${U("rad/s")}`,st.sw&&st.free?`終端値 ${V("R")}/(${V("R")}+${V("r")})·${V("ω")} = ${f(wi)} ${U("rad/s")}`:(st.free?"スイッチが開いているので電流が流れず、加速しない":"固定中")]
+ ].map(([a,b,c],i)=>`<div><span>${a}</span><b>${b}</b><small>${c}</small>${i?"":EX}</div>`).join("");
+}
+
+/* グラフ */
+const cv=$("#cv"),fig=$("#figc"),probe=document.createElement("span");probe.hidden=true;document.body.appendChild(probe);
+function chart(){
+ const W=fig.clientWidth,H=fig.clientHeight,dpr=devicePixelRatio||1;
+ if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+ const c=cv.getContext("2d");c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);
+ const col=v=>{probe.style.color=`var(${v})`;return getComputedStyle(probe).color},ink=col("--ink"),mute=col("--mute"),line=col("--line"),fld=col("--fld"),cur=col("--cur");
+ const pl=52,pr=16,ph2=(H-50)/2,t0=Math.max(0,t-12);
+ const panels=[[1,fld,"ω′","rad/s",Math.max(0.5,st.w)*1.15,st.free&&st.sw?st.rot*st.R/(st.R+st.r)*st.w:null],[2,cur,"I","A",Math.max(0.01,...hist.map(h=>Math.abs(h[2])))*1.2,null]];
+ panels.forEach(([idx,col,sym,u,ymax,ref],i)=>{
+  const top=14+i*(ph2+22),bot=top+ph2,X=tt=>pl+(tt-t0)/12*(W-pl-pr),Y=v=>(top+bot)/2-v/ymax*(ph2/2);
+  c.strokeStyle=line;c.lineWidth=1;c.beginPath();c.moveTo(pl,Y(0));c.lineTo(W-pr,Y(0));c.moveTo(pl,top);c.lineTo(pl,bot);c.stroke();
+  c.fillStyle=mute;c.font="12px 'Noto Sans JP',sans-serif";c.textAlign="right";c.fillText("0",pl-6,Y(0)+4);
+  c.fillText(f(ymax,2),pl-6,top+10);c.fillText("−"+f(ymax,2),pl-6,bot);
+  c.textAlign="left";c.fillStyle=ink;c.font="italic 17px 'Times New Roman',Tinos,serif";c.fillText(sym,pl+8,top+14);
+  const sw=c.measureText(sym).width;c.font="14px 'Times New Roman',Tinos,serif";c.fillText("["+u+"]",pl+12+sw,top+14);
+  if(ref!==null){c.setLineDash([5,5]);c.strokeStyle=mute;c.beginPath();c.moveTo(pl,Y(ref));c.lineTo(W-pr,Y(ref));c.stroke();c.setLineDash([])}
+  c.strokeStyle=col;c.lineWidth=2.5;c.beginPath();hist.forEach((h,j)=>{const x=X(h[0]),y=Y(h[idx]);j?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();
+ });
+ c.fillStyle=mute;c.font="12px 'Noto Sans JP',sans-serif";c.textAlign="right";c.fillText("時間（直近 12 秒）",W-pr,H-6);
+}
+const ro=new ResizeObserver(chart);ro.observe(fig);
+
+/* ループ */
+let prev=performance.now();
+function loop(now){
+ const dt=Math.min(0.05,(now-prev)/1000);prev=now;
+ if(playing){const n=4;for(let i=0;i<n;i++)step(dt/n)}
+ const s=drawDyn();
+ if(now-lastRead>120){readout(s);lastRead=now}
+ chart();
+ requestAnimationFrame(loop);
+}
+syncUI();buildStatic();readout(solve());requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

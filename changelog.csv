@@ -16,3 +16,5 @@
 2026/11/23 19:06,電磁気学に「磁場に侵入する正方形コイル」（筑波大学 2023年・電磁誘導・コンデンサー）を追加しました。,#anime/電磁気学,"Added ""Square coil entering a magnetic field"" (University of Tsukuba 2023, electromagnetic induction, capacitor) to Electromagnetism."
 2026/11/23 19:35,力学に「振り子と釘（非等速円運動）」（筑波大学 2023年）を追加しました。v・m・M・l・a・g を変えて動きを確かめられます。,#anime/力学,"Added ""Pendulum and peg (non-uniform circular motion)"" (University of Tsukuba 2023) to Mechanics. Change v, m, M, l, a and g to see how the motion changes."
 2026/11/23 20:31,トップページに「今日の一言」を表示するようにしました。,#home,Added a short "Today's note" at the top of the home page.
+2026/11/24 11:58,力学に「動く発射台と運動量保存」（筑波大学 2008年）を追加しました。重心・速度の合成・的当てなどを切りかえて表示できます。,#anime/力学,"Added ""Launcher on a frictionless floor and conservation of momentum"" (University of Tsukuba 2008) to Mechanics. Toggle the centre of mass, velocity addition, a target mode and more."
+2026/11/24 11:59,電磁気学に「回転する金属棒と電磁誘導」（筑波大学 2008年）を追加しました。磁場の向きや B・a・ω・r・R を変えられます。,#anime/電磁気学,"Added ""Rotating metal rods and electromagnetic induction"" (University of Tsukuba 2008) to Electromagnetism. Change the field direction and B, a, ω, r and R."
