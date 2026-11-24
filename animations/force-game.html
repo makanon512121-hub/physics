@@ -104,6 +104,8 @@ aside ol{padding-left:1.3em;margin:4px 0}
       <button data-l="2" aria-pressed="false">むずかしい</button>
     </div>
     <p id="lvdesc"></p>
+    <h2>音</h2>
+    <div class="lv"><button id="snd" aria-pressed="true">🔊 音あり</button></div>
     <h2>矢印の色</h2>
     <div class="key" id="keyG">
       <span><i style="background:var(--f1)"></i>力 F₁</span>
@@ -240,8 +242,31 @@ function prompt(){
   if(mode==='g')say('合力の矢印の先だと思う点をタップしよう。');
   else say(taps.length?'あと1つ。もう一方の分力の矢印の先をタップしよう。':'2つの分力の矢印の先をタップしよう（順番は自由）。');
 }
+/* 効果音（Web Audio で作った音。外部の音源は使っていません） */
+let actx=null,soundOn=true;
+try{soundOn=localStorage.getItem('force-game-sound')!=='off'}catch(e){}
+function tone(freq,start,dur,type,vol,endFreq){
+  const t0=actx.currentTime+start,o=actx.createOscillator(),g=actx.createGain();
+  o.type=type;o.frequency.setValueAtTime(freq,t0);if(endFreq)o.frequency.linearRampToValueAtTime(endFreq,t0+dur);
+  g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  if(type!=='sine'){const f=actx.createBiquadFilter();f.type='lowpass';f.frequency.value=900;o.connect(f);f.connect(g)}else o.connect(g);
+  g.connect(actx.destination);o.start(t0);o.stop(t0+dur+0.05);
+}
+function sfx(kind){
+  if(!soundOn)return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended')actx.resume();
+    if(kind==='ok'){tone(1318.5,0,0.35,'sine',0.35);tone(1046.5,0.16,0.55,'sine',0.35)}      // ピンポン
+    else if(kind==='ng'){tone(150,0,0.45,'sawtooth',0.3,135);tone(152,0,0.45,'square',0.12,137)} // ブー
+    else if(kind==='end'){[523.3,659.3,784,1046.5].forEach((f,i)=>tone(f,i*0.12,0.4,'sine',0.25))}
+  }catch(e){}
+}
+function sndBtn(){const b=$('snd');b.setAttribute('aria-pressed',soundOn);b.textContent=soundOn?'🔊 音あり':'🔇 音なし'}
+$('snd').addEventListener('click',()=>{soundOn=!soundOn;try{localStorage.setItem('force-game-sound',soundOn?'on':'off')}catch(e){}sndBtn();if(soundOn)sfx('ok')});
+sndBtn();
 function judge(ok,detail){
-  answered=true;
+  answered=true;sfx(ok?'ok':'ng');
   if(ok){score++;streak++;best=Math.max(best,streak);say((hintOn?'正解！':'正解！ヒントなしでお見事。')+(streak>=3?` ${streak}問連続！`:''),'ok')}
   else{streak=0;say(detail,'ng')}
   $('next').disabled=false;$('hint').disabled=true;$('undo').hidden=true;
@@ -280,6 +305,7 @@ function finish(){
   cur=null;draw();
   const c=score===TOTAL?'パーフェクト！平行四辺形マスターです。':score>=7?'よくできました！あと少しで満点。':'作図のしかたを確認して、もう一度やってみよう。';
   say(`おわり！ ${TOTAL}問中 ${score}問正解（最高 ${best}連続）。${c}`);
+  if(score===TOTAL)setTimeout(()=>sfx('end'),700);
   $('next').textContent='もう一度あそぶ';$('next').disabled=false;$('hint').disabled=true;$('undo').hidden=true;
   $('pg').style.width='100%';
 }
