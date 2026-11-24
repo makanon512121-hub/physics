@@ -16,6 +16,7 @@ const COLUMNS = {
   updated: ["更新日時", "更新日", "updated"],
   links: ["リンク", "link", "links"],
   tags: ["タグ", "tags"],
+  solution: ["解答解説", "解答・解説", "solution"],
 };
 // 英語表示のときに使う列（なくてもOK）：「タイトル_en」のように、見出しの後ろに _en をつけた列
 const EN_KEYS = ["title", "category", "type", "university", "description", "links", "tags"];
@@ -599,12 +600,20 @@ function openModal(item) {
   } else if (item.image && !item.linkList.length) {
     media = `<img class="modal-img" alt="" src="${esc(imageUrl(item.image))}">`;
   }
-  if (item.linkList.length) {
-    media += `<div class="choices">${linksOf(item).map((l) => `
-      <a class="choice" href="${esc(l.url)}"${/^https?:/.test(l.url) ? ' target="_blank" rel="noopener"' : ""}>
+  // ボタン：アニメーションを開く（リンク列）＋ 解答解説（「解答解説」列。空なら準備中）
+  const newTab = (u) => (/^https?:|\.pdf(?:[?#]|$)/i.test(u) ? ' target="_blank" rel="noopener"' : "");
+  let tiles = linksOf(item).map((l) => `
+      <a class="choice" href="${esc(l.url)}"${newTab(l.url)}>
         <span class="choice-label">${esc(l.label)}</span><span class="choice-go">${L("開く", "Open")} →</span>
-      </a>`).join("")}</div>`;
+      </a>`).join("");
+  if (item.isAnime) {
+    tiles += item.solution
+      ? `<a class="choice sol" href="${esc(item.solution)}"${newTab(item.solution)}>
+        <span class="choice-label">${L("解答解説", "Solution")}</span><span class="choice-go">${L("見る", "View")} →</span></a>`
+      : `<div class="choice sol off" aria-disabled="true">
+        <span class="choice-label">${L("解答解説", "Solution")}</span><span class="choice-go">${L("準備中", "Coming soon")}</span></div>`;
   }
+  if (tiles) media += `<div class="choices${item.videoId ? " below" : ""}">${tiles}</div>`;
   $("modal-media").innerHTML = media;
   $("modal-tags").innerHTML = tagsHtml(item);
   document.querySelector(".modal-box").style.setProperty("--c", colorOf(item));

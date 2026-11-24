@@ -286,6 +286,10 @@ a { color: inherit; }
 .choice:hover { transform: translateY(-2px); border-color: var(--c, var(--accent)); }
 .choice-label { font-size: 1.15rem; font-weight: 900; }
 .choice-go { font-size: .85rem; font-weight: 700; color: var(--c, var(--accent)); }
+.choice.off { cursor: default; opacity: .55; background: var(--surface); border-style: dashed; }
+.choice.off:hover { transform: none; border-color: var(--line); }
+.choice.off .choice-go { color: var(--sub); }
+.choices.below { padding-top: 16px; }
 
 /* ===== 更新内容 ===== */
 .log-day { margin-bottom: 32px; }
