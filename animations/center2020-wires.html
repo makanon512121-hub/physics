@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="../config.js"></script>
+  <script src="../gate.js"></script>
+  <title>2本直線電流の立体磁場シミュレーター (2D/3D)</title>
+  <!-- Three.js & OrbitControls CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    /* 全体レイアウト */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100dvh; /* スマホのアドレスバー考慮 */
+    }
+
+    header {
+      background: #1e293b;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+      z-index: 10;
+      gap: 10px;
+    }
+    .head-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .sitenav { flex: none; font-size: 0.75rem; color: #cbd5e1; text-decoration: none; border: 1px solid #475569; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+    .sitenav:hover { color: #fff; border-color: #94a3b8; }
+    h1 { font-size: 1.0rem; color: #38bdf8; display: flex; align-items: center; gap: 6px; }
+    .badge { background: #0284c7; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; }
+    @media (max-width: 520px) { .head-hint { display: none; } h1 { font-size: 0.9rem; } }
+
+    .main-content {
+      display: flex;
+      flex: 1;
+      flex-direction: row;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ビューポート（3D/2Dキャンバス） */
+    #viewport {
+      flex: 1;
+      position: relative;
+      background: #090d16;
+      width: 100%;
+      height: 100%;
+      touch-action: none; /* スマホでの3D操作用 */
+    }
+    canvas { width: 100% !important; height: 100% !important; display: block; }
+
+    /* 情報オーバーレイ */
+    #overlay-info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.75rem;
+      pointer-events: none;
+      line-height: 1.4;
+      z-index: 5;
+    }
+    .legend { display: flex; gap: 8px; font-size: 0.7rem; margin-top: 4px; }
+    .legend-item { display: flex; align-items: center; gap: 3px; }
+    .color-box { width: 8px; height: 8px; border-radius: 2px; }
+
+    /* コントロールパネル */
+    #controls-panel {
+      width: 300px;
+      background: #1e293b;
+      padding: 14px;
+      overflow-y: auto;
+      border-left: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 5;
+    }
+
+    /* モバイル向けレイアウト調整 */
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+      #viewport {
+        height: 55dvh; /* スマホでは上がキャンバス */
+      }
+      #controls-panel {
+        width: 100%;
+        height: 45dvh; /* 下がスクロール可能な操作領域 */
+        border-left: none;
+        border-top: 1px solid #334155;
+      }
+    }
+
+    .card {
+      background: #0f172a;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .control-row { margin-bottom: 10px; }
+    .control-row:last-child { margin-bottom: 0; }
+    label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      color: #cbd5e1;
+    }
+    input[type=range] { width: 100%; accent-color: #38bdf8; height: 24px; }
+    select, button {
+      width: 100%;
+      padding: 8px 10px;
+      background: #334155;
+      border: 1px solid #475569;
+      color: #f8fafc;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    button:active { background: #475569; }
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .btn-active { background: #0284c7 !important; border-color: #38bdf8 !important; }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .preset-grid button { padding: 6px 4px; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <div class="head-left">
+      <a class="sitenav" href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a>
+      <h1>⚡ 2本直線電流の磁場 <span class="badge">2D / 3D</span></h1>
+    </div>
+    <span class="head-hint" style="font-size: 0.75rem; color: #94a3b8;">指で回転 / タップで測定点</span>
+  </header>
+
+  <div class="main-content">
+    <div id="viewport">
+      <div id="overlay-info">
+        <div><b>モード:</b> <span id="mode-text">3D立体</span></div>
+        <div><b>測定点 P:</b> (<span id="p-coords">0, 2, 0</span>)</div>
+        <div><b>合成磁場 |B|:</b> <span id="b-total">0.00</span></div>
+        <div class="legend">
+          <div class="legend-item"><div class="color-box" style="background:#38bdf8;"></div>B_A</div>
+          <div class="legend-item"><div class="color-box" style="background:#f43f5e;"></div>B_B</div>
+          <div class="legend-item"><div class="color-box" style="background:#10b981;"></div>合成</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="controls-panel">
+      <!-- 視点切替 -->
+      <div class="card">
+        <div class="card-title">視点切替</div>
+        <div class="btn-group">
+          <button id="btn-3d" class="btn-active">3D 立体表示</button>
+          <button id="btn-2d">2D 断面表示</button>
+        </div>
+      </div>
+
+      <!-- 電流設定 -->
+      <div class="card">
+        <div class="card-title">電流の設定</div>
+        <div class="control-row">
+          <label>導線 A: <span id="valA" style="color:#38bdf8;">+2.0 A</span></label>
+          <input type="range" id="iA" min="-5" max="5" step="0.5" value="2">
+        </div>
+        <div class="control-row">
+          <label>導線 B: <span id="valB" style="color:#f43f5e;">+2.0 A</span></label>
+          <input type="range" id="iB" min="-5" max="5" step="0.5" value="2">
+        </div>
+        <div class="control-row">
+          <label>導線間距離: <span id="valDist">4.0 m</span></label>
+          <input type="range" id="dist" min="2" max="8" step="0.5" value="4">
+        </div>
+      </div>
+
+      <!-- 表示オプション -->
+      <div class="card">
+        <div class="card-title">表示設定</div>
+        <div class="control-row">
+          <select id="viewElement">
+            <option value="lines">磁力線描画</option>
+            <option value="grid">磁場ベクトル場（格子）</option>
+            <option value="both">磁力線 + ベクトル</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <button id="btn-lorentz">⚡ 電子を飛ばす (ローレンツ力)</button>
+        </div>
+      </div>
+
+      <!-- プリセット -->
+      <div class="card">
+        <div class="card-title">プリセット</div>
+        <div class="preset-grid">
+          <button onclick="setPreset(2, 2)">同方向 (ひょうたん)</button>
+          <button onclick="setPreset(2, -2)">逆方向 (反発)</button>
+          <button onclick="setPreset(3, 1)">強弱あり</button>
+          <button onclick="setPreset(3, 0)">片方のみ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- パラメータ ---
+  let is3D = true;
+  let currentA = 2.0;
+  let currentB = 2.0;
+  let wireDistance = 4.0;
+  let pointPPos = new THREE.Vector3(0, 2, 0);
+
+  // --- Three.js 初期化 ---
+  const container = document.getElementById('viewport');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x090d16);
+
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+  camera.position.set(0, 8, 12);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // スマホの軽量化
+  container.appendChild(renderer.domElement);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+
+  // ライティング & グリッド
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(10, 20, 15);
+  scene.add(dirLight);
+
+  const gridHelper = new THREE.GridHelper(20, 20, 0x334155, 0x1e293b);
+  gridHelper.position.y = -0.01;
+  scene.add(gridHelper);
+
+  // オブジェクトグループ
+  const wireGroup = new THREE.Group();
+  const fieldGroup = new THREE.Group();
+  const vectorGroup = new THREE.Group();
+  const electronGroup = new THREE.Group();
+  scene.add(wireGroup, fieldGroup, vectorGroup, electronGroup);
+
+  // 測定点 P
+  const pMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.18, 16, 16),
+    new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x854d0e })
+  );
+  scene.add(pMesh);
+
+  // 導線メッシュ作成
+  function createWireMesh(colorHex) {
+    const group = new THREE.Group();
+    const cylinder = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.12, 0.12, 14, 16),
+      new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.5, roughness: 0.2 })
+    );
+    cylinder.rotation.x = Math.PI / 2;
+    group.add(cylinder);
+    return group;
+  }
+  const wireA = createWireMesh(0x38bdf8);
+  const wireB = createWireMesh(0xf43f5e);
+  wireGroup.add(wireA, wireB);
+
+  // 磁場計算（ビオ・サバールの法則）
+  function calculateBField(pos) {
+    const rxA = pos.x - (-wireDistance / 2);
+    const ryA = pos.y;
+    const rA2 = rxA * rxA + ryA * ryA;
+
+    const rxB = pos.x - (wireDistance / 2);
+    const ryB = pos.y;
+    const rB2 = rxB * rxB + ryB * ryB;
+
+    const scale = 2.0;
+
+    let bAx = 0, bAy = 0;
+    if (rA2 > 0.04) {
+      bAx = -scale * currentA * ryA / rA2;
+      bAy =  scale * currentA * rxA / rA2;
+    }
+
+    let bBx = 0, bBy = 0;
+    if (rB2 > 0.04) {
+      bBx = -scale * currentB * ryB / rB2;
+      bBy =  scale * currentB * rxB / rB2;
+    }
+
+    return {
+      bTotal: new THREE.Vector3(bAx + bBx, bAy + bBy, 0),
+      bA: new THREE.Vector3(bAx, bAy, 0),
+      bB: new THREE.Vector3(bBx, bBy, 0)
+    };
+  }
+
+  // シーン更新
+  function updateScene() {
+    wireA.position.set(-wireDistance / 2, 0, 0);
+    wireB.position.set(wireDistance / 2, 0, 0);
+    pMesh.position.copy(pointPPos);
+
+    while(fieldGroup.children.length) fieldGroup.remove(fieldGroup.children[0]);
+    while(vectorGroup.children.length) vectorGroup.remove(vectorGroup.children[0]);
+
+    const elemMode = document.getElementById('viewElement').value;
+    if (elemMode === 'lines' || elemMode === 'both') drawFieldLines();
+    if (elemMode === 'grid' || elemMode === 'both') drawVectorGrid();
+
+    drawPVectors();
+    updateUI();
+  }
+
+  // 磁力線描画
+  function drawFieldLines() {
+    const radii = [0.5, 1.0, 1.6, 2.4, 3.4];
+    const numAngles = 10;
+    const zSlices = is3D ? [-2.5, 0, 2.5] : [0];
+
+    zSlices.forEach(z => {
+      [ {x: -wireDistance/2, I: currentA, color: 0x38bdf8}, {x: wireDistance/2, I: currentB, color: 0xf43f5e} ].forEach(wire => {
+        if (Math.abs(wire.I) < 0.1) return;
+        radii.forEach(r => {
+          for (let a = 0; a < numAngles; a++) {
+            const angle = (a / numAngles) * Math.PI * 2;
+            traceAndDrawLine(wire.x + r * Math.cos(angle), r * Math.sin(angle), z, wire.I > 0 ? wire.color : 0xa855f7);
+          }
+        });
+      });
+    });
+  }
+
+  function traceAndDrawLine(sx, sy, sz, colorHex) {
+    const points = [];
+    let curr = new THREE.Vector3(sx, sy, sz);
+    points.push(curr.clone());
+
+    const ds = 0.15;
+    for (let step = 0; step < 70; step++) {
+      const f1 = calculateBField(curr);
+      const len1 = f1.bTotal.length();
+      if (len1 < 0.05 || len1 > 40) break;
+
+      const dir1 = f1.bTotal.clone().normalize();
+      const mid = curr.clone().addScaledVector(dir1, ds * 0.5);
+      const f2 = calculateBField(mid);
+      const len2 = f2.bTotal.length();
+      if (len2 < 0.05) break;
+
+      curr.addScaledVector(f2.bTotal.clone().normalize(), ds);
+      if (Math.abs(curr.x) > 10 || Math.abs(curr.y) > 8) break;
+      points.push(curr.clone());
+    }
+
+    if (points.length > 3) {
+      const geom = new THREE.BufferGeometry().setFromPoints(points);
+      const mat = new THREE.LineBasicMaterial({ color: colorHex, transparent: true, opacity: 0.65 });
+      fieldGroup.add(new THREE.Line(geom, mat));
+    }
+  }
+
+  // 格子ベクトル
+  function drawVectorGrid() {
+    const stepX = 1.4, stepY = 1.4;
+    for (let x = -6; x <= 6; x += stepX) {
+      for (let y = -4; y <= 4; y += stepY) {
+        if (Math.abs(x - (-wireDistance/2)) < 0.4 && Math.abs(y) < 0.4) continue;
+        if (Math.abs(x - (wireDistance/2)) < 0.4 && Math.abs(y) < 0.4) continue;
+
+        const pos = new THREE.Vector3(x, y, 0);
+        const res = calculateBField(pos);
+        const len = res.bTotal.length();
+        if (len < 0.1) continue;
+
+        const arrow = new THREE.ArrowHelper(res.bTotal.clone().normalize(), pos, Math.min(0.6, len * 0.15), 0x64748b, 0.15, 0.1);
+        vectorGroup.add(arrow);
+      }
+    }
+  }
+
+  // 測定点Pのベクトル
+  function drawPVectors() {
+    const res = calculateBField(pointPPos);
+    if (res.bA.length() > 0.05) vectorGroup.add(new THREE.ArrowHelper(res.bA.clone().normalize(), pointPPos, Math.min(2.5, res.bA.length() * 0.4), 0x38bdf8, 0.2, 0.15));
+    if (res.bB.length() > 0.05) vectorGroup.add(new THREE.ArrowHelper(res.bB.clone().normalize(), pointPPos, Math.min(2.5, res.bB.length() * 0.4), 0xf43f5e, 0.2, 0.15));
+    if (res.bTotal.length() > 0.05) vectorGroup.add(new THREE.ArrowHelper(res.bTotal.clone().normalize(), pointPPos, Math.min(3.0, res.bTotal.length() * 0.4), 0x10b981, 0.3, 0.2));
+  }
+
+  // ローレンツ力アニメーション
+  function fireElectron() {
+    const electron = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+    let pos = new THREE.Vector3(-8, 1.5, 0);
+    let vel = new THREE.Vector3(3.0, 0, 0);
+    electron.position.copy(pos);
+    electronGroup.add(electron);
+
+    const trailPoints = [pos.clone()];
+    const dt = 0.016, q = -1.0;
+
+    const animInterval = setInterval(() => {
+      const res = calculateBField(pos);
+      const force = new THREE.Vector3().crossVectors(vel, res.bTotal).multiplyScalar(q * 0.5);
+      vel.addScaledVector(force, dt);
+      pos.addScaledVector(vel, dt);
+      electron.position.copy(pos);
+      trailPoints.push(pos.clone());
+
+      if (trailPoints.length > 2) {
+        const trail = new THREE.Line(new THREE.BufferGeometry().setFromPoints(trailPoints), new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 }));
+        electronGroup.add(trail);
+      }
+
+      if (Math.abs(pos.x) > 12 || Math.abs(pos.y) > 10 || Math.abs(pos.z) > 10) {
+        clearInterval(animInterval);
+        setTimeout(() => { while(electronGroup.children.length) electronGroup.remove(electronGroup.children[0]); }, 1500);
+      }
+    }, 16);
+  }
+
+  function updateUI() {
+    document.getElementById('valA').textContent = (currentA > 0 ? '+' : '') + currentA.toFixed(1) + ' A';
+    document.getElementById('valB').textContent = (currentB > 0 ? '+' : '') + currentB.toFixed(1) + ' A';
+    document.getElementById('valDist').textContent = wireDistance.toFixed(1) + ' m';
+
+    const res = calculateBField(pointPPos);
+    document.getElementById('p-coords').textContent = `${pointPPos.x.toFixed(1)}, ${pointPPos.y.toFixed(1)}, ${pointPPos.z.toFixed(1)}`;
+    document.getElementById('b-total').textContent = res.bTotal.length().toFixed(2);
+  }
+
+  function setMode(to3D) {
+    is3D = to3D;
+    document.getElementById('btn-3d').classList.toggle('btn-active', is3D);
+    document.getElementById('btn-2d').classList.toggle('btn-active', !is3D);
+    document.getElementById('mode-text').textContent = is3D ? '3D立体' : '2D断面';
+
+    if (!is3D) {
+      camera.position.set(0, 0, 14);
+      camera.lookAt(0, 0, 0);
+      controls.enableRotate = false;
+    } else {
+      camera.position.set(0, 8, 12);
+      camera.lookAt(0, 0, 0);
+      controls.enableRotate = true;
+    }
+    updateScene();
+  }
+
+  // イベント登録
+  document.getElementById('iA').addEventListener('input', (e) => { currentA = parseFloat(e.target.value); updateScene(); });
+  document.getElementById('iB').addEventListener('input', (e) => { currentB = parseFloat(e.target.value); updateScene(); });
+  document.getElementById('dist').addEventListener('input', (e) => { wireDistance = parseFloat(e.target.value); updateScene(); });
+  document.getElementById('viewElement').addEventListener('change', updateScene);
+  document.getElementById('btn-3d').addEventListener('click', () => setMode(true));
+  document.getElementById('btn-2d').addEventListener('click', () => setMode(false));
+  document.getElementById('btn-lorentz').addEventListener('click', fireElectron);
+
+  // タップ / クリックでの測定点P配置
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  function onPointerDown(e) {
+    if (e.target.tagName !== 'CANVAS') return;
+    const rect = renderer.domElement.getBoundingClientRect();
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+    mouse.x = ((x - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((y - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersectPoint = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), intersectPoint)) {
+      pointPPos.copy(intersectPoint);
+      updateScene();
+    }
+  }
+  container.addEventListener('click', onPointerDown);
+
+  window.setPreset = function(iA, iB) {
+    currentA = iA; currentB = iB;
+    document.getElementById('iA').value = iA;
+    document.getElementById('iB').value = iB;
+    updateScene();
+  };
+
+  // ★ スマホ等での描画崩れを防ぐサイズ自動検知
+  const resizeObserver = new ResizeObserver(() => {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    if (width === 0 || height === 0) return;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height, false);
+    updateScene();
+  });
+  resizeObserver.observe(container);
+
+  // レンダリングループ
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  animate();
+</script>
+
+</body>
+</html>

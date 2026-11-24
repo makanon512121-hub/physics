@@ -19,3 +19,4 @@
 2026/11/24 11:58,力学に「動く発射台と運動量保存」（筑波大学 2008年）を追加しました。重心・速度の合成・的当てなどを切りかえて表示できます。,#anime/力学,"Added ""Launcher on a frictionless floor and conservation of momentum"" (University of Tsukuba 2008) to Mechanics. Toggle the centre of mass, velocity addition, a target mode and more."
 2026/11/24 11:59,電磁気学に「回転する金属棒と電磁誘導」（筑波大学 2008年）を追加しました。磁場の向きや B・a・ω・r・R を変えられます。,#anime/電磁気学,"Added ""Rotating metal rods and electromagnetic induction"" (University of Tsukuba 2008) to Electromagnetism. Change the field direction and B, a, ω, r and R."
 2026/11/24 12:02,アニメーションを押したときに「アニメーションを開く」と「解答解説」のボタンが出るようにしました。,#anime,"Animations now show two buttons: open the animation, and the solution."
+2026/11/24 12:08,電磁気学に「2本の直線電流がつくる磁場（2D/3D）」（センター試験 2020年 第1問）を追加しました。,#anime/電磁気学,"Added ""Magnetic field of two straight currents (2D/3D)"" (Center Test 2020, Question 1) to Electromagnetism."
