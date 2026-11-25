@@ -2,27 +2,27 @@
 2026/11/22 17:28,サイトを公開しました。,#home,Site launched.
 2026/11/22 17:46,サイトを「過去問研究」「アニメーション集」「質問箱」の3つのコーナーに分けました。,#home,"Split the site into three sections: Past Exams, Animations and Q&A."
 2026/11/22 17:54,トップページと各記事に、更新日時を表示するようにしました。,#home,Update times are now shown on the top page and on each item.
-2026/11/22 17:57,電磁気学に「ダイオード回路の電位とON/OFF」（千葉大学 2021年）を追加しました。2D版と3D版から選べます。,#anime/電磁気学,"Added ""Diode circuit: potential and ON/OFF"" (Chiba University 2021) to Electromagnetism. Choose the 2D or 3D version."
+2026/11/22 17:57,電磁気学に「ダイオード回路の電位とON/OFF」（千葉大学 2021年）を追加しました。,#anime/電磁気学,"Added ""Diode circuit: potential and ON/OFF"" (Chiba University 2021) to Electromagnetism."
 2026/11/22 18:04,過去問研究で、大学のタブと年のプルダウンから問題を選べるようにしました。,#exams,Past Exams: choose problems by university tab and year menu.
 2026/11/22 18:12,力学に「力の合成・分解ゲーム」（中２・理科１）を追加しました。,#anime/力学,"Added ""Force composition and decomposition game"" (junior high 2, Science 1) to Mechanics."
 2026/11/22 18:12,アニメーション集で、タグ（学年・科目など）で絞りこめるようにしました。,#anime,Animations: filter by tags such as grade and subject.
-2026/11/22 18:26,質問箱を開設しました。送った質問はメールで届きます。,#ask,Opened the Q&A box.
+2026/11/22 18:26,質問箱を開設しました。,#ask,Opened the Q&A box.
 2026/11/22 18:36,波動に「波のグラフ y-x と y-t」（高1・物理基礎）を追加しました。,#anime/波動,"Added ""Wave graphs: y-x and y-t"" (high school 1, Basic Physics) to Waves."
 2026/11/22 18:40,「更新内容」ページを追加しました。,#updates,Added this Updates page.
 2026/11/22 19:22,日本語と英語を切りかえられるようにしました（右上の「EN」ボタン）。,#home,You can now switch between Japanese and English (EN button at the top right).
-2026/11/22 19:42,「リンク集」ページを追加しました。旧帝大などの公式の過去問ページへのリンクです。,#links,Added the Links page with official past-exam pages of major universities.
+2026/11/22 19:42,「リンク集」ページを追加しました。,#links,Added the Links page.
 2026/11/22 19:49,リンク集に九州大学・筑波大学・早稲田大学・慶應義塾大学・上智大学・東京理科大学を追加しました。,#links,"Added Kyushu, Tsukuba, Waseda, Keio, Sophia and Tokyo University of Science to the Links page."
-2026/11/22 21:54,トップページのアニメーションを4種類（電子のジャンプ・電場の矢印・惑星の軌道・波の干渉）にしました。アニメーションを押すと切りかわります。,#home,"The top-page animation now has four types (electron jumps, electric field, planetary orbits, wave interference). Tap it to switch."
+2026/11/22 21:54,トップページのアニメーションを4種類（電子のジャンプ・電場の矢印・惑星の軌道・波の干渉）にしました。,#home,"The top-page animation now has four types (electron jumps, electric field, planetary orbits, wave interference)."
 2026/11/23 19:06,電磁気学に「磁場に侵入する正方形コイル」（筑波大学 2023年・電磁誘導・コンデンサー）を追加しました。,#anime/電磁気学,"Added ""Square coil entering a magnetic field"" (University of Tsukuba 2023, electromagnetic induction, capacitor) to Electromagnetism."
-2026/11/23 19:35,力学に「振り子と釘（非等速円運動）」（筑波大学 2023年）を追加しました。v・m・M・l・a・g を変えて動きを確かめられます。,#anime/力学,"Added ""Pendulum and peg (non-uniform circular motion)"" (University of Tsukuba 2023) to Mechanics. Change v, m, M, l, a and g to see how the motion changes."
-2026/11/23 20:31,トップページに「今日の一言」を表示するようにしました。,#home,Added a short "Today's note" at the top of the home page.
-2026/11/24 11:58,力学に「動く発射台と運動量保存」（筑波大学 2008年）を追加しました。重心・速度の合成・的当てなどを切りかえて表示できます。,#anime/力学,"Added ""Launcher on a frictionless floor and conservation of momentum"" (University of Tsukuba 2008) to Mechanics. Toggle the centre of mass, velocity addition, a target mode and more."
-2026/11/24 11:59,電磁気学に「回転する金属棒と電磁誘導」（筑波大学 2008年）を追加しました。磁場の向きや B・a・ω・r・R を変えられます。,#anime/電磁気学,"Added ""Rotating metal rods and electromagnetic induction"" (University of Tsukuba 2008) to Electromagnetism. Change the field direction and B, a, ω, r and R."
+2026/11/23 19:35,力学に「振り子と釘（非等速円運動）」（筑波大学 2023年）を追加しました。,#anime/力学,"Added ""Pendulum and peg (non-uniform circular motion)"" (University of Tsukuba 2023) to Mechanics."
+2026/11/23 20:31,トップページに「今日の一言」を表示するようにしました。,#home,"Added a short ""Today's note"" at the top of the home page."
+2026/11/24 11:58,力学に「動く発射台と運動量保存」（筑波大学 2008年）を追加しました。,#anime/力学,"Added ""Launcher on a frictionless floor and conservation of momentum"" (University of Tsukuba 2008) to Mechanics."
+2026/11/24 11:59,電磁気学に「回転する金属棒と電磁誘導」（筑波大学 2008年）を追加しました。,#anime/電磁気学,"Added ""Rotating metal rods and electromagnetic induction"" (University of Tsukuba 2008) to Electromagnetism."
 2026/11/24 12:02,アニメーションを押したときに「アニメーションを開く」と「解答解説」のボタンが出るようにしました。,#anime,"Animations now show two buttons: open the animation, and the solution."
 2026/11/24 12:08,電磁気学に「2本の直線電流がつくる磁場（2D/3D）」（センター試験 2020年 第1問）を追加しました。,#anime/電磁気学,"Added ""Magnetic field of two straight currents (2D/3D)"" (Center Test 2020, Question 1) to Electromagnetism."
-2026/11/25 11:50,力学に「一輪車の加速と円運動」（東京大学 2026年 第1問）を追加しました。設問ごとの状況切りかえと詳しい解説つきです。,#anime/力学,"Added ""Unicycle: acceleration and circular motion"" (University of Tokyo 2026, Question 1) to Mechanics, with a view for each sub-question and detailed explanations."
-2026/11/25 11:51,電磁気学に「回転する導体棒とコンデンサー」（東京大学 2026年 第2問）を追加しました。設問ごとの状況切りかえと詳しい解説つきです。,#anime/電磁気学,"Added ""Rotating conductor rod and capacitors"" (University of Tokyo 2026, Question 2) to Electromagnetism, with a view for each sub-question and detailed explanations."
-2026/11/25 11:52,波動に「レンズの像・望遠レンズ・光のボケ」（東京大学 2026年 第3問）を追加しました。設問ごとの状況切りかえと詳しい解説つきです。,#anime/波動,"Added ""Lens images, telephoto lenses and blur"" (University of Tokyo 2026, Question 3) to Waves, with a view for each sub-question and detailed explanations."
-2026/11/25 13:16,力学に「床の上の3つのおもりと棒」（東京大学 2025年 第1問）を追加しました。設問ごとの状況切りかえと詳しい解説つきです。,#anime/力学,"Added ""Three weights and rods on a floor"" (University of Tokyo 2025, Question 1) to Mechanics, with a view for each sub-question and detailed explanations."
-2026/11/25 13:17,電磁気学に「ソレノイドの端を通過するコイル」（東京大学 2025年 第2問）を追加しました。設問ごとの状況切りかえと詳しい解説つきです。,#anime/電磁気学,"Added ""A coil passing the end of a solenoid"" (University of Tokyo 2025, Question 2) to Electromagnetism, with a view for each sub-question and detailed explanations."
-2026/11/25 13:18,熱力学に「台車とピストン：気体をばねにした跳ね返り」（東京大学 2025年 第3問）を追加しました。設問ごとの状況切りかえと詳しい解説つきです。,#anime/熱力学,"Added ""Cart and piston: bouncing off a gas spring"" (University of Tokyo 2025, Question 3) to Thermodynamics, with a view for each sub-question and detailed explanations."
+2026/11/25 11:50,力学に「一輪車の加速と円運動」（東京大学 2026年 第1問）を追加しました。,#anime/力学,"Added ""Unicycle: acceleration and circular motion"" (University of Tokyo 2026, Question 1) to Mechanics."
+2026/11/25 11:51,電磁気学に「回転する導体棒とコンデンサー」（東京大学 2026年 第2問）を追加しました。,#anime/電磁気学,"Added ""Rotating conductor rod and capacitors"" (University of Tokyo 2026, Question 2) to Electromagnetism."
+2026/11/25 11:52,波動に「レンズの像・望遠レンズ・光のボケ」（東京大学 2026年 第3問）を追加しました。,#anime/波動,"Added ""Lens images, telephoto lenses and blur"" (University of Tokyo 2026, Question 3) to Waves."
+2026/11/25 13:16,力学に「床の上の3つのおもりと棒」（東京大学 2025年 第1問）を追加しました。,#anime/力学,"Added ""Three weights and rods on a floor"" (University of Tokyo 2025, Question 1) to Mechanics."
+2026/11/25 13:17,電磁気学に「ソレノイドの端を通過するコイル」（東京大学 2025年 第2問）を追加しました。,#anime/電磁気学,"Added ""A coil passing the end of a solenoid"" (University of Tokyo 2025, Question 2) to Electromagnetism."
+2026/11/25 13:18,熱力学に「台車とピストン：気体をばねにした跳ね返り」（東京大学 2025年 第3問）を追加しました。,#anime/熱力学,"Added ""Cart and piston: bouncing off a gas spring"" (University of Tokyo 2025, Question 3) to Thermodynamics."
