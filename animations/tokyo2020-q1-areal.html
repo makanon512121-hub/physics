@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>面積速度と中心力：ケプラーの第2法則から暗黒物質まで</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;transition:background-color .15s,box-shadow .15s}
+.tk.on{background:var(--soft);box-shadow:0 0 0 2px var(--soft)}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>面積速度と中心力：ケプラーの第2法則から暗黒物質まで（東京大学 2020年 第1問）</h1>
+<p class="lead">平面内を運動する小球について、<b>面積速度が一定になる条件</b>（中心力）を式で確かめ、速度を「動径方向」と「回転方向」に分けて<b>有効ポテンシャル</b>で運動を読み解きます。最後はボーアの量子条件を使って、暗黒物質の粒子の質量の下限を見積もります。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="原点のまわりを運動する小球の軌道と、位置・速度・加速度ベクトル"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 面積速度の変化</button>
+<button class="qb" data-q="I2">I(2) 一定になる条件</button>
+<button class="qb" data-q="I3">I(3) 円周上の仕事</button>
+<button class="qb" data-q="II1">II(1) 動径方向の運動エネルギー</button>
+<button class="qb" data-q="II2">II(2) 力学的エネルギーの最小</button>
+<button class="qb" data-q="III1">III(1) 量子条件と軌道半径</button>
+<button class="qb" data-q="III2">III(2) 暗黒物質の質量</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。アニメーションでは \(GM=1\)、\(m=1\)、はじめの距離 \(r=1\) の単位で計算しています。色は図と式で共通です：<span class="t-acc">速度（青）</span>、<span class="t-frc">力・加速度（赤）</span>、<span class="t-fic">面積（紫）</span>、<span class="t-grav">動径方向（緑）</span>、<span class="t-fr">回転方向（オレンジ）</span>。</p>
+
+<details id="d-I1"><summary>I(1)　微小時間後の位置・速度と面積速度の変化<span class="ans">答 ア \(v_x\)　イ \(v_y\)　ウ \(a_x\)　エ \(a_y\)　オ \(a_y\)　カ \(a_x\)</span></summary><div class="body">
+<h3>微小時間の変化は「変化率 × Δt」</h3>
+<p>位置の変化率が速度、速度の変化率が加速度です。\(\Delta t\) が十分小さければ、その間の速度・加速度は一定とみなせるので</p>
+$${\vec r}' = \vec r + \cacc{\vec v}\,\Delta t = (x + v_x\Delta t,\ y + v_y\Delta t),\qquad {\vec v}' = \vec v + \cfrc{\vec a}\,\Delta t = (v_x + a_x\Delta t,\ v_y + a_y\Delta t)$$
+<p>よって ア \(v_x\)、イ \(v_y\)、ウ \(a_x\)、エ \(a_y\) です。</p>
+<h3>新しい位置と速度で面積速度を作り直す</h3>
+<p>\(\Delta t\) 後の面積速度は、同じ式の \(x,y,v_x,v_y\) を新しい値に置きかえたものです。</p>
+$$A_v' = \frac12\Big\{(x+v_x\Delta t)(v_y+a_y\Delta t) - (y+v_y\Delta t)(v_x+a_x\Delta t)\Big\}$$
+<p>展開すると、\(\Delta t\) を含まない部分はもとの \(A_v\)、\(\Delta t\) の1次の部分のうち \(v_xv_y\Delta t\) は打ち消し合い、\((\Delta t)^2\) の項は無視できます。</p>
+$$\cfic{\Delta A_v} = A_v' - A_v = \frac12\big(x\,\cfrc{a_y} - y\,\cfrc{a_x}\big)\Delta t$$
+<p>よって オ \(a_y\)、カ \(a_x\) です。</p>
+<h3>別の立て方：時間で微分する</h3>
+<p>\(A_v=\frac12(xv_y-yv_x)\) を積の微分で \(t\) について微分すると、\(\dot x=v_x,\ \dot v_y=a_y\) などから \(\dfrac{dA_v}{dt} = \dfrac12\{(v_xv_y + xa_y) - (v_yv_x + ya_x)\} = \dfrac12(xa_y - ya_x)\) と一気に出ます。「\(\Delta t\) の1次まで残して展開する」ことと「微分する」ことは同じ操作です。</p>
+<h3>そもそも \(A_v\) はなぜ面積か</h3>
+<p>\(\Delta t\) の間に動径が掃く部分は、O・\((x,y)\)・\((x+v_x\Delta t,\,y+v_y\Delta t)\) を頂点とする細い三角形です。2つのベクトル \((p_1,p_2)\)、\((q_1,q_2)\) が張る三角形の面積は \(\frac12(p_1q_2-p_2q_1)\) なので、面積は \(\frac12(xv_y - yv_x)\Delta t\)、単位時間あたりにすると \(A_v\) です。反時計回りに回っているときに正になります。</p>
+<div class="box"><b>式の立て方</b>：「微小時間後の量」を問われたら、①位置・速度を「もとの値＋変化率×\(\Delta t\)」で書く ②目的の量の式に代入して展開する ③\(\Delta t\) の1次の項だけを残す、の順に進めます。この手順は運動量・エネルギー・電気量など、どの量の変化率を求めるときにも使えます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：紫の細い三角形が \(\Delta t\) の間に掃く面積です。φ = 0（力が原点を向く）のときは \(xa_y-ya_x=0\) で、下のグラフの \(A_v\) は水平な直線になります。φ を 0 からずらすと、力に回転方向の成分ができて \(A_v\) が増えたり減ったりします。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　面積速度が一定になる力の条件<span class="ans">答 \(F_x : F_y = x : y\)（力が原点と小球を結ぶ直線の方向を向く）</span></summary><div class="body">
+<h3>\(\Delta A_v = 0\) を力の条件に言いかえる</h3>
+<p>I(1) より、面積速度が変化しない条件は</p>
+$$x\,a_y - y\,a_x = 0\qquad\Longleftrightarrow\qquad a_x : a_y = x : y$$
+<p>運動方程式 \(m\vec a = \vec F\) より \(\vec F\) と \(\vec a\) は同じ向きなので</p>
+$$\cfrc{F_x : F_y} = x : y$$
+<p>つまり力 \(\vec F\) が位置ベクトル \(\vec r\) と平行です。原点に向かう引力でも、原点から遠ざかる斥力でもかまいません。このような力を<b>中心力</b>といいます。</p>
+<h3>着眼点：回転方向の成分が面積速度を変える</h3>
+<p>\(x a_y - y a_x\) は「\(\vec r\) と \(\vec a\) の張る平行四辺形の面積」で、\(r\times(\)加速度の \(\vec r\) に垂直な成分\()\) に等しくなります。面積速度を変えられるのは<b>回転方向の力</b>だけで、動径方向の力はいくら強くても面積速度を変えません。惑星（太陽からの万有引力）、クーロン力で回る電子、糸につながれて回る物体など、力が1点を向く運動では必ず面積速度が保存します。</p>
+<div class="box"><b>式の立て方</b>：面積速度（角運動量 \(L = 2mA_v\)）が保存するかどうかは、「力が回転の中心を向いているか」だけで判定できます。保存すると分かったら、2つの位置で \(\frac12 r_1v_1\sin\theta_1 = \frac12 r_2v_2\sin\theta_2\) と立てます。近日点・遠日点では \(\sin\theta = 1\) なので \(r_1v_1 = r_2v_2\) です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：一定時間ごとに掃いた扇形を色分けしています。φ = 0 では、近いところで速く・遠いところでゆっくり動いても、扇形の面積（下のグラフの棒）がすべて等しくなります（ケプラーの第2法則）。φ をずらすと棒の高さがそろわなくなります。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　A→B と A→C の仕事の大小<span class="ans">答 どちらも 0 で等しい（円周上では移動の向きと力がつねに垂直だから）</span></summary><div class="body">
+<h3>仕事は「力の移動方向の成分 × 移動距離」</h3>
+<p>原点を中心とする円周上を動くとき、移動の向き（接線方向）はつねに動径と垂直です。I(2) の力は動径方向を向くので、移動の向きと力はつねに垂直です。</p>
+$$\Delta W = \cfrc{\vec F}\cdot\Delta\vec s = |\vec F||\Delta\vec s|\cos 90^\circ = 0$$
+<p>どの部分でも仕事は 0 なので、A→B も A→C も仕事は 0 で、両者は等しくなります。</p>
+<h3>一歩進んだ見方：中心力は保存力</h3>
+<p>力の大きさが距離 \(r\) だけで決まる中心力なら、どんな経路でも、仕事は「動径方向に動いた部分」だけで決まります。円周に沿った部分は 0、外に出て戻ってくる部分は行きと帰りで打ち消し合います。そのため仕事は始点と終点の距離だけで決まり、位置エネルギー \(U(r)\) が定義できます。II(2) で万有引力の位置エネルギーを使えるのはこのためです。</p>
+<div class="box"><b>式の立て方</b>：仕事を問われたら、まず「力と移動の向きのなす角」を見ます。垂直なら計算せずに 0 と言えます。斜めのときは、力を移動方向に分解した成分だけが仕事をします。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：「寄り道の半径」を 1 にすると円周上を進み、下のグラフの仕事はずっと 0 です。半径を大きくして外側を回ると、外へ出る間は仕事が負、戻る間は正になり、C に着いたときの合計はやはり 0 になります。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　運動エネルギーと動径方向の運動エネルギーの差<span class="ans">答 \(K - K_r = \dfrac{2mA_v^{\,2}}{r^2}\)</span></summary><div class="body">
+<h3>速度を「動径方向」と「回転方向」に分ける</h3>
+<p>\(\vec r\) と \(\vec v\) のなす角を \(\theta\) とすると、速度は動径方向の成分 \(\cgrav{v_r = v\cos\theta}\) と、それに垂直な回転方向の成分 \(\cfr{v_\perp = v\sin\theta}\) に分かれます。2つは直交するので</p>
+$$K = \frac12mv^2 = \cgrav{\frac12mv_r^{\,2}} + \cfr{\frac12mv_\perp^{\,2}}$$
+<p>一方、面積速度は「底辺 \(r\) × 高さ \(v\sin\theta\)」の三角形の面積なので</p>
+$$\cfic{A_v} = \frac12 r\,v_\perp\qquad\Longrightarrow\qquad v_\perp = \frac{2A_v}{r}$$
+<p>したがって</p>
+$$K - K_r = \frac12mv_\perp^{\,2} = \frac12m\left(\frac{2A_v}{r}\right)^2 = \frac{2mA_v^{\,2}}{r^2}$$
+<h3>成分のまま計算する方法</h3>
+<p>\(K - K_r = \dfrac{m}{2r^2}\{(x^2+y^2)(v_x^2+v_y^2) - (xv_x+yv_y)^2\}\) と通分すると、中かっこの中は \((xv_y - yv_x)^2 = (2A_v)^2\) にまとまります。ベクトルの図が描ければ、上の分解の方が見通しよく計算できます。</p>
+<div class="box"><b>式の立て方</b>：回転運動を含む問題では、速度を「中心に近づく・遠ざかる成分」と「回る成分」に分けます。回る成分は面積速度（角運動量）で \(r\) の関数として書けるので、運動エネルギーのうち回転の部分を「距離だけの関数」に変えられます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：小球の速度（青）を緑（動径方向）とオレンジ（回転方向）に分けて描いています。近日点・遠日点では緑が 0 になり、運動エネルギーはすべて回転の部分です。下のグラフで、オレンジの曲線 \(2mA_v^2/r^2\) は \(r\) が小さいところで大きくなります。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　力学的エネルギーが最小となる運動<span class="ans">答 半径 \(\dfrac{4A_0^{\,2}}{GM}\) の等速円運動。最小値 \(-\dfrac{G^2M^2m}{8A_0^{\,2}}\)</span></summary><div class="body">
+<h3>エネルギーを \(v_r\) と \(r\) だけの式にする</h3>
+<p>II(1) を使うと、力学的エネルギーは</p>
+$$E = \cgrav{\frac12mv_r^{\,2}} + \cfr{\frac{2mA_0^{\,2}}{r^2}} - \cfrc{\frac{GMm}{r}}$$
+<p>\(A_0\) は定数なので、\(E\) は \(v_r\) と \(r\) の2変数だけで決まります。第1項は \(v_r=0\) で最小です。残りの2項は \(\frac1r\) の2次式なので平方完成します。</p>
+$$\frac{2mA_0^{\,2}}{r^2} - \frac{GMm}{r} = 2mA_0^{\,2}\left(\frac1r - \frac{GM}{4A_0^{\,2}}\right)^2 - \frac{G^2M^2m}{8A_0^{\,2}}$$
+<p>最小になるのは \(v_r = 0\) かつ \(r = \dfrac{4A_0^{\,2}}{GM}\) のときです。\(r\) が変わらず、面積速度一定なので速さ \(v = \dfrac{2A_0}{r}\) も一定、つまり<b>半径 \(\dfrac{4A_0^{\,2}}{GM}\) の等速円運動</b>で、最小値は</p>
+$$E_{\min} = -\frac{G^2M^2m}{8A_0^{\,2}}$$
+<p>確かめ：円運動の式 \(m\dfrac{v^2}{r} = \dfrac{GMm}{r^2}\) に \(v = \dfrac{2A_0}{r}\) を入れると \(r = \dfrac{4A_0^{\,2}}{GM}\) となり、一致します。</p>
+<h3>着眼点：有効ポテンシャル</h3>
+<p>\(U_{\rm eff}(r) = \dfrac{2mA_0^{\,2}}{r^2} - \dfrac{GMm}{r}\) を<b>有効ポテンシャル</b>といいます。\(E = \frac12mv_r^2 + U_{\rm eff}(r)\) は「直線上を動く質点の力学的エネルギー」と同じ形なので、\(r\) の動きは谷の中を往復する玉のように読めます。</p>
+<ul>
+<li>\(E = E_{\min}\)（谷底）：\(r\) が動けない → 円軌道</li>
+<li>\(E_{\min} &lt; E &lt; 0\)：\(r\) は2つの転回点の間を往復 → 楕円軌道</li>
+<li>\(E \ge 0\)：遠くへ行ったきり戻らない</li>
+</ul>
+<p>第1項 \(\frac{2mA_0^2}{r^2}\) は近づくほど大きくなる「回転の壁」で、面積速度が 0 でない限り小球は原点に落ちません。</p>
+<div class="box"><b>式の立て方</b>：中心力の問題で「最も近づく距離・最も遠い距離」や「円運動になる条件」を問われたら、①面積速度保存で回転方向の速さを \(r\) で表す ②エネルギー保存に代入して \(v_r\) と \(r\) の式にする ③転回点では \(v_r = 0\) とおく。円運動は「谷底（\(dU_{\rm eff}/dr = 0\)）」で、これは向心方向の運動方程式と同じ条件です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフが有効ポテンシャル、水平な線が力学的エネルギー \(E\) です。緑の棒（\(E - U_{\rm eff} = \frac12mv_r^2\)）が 0 になる点で \(r\) が折り返します。「はじめの動径方向の速さ」を 0 にすると \(E\) が谷底に一致し、軌道は円になります。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)　量子条件を満たす円軌道の半径<span class="ans">答 \(r_n = \dfrac{n^2h^2}{4\pi^2GMm^2}\)</span></summary><div class="body">
+<h3>運動方程式と量子条件を連立する</h3>
+<p>円運動の向心方向の運動方程式と、量子条件（\(\lambda = h/mv\) を代入したもの）は</p>
+$$m\frac{v^2}{r_n} = \cfrc{\frac{GMm}{r_n^{\,2}}},\qquad 2\pi r_n = n\,\frac{h}{mv}$$
+<p>2本目から \(v = \dfrac{nh}{2\pi m r_n}\) として1本目に代入すると</p>
+$$\frac{m}{r_n}\left(\frac{nh}{2\pi m r_n}\right)^2 = \frac{GMm}{r_n^{\,2}}\qquad\therefore\ r_n = \frac{n^2h^2}{4\pi^2GMm^2}$$
+<p>水素原子のボーア模型で、クーロン力 \(\dfrac{ke^2}{r^2}\) を万有引力 \(\dfrac{GMm}{r^2}\) に置きかえただけの式です。半径は \(n^2\) に比例し、\(m^2\) に反比例します。</p>
+<h3>量子条件の意味</h3>
+<p>\(2\pi r = n\lambda\) は「円周にちょうど \(n\) 個の波が入り、1周して元の波とつながる」という条件です。つながらない半径では波が自分自身と打ち消し合い、安定に存在できません。量子条件は面積速度で書くと \(2mA_v = mvr = n\dfrac{h}{2\pi}\) で、面積速度（角運動量）がとびとびになる、という意味もあります。</p>
+<div class="box"><b>式の立て方</b>：ボーア模型型の問題は、どの力でも「向心方向の運動方程式」＋「\(2\pi r = n\lambda\)」の2本で決まります。未知数は \(v\) と \(r\) の2つなので、まず \(v\) を消去します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：円周に沿った波の数が \(n\) です。\(n\) を整数以外（例：2.5）にすると、1周したところで波の山と谷がずれて（赤い印）つながりません。下のグラフは \(r_n\) と \(n\) の関係で、整数の点だけが許される軌道です。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>III(2)　暗黒物質の粒子の質量の下限<span class="ans">答 \(m \fallingdotseq 10^{-61}\ \mathrm{kg}\)</span></summary><div class="body">
+<h3>III(1) を \(m\) について解き、指数で計算する</h3>
+<p>\(n = 1\) で \(r_1 = R\) とおき、\(m\) について解くと</p>
+$$m = \frac{h}{2\pi}\cdot\frac{1}{\sqrt{GMR}}$$
+<p>指数だけを足し引きします。</p>
+$$GMR = 10^{-10}\times10^{42}\times10^{22} = 10^{54},\qquad \sqrt{GMR} = 10^{27}$$
+$$m = \frac{10^{-34}}{10^{27}} = 10^{-61}\ \mathrm{kg}$$
+<h3>なぜ「下限」になるのか</h3>
+<p>\(r_1 \propto \dfrac{1}{m^2}\) なので、粒子が軽いほど、許される最小の軌道が大きくなります。\(m\) が \(10^{-61}\ \mathrm{kg}\) より小さいと、いちばん内側の軌道でさえ \(R\) より外になり、銀河の大きさの中にとどまれません。暗黒物質が半径 \(R\) の中に集まっていることから、粒子の質量はこの値以上と言えます。電子（約 \(10^{-30}\ \mathrm{kg}\)）と比べても、\(10^{30}\) 倍以上軽い値です。</p>
+<div class="box"><b>式の立て方</b>：桁の見積もりは、文字式のまま目的の量について解いてから、最後に \(10^{n}\) を代入して指数だけを計算します。平方根は指数を半分にする操作です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(R\) や \(M\) を変えると、下の対数目盛りの上で質量の下限が動きます。\(R\) を 10 倍にすると \(m\) は \(1/\sqrt{10}\) 倍（指数が 0.5 減る）です。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)))};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>式の色つきの項に触れると、図の対応する部分が強調されます</span></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"))}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i);if(n&&n.innerHTML!==(e.n||""))n.innerHTML=e.n||""})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+
+const st={q:"I1",phi:0,vf:0.85,dt:0.35,rout:1,A0:0.5,vr0:0.3,nn:3,lgR:22,lgM:42,spd:1};
+const SL=[
+ ["phi","φ","力の向きのずれ","°",-30,30,1,0,"I1 I2"],
+ ["vf","v₀","はじめの速さ（円軌道を 1）","",0.6,1.2,0.01,2,"I1 I2 II1"],
+ ["dt","Δt","微小時間（誇張して表示）","",0.1,0.6,0.01,2,"I1"],
+ ["rout","r₁/r₀","寄り道の半径","",1,1.8,0.01,2,"I3"],
+ ["A0","A₀","面積速度","",0.35,0.6,0.01,2,"II2"],
+ ["vr0","v_r","はじめの動径方向の速さ","",0,0.6,0.01,2,"II2"],
+ ["nn","n","量子数（整数以外も試せる）","",1,5,0.05,2,"III1"],
+ ["lgR","log R","暗黒物質の広がり R（m の指数）","",20,24,0.1,1,"III2"],
+ ["lgM","log M","銀河の質量 M（kg の指数）","",40,44,0.1,1,"III2"],
+ ["spd","","再生速度","倍",0.25,3,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>n?[640,560]:[1000,460]);
+const gr=mkCv($("#gr"),n=>n?[640,360]:[1000,250]);
+let S={};
+const R_=String.raw;
+/* ---------- dynamics (GM = 1, m = 1) ---------- */
+function accel(x,y){const r=Math.hypot(x,y),g=1/(r*r),ph=(st.q==="I1"||st.q==="I2")?-st.phi*Math.PI/180:0;const ux=-x/r,uy=-y/r,c=Math.cos(ph),s=Math.sin(ph);return[g*(ux*c-uy*s),g*(ux*s+uy*c)]}
+function init0(){const q=st.q;if(q==="II2"){const rc=4*st.A0*st.A0;return{x:rc,y:0,vx:st.vr0,vy:1/(2*st.A0)}}return{x:1,y:0,vx:0,vy:st.vf}}
+function restart(){const p=init0();S={t:0,fanN0:0,...p,trail:[],hist:[],fan:[{pts:[[p.x,p.y]],A:0}],fanT:0,ph:0,W:0,wh:[],lap:0};S.A0v=0.5*(S.x*S.vy-S.y*S.vx);S.E0=0.5*(S.vx**2+S.vy**2)-1/Math.hypot(S.x,S.y)}
+function onParam(k){restart()}
+function integ(T){const h=0.002;let n=Math.ceil(T/h);const hh=T/n;for(let i=0;i<n;i++){let [ax,ay]=accel(S.x,S.y);S.vx+=ax*hh/2;S.vy+=ay*hh/2;S.x+=S.vx*hh;S.y+=S.vy*hh;[ax,ay]=accel(S.x,S.y);S.vx+=ax*hh/2;S.vy+=ay*hh/2}}
+const Av=()=>0.5*(S.x*S.vy-S.y*S.vx);
+const FAN=0.6;
+function step(dt){const q=st.q,p=part();S.t+=dt;
+ if(p==="I"&&q!=="I3"||q==="II1"||q==="II2"){integ(dt);const r=Math.hypot(S.x,S.y);
+  S.trail.push([S.x,S.y]);if(S.trail.length>900)S.trail.shift();
+  const vr=(S.x*S.vx+S.y*S.vy)/r;S.hist.push([S.t,Av(),0.5*vr*vr,2*Av()**2/(r*r),r]);if(S.hist.length>700)S.hist.shift();
+  if(q==="I2"){const cur=S.fan[S.fan.length-1];cur.pts.push([S.x,S.y]);cur.A+=Av()*dt;cur.T=(cur.T||0)+dt;S.fanT+=dt;if(S.fanT>=FAN){S.fanT-=FAN;cur.done=1;S.fan.push({pts:[[S.x,S.y]],A:0});if(S.fan.length>7){S.fan.shift();S.fanN0=(S.fanN0||0)+1}}}
+  if(r>3.4||r<0.12)restart()}
+ if(q==="I3"){const L=pathLen(),sp=0.55;S.ph=Math.min(1,S.t*sp/L);if(S.t*sp>L+1.8)restart();else{S.wh.push([S.ph*L,workAt(S.ph*L)]);if(S.wh.length>2000)S.wh.shift()}}
+ if(p==="III")S.ph=S.t}
+/* ---------- I3 path: A -> out to r1 -> arc -> in to C ---------- */
+function pathLen(){const r1=st.rout;return 2*(r1-1)+Math.PI*r1}
+function pathAt(s){const r1=st.rout,l1=r1-1,l2=Math.PI*r1;if(s<=l1)return{r:1+s,th:0,dir:"out"};if(s<=l1+l2)return{r:r1,th:(s-l1)/r1,dir:"arc"};return{r:Math.max(1,r1-(s-l1-l2)),th:Math.PI,dir:"in"}}
+function workAt(s){const r1=st.rout,l1=r1-1,l2=Math.PI*r1;// F = -1/r^2 radial
+ if(s<=l1)return(1/(1+s)-1);if(s<=l1+l2)return(1/r1-1);const r=Math.max(1,r1-(s-l1-l2));return 1/r-1}
+/* ---------- drawing helpers ---------- */
+function orbitView(B){let ro=1,b=1;if(st.q==="II2"){const A=st.A0,E=0.5*st.vr0**2-1/(8*A*A),rs=E<0?[(-1+Math.sqrt(Math.max(0,1+8*A*A*E)))/(2*E),(-1-Math.sqrt(Math.max(0,1+8*A*A*E)))/(2*E)]:[4*A*A,3];const rmax=Math.max(...rs.map(Math.abs));return view(B,[-rmax*1.08,rmax*1.08],[-rmax*1.08,rmax*1.08])}
+ const v=st.vf;ro=v*v/(2-v*v);const ext=Math.max(1,ro),bb=Math.sqrt(ro);const xr=[-ext-0.25,Math.max(1,ro)+0.25],yr=[-Math.max(bb,0.55)-0.3,Math.max(bb,0.55)+0.3];
+ if(st.phi!==0&&(st.q==="I1"||st.q==="I2")){return view(B,[-2.6,2.6],[-2.2,2.2])}
+ return view(B,xr,yr)}
+function sun(c,X,Y){dot(c,X(0),Y(0),7,CL.fr);txt(c,"O",X(0)-10,Y(0)+14,CL.mute,{s:13,al:"right"})}
+function vecLab(c,k,x1,y1,x2,y2,col,lab,w=3,mid){karrow(c,k,x1,y1,x2,y2,col,w);const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1;if(mid)txt(c,lab,(x1+x2)/2-dy/L*12,(y1+y2)/2+dx/L*12,col,{s:HL(k)?17:15,it:1,b:1,al:"center"});else txt(c,lab,x2+dx/L*12,y2+dy/L*12,col,{s:HL(k)?17:15,it:1,b:1,al:"center"})}
+function drawMain(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,q=st.q,p=part();
+ if(q==="I3")return drawI3(c,W,H,n);if(q==="III1")return drawIII1(c,W,H,n);if(q==="III2")return drawIII2(c,W,H,n);
+ const B={x:20,y:16,w:W-40,h:H-46};const V=orbitView(B),X=V.X,Y=V.Y,s=V.s;
+ // axes
+ line(c,[[B.x,Y(0)],[B.x+B.w,Y(0)]],CL.line,1);line(c,[[X(0),B.y],[X(0),B.y+B.h]],CL.line,1);txt(c,"x",B.x+B.w-4,Y(0)-12,CL.mute,{it:1,s:14,al:"right"});txt(c,"y",X(0)+8,B.y+8,CL.mute,{it:1,s:14});
+ // trail
+ if(S.trail.length>1)line(c,S.trail.map(([x,y])=>[X(x),Y(y)]),alpha(CL.mute,0.6),1.4);
+ sun(c,X,Y);
+ const bx=X(S.x),by=Y(S.y),r=Math.hypot(S.x,S.y);
+ if(q==="I2"){S.fan.forEach((f,i)=>{const col=(S.fanN0+i)%2?CL.fic:CL.acc;glow(c,"dA",CL.fic);c.fillStyle=alpha(col,HL("dA")?0.34:0.2);c.beginPath();c.moveTo(X(0),Y(0));f.pts.forEach(([x,y])=>c.lineTo(X(x),Y(y)));c.closePath();c.fill();noglow(c);const [x,y]=f.pts[0];line(c,[[X(0),Y(0)],[X(x),Y(y)]],alpha(CL.fic,0.6),1)})}
+ if(q==="I1"){const T=st.dt,px=S.x+S.vx*T,py=S.y+S.vy*T;glow(c,"dA",CL.fic);c.fillStyle=alpha(CL.fic,HL("dA")?0.45:0.28);c.beginPath();c.moveTo(X(0),Y(0));c.lineTo(bx,by);c.lineTo(X(px),Y(py));c.closePath();c.fill();noglow(c);
+  line(c,[[X(0),Y(0)],[X(px),Y(py)]],alpha(CL.fic,0.8),1.2,[4,3]);txt(c,"A_v Δt",X((px+S.x)/3),Y((py+S.y)/3)-10,CL.fic,{s:14,it:1,al:"center"});
+  karrow(c,"v",bx,by,X(px),Y(py),alpha(CL.acc,0.5),1.5)}
+ // r vector
+ vecLab(c,"r",X(0),Y(0),bx,by,CL.ink,"r",1.6,1);
+ if(q==="II1"||q==="II2"){const vr=(S.x*S.vx+S.y*S.vy)/r,ux=S.x/r,uy=S.y/r,tx=-uy,ty=ux,vt=S.vx*tx+S.vy*ty,K=n?70:80;
+  const ex=bx+K*vr*ux,ey=by-K*vr*uy,fx2=bx+K*vt*tx,fy2=by-K*vt*ty,vx2=bx+K*S.vx,vy2=by-K*S.vy;
+  line(c,[[ex,ey],[vx2,vy2],[fx2,fy2]],alpha(CL.mute,0.7),1,[4,3]);
+  if(Math.abs(vr)>0.02)vecLab(c,"vr",bx,by,ex,ey,CL.grav,"v_r",3);vecLab(c,"vp",bx,by,fx2,fy2,CL.fr,"v_⊥",3);vecLab(c,"v",bx,by,vx2,vy2,CL.acc,"v",2.4)}
+ else{const K=n?62:72;vecLab(c,"v",bx,by,bx+K*S.vx,by-K*S.vy,CL.acc,"v",2.6);const [ax,ay]=accel(S.x,S.y),Ka=(n?26:30)/Math.max(0.6,Math.hypot(ax,ay))**0.5;vecLab(c,"a",bx,by,bx+Ka*ax,by-Ka*ay,CL.frc,"F",2.6)}
+ dot(c,bx,by,8,CL.ink);
+ const cap={I1:"紫の三角形：Δt の間に動径が掃く面積",I2:`一定時間（${FAN}）ごとに掃いた扇形`,II1:"速度 = 動径方向 v_r ＋ 回転方向 v_⊥",II2:st.vr0<0.005?"v_r = 0：谷底 → 等速円運動":"r が 2 つの転回点の間を往復する"}[q];
+ txt(c,cap,n?12:16,H-12,CL.ink,{s:13,b:1});
+ if(q==="I1"||q==="I2")txt(c,st.phi===0?"φ = 0：力は原点を向く（中心力）":`φ = ${st.phi}°：力が中心からずれている`,n?12:16,22,st.phi===0?CL.ok:CL.ng,{s:13,b:1})}
+function drawI3(c,W,H,n){const B={x:20,y:16,w:W-40,h:H-46},r1=st.rout,V=view(B,[-r1-0.35,r1+0.35],[-0.35,r1+0.3]),X=V.X,Y=V.Y;
+ line(c,[[B.x,Y(0)],[B.x+B.w,Y(0)]],CL.line,1);line(c,[[X(0),B.y],[X(0),Y(-0.3)]],CL.line,1);
+ c.strokeStyle=alpha(CL.mute,0.8);c.lineWidth=1.4;c.beginPath();c.arc(X(0),Y(0),V.s*1,Math.PI,0,false);c.stroke();
+ // planned path
+ const pts=[];const L=pathLen();for(let i=0;i<=200;i++){const P=pathAt(L*i/200);pts.push([X(P.r*Math.cos(P.th)),Y(P.r*Math.sin(P.th))])}line(c,pts,alpha(CL.acc,0.35),2,[6,4]);
+ sun(c,X,Y);[["A",1,0],["B",0,1],["C",-1,0]].forEach(([l,x,y])=>{dot(c,X(x),Y(y),4,CL.ink);txt(c,l,X(x)+(x>0?10:x<0?-10:10),Y(y)-(y>0?12:-14),CL.ink,{s:15,b:1,al:x<0?"right":"left"})});
+ const P=pathAt(S.ph*L),px=P.r*Math.cos(P.th),py=P.r*Math.sin(P.th),bx=X(px),by=Y(py);
+ // traversed path
+ const tp=[];for(let i=0;i<=120;i++){const Q=pathAt(S.ph*L*i/120);tp.push([X(Q.r*Math.cos(Q.th)),Y(Q.r*Math.sin(Q.th))])}line(c,tp,CL.acc,2.6);
+ vecLab(c,"r",X(0),Y(0),bx,by,CL.ink,"r",1.4,1);
+ const F=(n?55:62)/(P.r*P.r);vecLab(c,"F",bx,by,bx-F*Math.cos(P.th),by+F*Math.sin(P.th),CL.frc,"F",3);
+ let dx,dy;if(P.dir==="arc"){dx=-Math.sin(P.th);dy=Math.cos(P.th)}else if(P.dir==="out"){dx=Math.cos(P.th);dy=Math.sin(P.th)}else{dx=-Math.cos(P.th);dy=-Math.sin(P.th)}
+ if(S.ph<1)vecLab(c,"ds",bx,by,bx+44*dx,by-44*dy,CL.acc,"Δs",2.6);
+ dot(c,bx,by,8,CL.ink);
+ const cap=S.ph>=1?"C に到着：仕事の合計は 0":P.dir==="arc"?"円周上：F ⊥ Δs → 仕事 0":P.dir==="out"?"外へ：F と Δs が逆向き → 仕事は負":"内へ：F と Δs が同じ向き → 仕事は正";
+ txt(c,cap,n?12:16,H-12,P.dir==="arc"||S.ph>=1?CL.ok:CL.ink,{s:13,b:1})}
+function lamTicks(c,cx,cy,R0,nn,amp){const k=Math.ceil(nn-1e-6);for(let i=0;i<=k;i++){const th=Math.min(2*Math.PI,2*Math.PI*i/nn);const r1=R0-amp-8,r2=R0+amp+8;line(c,[[cx+r1*Math.cos(th),cy-r1*Math.sin(th)],[cx+r2*Math.cos(th),cy-r2*Math.sin(th)]],alpha(CL.acc,0.7),1.4)}const tm=Math.PI/nn;txt(c,"λ",cx+(R0+amp+20)*Math.cos(tm),cy-(R0+amp+20)*Math.sin(tm),CL.acc,{s:16,it:1,b:1,al:"center"})}
+function wave(c,cx,cy,R0,nn,amp,ph,col,w){const pts=[];const N=360;for(let i=0;i<=N;i++){const th=2*Math.PI*i/N;const rr=R0+amp*Math.cos(nn*th)*Math.cos(ph);pts.push([cx+rr*Math.cos(th),cy-rr*Math.sin(th)])}
+ c.fillStyle=alpha(col,0.12);c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.moveTo(cx+R0,cy);c.arc(cx,cy,R0,0,-Math.PI*2,true);c.fill("evenodd");line(c,pts,col,w)}
+function drawIII1(c,W,H,n){const cx=n?W/2:W*0.36,cy=n?H*0.47:H/2,R0=Math.min(n?W*0.34:H*0.36,190),nn=st.nn,amp=R0*0.12,ph=S.ph*3;
+ // faint orbits n=1..5 scaled to the current one (r ∝ n^2)
+ for(let k=1;k<=5;k++){const rk=R0*k*k/(nn*nn);if(rk>8&&rk<Math.max(W,H)){c.strokeStyle=alpha(CL.mute,0.35);c.lineWidth=1;c.setLineDash([3,4]);c.beginPath();c.arc(cx,cy,rk,0,Math.PI*2);c.stroke();c.setLineDash([]);if(rk<R0*2.2&&Math.abs(rk-R0)>14)txt(c,"n="+k,cx+rk*0.71+4,cy-rk*0.71-4,CL.mute,{s:11})}}
+ c.strokeStyle=alpha(CL.ink,0.5);c.lineWidth=1.2;c.beginPath();c.arc(cx,cy,R0,0,Math.PI*2);c.stroke();
+ glow(c,"lam",CL.acc);wave(c,cx,cy,R0,nn,amp,ph,CL.acc,W_("lam",2.4));noglow(c);lamTicks(c,cx,cy,R0,nn,amp);
+ dot(c,cx,cy,9,CL.fr);txt(c,"M",cx+12,cy+12,CL.fr,{s:14,it:1});
+ const fr=nn-Math.floor(nn),ok=fr<0.001||fr>0.999;
+ // start/end markers
+ const v0=Math.cos(ph)*amp,v1=amp*Math.cos(nn*2*Math.PI)*Math.cos(ph);dot(c,cx+R0+v0,cy,5,CL.ok);if(!ok){dot(c,cx+R0+v1,cy,5,CL.ng);line(c,[[cx+R0+v0,cy-10],[cx+R0+v1,cy-10]],CL.ng,2);txt(c,"1周でつながらない",cx+R0+amp+10,cy-26,CL.ng,{s:13,b:1})}else txt(c,"1周でつながる",cx+R0+amp+10,cy-26,CL.ok,{s:13,b:1});
+ glow(c,"r",CL.ink);line(c,[[cx,cy],[cx+R0*Math.cos(-2.3),cy-R0*Math.sin(-2.3)]],CL.ink,W_("r",1.4));noglow(c);txt(c,"r_n",cx+R0*0.55*Math.cos(-2.3)-14,cy-R0*0.55*Math.sin(-2.3),CL.ink,{s:15,it:1,al:"right"});
+ if(!n){const x0=W*0.66;txt(c,`2πr = ${nn.toFixed(2)} λ`,x0,70,CL.acc,{s:20,it:1,b:1});txt(c,"円周に入る波の数",x0,100,CL.mute,{s:13});txt(c,ok?"整数 → 許される軌道":"整数でない → 波が打ち消し合う",x0,130,ok?CL.ok:CL.ng,{s:14,b:1});txt(c,`r = ${(nn*nn).toFixed(2)} r₁`,x0,170,CL.ink,{s:18,it:1});txt(c,"（r ∝ n²）",x0,196,CL.mute,{s:13})}
+ else{txt(c,`2πr = ${nn.toFixed(2)} λ　r = ${(nn*nn).toFixed(2)} r₁`,12,22,CL.acc,{s:15,b:1})}
+ txt(c,"小球の円軌道に沿ったド・ブロイ波",n?12:16,H-12,CL.ink,{s:13,b:1})}
+function P10(e){const v=Math.abs(e-Math.round(e))<0.05?String(Math.round(e)):e.toFixed(1);const m={"-":"⁻",".":"·","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};return"10"+[...v].map(ch=>m[ch]||ch).join("")}
+function lgm(){return -34-(-10+st.lgM+st.lgR)/2}
+function drawIII2(c,W,H,n){const cx=n?W/2:W*0.34,cy=H/2,R0=Math.min(n?W*0.36:H*0.38,200);
+ // galaxy: bulge + spiral dots
+ const rng=k=>{const x=Math.sin(k*12.9898)*43758.5453;return x-Math.floor(x)};
+ for(let i=0;i<420;i++){const arm=i%2,t=rng(i)*3.2,th=t*1.6+arm*Math.PI+S.ph*0.05,rr=R0*0.12+R0*0.22*t+(rng(i+7)-0.5)*R0*0.08;dot(c,cx+rr*Math.cos(th),cy-rr*0.55*Math.sin(th)*1.6/1.6,1.4,alpha(CL.mute,0.55))}
+ dot(c,cx,cy,R0*0.09,alpha(CL.fr,0.8));
+ c.fillStyle=alpha(CL.fic,0.08);c.beginPath();c.arc(cx,cy,R0,0,Math.PI*2);c.fill();
+ glow(c,"R",CL.fic);c.strokeStyle=CL.fic;c.lineWidth=W_("R",1.6);c.setLineDash([6,4]);c.beginPath();c.arc(cx,cy,R0,0,Math.PI*2);c.stroke();c.setLineDash([]);noglow(c);
+ glow(c,"lam",CL.acc);wave(c,cx,cy,R0,1,R0*0.1,S.ph*2,CL.acc,W_("lam",2.2));noglow(c);lamTicks(c,cx,cy,R0,1,R0*0.1);
+ line(c,[[cx,cy],[cx+R0,cy]],CL.fic,1.4);txt(c,`R = ${P10(st.lgR)} m`,cx+R0/2,cy+14,CL.fic,{s:13,al:"center"});
+ txt(c,"暗黒物質の広がり",cx,cy-R0-12,CL.fic,{s:13,b:1,al:"center"});
+ if(!n){const x0=W*0.64;txt(c,"n = 1 の軌道 = R",x0,60,CL.ink,{s:16,b:1});txt(c,"円周 2πR に波が 1 つ",x0,88,CL.acc,{s:14});txt(c,`m ≒ ${P10(lgm())} kg`,x0,140,CL.frc,{s:22,it:1,b:1});txt(c,"これより軽いと、いちばん内側の",x0,180,CL.mute,{s:13});txt(c,"軌道でも R の外にはみ出す",x0,200,CL.mute,{s:13})}
+ else txt(c,`m ≒ ${P10(lgm())} kg`,12,24,CL.frc,{s:17,it:1,b:1});
+ txt(c,"銀河の暗黒物質を n = 1 の軌道にのる粒子とみなす",n?12:16,H-12,CL.ink,{s:13,b:1})}
+/* ---------- graph canvas ---------- */
+function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q;const B={x:n?56:70,y:30,w:W-(n?90:120),h:H-70};
+ if(q==="I1"){const h=S.hist;const tmax=Math.max(10,S.t),t0=Math.max(0,tmax-10);let lo=0,hi=0.8;h.forEach(e=>{lo=Math.min(lo,e[1]);hi=Math.max(hi,e[1])});const A=axes(c,B,[t0,t0+10],[lo,hi*1.1],{xl:"t",yl:"A_v",title:"面積速度 A_v の時間変化"});
+  glow(c,"dA",CL.fic);line(c,h.filter(e=>e[0]>=t0).map(e=>[A.X(e[0]),A.Y(e[1])]),CL.fic,W_("dA",2.4));noglow(c);line(c,[[A.X(t0),A.Y(S.A0v)],[A.X(t0+10),A.Y(S.A0v)]],alpha(CL.mute,0.6),1,[4,4]);txt(c,"はじめの値",A.X(t0+10)-4,A.Y(S.A0v)-10,CL.mute,{s:12,al:"right"});return}
+ if(q==="I2"){const f=S.fan;const ar=f.map(e=>e.done?e.A/e.T*FAN:e.A);const mx=Math.max(0.4,S.A0v*FAN*1.6,...ar)*1.1;const A=axes(c,B,[0,7],[0,mx],{yl:"面積",yit:false,title:`時間 ${FAN} ごとに掃いた面積`});
+  ar.forEach((a,i)=>{const x=A.X(i+0.15),w=A.X(0.7)-A.X(0);glow(c,"dA",CL.fic);rect(c,x,A.Y(a),w,A.Y(0)-A.Y(a),alpha((S.fanN0+i)%2?CL.fic:CL.acc,f[i].done?0.6:0.25),null);noglow(c);if(f[i].done)txt(c,a.toFixed(3),x+w/2,A.Y(a)-10,CL.mute,{s:11,al:"center"})});
+  line(c,[[A.X(0),A.Y(S.A0v*FAN)],[A.X(12),A.Y(S.A0v*FAN)]],CL.fic,1.2,[5,4]);txt(c,"A_v × 時間",A.X(12),A.Y(S.A0v*FAN)-10,CL.fic,{s:12,al:"right"});return}
+ if(q==="I3"){const L=pathLen();const A=axes(c,B,[0,L],[-0.5,0.15],{xl:"道のり s",xit:false,yl:"W",y0:0,title:"A から測った力 F の仕事（万有引力型 F ∝ 1/r²）"});
+  line(c,(S.wh||[]).map(([s,w])=>[A.X(s),A.Y(w)]),CL.frc,2.4);const r1=st.rout;if(r1>1.001){[[r1-1,"外へ"],[r1-1+Math.PI*r1,"円周"]].forEach(([s,l])=>line(c,[[A.X(s),B.y],[A.X(s),B.y+B.h]],CL.line,1,[3,3]));txt(c,"外へ",A.X((r1-1)/2),B.y+8,CL.mute,{s:12,al:"center"});txt(c,"円周",A.X(r1-1+Math.PI*r1/2),B.y+8,CL.mute,{s:12,al:"center"});txt(c,"内へ",A.X(L-(r1-1)/2),B.y+8,CL.mute,{s:12,al:"center"})}return}
+ if(q==="II1"){const h=S.hist;const tmax=Math.max(12,S.t),t0=Math.max(0,tmax-12);let hi=0.3;h.forEach(e=>hi=Math.max(hi,e[2]+e[3]));const A=axes(c,B,[t0,t0+12],[0,hi*1.1],{xl:"t"});
+  glow(c,"Kr",CL.grav);line(c,h.filter(e=>e[0]>=t0).map(e=>[A.X(e[0]),A.Y(e[2])]),CL.grav,W_("Kr",2.2));noglow(c);
+  glow(c,"Kp",CL.fr);line(c,h.filter(e=>e[0]>=t0).map(e=>[A.X(e[0]),A.Y(e[3])]),CL.fr,W_("Kp",2.2));noglow(c);
+  line(c,h.filter(e=>e[0]>=t0).map(e=>[A.X(e[0]),A.Y(e[2]+e[3])]),CL.acc,1.6);
+  txt(c,"K（合計）",B.x+14,B.y-10,CL.acc,{s:13,b:1});txt(c,"K_r（動径方向）",B.x+110,B.y-10,CL.grav,{s:13,b:1});txt(c,"2mA_v²/r²（回転方向）",B.x+250,B.y-10,CL.fr,{s:13,b:1});return}
+ if(q==="II2"){const A0=st.A0,rc=4*A0*A0,Um=-1/(8*A0*A0),E=S.E0;const rmax=Math.max(rc*3.2,2.6);const U=r=>2*A0*A0/(r*r)-1/r;const lo=Um*1.25,hi=Math.max(0.25,-Um*0.6);
+  const A=axes(c,B,[0,rmax],[lo,hi],{xl:"r",yl:"エネルギー",yit:false,y0:0,title:"有効ポテンシャル U_{eff}(r) と力学的エネルギー E",xt:[[rc,"4A₀²/GM"]]});
+  const pts=[];for(let i=1;i<=300;i++){const r=rmax*i/300;const u=U(r);if(u<hi*1.2)pts.push([A.X(r),A.Y(Math.min(hi,u))])}glow(c,"Ueff",CL.fr);line(c,pts,CL.fr,W_("Ueff",2.4));noglow(c);
+  const gp=[];for(let i=4;i<=300;i++){const r=rmax*i/300;if(-1/r>lo)gp.push([A.X(r),A.Y(-1/r)])}line(c,gp,alpha(CL.frc,0.45),1.2,[4,3]);txt(c,"−GMm/r",A.X(rmax*0.97),A.Y(-1/(rmax*0.97))+16,CL.frc,{s:12,al:"right"});
+  glow(c,"E",CL.acc);line(c,[[A.X(0),A.Y(E)],[A.X(rmax),A.Y(E)]],CL.acc,W_("E",1.8),[6,3]);noglow(c);txt(c,"E",A.X(rmax)+4,A.Y(E),CL.acc,{s:14,it:1,b:1});
+  dot(c,A.X(rc),A.Y(Um),4,CL.fr);
+  const r=Math.hypot(S.x,S.y);glow(c,"Kr",CL.grav);line(c,[[A.X(r),A.Y(U(r))],[A.X(r),A.Y(E)]],CL.grav,W_("Kr",4));noglow(c);dot(c,A.X(r),A.Y(U(r)),6,CL.ink);txt(c,"½mv_r²",A.X(r)+8,(A.Y(U(r))+A.Y(E))/2,CL.grav,{s:12});return}
+ if(q==="III1"){const A=axes(c,B,[0,5.5],[0,27],{xl:"n",yl:"r_n / r₁",yit:false,title:"r_n = n² r₁（整数の n だけが許される）",xt:[1,2,3,4,5].map(k=>[k,String(k)])});const pts=[];for(let i=0;i<=110;i++){const x=i*5.5/110;pts.push([A.X(x),A.Y(x*x)])}line(c,pts,alpha(CL.mute,0.6),1.4,[4,3]);
+  [1,2,3,4,5].forEach(k=>dot(c,A.X(k),A.Y(k*k),5,CL.acc));dot(c,A.X(st.nn),A.Y(st.nn**2),7,null,CL.frc,2.4);return}
+ if(q==="III2"){const lo=-66,hi=-24,y=B.y+B.h*0.55;const X=v=>B.x+B.w*(v-lo)/(hi-lo);line(c,[[B.x,y],[B.x+B.w,y]],CL.mute,1.4);for(let e=-65;e<=-25;e+=5){line(c,[[X(e),y-5],[X(e),y+5]],CL.mute,1.2);txt(c,P10(e),X(e),y+18,CL.mute,{s:12,al:"center"})}
+  txt(c,"質量 [kg]（対数目盛り）",B.x+B.w,B.y,CL.ink,{s:13,al:"right"});
+  [["電子",Math.log10(9.1e-31)],["陽子",Math.log10(1.67e-27)]].forEach(([l,v])=>{dot(c,X(v),y,5,CL.mute);txt(c,l,X(v),y-16,CL.mute,{s:12,al:"center"})});
+  const m=lgm();glow(c,"m",CL.frc);dot(c,X(m),y,7,CL.frc);noglow(c);txt(c,"下限 "+P10(m),X(m),y-18,CL.frc,{s:13,b:1,al:"center"});
+  arrow(c,X(m)-4,y+40,X(m)-50,y+40,CL.ng,2);txt(c,"軽すぎ：r₁ > R",X(m)-4,y+58,CL.ng,{s:12,al:"right"});
+  arrow(c,X(m)+4,y+40,X(m)+50,y+40,CL.ok,2);txt(c,"R の中に入れる",X(m)+4,y+58,CL.ok,{s:12})}}
+function drawAll(){drawMain();drawGr()}
+/* ---------- live equations ---------- */
+function eqs(){const q=st.q,R=String.raw;const r=Math.hypot(S.x,S.y);
+ if(q==="I1"){const [ax,ay]=accel(S.x,S.y),cr=S.x*ay-S.y*ax;return{title:"微小時間 Δt の変化を代入し、Δt の1次だけ残す",list:[
+  {t:R`{\vec r}'=`+TK("r","ink",R`\vec r`)+"+"+TK("v","acc",R`\vec v`)+R`\,\Delta t,\qquad {\vec v}'=\vec v+`+TK("a","frc",R`\vec a`)+R`\,\Delta t`,n:`x = ${S.x.toFixed(3)}, y = ${S.y.toFixed(3)}　v = (${NS(S.vx.toFixed(3),"acc")}, ${NS(S.vy.toFixed(3),"acc")})　a = (${NS(ax.toFixed(3),"frc")}, ${NS(ay.toFixed(3),"frc")})`},
+  {t:TK("dA","fic",R`\Delta A_v`)+R`=\frac12\left(x\,`+TK("a","frc","a_y")+R`-y\,`+TK("a","frc","a_x")+R`\right)\Delta t`,n:`x a_y − y a_x = ${NS(cr.toFixed(4),"frc")}　→　A_v = ${NS(Av().toFixed(4),"fic")}（${Math.abs(cr)<1e-6?"変化しない":cr>0?"増加中":"減少中"}）`}]}}
+ if(q==="I2"){const [ax,ay]=accel(S.x,S.y);return{title:"面積速度一定 ⇔ 力が原点を向く",list:[{t:R`x\,a_y-y\,a_x=0\quad\Longleftrightarrow\quad `+TK("a","frc",R`F_x:F_y`)+"="+TK("r","ink",R`x:y`),n:`F_x/F_y = ${NS((ax/ay).toFixed(3),"frc")}　x/y = ${(S.x/S.y).toFixed(3)}　${Math.abs(st.phi)<0.5?"一致":"ずれている"}`},{t:TK("dA","fic",R`A_v`)+R`=\frac12(xv_y-yv_x)`,n:`いまの A_v = ${NS(Av().toFixed(4),"fic")}（はじめ ${S.A0v.toFixed(4)}）`}]}}
+ if(q==="I3"){const L=pathLen(),P=pathAt(S.ph*L),w=workAt(S.ph*L);return{title:"仕事 = 力の移動方向の成分 × 移動距離",list:[{t:R`\Delta W=`+TK("F","frc",R`\vec F`)+R`\cdot`+TK("ds","acc",R`\Delta\vec s`)+R`=|\vec F||\Delta\vec s|\cos\theta`,n:`いま θ = ${P.dir==="arc"?"90°（仕事 0）":P.dir==="out"?"180°（負）":"0°（正）"}　A からの仕事の合計 W = ${NS((Math.abs(w)<5e-4?0:w).toFixed(3),"frc")}`},{t:R`W_{\rm A\to B}=W_{\rm A\to C}=0`,n:"円周上ではつねに F ⊥ Δs"}]}}
+ if(q==="II1"){const vr=(S.x*S.vx+S.y*S.vy)/r,K=0.5*(S.vx**2+S.vy**2),Kr=0.5*vr*vr,A=Av();return{title:"速度を動径方向と回転方向に分ける",list:[{t:R`K=`+TK("Kr","grav",R`\frac12mv_r^{\,2}`)+"+"+TK("Kp","fr",R`\frac12mv_\perp^{\,2}`)+R`,\qquad `+TK("vp","fr",R`v_\perp`)+R`=\frac{2A_v}{r}`,n:`${K.toFixed(4)} ＝ ${NS(Kr.toFixed(4),"grav")} ＋ ${NS((K-Kr).toFixed(4),"fr")}　（r = ${r.toFixed(3)}）`},{t:R`K-K_r=`+TK("Kp","fr",R`\frac{2mA_v^{\,2}}{r^2}`),n:`2A_v²/r² = ${NS((2*A*A/(r*r)).toFixed(4),"fr")}`}]}}
+ if(q==="II2"){const vr=(S.x*S.vx+S.y*S.vy)/r,A0=st.A0,Ue=2*A0*A0/(r*r)-1/r;return{title:"有効ポテンシャルで r の動きを読む",list:[{t:TK("E","acc","E")+"="+TK("Kr","grav",R`\frac12mv_r^{\,2}`)+"+"+TK("Ueff","fr",R`\frac{2mA_0^{\,2}}{r^2}-\frac{GMm}{r}`),n:`${NS(S.E0.toFixed(4),"acc")} ＝ ${NS((0.5*vr*vr).toFixed(4),"grav")} ＋ (${NS(Ue.toFixed(4),"fr")})`},{t:TK("Ueff","fr",R`U_{\rm eff}`)+R`=2mA_0^{\,2}\left(\frac1r-\frac{GM}{4A_0^{\,2}}\right)^2-\frac{G^2M^2m}{8A_0^{\,2}}`,n:`谷底：r = 4A₀²/GM = ${(4*A0*A0).toFixed(3)}，E_min = −1/(8A₀²) = ${(-1/(8*A0*A0)).toFixed(4)}`}]}}
+ if(q==="III1"){const nn=st.nn;return{title:"向心方向の運動方程式 ＋ 量子条件",list:[{t:R`m\frac{v^2}{r}=`+TK("F","frc",R`\frac{GMm}{r^2}`)+R`,\qquad `+TK("lam","acc",R`2\pi r=n\frac{h}{mv}`),n:`円周に入る波の数 ${NS(nn.toFixed(2),"acc")}　${Math.abs(nn-Math.round(nn))<0.001?"（整数）":"（整数でない）"}`},{t:TK("r","ink",R`r_n`)+R`=\frac{n^2h^2}{4\pi^2GMm^2}`,n:`r = n² r₁ = ${(nn*nn).toFixed(2)} r₁`}]}}
+ const e=-10+st.lgM+st.lgR;return{title:"文字式で m について解いてから、指数を計算する",list:[{t:TK("m","frc","m")+R`=\frac{h}{2\pi}\cdot\frac{1}{\sqrt{GM`+TK("R","fic","R")+R`}}`,n:`GMR = ${P10(-10)} × ${P10(st.lgM)} × ${P10(st.lgR)} = ${P10(e)}`},{t:R`m=\frac{10^{-34}}{10^{${+(e/2).toFixed(2)}}}=10^{${+lgm().toFixed(2)}}\ {\rm kg}`,n:`問題の値（R = 10²², M = 10⁴²）では 10⁻⁶¹ kg`}]}}
+function note(){const q=st.q,p=part();if(q==="I1"||q==="I2")return"力の大きさは万有引力と同じ 1/r² で、向きだけを原点から φ ずらしています。φ = 0 が中心力です。";if(q==="I3")return"小球は A から出発し、指定の経路を一定の速さで C まで進みます。";if(q==="II1")return"はじめの速さを変えると軌道の形（楕円のつぶれ方）が変わります。";if(q==="II2")return"A₀ を固定したまま、動径方向の初速だけを変えて E を変えています。";if(q==="III1")return"n を連続的に動かすと、整数のときだけ波が1周でつながります。";return"G = 10⁻¹⁰、h/2π = 10⁻³⁴ として計算しています。"}
+function readout(){const q=st.q,r=Math.hypot(S.x,S.y),out=[];
+ if(q==="I1"||q==="I2"||q==="II1"||q==="II2"){const vr=(S.x*S.vx+S.y*S.vy)/r;out.push(["距離 r",r.toFixed(3)],["面積速度 A_v",Av().toFixed(4)],["力学的エネルギー E",(0.5*(S.vx**2+S.vy**2)-1/r).toFixed(4),q==="I1"||q==="I2"?(st.phi?"φ ≠ 0 では力が仕事をして E も変わります":""):""],["動径方向の速さ v_r",vr.toFixed(3)])}
+ if(q==="II2")out.push(["円軌道の半径 4A₀²/GM",(4*st.A0**2).toFixed(3)],["E の最小値 −G²M²m/8A₀²",(-1/(8*st.A0**2)).toFixed(4)]);
+ if(q==="I3"){const L=pathLen(),w=workAt(S.ph*L);out.push(["A からの仕事",(Math.abs(w)<5e-4?0:w).toFixed(3)],["進んだ割合",(S.ph*100).toFixed(0)+" %"]);if(S.ph>=1)out.push(["C までの仕事","0（経路によらない）"])}
+ if(q==="III1")out.push(["量子数 n",st.nn.toFixed(2)],["軌道半径 r_n / r₁",(st.nn**2).toFixed(2)],["速さ v_n / v₁",(1/st.nn).toFixed(3),"v = √(GM/r) ∝ 1/n"]);
+ if(q==="III2"){const m=lgm();out.push(["粒子の質量の下限",P10(m)+" kg"],["電子の質量との比",P10(m-Math.log10(9.1e-31))],["速さ v = √(GM/R)",(Math.sqrt(10**(-10+st.lgM-st.lgR))/1000).toFixed(0)+" km/s"])}
+ return out}
+initUI("I1");
+}
+</script>
+</body>
+</html>
