@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>床の上の3つのおもりと棒</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>床の上の3つのおもりと棒（東京大学 2025年 第1問）</h1>
+<p class="lead">3つのおもり A・B・C（どれも質量 <span class="v">m</span>）を棒でつないだ直角三角形の物体を、C につけた糸で水平に引きます。「浮く・倒れる・すべる」の境目を、力の矢印・力のモーメント・グラフで確かめましょう。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="床の上に置かれた3つのおもりと棒の物体、はたらく力の矢印"></canvas>
+<canvas id="gr" role="img" aria-label="設問ごとのグラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) B が浮く</button>
+<button class="qb" data-q="I2">I(2) 倒すのに必要な仕事</button>
+<button class="qb" data-q="II1">II(1)(2) 垂直抗力</button>
+<button class="qb" data-q="II3">II(3) すべり出す</button>
+<button class="qb" data-q="III1">III(1) 等速で引く</button>
+<button class="qb" data-q="III2">III(2)(3) 減速中</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div class="row" id="row_view"><span>見る立場</span><div class="seg" data-k="view"><button data-v="floor">床から見る</button><button data-v="body">物体といっしょに動く</button></div></div>
+<div id="sliders"></div>
+<p class="note">力の大きさは <span class="v">mg</span> を単位にして表示しています（<span class="v">d</span> = 0.5 m、<span class="v">g</span> = 9.8 m/s² で動かしています）。μ を 1/3 より大きくすると、すべる前に倒れ始める様子も見られます。</p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。A の位置を原点、右向き・上向きを正とします。</p>
+
+<details id="d-I1"><summary>I(1)　おもり B が床から離れるときの F<span class="ans">答 \(F = mg\)</span></summary><div class="body">
+<h3>「離れる」＝垂直抗力が 0</h3>
+<p>物体が床から離れる瞬間を式にするときは、いつでも<b>その点の垂直抗力 \(N_{\mathrm B} = 0\)</b> とおきます。離れる直前まではつり合いが成り立っているので、つり合いの式に \(N_{\mathrm B}=0\) を入れれば境目の値が出ます。</p>
+<h3>どこのまわりのモーメントを考えるか</h3>
+<p>A は床に固定されているので、A には「固定するための力」（向きも大きさも分からない）がはたらきます。<b>分からない力が集まっている点を回転軸に選ぶ</b>と、その力はモーメントの式から消えます。A のまわりで考えると</p>
+<ul>
+<li>糸の力 \(F\)：作用線は高さ \(d\) の水平線 → 腕の長さ \(d\)（B を持ち上げる向き）</li>
+<li>B の重力 \(mg\)：A から水平に \(d\) 離れている → 腕の長さ \(d\)（B を押し下げる向き）</li>
+<li>C の重力：C は A の真上なので作用線が A を通る → 0</li>
+<li>B の垂直抗力 \(N_{\mathrm B}\)：腕の長さ \(d\)（B を持ち上げる向き）</li>
+</ul>
+$$F\cdot d + N_{\mathrm B}\cdot d = mg\cdot d$$
+<p>\(N_{\mathrm B} = 0\) とおいて</p>
+$$F = mg$$
+<div class="box"><b>アニメーションで確かめよう</b>：「再生」で \(F\) をゆっくり大きくします。グラフの \(N_{\mathrm B}\) が 1 次関数で減って、\(F = mg\) でちょうど 0 になります。点線は「腕の長さ」です。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　倒れるまでに必要な仕事 W₀<span class="ans">答 \(W_0 = (\sqrt{2}-1)mgd\)</span></summary><div class="body">
+<h3>仕事＝エネルギーの増加</h3>
+<p>糸でゆっくり（運動エネルギーをほぼ 0 のまま）傾けるとき、<b>糸がした仕事はそのまま位置エネルギーの増加</b>になります。力が角度とともに変わっても、エネルギーで考えれば積分しなくてすみます。</p>
+<h3>どこまで傾ければ倒れるか＝重心が支点の真上</h3>
+<p>3つのおもりの重心 G は</p>
+$$\mathrm G = \left(\frac{0+(-d)+0}{3},\ \frac{0+0+d}{3}\right) = \left(-\frac{d}{3},\ \frac{d}{3}\right),\qquad \mathrm{AG} = \frac{\sqrt2}{3}d$$
+<p>A のまわりに傾けると G は A を中心とする半径 \(\mathrm{AG}\) の円の上を動きます。<b>G が A の真上を越えると、重力のモーメントが倒す向きに変わる</b>ので、あとは糸を引かなくても倒れます。その瞬間の G の高さは \(\dfrac{\sqrt2}{3}d\)（このとき B と C は同じ高さ）。</p>
+$$W_0 = 3mg\left(\frac{\sqrt2}{3}d - \frac{d}{3}\right) = (\sqrt2-1)mgd$$
+<h3>力で確かめる（別の見方）</h3>
+<p>角度 \(\theta\) だけ傾けたとき、A のまわりのモーメントのつり合いから \(F = mg(1-\tan\theta)\)。\(\theta = 45^\circ\) で \(F=0\) になり、それ以降は引かなくても倒れます。C の水平移動 \(x = d\sin\theta\) に対する \(F\) のグラフの面積が仕事で、計算すると上と同じ値になります。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：重心 G（紫の点）と A を通る鉛直線に注目。G が鉛直線を越えると \(F=0\) でも倒れていきます。左のグラフの塗った面積（仕事）と、右のグラフの位置エネルギーの増加が同じになっています。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)(2)　A を固定しないときの垂直抗力<span class="ans">答 \(N_{\mathrm B} = mg - F,\ \ N_{\mathrm A} = 2mg + F\)</span></summary><div class="body">
+<h3>(1) A のまわりのモーメント</h3>
+<p>A が固定されていなくても、A にはたらく力（垂直抗力 \(N_{\mathrm A}\)、静止摩擦力 \(f\)）はどれも A を通るので、A のまわりのモーメントの式は I(1) と同じ形です。</p>
+$$F d + N_{\mathrm B} d = mg d \qquad\therefore\quad N_{\mathrm B} = mg - F$$
+<h3>(2) 物体全体の鉛直方向のつり合い</h3>
+$$N_{\mathrm A} + N_{\mathrm B} = 3mg \qquad\therefore\quad N_{\mathrm A} = 2mg + F$$
+<h3>水平に引いたのに垂直抗力が変わる理由</h3>
+<p>糸は水平なのに、\(N_{\mathrm A}\) は \(F\) だけ増え、\(N_{\mathrm B}\) は \(F\) だけ減ります。高い所（C）を引くと物体を<b>回そうとするモーメント</b>が生じ、それを床が「A を強く・B を弱く」押すことで打ち消しているからです。<b>力の作用点の高さ</b>が、垂直抗力の分かれ方を変えます。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：\(F\) のスライダーを動かすと、A の上向きの矢印が伸び、B の矢印が縮みます。下のグラフで2本の直線の和がいつも \(3mg\) です。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　すべり始めるときの F<span class="ans">答 \(F = \dfrac{2\mu}{1-\mu}mg\)</span></summary><div class="body">
+<h3>必要な摩擦力と最大摩擦力を比べる</h3>
+<p>B と床の間には摩擦がないので、水平方向のつり合いから A の静止摩擦力は \(f = F\)。静止していられるのは \(f \le \mu N_{\mathrm A}\) の間です。すべり出す境目は</p>
+$$F = \mu N_{\mathrm A} = \mu(2mg + F) \qquad\therefore\quad F = \frac{2\mu}{1-\mu}mg$$
+<p>ここで大事なのは、\(F\) を大きくすると<b>最大摩擦力 \(\mu N_{\mathrm A}\) も大きくなる</b>ことです（II(2) より）。だから \(\mu\cdot 3mg\) のような単純な値にはなりません。</p>
+<h3>すべるのが先か、倒れるのが先か</h3>
+<p>倒れ始めの条件は I(1) と同じ \(N_{\mathrm B} = 0\)、つまり \(F = mg\)。すべりが先に起こるのは</p>
+$$\frac{2\mu}{1-\mu}mg < mg \iff \mu < \frac{1}{3}$$
+<p>問題の条件 \(\mu < \dfrac13\) は「倒れる前にすべる」ことを保証していたわけです。「すべる」「倒れる」の両方がありうる問題では、<b>2つの境目の値を比べて小さい方が先に起こる</b>と考えます。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：「再生」で \(F\) をゆっくり増やします。グラフの「必要な摩擦力 \(f=F\)」と「最大摩擦力 \(\mu N_{\mathrm A}\)」が交わる所ですべり出します。μ を 1/3 より大きくすると、先に \(N_{\mathrm B} = 0\) になって B が浮きます。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)　等速直線運動させる F<span class="ans">答 \(F = \dfrac{2\mu'}{1-\mu'}mg\)</span></summary><div class="body">
+<p><b>等速直線運動＝力のつり合い</b>。静止しているときと同じ式が使えます。違うのは摩擦力が動摩擦力 \(\mu' N_{\mathrm A}\)（向きは運動と逆向き）になることだけです。</p>
+$$N_{\mathrm B} = mg - F,\qquad N_{\mathrm A} = 2mg + F,\qquad F = \mu' N_{\mathrm A}$$
+$$\therefore\quad F = \frac{2\mu'}{1-\mu'}mg$$
+<p>II(3) の式の \(\mu\) を \(\mu'\) に置きかえた形です。「すべり出す直前（最大摩擦力）」と「すべっている間（動摩擦力）」は、どちらも摩擦力が \(\mu N\) の形で決まるので、同じ式の構造になります。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：物体は一定の速さで右へ動きます（画面は物体を追いかけ、床の目盛りが流れます）。\(\mu'\) を変えると必要な \(F\) が変わります。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>III(2)(3)　糸を離した後の減速<span class="ans">答 \(N_{\mathrm B} = m(g-a),\ \ a = \dfrac{2\mu'}{3-\mu'}g\)</span></summary><div class="body">
+<h3>(2) 物体といっしょに動く立場で考える</h3>
+<p>物体は左向きの加速度 \(a\) で減速しているので、物体といっしょに動く立場では、<b>各おもりに右向きの慣性力 \(ma\)</b> がはたらき、物体は静止して見えます。こうすると<b>静止しているときと同じモーメントのつり合い</b>が使えます。</p>
+<p>A のまわりのモーメント：C の慣性力は高さ \(d\) にあるので腕の長さ \(d\)。A・B の慣性力は床の高さなので腕は 0。</p>
+$$ma\cdot d + N_{\mathrm B}\cdot d = mg\cdot d \qquad\therefore\quad N_{\mathrm B} = m(g-a)$$
+<p>I・II の式の \(F\) が \(ma\) に置きかわっています。<b>C にはたらく慣性力が、糸で引く力と同じ役割</b>をしているのです。急ブレーキで背の高い物が前に倒れやすいのも同じ理由です。</p>
+<h3>(3) 力のつり合いの残り2本</h3>
+$$\text{鉛直：}\ N_{\mathrm A} + N_{\mathrm B} = 3mg \quad\Rightarrow\quad N_{\mathrm A} = 2mg + ma$$
+$$\text{水平：}\ \mu' N_{\mathrm A} = 3ma$$
+$$\mu'(2mg + ma) = 3ma \qquad\therefore\quad a = \frac{2\mu'}{3-\mu'}g$$
+<p>もし B にも同じ摩擦があれば \(a = \mu' g\) ですが、ここでは摩擦がはたらくのは A だけ。その代わり減速中は A が強く押しつけられる（\(N_{\mathrm A} > 2mg\)）ので、単純に「A の分だけ」\(\dfrac{2\mu'}{3}g\) より少し大きくなります。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：「物体といっしょに動く」にすると紫の慣性力の矢印が出ます。C の慣性力が III(1) の糸の力と同じ位置にはたらいていることを見比べてください。グラフの直線の傾きが \(-a\) です。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const g=9.8,d=0.5;
+const st={q:"I1",F:0,th:0,mu:0.25,mup:0.2,spd:1,view:"floor"};
+const SL=[
+ ["F","F","糸を引く力","mg",0,1.3,0.01,2],
+ ["th","θ","傾けた角度","°",0,90,0.5,1],
+ ["mu","μ","A と床の静止摩擦係数","",0.02,0.6,0.01,2],
+ ["mup","μ′","A と床の動摩擦係数","",0.02,0.6,0.01,2],
+ ["spd","","再生速度","倍",0.1,1,0.05,2]];
+const SHOW={I1:["F","spd"],I2:["th","spd"],II1:["F","mu"],II3:["mu","spd"],III1:["mup","spd"],III2:["mup","spd"]};
+$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+const S={th:0,om:0,X:0,v:0,t:0,ramp:false,phase:"",hist:[],msg:""};
+SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;
+ if(k==="F"){S.ramp=false;if(st.q==="I1"&&st.F<=1&&S.th<1e-3){S.th=0;S.om=0}S.msg=""}
+ if(k==="th"){S.th=st.th*Math.PI/180;S.om=0;S.phase="manual";S.msg=""}
+ if(k==="mu"&&st.q==="II3")reset("II3");
+ if((k==="mup")&&st.q.startsWith("III"))reset(st.q);
+ syncUI()})});
+document.querySelectorAll(".seg").forEach(gp=>gp.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st[gp.dataset.k]=b.dataset.v;syncUI()}));
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const Fs=()=>2*st.mu/(1-st.mu), Fk=()=>2*st.mup/(1-st.mup), aIII=()=>2*st.mup/(3-st.mup);
+function reset(q){S.t=0;S.th=0;S.om=0;S.X=0;S.v=0;S.hist=[];S.msg="";S.ramp=false;S.phase="";
+ if(q==="I1"){st.F=0;S.ramp=true}
+ if(q==="I2"){st.th=0;S.phase="slow"}
+ if(q==="II1"){st.F=Math.min(st.F||0.3,0.9);if(st.F===0)st.F=0.3}
+ if(q==="II3"){st.F=0;S.ramp=true;S.phase="static"}
+ if(q==="III1"){S.v=1.2;st.F=Fk()}
+ if(q==="III2"){S.v=3;st.F=Fk();S.phase="pull"}
+ if(q.startsWith("III"))st.view=q==="III2"?"body":"floor";else st.view="floor";
+ syncPlay()}
+function setQ(q,open){st.q=q;reset(q);if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+$("#play").onclick=()=>{playing=!playing;syncPlay()};
+$("#rst").onclick=()=>{reset(st.q);syncUI()};
+function syncUI(){
+ document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ document.querySelectorAll(".seg").forEach(gp=>gp.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===st[gp.dataset.k]))));
+ $("#row_view").hidden=st.q!=="III2";
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!SHOW[st.q].includes(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} ${u==="mg"?'<span class="v">mg</span>':`<span class="u">${u}</span>`}`});
+ readout()}
+/* forces (in mg units) for current state */
+function forces(){const q=st.q,F=st.F,o={F:F,NA:null,NB:null,fA:null,fLab:"",fic:0,tilt:S.th>1e-4};
+ if(q==="I1"){if(!o.tilt){o.NB=1-F;o.NA=2+F;o.fA=-F;o.fLab="A を固定する力"}}
+ else if(q==="I2"){o.F=Math.max(0,1-Math.tan(S.th));if(S.th>Math.PI/4)o.F=0}
+ else if(q==="II1"||q==="II3"){if(!o.tilt){o.NB=1-F;o.NA=2+F;o.fA=S.phase==="slide"?-st.mu*(2+F):-F;o.fLab=S.phase==="slide"?"摩擦力 μN_A":"静止摩擦力 f"}}
+ else if(q==="III1"){o.NB=1-F;o.NA=2+F;o.fA=-st.mup*(2+F);o.fLab="動摩擦力 μ′N_A"}
+ else if(q==="III2"&&S.phase==="pull"){o.NB=1-F;o.NA=2+F;o.fA=-st.mup*(2+F);o.fLab="動摩擦力 μ′N_A"}
+ else if(q==="III2"){const a=S.v>0?aIII():0;o.F=0;o.NB=1-a;o.NA=2+a;o.fA=S.v>0?-st.mup*(2+a):0;o.fLab="動摩擦力 μ′N_A";o.fic=st.view==="body"?a:0}
+ return o}
+function readout(){const q=st.q,r=[],o=forces(),f2=x=>x.toFixed(3)+" mg";
+ if(q==="I1"){r.push(["糸の力 F",f2(st.F)],["B の垂直抗力 N_B = mg − F",S.th>1e-4?"0（浮いている）":f2(Math.max(0,1-st.F))],["B が浮く F","1.000 mg"],["傾き θ",(S.th*180/Math.PI).toFixed(1)+"°"])}
+ if(q==="I2"){const th=S.th,U=Math.sin(th)+Math.cos(th)-1;r.push(["傾き θ",(th*180/Math.PI).toFixed(1)+"°"],["必要な F = mg(1 − tanθ)",th<Math.PI/2-0.01?f2(1-Math.tan(th)):"—"],["位置エネルギーの増加 mgd(sinθ+cosθ−1)",(U).toFixed(3)+" mgd"],["W₀ = (√2 − 1)mgd",(Math.SQRT2-1).toFixed(3)+" mgd"],["重心 G の水平位置（A から）",((-Math.cos(th)+Math.sin(th))/3).toFixed(3)+" d"])}
+ if(q==="II1"||q==="II3"){const F=st.F;r.push(["糸の力 F",f2(F)],["N_B = mg − F",f2(1-F)],["N_A = 2mg + F",f2(2+F)],["必要な摩擦力 f = F",f2(F)],["最大摩擦力 μN_A",f2(st.mu*(2+F))],["すべり出す F = 2μmg/(1−μ)",f2(Fs())],["B が浮く F","1.000 mg"]);
+  if(q==="II3")r.push(["先に起こるのは",Fs()<1?"すべり":"B が浮く（倒れ始め）"])}
+ if(q==="III1")r.push(["必要な F = 2μ′mg/(1−μ′)",f2(Fk())],["N_A = 2mg + F",f2(2+Fk())],["N_B = mg − F",f2(1-Fk())],["速さ",S.v.toFixed(2)+" m/s"]);
+ if(q==="III2"){const a=aIII();r.push(["加速度の大きさ a = 2μ′g/(3−μ′)",(a).toFixed(3)+" g = "+(a*g).toFixed(2)+" m/s²"],["N_B = m(g − a)",f2(1-a)],["N_A = m(2g + a)",f2(2+a)],["速さ",S.v.toFixed(2)+" m/s"])}
+ $("#read").innerHTML=r.map(([x,y])=>`<div><span>${x.replace(/([A-Za-zμθ]′?)(_?[A-Z₀]?)/g,(m0)=>m0)}</span><b>${y}</b></div>`).join("");
+}
+/* simulation */
+function rot(dt,F){ // rotation about A (A held), F in mg
+ const n=20,h=dt/n;for(let i=0;i<n;i++){const al=(g/d)*(F*Math.cos(S.th)-Math.cos(S.th)+Math.sin(S.th))/2;S.om+=al*h;S.th+=S.om*h;
+  if(S.th<=0){S.th=0;S.om=Math.max(0,S.om)}if(S.th>=Math.PI/2){S.th=Math.PI/2;S.om=0}}}
+function step(dt){S.t+=dt;const q=st.q;
+ if(q==="I1"){if(S.ramp){st.F+=0.15*dt;if(st.F>=1){st.F=1;S.ramp=false;S.th=0.02;S.om=0;S.msg="N_B = 0 → B が床から離れた（F = mg）"}syncUI()}
+  if(st.F>1||S.th>0.0001){rot(dt,st.F>=1?st.F:st.F);if(S.th>=Math.PI/2-1e-3)S.msg="C が床に衝突"}}
+ if(q==="I2"&&S.phase==="slow"){S.th+=0.2*dt;if(S.th>=Math.PI/4){S.th=Math.PI/4+0.003;S.om=0.05;S.phase="fall";S.msg="重心が A の真上を越えた → F = 0 でも倒れる"}st.th=S.th*180/Math.PI;syncUI()}
+ else if(q==="I2"&&S.phase==="fall"){rot(dt,0);st.th=S.th*180/Math.PI;if(S.th>=Math.PI/2-1e-3){S.phase="end";S.msg="C が床に衝突"}syncUI()}
+ if(q==="II3"){
+  if(S.phase==="static"&&S.ramp){st.F+=0.12*dt;
+   if(st.F>=1&&Fs()>=1){st.F=1;S.ramp=false;S.phase="tip";S.th=0.02;S.msg="すべる前に N_B = 0 → B が浮く（μ ≥ 1/3）"}
+   else if(st.F>=Fs()){st.F=Fs();S.ramp=false;S.phase="slide";S.msg="必要な摩擦力が最大摩擦力に届いた → すべり出す"}syncUI()}
+  else if(S.phase==="slide"){st.F=Math.min(st.F+0.05*dt,Math.min(0.99,Fs()+0.3));const a=Math.max(0,(st.F-st.mu*(2+st.F))/3)*g;S.v+=a*dt;S.X+=S.v*dt;syncUI()}
+  else if(S.phase==="tip"){rot(dt,1.02)}}
+ if(q==="III1"){S.X+=S.v*dt}
+ if(q==="III2"&&S.phase==="pull"){S.X+=S.v*dt;if(S.t>1.2){S.phase="free";st.F=0;S.msg="糸を離した（F = 0）";syncUI()}}
+ else if(q==="III2"){if(S.v>0){S.v=Math.max(0,S.v-aIII()*g*dt);S.X+=S.v*dt;if(S.v===0)S.msg="止まった"}}
+ const last=S.hist[S.hist.length-1];if(!last||S.t-last.t>0.03)S.hist.push({t:S.t,v:S.v});
+}
+/* drawing */
+const cv=$("#cv"),ctx=cv.getContext("2d"),gr=$("#gr"),gx=gr.getContext("2d");
+let W=1000,H=430,K=1,GW=1000,GH=260,GK=1,narrow=false,CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function resize(){const w=cv.parentElement.clientWidth;narrow=w<680;W=narrow?640:1000;H=narrow?450:400;GW=W;GH=narrow?420:260;
+ const dp=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*dp);cv.height=Math.round(w*H/W*dp);cv.style.height=(w*H/W)+"px";K=cv.width/W;
+ gr.width=cv.width;gr.height=Math.round(w*GH/GW*dp);gr.style.height=(w*GH/GW)+"px";gr.style.width="100%";gr.style.display="block";GK=gr.width/GW;colors()}
+addEventListener("resize",resize);matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function draw(){const want=(cv.parentElement.clientWidth<680);if(want!==narrow||Math.abs(cv.width/K-W)>1)resize();
+ const c=ctx;c.setTransform(K,0,0,K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,W,H);
+ const q=st.q,o=forces(),Sd=narrow?170:190,r=15,FY=narrow?380:335,camX=q.startsWith("III")||q==="II3"?S.X:0;
+ const ox=narrow?380:520,FS=narrow?52:58;
+ const P=(x,y)=>[ox+x*Sd,FY-r-y*Sd];
+ // floor
+ line(c,[[0,FY],[W,FY]],CL.ink,2.5);
+ const tick=Sd/2;for(let x=((-camX/d*Sd)%tick+tick)%tick-tick;x<W+tick;x+=tick){line(c,[[x,FY],[x-12,FY+12]],CL.road,1.5)}
+ txt(c,"床",W-30,FY+22,CL.mute,{s:13});
+ // geometry
+ const th=S.th,A=P(0,0),B=P(-Math.cos(th),Math.sin(th)),C=P(Math.sin(th),Math.cos(th));
+ // vertical line through A, CM (I2)
+ if(q==="I2"){line(c,[[A[0],A[1]+r],[A[0],A[1]-Sd*1.2]],CL.mute,1.2,[5,5]);const G=P((Math.sin(th)-Math.cos(th))/3,(Math.sin(th)+Math.cos(th))/3);c.fillStyle=CL.fic;c.beginPath();c.arc(G[0],G[1],7,0,7);c.fill();txt(c,"重心 G",G[0]-12,G[1]-16,CL.fic,{s:14,b:1,al:"right"});
+  c.strokeStyle=CL.fic;c.globalAlpha=.35;c.lineWidth=1.2;c.setLineDash([3,4]);c.beginPath();c.arc(A[0],A[1],Sd*Math.SQRT2/3,-Math.PI*0.75,-Math.PI*0.25);c.stroke();c.setLineDash([]);c.globalAlpha=1}
+ // rods
+ c.lineCap="round";[[A,B],[A,C],[B,C]].forEach(([p1,p2])=>{c.strokeStyle=CL.mute;c.lineWidth=9;c.beginPath();c.moveTo(p1[0],p1[1]);c.lineTo(p2[0],p2[1]);c.stroke();c.strokeStyle=CL.bg;c.lineWidth=4;c.beginPath();c.moveTo(p1[0],p1[1]);c.lineTo(p2[0],p2[1]);c.stroke()});c.lineCap="butt";
+ // pin box at A
+ c.strokeStyle=CL.ink;c.lineWidth=2;c.fillStyle=CL.bg;c.beginPath();c.roundRect?c.roundRect(A[0]-r-3,A[1]-r-3,2*r+6,2*r+6,6):c.rect(A[0]-r-3,A[1]-r-3,2*r+6,2*r+6);c.fill();c.stroke();
+ if(q==="I1"||q==="I2"){c.fillStyle=CL.road;c.fillRect(A[0]-r-10,FY,2*r+20,8)}
+ [[B,"B"],[C,"C"]].forEach(([p,n])=>{c.fillStyle=CL.bg;c.strokeStyle=CL.ink;c.lineWidth=2.5;c.beginPath();c.arc(p[0],p[1],r,0,7);c.fill();c.stroke();txt(c,n,p[0],p[1]+1,CL.ink,{s:15,b:1,al:"center"})});
+ c.fillStyle=CL.ink;c.beginPath();c.arc(A[0],A[1],5,0,7);c.fill();txt(c,"A",A[0]+r+10,A[1]-r,CL.ink,{s:15,b:1});
+ // string
+ if(o.F>1e-3||q==="I1"||q==="II1"||q==="II3"||q==="III1"){line(c,[C,[C[0]+110,C[1]]],CL.ink,1.5);txt(c,"糸",C[0]+60,C[1]-14,CL.mute,{s:13,al:"center"})}
+ // forces
+ const fa=(p,dx,dy,col,lab,al)=>{if(Math.hypot(dx,dy)<0.01)return;arrow(c,p[0],p[1],p[0]+dx*FS,p[1]-dy*FS,col,3.2);if(lab)txt(c,lab,p[0]+dx*FS+(al==="left"?8:al==="right"?-8:0),p[1]-dy*FS+(dy>0?-12:dy<0?14:-12),col,{s:13,al:al||"center"})};
+ [A,B,C].forEach((p,i)=>fa([p[0]+(i===0?-6:0),p[1]],0,-1,CL.grav,i===2?"mg":"",i===2?"right":""));
+ txt(c,"重力 mg（各おもり）",narrow?16:20,22,CL.grav,{s:13});
+ if(o.F>1e-3)fa([C[0]+110,C[1]],o.F,0,CL.frc,"F",'left');
+ if(o.NB!==null&&o.NB>1e-3)fa([B[0],B[1]+r],0,o.NB,CL.acc,"N_B","right");
+ if(o.NA!==null)fa([A[0]+26,A[1]+r],0,o.NA,CL.acc,"N_A","left");
+ if(o.fA){arrow(c,A[0],FY-3,A[0]+o.fA*FS,FY-3,CL.fr,3.2);txt(c,o.fLab,A[0]+o.fA*FS-6,FY+22,CL.fr,{s:13,al:"right"})}
+ if(o.fic>0){[A,B,C].forEach(p=>arrow(c,p[0],p[1],p[0]+o.fic*FS*1.6,p[1],CL.fic,3));txt(c,"慣性力 ma（×1.6 で表示）",C[0]+o.fic*FS*1.6+8,C[1]-14,CL.fic,{s:13})}
+ // lever arms for I1/II1
+ if((q==="I1"||q==="II1")&&!o.tilt){line(c,[[A[0]+r+30,A[1]],[A[0]+r+30,C[1]]],CL.frc,1.4,[4,4]);txt(c,"F の腕 d",A[0]+r+38,(A[1]+C[1])/2,CL.frc,{s:13});
+  line(c,[[B[0],A[1]+r+26],[A[0],A[1]+r+26]],CL.grav,1.4,[4,4]);txt(c,"B の重力・N_B の腕 d",(A[0]+B[0])/2,A[1]+r+40,CL.grav,{s:12,al:"center"});txt(c,"C の重力は A を通る（腕 0）",C[0]-24,C[1]-34,CL.grav,{s:12,al:"right"})}
+ if(q==="III2"&&st.view==="body"&&o.fic>0){line(c,[[A[0]+r+30,A[1]],[A[0]+r+30,C[1]]],CL.fic,1.4,[4,4]);txt(c,"慣性力の腕 d",A[0]+r+38,(A[1]+C[1])/2+30,CL.fic,{s:13})}
+ // velocity
+ if(q.startsWith("III")||(q==="II3"&&S.v>0)){if(S.v>0.01){arrow(c,narrow?40:60,60,(narrow?40:60)+30+S.v*25,60,CL.ink,2.5);txt(c,"速度 "+S.v.toFixed(2)+" m/s",narrow?40:60,84,CL.ink,{s:13})}
+  if(q==="III2"&&S.v>0&&S.phase!=="pull"){arrow(c,(narrow?40:60)+120,110,(narrow?40:60)+60,110,CL.ng,4);txt(c,"加速度 a",(narrow?40:60)+130,110,CL.ng,{s:13})}}
+ if(S.msg)txt(c,S.msg,narrow?16:20,H-16,CL.ng,{s:14,b:1});
+ drawGraph()}
+function axes(c,G,xl,yl){line(c,[[G.x,G.y],[G.x,G.y+G.h],[G.x+G.w,G.y+G.h]],CL.mute,1.2);txt(c,xl,G.x+G.w+6,G.y+G.h,CL.mute,{s:14});txt(c,yl,G.x,G.y-12,CL.ink,{s:13})}
+function drawGraph(){const c=gx;c.setTransform(GK,0,0,GK,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,GW,GH);const q=st.q;
+ const two=narrow?[{x:50,y:34,w:GW-110,h:140},{x:50,y:240,w:GW-110,h:140}]:[{x:60,y:36,w:380,h:180},{x:560,y:36,w:360,h:180}];
+ if(q==="I1"){const G=two[0];axes(c,G,"F/mg","N_B / mg");const X=F=>G.x+G.w*F/1.3,Y=v=>G.y+G.h-G.h*v/1.1;
+  line(c,[[X(0),Y(1)],[X(1),Y(0)],[X(1.3),Y(0)]],CL.acc,2.5);line(c,[[X(1),G.y],[X(1),G.y+G.h]],CL.mute,1,[4,4]);txt(c,"F = mg",X(1)+4,G.y+8,CL.mute,{s:12});
+  c.fillStyle=CL.frc;c.beginPath();c.arc(X(st.F),Y(Math.max(0,1-st.F)),6,0,7);c.fill();
+  const G2=two[1];txt(c,"A のまわりのモーメント（右回り = B を持ち上げる向き）",G2.x,G2.y-12,CL.ink,{s:13});
+  const bars=[["F·d",st.F,CL.frc],["N_B·d",S.th>1e-4?0:Math.max(0,1-st.F),CL.acc],["mg·d（B の重力）",-1,CL.grav]];
+  bars.forEach(([l,v,col],i)=>{const y=G2.y+20+i*48,x0=G2.x+G2.w/2,sc=G2.w/2.6;c.fillStyle=col;c.fillRect(Math.min(x0,x0+v*sc),y,Math.abs(v*sc),18);txt(c,l,G2.x,y-6+2,CL.ink,{s:12})});
+  line(c,[[G2.x+G2.w/2,G2.y+10],[G2.x+G2.w/2,G2.y+160]],CL.mute,1);txt(c,"持ち上げる向き →",G2.x+G2.w/2+6,G2.y+170,CL.mute,{s:12});txt(c,"← 押し下げる向き",G2.x+G2.w/2-6,G2.y+170,CL.mute,{s:12,al:"right"})}
+ if(q==="I2"){const G=two[0];axes(c,G,"x/d","F / mg");const X=x=>G.x+G.w*x,Y=v=>G.y+G.h-G.h*v/1.05;
+  // area up to current
+  const thc=Math.min(S.th,Math.PI/4);c.fillStyle=CL.soft;c.beginPath();c.moveTo(X(0),Y(0));for(let i=0;i<=60;i++){const t=thc*i/60;c.lineTo(X(Math.sin(t)),Y(1-Math.tan(t)))}c.lineTo(X(Math.sin(thc)),Y(0));c.closePath();c.fillStyle="rgba(47,79,168,.28)";c.fill();
+  c.strokeStyle=CL.frc;c.lineWidth=2.5;c.beginPath();for(let i=0;i<=80;i++){const t=Math.PI/4*i/80;const p=[X(Math.sin(t)),Y(1-Math.tan(t))];i?c.lineTo(...p):c.moveTo(...p)}c.stroke();
+  txt(c,"塗った面積 = 糸がした仕事",G.x+G.w*0.35,G.y+20,CL.acc,{s:13});txt(c,"x = d sinθ（C の水平移動）",G.x,G.y+G.h+22,CL.mute,{s:12});
+  const xm=Math.sin(Math.PI/4);line(c,[[X(xm),G.y],[X(xm),G.y+G.h]],CL.mute,1,[4,4]);txt(c,"θ = 45°",X(xm)+4,G.y+G.h-12,CL.mute,{s:12});
+  const G2=two[1];axes(c,G2,"θ","位置エネルギーの増加 / mgd");const X2=t=>G2.x+G2.w*t/(Math.PI/2),Y2=v=>G2.y+G2.h-G2.h*(v+0.05)/0.5;
+  line(c,[[G2.x,Y2(0)],[G2.x+G2.w,Y2(0)]],CL.line,1);
+  c.strokeStyle=CL.fic;c.lineWidth=2.5;c.beginPath();for(let i=0;i<=90;i++){const t=Math.PI/2*i/90;const p=[X2(t),Y2(Math.sin(t)+Math.cos(t)-1)];i?c.lineTo(...p):c.moveTo(...p)}c.stroke();
+  line(c,[[G2.x,Y2(Math.SQRT2-1)],[G2.x+G2.w,Y2(Math.SQRT2-1)]],CL.mute,1,[4,4]);txt(c,"(√2 − 1) ≈ 0.414",G2.x+G2.w-4,Y2(Math.SQRT2-1)-10,CL.mute,{s:12,al:"right"});
+  c.fillStyle=CL.fic;c.beginPath();c.arc(X2(S.th),Y2(Math.sin(S.th)+Math.cos(S.th)-1),6,0,7);c.fill();
+  txt(c,"45°",X2(Math.PI/4)-10,G2.y+G2.h+14,CL.mute,{s:12});txt(c,"90°",G2.x+G2.w-10,G2.y+G2.h+14,CL.mute,{s:12})}
+ if(q==="II1"||q==="II3"){const G=narrow?{x:50,y:30,w:GW-90,h:330}:{x:60,y:30,w:600,h:200};axes(c,G,"F/mg","力 / mg");const X=F=>G.x+G.w*F/1.2,Y=v=>G.y+G.h-G.h*v/3.4;
+  const L=[["N_A = 2mg + F",F=>2+F,CL.acc,[]],["N_B = mg − F",F=>1-F,CL.acc,[6,4]],["必要な摩擦力 f = F",F=>F,CL.fr,[]],["最大摩擦力 μN_A",F=>st.mu*(2+F),CL.fr,[6,4]]];
+  L.forEach(([l,f,col,ds],i)=>{const pts=[];for(let k=0;k<=24;k++){const F=1.2*k/24;pts.push([X(F),Y(Math.max(0,f(F)))])}line(c,pts,col,2.4,ds);const lx=narrow?G.x+10:G.x+G.w+10;txt(c,l,narrow?G.x+8+(i%2)*(G.w/2):G.x+G.w+16,narrow?G.y+G.h+30+Math.floor(i/2)*22:G.y+20+i*26,col,{s:13});if(!narrow)line(c,[[G.x+G.w+0,G.y+20+i*26],[G.x+G.w+12,G.y+20+i*26]],col,2.4,ds)});
+  [[Fs(),"すべり出す"],[1,"B が浮く"]].forEach(([F,l])=>{if(F<=1.2){line(c,[[X(F),G.y],[X(F),G.y+G.h]],CL.ng,1,[3,3]);txt(c,l,X(F)+4,G.y+10+(l==="B が浮く"?16:0),CL.ng,{s:12})}});
+  line(c,[[X(st.F),G.y],[X(st.F),G.y+G.h]],CL.frc,2);txt(c,"いまの F",X(st.F)+4,G.y+G.h-10,CL.frc,{s:12})}
+ if(q.startsWith("III")){const G=narrow?{x:50,y:30,w:GW-90,h:300}:{x:60,y:30,w:600,h:190};axes(c,G,"t","速さ v [m/s]");const tmax=Math.max(4,S.t*1.05),vmax=3.3;const X=t=>G.x+G.w*t/tmax,Y=v=>G.y+G.h-G.h*v/vmax;
+  line(c,S.hist.map(h=>[X(h.t),Y(h.v)]),CL.ink,2.4);
+  if(q==="III2"){const a=aIII()*g;line(c,[[X(1.2),Y(3)],[X(1.2+3/a),Y(0)]],CL.ng,1,[5,4]);txt(c,"傾き −a = −"+a.toFixed(2)+" m/s²",X(1.2+3/a*0.5)+10,Y(1.5)-10,CL.ng,{s:13})}
+  if(q==="III1")txt(c,"等速：傾き 0（力がつり合っている）",G.x+20,Y(1.2)-16,CL.mute,{s:13});
+  if(!narrow){const ex=720,ey=40;txt(c,"力の大きさ（mg 単位）",ex,ey,CL.mute,{s:13});const o=forces();const E=[["N_A",o.NA||0,CL.acc],["N_B",o.NB||0,CL.acc],["摩擦力",Math.abs(o.fA||0),CL.fr],["F",o.F,CL.frc]];E.forEach(([l,v,col],i)=>{const y=ey+22+i*36;txt(c,l,ex,y+8,CL.ink,{s:13});c.fillStyle=col;c.fillRect(ex+60,y,170*v/3.2,16);txt(c,v.toFixed(3),ex+66+170*v/3.2,y+8,CL.ink,{s:12})})}}
+}
+let lastT=performance.now(),acc=0;
+function frame(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.15){acc=0;readout()}}draw();requestAnimationFrame(frame)}
+setQ("I1",true);resize();requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>
