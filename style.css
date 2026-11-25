@@ -353,6 +353,72 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
 .diary-body { margin-top: 10px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
 .diary-body a { color: var(--accent); }
 @media (max-width: 600px) { .diary-entry { padding: 18px; } }
+.diary-entry { scroll-margin-top: 80px; }
+.diary-imgs { margin-top: 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.diary-imgs.one { grid-template-columns: 1fr; }
+.diary-img { display: block; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: var(--bg); cursor: zoom-in; aspect-ratio: 4 / 3; }
+.diary-imgs.one .diary-img { aspect-ratio: auto; }
+.diary-img img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .25s; }
+.diary-imgs.one .diary-img img { height: auto; max-height: 560px; object-fit: contain; }
+.diary-img:hover img { transform: scale(1.03); }
+.diary-imgs.one .diary-img:hover img { transform: none; }
+.diary-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 14px; font-weight: 700; }
+
+/* カレンダー */
+.diary-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 28px; align-items: start; }
+.diary-cal { position: sticky; top: 84px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cal-title { font-weight: 700; }
+.cal-nav { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; background: var(--bg); color: var(--text); font-size: 1.2rem; line-height: 1; cursor: pointer; }
+.cal-nav:hover { border-color: var(--accent); color: var(--accent); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+.cal-wd { font-size: .72rem; font-weight: 700; color: var(--sub); padding: 2px 0 4px; }
+.cal-day { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 10px; font-size: .88rem; color: var(--sub); border: 2px solid transparent; }
+.cal-wd.sun, .cal-day.sun { color: #e5484d; }
+.cal-wd.sat, .cal-day.sat { color: #3b82f6; }
+.cal-day.today { border-color: var(--line); font-weight: 700; color: var(--text); }
+button.cal-day { font: inherit; font-size: .88rem; font-weight: 700; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); cursor: pointer; padding: 0; }
+button.cal-day::after { content: ""; position: absolute; bottom: 4px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); }
+button.cal-day:hover { border-color: var(--accent); }
+button.cal-day.sel { background: var(--accent); color: #fff; }
+button.cal-day.sel::after { background: #fff; }
+.cal-foot { margin: 10px 0 0; font-size: .82rem; color: var(--text); }
+.cal-foot span { color: var(--sub); font-size: .78rem; }
+.cal-today { margin-top: 8px; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.cal-today:hover { text-decoration: underline; }
+@media (max-width: 860px) {
+  .diary-layout { grid-template-columns: 1fr; }
+  .diary-cal { position: static; max-width: 420px; width: 100%; }
+  #diary-list { scroll-margin-top: 110px; }
+}
+
+/* 画像を大きく表示 */
+.photo-view { position: fixed; inset: 0; z-index: 200; background: rgba(5, 8, 18, .92); display: flex; align-items: center; justify-content: center; }
+.photo-view[hidden] { display: none; }
+.photo-stage img { display: block; max-width: calc(100vw - 32px); max-height: calc(100vh - 96px); border-radius: 8px; }
+.photo-close, .photo-nav { position: absolute; border: 0; background: rgba(255,255,255,.12); color: #fff; border-radius: 50%; cursor: pointer; }
+.photo-close { top: 14px; right: 14px; width: 44px; height: 44px; font-size: 1.6rem; line-height: 1; }
+.photo-nav { top: 50%; width: 48px; height: 48px; margin-top: -24px; font-size: 1.8rem; line-height: 1; }
+.photo-nav.prev { left: 14px; } .photo-nav.next { right: 14px; }
+.photo-close:hover, .photo-nav:hover { background: rgba(255,255,255,.25); }
+.photo-view.single .photo-nav { display: none; }
+.photo-count { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; color: rgba(255,255,255,.8); font-size: .85rem; }
+
+/* 管理：日記の画像 */
+.ad-label { font-weight: 700; font-size: .9rem; }
+.ad-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.ad-img { position: relative; margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); }
+.ad-img img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.ad-img figcaption { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; }
+.ad-img-b { flex: 1 1 auto; padding: 4px 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: .75rem; cursor: pointer; }
+.ad-img-b:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.ad-img-b:disabled { opacity: .35; cursor: default; }
+.ad-img-b.danger { color: #dc2626; }
+.ad-img-new { position: absolute; top: 6px; left: 6px; padding: 1px 8px; border-radius: 99px; background: var(--accent); color: #fff; font-size: .7rem; font-weight: 700; }
+.ad-img-add { justify-self: start; display: inline-flex; cursor: pointer; }
+.ad-img-add[hidden] { display: none; }
+.ad-imgs:empty { display: none; }
+.ad-d-imgn { font-size: .75rem; color: var(--sub); }
 a.last-updated { text-decoration: none; }
 a.last-updated:hover { color: #fff !important; border-color: rgba(255,255,255,.4); }
 

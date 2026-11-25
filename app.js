@@ -50,6 +50,12 @@ const PLAY = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13L14
 
 const data = { items: [], loaded: false, error: false, commitTime: null, changelog: [] };
 const $ = (id) => document.getElementById(id);
+// 保存場所の名前など（最初のページ表示より前に決めておく）
+const WORD_KEY = "physics-hp-word";
+const DIARY_KEY = "physics-hp-diary";
+const ADMIN_KEY = "physics-hp-admin";
+const MAX_IMGS = 10;
+const diaryCal = { y: new Date().getFullYear(), m: new Date().getMonth(), sel: "" }; // 日記のカレンダー（表示中の月・選んだ日）
 
 // ---------- 言語（日本語 / English） ----------
 const LANG_KEY = "physics-hp-lang";
@@ -314,7 +320,6 @@ function homePage() {
 }
 
 // 今日の一言：管理ページで書いたもの（Apps Script に保存）→ なければ config.js の todayWord
-const WORD_KEY = "physics-hp-word";
 function currentWord() {
   let w = data.todayWord;
   if (!w) { try { w = JSON.parse(localStorage.getItem(WORD_KEY) || "null"); } catch (e) { w = null; } }
@@ -762,7 +767,6 @@ function linksPage() {
 
 // ---------- 日記 ----------
 // 中身は Apps Script（スプレッドシートの「日記」シート）に保存。書く・直す・消すは「管理」から
-const DIARY_KEY = "physics-hp-diary";
 function diaryEntries() {
   if (data.diary) return data.diary;
   try { const c = JSON.parse(localStorage.getItem(DIARY_KEY) || "null"); if (Array.isArray(c)) return c; } catch (e) {}
@@ -783,8 +787,7 @@ function setDiary(list) {
 async function loadDiary() {
   try { setDiary(await fetchDiary()); data.diaryError = false; }
   catch (e) { data.diaryError = true; }
-  const box = $("diary-list");
-  if (box) box.innerHTML = diaryListHtml();
+  renderDiary();
 }
 function diaryDate(d) {
   const m = String(d || "").match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
@@ -797,28 +800,138 @@ function diaryDate(d) {
 function diaryText(text) {
   return esc(text).replace(/https?:\/\/[^\s<"']+/g, (u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
 }
+// 日記の画像（Googleドライブに保存した画像のID → 表示用のURL）
+function photoUrl(id, w) { return `https://drive.google.com/thumbnail?id=${id}&sz=w${w || 1600}`; }
+function photoImg(id, w, cls) {
+  // サムネイルが出ないときは別のURLでもう一度
+  return `<img${cls ? ` class="${cls}"` : ""} loading="lazy" alt="" src="${photoUrl(id, w)}" referrerpolicy="no-referrer"
+    onerror="if(!this.dataset.f){this.dataset.f=1;this.src='https://lh3.googleusercontent.com/d/${id}=w${w || 1600}'}">`;
+}
+function diaryImages(d) { return (d.images || []).filter((id) => /^[\w-]{10,}$/.test(id)); }
+function diaryEntryHtml(d) {
+  const title = L(d.title, d.titleEn || d.title), body = L(d.body, d.bodyEn || d.body), imgs = diaryImages(d);
+  return `<article class="diary-entry" id="diary-${esc(d.id)}">
+      <time class="diary-date" datetime="${esc(d.date)}">${esc(diaryDate(d.date))}</time>
+      ${title ? `<h2 class="diary-title">${esc(title)}</h2>` : ""}
+      ${body ? `<div class="diary-body">${diaryText(body)}</div>` : ""}
+      ${imgs.length ? `<div class="diary-imgs${imgs.length === 1 ? " one" : ""}">${imgs.map((id, i) =>
+        `<button class="diary-img" type="button" data-photo="${i}" aria-label="${L("画像を大きく見る", "View larger")}">${photoImg(id, imgs.length === 1 ? 1600 : 800)}</button>`).join("")}</div>` : ""}
+    </article>`;
+}
 function diaryListHtml() {
   const list = diaryEntries();
   if (!list) return data.diaryError ? `<p class="notice ng">${L("日記を読み込めませんでした。時間をおいてもう一度お試しください。", "Could not load the diary. Please try again later.")}</p>`
     : `<p class="status">${L("読み込み中…", "Loading…")}</p>`;
   if (!list.length) return `<p class="empty">${L("まだ日記がありません。", "No diary entries yet.")}</p>`;
-  return `<div class="diary-list">${list.map((d) => {
-    const title = L(d.title, d.titleEn || d.title), body = L(d.body, d.bodyEn || d.body);
-    return `<article class="diary-entry">
-      <time class="diary-date" datetime="${esc(d.date)}">${esc(diaryDate(d.date))}</time>
-      ${title ? `<h2 class="diary-title">${esc(title)}</h2>` : ""}
-      ${body ? `<div class="diary-body">${diaryText(body)}</div>` : ""}
-    </article>`;
-  }).join("")}</div>`;
+  const sel = diaryCal.sel;
+  if (sel) {
+    const day = list.filter((d) => d.date === sel);
+    return `<div class="diary-filter"><span>${L(`${esc(diaryDate(sel))}の日記`, `Entries on ${esc(diaryDate(sel))}`)}</span>
+      <button class="btn ghost small" type="button" data-cal-all>${L("すべての日記を見る", "Show all entries")}</button></div>
+      <div class="diary-list">${day.length ? day.map(diaryEntryHtml).join("") : `<p class="empty">${L("この日の日記はありません。", "No entries on this day.")}</p>`}</div>`;
+  }
+  return `<div class="diary-list">${list.map(diaryEntryHtml).join("")}</div>`;
+}
+
+// カレンダー：日記のある日に印。押すとその日の日記だけを表示（diaryCal はファイルの最初のほうにあります）
+function isoOf(y, m, d) { return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`; }
+function diaryCalHtml() {
+  const list = diaryEntries() || [];
+  const count = {};
+  list.forEach((d) => { count[d.date] = (count[d.date] || 0) + 1; });
+  const { y, m, sel } = diaryCal;
+  const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate(), today = todayIso();
+  const prefix = isoOf(y, m, 1).slice(0, 8);
+  const inMonth = list.filter((d) => d.date.startsWith(prefix)).length;
+  const week = en() ? ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] : [..."日月火水木金土"];
+  let cells = week.map((w, i) => `<span class="cal-wd${i === 0 ? " sun" : i === 6 ? " sat" : ""}">${w}</span>`).join("");
+  for (let i = 0; i < first; i++) cells += `<span></span>`;
+  for (let d = 1; d <= days; d++) {
+    const iso = isoOf(y, m, d), n = count[iso] || 0, wd = (first + d - 1) % 7;
+    const cls = ["cal-day", n ? "has" : "", iso === today ? "today" : "", iso === sel ? "sel" : "", wd === 0 ? "sun" : wd === 6 ? "sat" : ""].filter(Boolean).join(" ");
+    cells += n ? `<button type="button" class="${cls}" data-day="${iso}" aria-pressed="${iso === sel}" title="${L(`日記 ${n}件`, `${n} entr${n > 1 ? "ies" : "y"}`)}">${d}</button>`
+      : `<span class="${cls}">${d}</span>`;
+  }
+  const label = en() ? new Date(y, m, 1).toLocaleDateString("en-US", { year: "numeric", month: "long" }) : `${y}年${m + 1}月`;
+  return `<div class="cal-head">
+      <button type="button" class="cal-nav" data-cal-move="-1" aria-label="${L("前の月", "Previous month")}">‹</button>
+      <span class="cal-title">${label}</span>
+      <button type="button" class="cal-nav" data-cal-move="1" aria-label="${L("次の月", "Next month")}">›</button>
+    </div>
+    <div class="cal-grid">${cells}</div>
+    <p class="cal-foot">${inMonth ? L(`この月の日記：${inMonth}件`, `${inMonth} entr${inMonth > 1 ? "ies" : "y"} this month`) : L("この月の日記はありません", "No entries this month")}<br>
+      <span>${L("印のある日を押すと、その日の日記が見られます。", "Tap a marked day to see its entries.")}</span></p>
+    ${y !== new Date().getFullYear() || m !== new Date().getMonth() ? `<button type="button" class="cal-today" data-cal-today>${L("今月にもどる", "Back to this month")}</button>` : ""}`;
+}
+function renderDiary(scroll) {
+  const cal = $("diary-cal"), box = $("diary-list");
+  if (cal) cal.innerHTML = diaryCalHtml();
+  if (box) box.innerHTML = diaryListHtml();
+  if (scroll && box && window.innerWidth < 860) box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function diaryPage() {
   return pageHead("Diary", L(...NAV_TEXT.diary), L("日々のできごとや、サイトづくりのメモを書いています。", "Notes on everyday things and on building this site.")) + `
-  <section class="section"><div class="wrap"><div id="diary-list">${diaryListHtml()}</div></div></section>`;
+  <section class="section"><div class="wrap diary-layout">
+    <aside class="diary-cal" id="diary-cal">${diaryCalHtml()}</aside>
+    <div id="diary-list">${diaryListHtml()}</div>
+  </div></section>`;
+}
+// カレンダーと画像のクリック（日記ページ）
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-day],[data-cal-move],[data-cal-today],[data-cal-all],[data-photo]");
+  if (!t || !t.closest("#view")) return;
+  if (t.dataset.photo != null) {
+    const entry = (diaryEntries() || []).find((d) => `diary-${d.id}` === t.closest(".diary-entry").id);
+    if (entry) openPhotos(diaryImages(entry), +t.dataset.photo);
+    return;
+  }
+  if (t.dataset.day) { diaryCal.sel = diaryCal.sel === t.dataset.day ? "" : t.dataset.day; return renderDiary(!!diaryCal.sel); }
+  if (t.dataset.calMove) {
+    const d = new Date(diaryCal.y, diaryCal.m + +t.dataset.calMove, 1);
+    diaryCal.y = d.getFullYear(); diaryCal.m = d.getMonth();
+  } else if (t.dataset.calToday != null) { diaryCal.y = new Date().getFullYear(); diaryCal.m = new Date().getMonth(); }
+  else if (t.dataset.calAll != null) diaryCal.sel = "";
+  renderDiary();
+});
+
+// 画像を大きく表示（← → で前後の画像、Esc で閉じる）
+function openPhotos(ids, i) {
+  let box = $("photo-view");
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "photo-view"; box.className = "photo-view"; box.hidden = true;
+    box.innerHTML = `<button class="photo-close" type="button" data-pv="x">×</button>
+      <button class="photo-nav prev" type="button" data-pv="-1">‹</button><div class="photo-stage"></div>
+      <button class="photo-nav next" type="button" data-pv="1">›</button><span class="photo-count"></span>`;
+    document.body.appendChild(box);
+    box.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-pv]");
+      if (b && b.dataset.pv !== "x") return box.show(box.i + +b.dataset.pv);
+      if (b || !e.target.closest("img")) box.close();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (box.hidden) return;
+      if (e.key === "Escape") box.close();
+      if (e.key === "ArrowLeft") box.show(box.i - 1);
+      if (e.key === "ArrowRight") box.show(box.i + 1);
+    });
+    box.show = (n) => {
+      box.i = (n + box.ids.length) % box.ids.length;
+      box.querySelector(".photo-stage").innerHTML = photoImg(box.ids[box.i], 2400);
+      box.querySelector(".photo-count").textContent = box.ids.length > 1 ? `${box.i + 1} / ${box.ids.length}` : "";
+    };
+    box.close = () => { box.hidden = true; document.body.style.overflow = ""; };
+  }
+  box.querySelector(".photo-close").setAttribute("aria-label", L("閉じる", "Close"));
+  box.ids = ids;
+  box.classList.toggle("single", ids.length < 2);
+  box.show(i);
+  box.hidden = false;
+  document.body.style.overflow = "hidden";
 }
 
 // ---------- 管理（今日の一言・日記・サイトのパスワード） ----------
 // 管理パスワードは Apps Script 側で確かめます（このファイルには書きません）
-const ADMIN_KEY = "physics-hp-admin";
 async function adminCall(params) {
   const body = new URLSearchParams(params);
   const res = await fetch(CONFIG.questionUrl, { method: "POST", body });
@@ -828,6 +941,26 @@ async function adminCall(params) {
 async function sha256Hex(text) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+// 選んだ画像を、長い辺が1600pxまでのJPEGにして小さくする（送る時間とドライブの容量を節約）
+function shrinkImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type) && !/\.(jpe?g|png|gif|webp|heic|heif)$/i.test(file.name)) return reject(new Error("type"));
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+      const g = c.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); // 透明な部分は白に
+      g.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const dataUrl = c.toDataURL("image/jpeg", 0.85);
+      resolve({ url: dataUrl, data: dataUrl.split(",")[1], type: "image/jpeg" });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("decode")); };
+    img.src = url;
+  });
 }
 function todayIso() {
   const d = new Date();
@@ -842,6 +975,9 @@ function bindAdmin() {
   let pw = "";
   try { pw = sessionStorage.getItem(ADMIN_KEY) || ""; } catch (e) {}
   const errText = (r) => r.error === "password" ? L("パスワードがちがいます。", "Wrong password.")
+    : r.error === "share" ? L("画像を公開できませんでした。Googleドライブの共有の設定を確かめてください。", "Could not share the image on Google Drive.")
+    : r.error === "type" || r.error === "size" || r.error === "data" ? L("この画像は保存できませんでした（JPEG・PNG などで、15MBまで）。", "This image could not be saved.")
+    : r.error === "drive" ? L("Googleドライブを使う許可がまだのようです（使い方ガイドの「B7」の setupDiaryImages を見てください）。", "Google Drive is not authorized yet.")
     : r.error === "script" || r.error === "action" ? L("Apps Script の更新がまだのようです（使い方ガイドの「B7. 管理ページ」を見てください）。", "The Apps Script has not been updated yet.")
     : L("うまくいきませんでした。時間をおいてもう一度お試しください。", "Something went wrong. Please try again later.");
   const show = (id, ok, msg) => { $(id).innerHTML = `<p class="notice ${ok ? "ok" : "ng"}">${msg}</p>`; };
@@ -939,12 +1075,20 @@ function bindAdmin() {
     // 日記
     let entries = [];
     function diaryForm(d) {
-      d = d || { id: "", date: todayIso(), title: "", body: "", titleEn: "", bodyEn: "" };
+      d = d || { id: "", date: todayIso(), title: "", body: "", titleEn: "", bodyEn: "", images: [] };
+      // 画像：{ id }＝保存ずみ、{ data, type, url }＝これから送る画像
+      let imgs = diaryImages(d).map((id) => ({ id }));
       $("ad-diary-form").innerHTML = `
         <p class="admin-mode">${d.id ? L("日記を直しています", "Editing an entry") : L("新しい日記を書く", "Write a new entry")}</p>
         <div class="field"><label for="ad-d-date">${L("日付", "Date")}</label><input id="ad-d-date" type="date" value="${esc(d.date)}"></div>
         <div class="field"><label for="ad-d-title">${L("タイトル", "Title")}<span class="opt">${L("なくてもOK", "Optional")}</span></label><input id="ad-d-title" maxlength="100" value="${esc(d.title)}"></div>
         <div class="field"><label for="ad-d-body">${L("本文", "Text")}</label><textarea id="ad-d-body" maxlength="20000" style="min-height:180px">${esc(d.body)}</textarea></div>
+        <div class="field"><span class="ad-label">${L("画像", "Images")}<span class="opt">${L(`なくてもOK・${MAX_IMGS}枚まで`, `Optional, up to ${MAX_IMGS}`)}</span></span>
+          <div class="ad-imgs" id="ad-d-imgs"></div>
+          <label class="btn ghost small ad-img-add" id="ad-d-add"><input type="file" id="ad-d-file" accept="image/*" multiple hidden>＋ ${L("画像を追加", "Add images")}</label>
+          <input type="file" id="ad-d-swap" accept="image/*" hidden>
+          <p class="admin-note">${L("大きい画像は自動で小さくしてから保存します。保存するとGoogleドライブの「物理のHP 日記の画像」フォルダに入ります。",
+            "Large images are resized before saving. They are stored in a Google Drive folder.")}</p></div>
         <details class="admin-en"${d.titleEn || d.bodyEn ? " open" : ""}><summary>${L("英語表示のとき（なくてもOK）", "English version (optional)")}</summary>
           <div class="field"><label for="ad-d-title-en">${L("タイトル（英語）", "Title (English)")}</label><input id="ad-d-title-en" maxlength="100" value="${esc(d.titleEn)}"></div>
           <div class="field"><label for="ad-d-body-en">${L("本文（英語）", "Text (English)")}</label><textarea id="ad-d-body-en" maxlength="20000" style="min-height:120px">${esc(d.bodyEn)}</textarea></div>
@@ -952,12 +1096,68 @@ function bindAdmin() {
         <div class="admin-btns"><button class="btn" id="ad-d-save" type="button">${d.id ? L("直した内容を保存", "Save changes") : L("日記を公開する", "Publish")}</button>
           ${d.id ? `<button class="btn ghost" id="ad-d-cancel" type="button">${L("やめる（新しく書く）", "Cancel")}</button>` : ""}</div>`;
       if (d.id) $("ad-d-cancel").onclick = () => { diaryForm(); $("ad-diary-result").innerHTML = ""; };
+
+      // 画像の並び（← → で順番、「差しかえ」で入れかえ、「外す」で削除）
+      let swapAt = -1;
+      function drawImgs() {
+        $("ad-d-imgs").innerHTML = imgs.map((im, i) => `<figure class="ad-img">
+            ${im.id ? photoImg(im.id, 400) : `<img alt="" src="${im.url}">`}
+            ${im.id ? "" : `<span class="ad-img-new">${L("未保存", "Not saved")}</span>`}
+            <figcaption>
+              <button type="button" class="ad-img-b" data-mv="-1" data-i="${i}" ${i ? "" : "disabled"} aria-label="${L("前へ", "Move left")}">←</button>
+              <button type="button" class="ad-img-b" data-mv="1" data-i="${i}" ${i < imgs.length - 1 ? "" : "disabled"} aria-label="${L("後ろへ", "Move right")}">→</button>
+              <button type="button" class="ad-img-b" data-swap="${i}">${L("差しかえ", "Replace")}</button>
+              <button type="button" class="ad-img-b danger" data-rm="${i}">${L("外す", "Remove")}</button>
+            </figcaption></figure>`).join("");
+        $("ad-d-add").hidden = imgs.length >= MAX_IMGS;
+      }
+      $("ad-d-imgs").onclick = (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        if (b.dataset.mv) { const i = +b.dataset.i, j = i + +b.dataset.mv; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; }
+        else if (b.dataset.rm) imgs.splice(+b.dataset.rm, 1);
+        else if (b.dataset.swap) { swapAt = +b.dataset.swap; $("ad-d-swap").value = ""; $("ad-d-swap").click(); return; }
+        drawImgs();
+      };
+      async function readFiles(files) {
+        const out = [];
+        for (const f of files) {
+          try { out.push(await shrinkImage(f)); }
+          catch (e) { show("ad-diary-result", false, L(`「${esc(f.name)}」は読みこめませんでした（JPEG・PNG などの画像にしてください）。`, `Could not read "${esc(f.name)}". Use a JPEG or PNG image.`)); }
+        }
+        return out;
+      }
+      $("ad-d-file").onchange = async (e) => {
+        $("ad-diary-result").innerHTML = "";
+        const add = await readFiles([...e.target.files].slice(0, MAX_IMGS - imgs.length));
+        e.target.value = "";
+        imgs = imgs.concat(add); drawImgs();
+      };
+      $("ad-d-swap").onchange = async (e) => {
+        $("ad-diary-result").innerHTML = "";
+        const [im] = await readFiles([...e.target.files].slice(0, 1));
+        if (im && imgs[swapAt]) { imgs[swapAt] = im; drawImgs(); }
+      };
+      drawImgs();
+
       $("ad-d-save").onclick = async () => {
         const v = { date: $("ad-d-date").value || todayIso(), title: $("ad-d-title").value.trim(), body: $("ad-d-body").value.replace(/\s+$/, ""),
           titleEn: $("ad-d-title-en").value.trim(), bodyEn: $("ad-d-body-en").value.replace(/\s+$/, "") };
-        if (!v.title && !v.body.trim()) return show("ad-diary-result", false, L("タイトルか本文を書いてください。", "Write a title or some text."));
-        const res = await busy($("ad-d-save"), L("保存中…", "Saving…"), () => adminCall({ _action: "diarySave", _password: pw, _id: d.id,
-          _date: v.date, _title: v.title, _body: v.body, _titleEn: v.titleEn, _bodyEn: v.bodyEn }));
+        if (!v.title && !v.body.trim() && !imgs.length) return show("ad-diary-result", false, L("タイトルか本文を書いてください。", "Write a title or some text."));
+        const btn = $("ad-d-save");
+        const res = await busy(btn, L("保存中…", "Saving…"), async () => {
+          // まだ送っていない画像を1枚ずつ送る（送れた画像は覚えておくので、やり直しても二重になりません）
+          const todo = imgs.filter((im) => !im.id);
+          for (let k = 0; k < todo.length; k++) {
+            btn.textContent = L(`画像を送信中（${k + 1}/${todo.length}）…`, `Uploading image ${k + 1}/${todo.length}…`);
+            const r = await adminCall({ _action: "diaryImage", _password: pw, _data: todo[k].data, _type: todo[k].type });
+            if (!r.ok) return r;
+            todo[k].id = r.id; delete todo[k].data;
+          }
+          btn.textContent = L("保存中…", "Saving…");
+          return adminCall({ _action: "diarySave", _password: pw, _id: d.id,
+            _date: v.date, _title: v.title, _body: v.body, _titleEn: v.titleEn, _bodyEn: v.bodyEn, _images: imgs.map((im) => im.id).join(",") });
+        });
         if (res.ok) {
           show("ad-diary-result", true, `${d.id ? L("直しました。", "Saved.") : L("公開しました。", "Published.")} <a href="#diary">${L("日記を見る →", "View diary →")}</a>`);
           diaryForm(); gotList(res.entries);
@@ -971,7 +1171,8 @@ function bindAdmin() {
       if (!entries.length) { el.innerHTML = `<p class="admin-note">${L("まだ日記はありません。", "No entries yet.")}</p>`; return; }
       el.innerHTML = `<h3 class="admin-sub">${L("これまでの日記", "Entries")}（${entries.length}）</h3><ul class="admin-diary">${entries.map((d) => `
         <li data-id="${esc(d.id)}"><span class="ad-d-info"><span class="ad-d-date">${esc(diaryDate(d.date))}</span>
-          <span class="ad-d-title">${esc(d.title || String(d.body || "").slice(0, 40))}</span></span>
+          <span class="ad-d-title">${esc(d.title || String(d.body || "").slice(0, 40) || L("（画像のみ）", "(images only)"))}</span>
+          ${diaryImages(d).length ? `<span class="ad-d-imgn">${L(`画像${diaryImages(d).length}枚`, `${diaryImages(d).length} image${diaryImages(d).length > 1 ? "s" : ""}`)}</span>` : ""}</span>
           <span class="ad-d-btns"><button class="btn ghost small" data-edit type="button">${L("直す", "Edit")}</button>
           <button class="btn ghost small danger" data-del type="button">${L("消す", "Delete")}</button></span></li>`).join("")}</ul>`;
       el.querySelectorAll("li").forEach((li) => {
