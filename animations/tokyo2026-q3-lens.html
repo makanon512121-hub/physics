@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>レンズの像とボケ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:flex;gap:10px;align-items:baseline}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc)}details[open] summary::before{content:"－"}
+summary .ans{margin-left:auto;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sitenav"><a href="../#anime/%E6%B3%A2%E5%8B%95">← 物理のHPに戻る</a></div>
+<h1>レンズの像・望遠レンズ・光のボケ（東京大学 2026年 第3問）</h1>
+<p class="lead">遠くの物体の実像をレンズでスクリーンに映すとき、どこにスクリーンを置けばよいか、像の大きさは何で決まるか、凸レンズと凹レンズを組み合わせた望遠レンズの利点、そして光が波であるために生じる「ボケ」の大きさを、作図と波の計算で確かめます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="レンズによる結像の光線図、望遠レンズの光線図、焦点付近の光の強さの分布"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) スクリーンの位置</button>
+<button class="qb" data-q="I2">I(2) 像の高さ</button>
+<button class="qb" data-q="I3">I(3) 凹レンズの焦点距離</button>
+<button class="qb" data-q="I4">I(4) 単レンズに置換</button>
+<button class="qb" data-q="I5">I(5) 望遠レンズの利点</button>
+<button class="qb" data-q="II1">II(1) 光路差</button>
+<button class="qb" data-q="II2">II(2) 横のボケ</button>
+<button class="qb" data-q="II3">II(3) 数値で計算</button>
+<button class="qb" data-q="II4">II(4) 奥行きの許容範囲</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div class="row" id="r_fit"><span>スクリーン</span><div class="seg"><button id="fit">像の位置に合わせる</button><button id="reset3">問題の配置に戻す</button></div></div>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。</p>
+
+<details id="d-I1"><summary>I(1)　スクリーンを焦点の位置に置けばよい理由</summary><div class="body">
+<h3>レンズの式</h3>
+<p>物体とレンズの距離を <span class="v">a</span>、レンズと実像の距離を <span class="v">b</span>、焦点距離を <span class="v">f</span> とすると</p>
+<span class="eq"><span class="frac"><span>1</span><span><span class="v">a</span></span></span> + <span class="frac"><span>1</span><span><span class="v">b</span></span></span> = <span class="frac"><span>1</span><span><span class="v">f</span></span></span></span>
+<p>明瞭な像を映すには、スクリーンを実像の位置（レンズから <span class="v">b</span>）に置きます。いまは <span class="v">a</span> = <span class="v">D</span>、<span class="v">f</span> = <span class="v">d</span> なので</p>
+<span class="eq"><span class="v">b</span> = <span class="frac"><span><span class="v">Dd</span></span><span><span class="v">D</span> − <span class="v">d</span></span></span> = <span class="frac"><span><span class="v">d</span></span><span>1 − <span class="v">d</span>/<span class="v">D</span></span></span></span>
+<p><span class="v">D</span> ≫ <span class="v">d</span> では <span class="v">d</span>/<span class="v">D</span> ≈ 0 なので <span class="v">b</span> ≈ <span class="v">d</span>。つまり<b>スクリーンを焦点距離 <span class="v">d</span> の位置に置けばよい</b>。（1/<span class="v">D</span> ≈ 0 として 1/<span class="v">b</span> = 1/<span class="v">d</span> と答えてもよい。）遠くの物体から来る光は、ほぼ平行光線とみなせるからです。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：<span class="v">D</span>/<span class="v">d</span> を大きくすると、像の位置（赤い点線）が焦点 F に近づきます。スクリーンをずらすと右上の「スクリーン上の像」がぼやけます（ここでは光線の広がりによるボケ）。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　像の高さと焦点距離<span class="ans">答 (b)　<span class="v">h</span> = <span class="v">Hd</span>/<span class="v">D</span>，長い</span></summary><div class="body">
+<p>レンズの中心を通る光線は直進します。物体の先端からレンズの中心を通る光線を考えると、物体側と像側で相似な三角形ができ、</p>
+<span class="eq"><span class="frac"><span><span class="v">h</span></span><span><span class="v">H</span></span></span> = <span class="frac"><span><span class="v">b</span></span><span><span class="v">D</span></span></span> ≈ <span class="frac"><span><span class="v">d</span></span><span><span class="v">D</span></span></span>　→　<span class="v">h</span> = <span class="frac"><span><span class="v">Hd</span></span><span><span class="v">D</span></span></span></span>
+<p>物体の大きさ <span class="v">H</span> と距離 <span class="v">D</span> が決まっていれば、像の高さは焦点距離 <span class="v">d</span> に比例します。だから遠くのものを大きく写したいなら、<b>焦点距離の長いレンズ</b>を使えばよい（望遠レンズ）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：焦点距離 <span class="v">d</span> を2倍にすると、スクリーン上の像の高さ <span class="v">h</span> も2倍になります。ただしスクリーンも遠くなり、装置が長くなってしまう……これが次の I(3)〜(5) のテーマです。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　凹レンズ L₃ の焦点距離と tan<span class="v">α</span><span class="ans">答 3<span class="v">d</span>/2，<span class="v">w</span>/(15<span class="v">d</span>)</span></summary><div class="body">
+<h3>配置の整理</h3>
+<p>凸レンズ L₂（焦点距離 5<span class="v">d</span>）から 4<span class="v">d</span> の所に凹レンズ L₃、そこから 3<span class="v">d</span> の所にスクリーン S があります。光軸に平行に入った光は、L₂ がなければ L₂ の焦点 P₁（L₂ から 5<span class="v">d</span>、つまり <b>L₃ を <span class="v">d</span> だけ過ぎた所</b>）に集まるはずでした。</p>
+<h3>L₃ にとっての「虚物体」</h3>
+<p>光は P₁ に向かって集まりながら L₃ に入るので、P₁ は L₃ にとって<b>虚物体</b>（レンズの後ろ側にある物体）です。レンズの式で、虚物体の距離を −<span class="v">d</span>、実像（P₂）までを 3<span class="v">d</span>、凹レンズの焦点距離を −<span class="v">f</span>₃ とおくと</p>
+<span class="eq"><span class="frac"><span>1</span><span>−<span class="v">d</span></span></span> + <span class="frac"><span>1</span><span>3<span class="v">d</span></span></span> = <span class="frac"><span>1</span><span>−<span class="v">f</span>₃</span></span>　→　<span class="v">f</span>₃ = <span class="frac"><span>3</span><span>2</span></span><span class="v">d</span></span>
+<h3>tan α</h3>
+<p>L₂ を出た光は、5<span class="v">d</span> 進む間に高さが <span class="v">w</span> から 0 まで下がる直線上にあるので、4<span class="v">d</span> 進んだ L₃ では高さ <span class="v">w</span>/5。そこから 3<span class="v">d</span> 先の P₂ で光軸と交わるので</p>
+<span class="eq">tan<span class="v">α</span> = <span class="frac"><span><span class="v">w</span>/5</span><span>3<span class="v">d</span></span></span> = <span class="frac"><span><span class="v">w</span></span><span>15<span class="v">d</span></span></span></span>
+<div class="box"><b>アニメーションで確かめよう</b>：太い線が光線（あ）です。点線は L₃ がなかった場合に光が向かう P₁。L₃ の焦点距離や位置を変えると、像の位置（スクリーン）が動きます。「問題の配置に戻す」で <span class="v">f</span>₃ = 1.5<span class="v">d</span> に戻ります。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>I(4)　同じはたらきをする単一の凸レンズ<span class="ans">答 15<span class="v">d</span></span></summary><div class="body">
+<p>焦点距離 <span class="v">f</span> の凸レンズに、光軸から <span class="v">w</span> の高さで平行光線が入ると、光は焦点（レンズから <span class="v">f</span>）で光軸と交わり、そのときの角度は tan<span class="v">α</span> = <span class="v">w</span>/<span class="v">f</span>。これが I(3) の tan<span class="v">α</span> = <span class="v">w</span>/(15<span class="v">d</span>) と一致するので</p>
+<span class="eq"><span class="v">f</span> = 15<span class="v">d</span></span>
+<p>この単レンズはスクリーンから 15<span class="v">d</span> の所に置くことになります。I(2) より、像の大きさは焦点距離に比例するので、組み合わせレンズは「焦点距離 15<span class="v">d</span> のレンズ」と同じ大きさの像をつくります。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：破線が単レンズに置き換えた場合の光線です。<span class="v">w</span> を変えても、2つの光線は同じ角度で P₂ に入ります。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-I5"><summary>I(5)　組み合わせレンズの利点<span class="ans">答 鏡筒（装置）を短くできる</span></summary><div class="body">
+<p>同じ大きさの像（焦点距離 15<span class="v">d</span> 相当）を得るのに、単レンズではレンズからスクリーンまで 15<span class="v">d</span> 必要ですが、図の組み合わせでは L₂ からスクリーンまで <b>7<span class="v">d</span></b> で済みます。<b>望遠レンズを短く（小さく・軽く）できる</b>のが利点です。</p>
+<h3>参考</h3>
+<p>性質の異なるレンズを組み合わせると、色によって焦点がずれる「色収差」や、レンズの端と中央で焦点がずれる「球面収差」を打ち消しあうように設計でき、よりくっきりした像が得られます。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：下の2本のものさしで長さ 7<span class="v">d</span> と 15<span class="v">d</span> を比べています。L₃ を L₂ から離す（スクリーンに近づける）とどうなるかも試してみましょう。</div>
+<button class="goto" data-q="I5">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　波面上の2点から Q までの光路差<span class="ans">答 Δ<span class="v">L</span> = <span class="v">x</span>(1 − cos<span class="v">β</span>) − <span class="v">y</span> sin<span class="v">β</span></span></summary><div class="body">
+<h3>考え方</h3>
+<p>レンズを出た直後の波面 W は、焦点 O を中心とする半径 <span class="v">d</span> の球面です。波面上の点はすべて同じ位相なので、O にはすべての光が同じ位相で届き、明るくなります。O から少しずれた点 Q(<span class="v">x</span>, <span class="v">y</span>) では、届く光の道のりにわずかな差ができます。</p>
+<h3>近似の計算</h3>
+<span class="eq"><span class="v">W</span>₁<span class="v">Q</span> = √<span class="sq">(<span class="v">d</span> − <span class="v">x</span>)² + <span class="v">y</span>²</span> = <span class="v">d</span>√<span class="sq">1 − 2<span class="v">x</span>/<span class="v">d</span> + (<span class="v">x</span>² + <span class="v">y</span>²)/<span class="v">d</span>²</span> ≈ <span class="v">d</span> − <span class="v">x</span></span>
+<span class="eq"><span class="v">W</span>₂<span class="v">Q</span> = <span class="v">d</span>√<span class="sq">1 − 2(<span class="v">x</span>cos<span class="v">β</span> + <span class="v">y</span>sin<span class="v">β</span>)/<span class="v">d</span> + (<span class="v">x</span>² + <span class="v">y</span>²)/<span class="v">d</span>²</span> ≈ <span class="v">d</span> − <span class="v">x</span>cos<span class="v">β</span> − <span class="v">y</span>sin<span class="v">β</span></span>
+<p>ここで |<span class="v">x</span>|, |<span class="v">y</span>| ≪ <span class="v">d</span> なので、2次の小さな量 (<span class="v">x</span>² + <span class="v">y</span>²)/<span class="v">d</span>² は捨て、√(1+<span class="v">ε</span>) ≈ 1 + <span class="v">ε</span>/2 を使いました。差をとると</p>
+<span class="eq">Δ<span class="v">L</span> = <span class="v">W</span>₂<span class="v">Q</span> − <span class="v">W</span>₁<span class="v">Q</span> = <span class="v">x</span>(1 − cos<span class="v">β</span>) − <span class="v">y</span> sin<span class="v">β</span></span>
+<h3>図形的な意味</h3>
+<p>Q がごく近いとき、遠くの点 W から Q までの距離は「<span class="v">d</span> − （OQ を W の方向へ射影した長さ）」です。W₁ の方向への射影は <span class="v">x</span>、W₂ の方向への射影は <span class="v">x</span>cos<span class="v">β</span> + <span class="v">y</span>sin<span class="v">β</span>。その差が Δ<span class="v">L</span> です（ヤングの実験の近似と同じ考え方）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：右の拡大図で Q をドラッグ（またはスライダー）すると、厳密な Δ<span class="v">L</span> と近似式の値がほぼ一致することがわかります。背景の明るさは、レンズの縦の断面上の点からの波を足し合わせた光の強さです。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　スクリーン上のボケの大きさ<span class="ans">答 <span class="v">λ</span>/(2 sin<span class="v">β</span>)</span></summary><div class="body">
+<p>スクリーン上（<span class="v">x</span> = 0）では Δ<span class="v">L</span> = −<span class="v">y</span> sin<span class="v">β</span>。これが半波長 <span class="v">λ</span>/2 になる <span class="v">y</span> をボケの大きさとするので</p>
+<span class="eq">|<span class="v">y</span>| sin<span class="v">β</span> = <span class="frac"><span><span class="v">λ</span></span><span>2</span></span>　→　|<span class="v">y</span>| = <span class="frac"><span><span class="v">λ</span></span><span>2 sin<span class="v">β</span></span></span></span>
+<h3>なぜ λ/2 で「ボケの端」なのか</h3>
+<p>上端 W₂ と中央 W₁ の差が <span class="v">λ</span>/2 のとき、下端 W₃ と上端 W₂ の差は <span class="v">λ</span>。このときレンズの上半分からの波と下半分からの波がちょうど打ち消し合い、明るさがほぼ 0 になります。だからここが「明るい点の広がり」の端の目安です。</p>
+<p><span class="v">β</span> が大きい（口径 <span class="v">R</span> が大きい・焦点距離が短い）ほど、また波長が短いほどボケは小さくなります。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフはスクリーン上の明るさの分布です。縦の点線 ±<span class="v">λ</span>/(2 sin<span class="v">β</span>) で明るさがほぼ 0 になります。レンズの半径 <span class="v">R</span> や波長 <span class="v">λ</span> を変えてみましょう。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　数値で計算する<span class="ans">答 6.5×10⁻⁷ m，物体上で 6.5×10⁻⁴ m</span></summary><div class="body">
+<p><span class="v">d</span> = 12 cm、<span class="v">R</span> = 5.0 cm なので、直角三角形の辺の比 5 : 12 : 13 より</p>
+<span class="eq">sin<span class="v">β</span> = <span class="frac"><span><span class="v">R</span></span><span>√<span class="sq"><span class="v">d</span>² + <span class="v">R</span>²</span></span></span> = <span class="frac"><span>5</span><span>13</span></span></span>
+<span class="eq">ボケ = <span class="frac"><span><span class="v">λ</span></span><span>2 sin<span class="v">β</span></span></span> = <span class="frac"><span>5.0×10⁻⁷ × 13</span><span>2 × 5</span></span> = 6.5×10⁻⁷ m</span>
+<p>物体（<span class="v">D</span> = 1.2×10² m 先）と像の大きさの比は <span class="v">d</span> : <span class="v">D</span> = 0.12 : 120 = 1 : 1000（I(2) の <span class="v">h</span> = <span class="v">Hd</span>/<span class="v">D</span>）。よって物体上では1000倍して</p>
+<span class="eq">6.5×10⁻⁷ × 1000 = 6.5×10⁻⁴ m（約 0.65 mm）</span>
+<p>つまり 120 m 先の 0.65 mm より細かいものは、このレンズでは見分けられません。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：このボタンで問題の数値になります。「いまの値」に計算の途中経過を出しています。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>II(4)　スクリーン位置の許容範囲（焦点深度）<span class="ans">答 |<span class="v">x</span>| = <span class="v">λ</span>/{2(1 − cos<span class="v">β</span>)}</span></summary><div class="body">
+<p>Q を光軸上（<span class="v">y</span> = 0）で動かすと Δ<span class="v">L</span> = <span class="v">x</span>(1 − cos<span class="v">β</span>)。これが <span class="v">λ</span>/2 になるまでを許容範囲とするので</p>
+<span class="eq">|<span class="v">x</span>| = <span class="frac"><span><span class="v">λ</span></span><span>2(1 − cos<span class="v">β</span>)</span></span></span>
+<p><span class="v">β</span> が小さいと 1 − cos<span class="v">β</span> ≈ <span class="v">β</span>²/2 はとても小さいので、許容範囲は横のボケ（≈ <span class="v">λ</span>/(2<span class="v">β</span>)）よりずっと長くなります。問題の数値では 13<span class="v">λ</span>/2 ≈ 3.3 μm（片側）で、横のボケ 0.65 μm の約5倍です。カメラで絞りを絞る（<span class="v">β</span> を小さくする）とピントの合う範囲が広がるのも、この関係からわかります。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：拡大図の明るい部分が光軸方向（横）に細長く伸びています。下のグラフは光軸上の明るさです。<span class="v">R</span> を小さくすると、明るい部分がさらに長く伸びます。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const st={q:"I1",d:5,Dd:20,H:3,s:5.2,e:4,f3:1.5,w:0.8,dw:12,Rw:5,lam:500,qx:0,qy:0.4,Dm:120};
+const SL=[
+ ["d","d","焦点距離","cm",2,10,0.1,1],
+ ["Dd","D/d","物体までの距離 ÷ d","倍",1.5,200,0.5,1],
+ ["H","H","物体の高さ","cm",1,6,0.1,1],
+ ["s","","レンズ〜スクリーンの距離","cm",2,25,0.05,2],
+ ["w","w","光線（あ）の高さ","× d",0.1,1.1,0.01,2],
+ ["f3","f₃","凹レンズ L₃ の焦点距離","× d",0.6,4,0.05,2],
+ ["e","","L₂ と L₃ の間隔","× d",1,4.9,0.05,2],
+ ["dw","d","焦点距離","cm",4,30,0.5,1],
+ ["Rw","R","レンズの半径","cm",0.5,10,0.1,1],
+ ["lam","λ","光の波長","nm",380,750,5,0],
+ ["qx","x","点 Q の x 座標","μm",-8,8,0.05,2],
+ ["qy","y","点 Q の y 座標","μm",-3,3,0.01,2],
+ ["Dm","D","物体までの距離","m",1,500,1,0]];
+const SHOW={I1:["d","Dd","H","s"],I2:["d","Dd","H","s"],I3:["w","f3","e"],I4:["w","f3","e"],I5:["w","f3","e"],II1:["dw","Rw","lam","qx","qy"],II2:["dw","Rw","lam","qy"],II3:["dw","Rw","lam","Dm"],II4:["dw","Rw","lam","qx"]};
+const PRE={I1:{d:5,Dd:20,H:3,s:5.4},I2:{d:5,Dd:20,H:3},I3:{w:0.8,f3:1.5,e:4},I4:{w:0.8,f3:1.5,e:4},I5:{w:0.8,f3:1.5,e:4},II1:{dw:12,Rw:5,lam:500,qx:0.8,qy:0.3},II2:{dw:12,Rw:5,lam:500,qx:0,qy:0.65},II3:{dw:12,Rw:5,lam:500,qx:0,qy:0.65,Dm:120},II4:{dw:12,Rw:5,lam:500,qx:3.25,qy:0}};
+$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k==="d"&&st.q==="I2")fitS();dirty=true;syncUI()})});
+const bI=()=>st.d*st.Dd/(st.Dd-1); // image distance cm
+function fitS(){st.s=Math.min(25,bI())}
+$("#fit").onclick=()=>{fitS();syncUI()};
+$("#reset3").onclick=()=>{Object.assign(st,{f3:1.5,e:4,w:0.8});syncUI()};
+function setQ(q,open){Object.assign(st,PRE[q]);st.q=q;if(q==="I2"||q==="I1")fitS();dirty=true;if(open)document.querySelectorAll("#kaisetsu details").forEach(d=>d.open=d.id==="d-"+q);syncUI()}
+document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+$("#play").onclick=()=>{playing=!playing;$("#play").textContent=playing?"一時停止":"再生"};$("#play").textContent=playing?"一時停止":"再生";
+const tele=()=>{const w=st.w,f2=5,e=st.e,f3=st.f3,s1=-w/f2,y1=w+s1*e,s2=s1+y1/f3;const xf=s2<0?e+y1/(-s2):Infinity;const F=s2<0?-w/s2:Infinity;return{s1,y1,s2,xf,F}};
+const wave=()=>{const d=st.dw/100,R=st.Rw/100,b=Math.atan2(R,d),lam=st.lam*1e-9;return{d,R,b,sb:Math.sin(b),cb:Math.cos(b),lam,yb:lam/(2*Math.sin(b)),xb:lam/(2*(1-Math.cos(b)))}};
+function fmt(x){if(!isFinite(x))return"∞";const e=Math.floor(Math.log10(Math.abs(x)||1)),m=x/10**e;return Math.abs(e)<=2?x.toPrecision(3):m.toFixed(2)+"×10"+sup(e)}
+function sup(n){return String(n).split("").map(c=>({"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"})[c]).join("")}
+function syncUI(){
+ document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ const q=st.q;$("#r_fit").hidden=!(q==="I1"||q==="I2"||q.startsWith("I3")||q==="I4"||q==="I5");$("#fit").hidden=!(q==="I1"||q==="I2");$("#reset3").hidden=(q==="I1"||q==="I2");
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!SHOW[q].includes(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=q.startsWith("II")?"焦点付近の拡大図は、横（光軸方向 <span class='v'>x</span>）と縦（<span class='v'>y</span>）で目盛りの倍率がちがいます。明るさの分布は、レンズの縦の断面上の点から出る波を足し合わせた簡易計算です。":
+  (q==="I1"||q==="I2")?"図の縦方向は見やすいように拡大しています。物体が遠いときは途中を省略して描いています。":"凸レンズ L₂ の焦点距離は 5<span class='v'>d</span> で固定。横と縦で目盛りの倍率がちがいます。";
+ const r=[];
+ if(q==="I1"||q==="I2"){const b=bI(),D=st.d*st.Dd,h=st.H*b/D;
+  r.push(["物体までの距離 <span class='v'>D</span>",D.toFixed(1)+" cm"],["像の位置 <span class='v'>b</span> = <span class='v'>Dd</span>/(<span class='v'>D</span>−<span class='v'>d</span>)",b.toFixed(3)+" cm"],["<span class='v'>b</span> と <span class='v'>d</span> のずれ",((b/st.d-1)*100).toFixed(2)+" %"],["スクリーンの位置",st.s.toFixed(2)+" cm"+(Math.abs(st.s-b)<0.03?"（<span class='ok'>ピント OK</span>）":"（<span class='ng'>ずれている</span>）")]);
+  r.push(["像の高さ <span class='v'>h</span> = <span class='v'>Hb</span>/<span class='v'>D</span>",h.toFixed(4)+" cm"],["近似 <span class='v'>Hd</span>/<span class='v'>D</span>",(st.H*st.d/D).toFixed(4)+" cm"])}
+ else if(q.startsWith("I")){const T=tele();r.push(["L₃ での光線の高さ",T.y1.toFixed(3)+" <span class='v'>d</span>"],["P₂ の位置（L₂ から）",isFinite(T.xf)?T.xf.toFixed(3)+" <span class='v'>d</span>":"像ができない"],["tan<span class='v'>α</span>",isFinite(T.F)?(-T.s2).toFixed(4):"—"],["<span class='v'>w</span>/(15<span class='v'>d</span>)",(st.w/15).toFixed(4)],["合成焦点距離 <span class='v'>w</span>/tan<span class='v'>α</span>",isFinite(T.F)?T.F.toFixed(2)+" <span class='v'>d</span>":"—"],["L₃ の式 −1/<span class='v'>f</span>₃（問題の配置）","<span class='v'>f</span>₃ = 1.5 <span class='v'>d</span>"],["装置の長さ L₂→スクリーン",isFinite(T.xf)?T.xf.toFixed(2)+" <span class='v'>d</span>":"—"],["単レンズの場合",isFinite(T.F)?T.F.toFixed(2)+" <span class='v'>d</span>":"—"])}
+ else{const W=wave(),x=st.qx*1e-6,y=st.qy*1e-6;const ex=Math.hypot(W.d*W.cb-x,W.d*W.sb-y)-Math.hypot(W.d-x,y),ap=x*(1-W.cb)-y*W.sb;
+  r.push(["<span class='v'>β</span>（tan<span class='v'>β</span> = <span class='v'>R</span>/<span class='v'>d</span>）",(W.b*180/Math.PI).toFixed(2)+"°"],["sin<span class='v'>β</span>",W.sb.toFixed(4)+(st.dw===12&&st.Rw===5?"（= 5/13）":"")]);
+  if(q!=="II3")r.push(["Δ<span class='v'>L</span>（厳密）",(ex*1e9).toFixed(1)+" nm"],["Δ<span class='v'>L</span>（近似式）",(ap*1e9).toFixed(1)+" nm"],["Δ<span class='v'>L</span> ÷ <span class='v'>λ</span>",(ap/W.lam).toFixed(3)]);
+  r.push(["横のボケ <span class='v'>λ</span>/(2sin<span class='v'>β</span>)",(W.yb*1e6).toFixed(3)+" μm = "+fmt(W.yb)+" m"],["奥行きの許容 <span class='v'>λ</span>/{2(1−cos<span class='v'>β</span>)}",(W.xb*1e6).toFixed(3)+" μm"]);
+  if(q==="II3"){const ratio=st.Dm/W.d;r.push(["倍率 <span class='v'>D</span>/<span class='v'>d</span>",ratio.toFixed(0)+" 倍"],["物体上のボケ",fmt(W.yb*ratio)+" m（"+(W.yb*ratio*1000).toFixed(2)+" mm）"])}}
+ $("#read").innerHTML=r.map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("");
+}
+/* ---------- drawing ---------- */
+const cv=$("#cv"),ctx=cv.getContext("2d");let W=1000,H=520,K=1,narrow=false,CL={},dirty=true,tm=0;
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim());dirty=true}
+function resize(){const w=cv.parentElement.clientWidth;narrow=w<680;W=narrow?640:1000;H=narrow?(st.q.startsWith("II")?900:600):520;const d=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*d);cv.height=Math.round(w*H/W*d);cv.style.height=(w*H/W)+"px";K=cv.width/W;colors()}
+addEventListener("resize",resize);matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+function txt(t,x,y,c,o={}){ctx.fillStyle=c||CL.ink;ctx.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);ctx.textAlign=o.al||"left";ctx.textBaseline=o.bl||"middle";ctx.fillText(t,x,y)}
+function arrow(x1,y1,x2,y2,c,w=2,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(11,L*.5);ctx.strokeStyle=c;ctx.fillStyle=c;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2-ux*h*.7,y2-uy*h*.7);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);ctx.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);ctx.closePath();ctx.fill()}
+function line(pts,c,w=2,dash){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.setLineDash([])}
+function lens(x,y,h,concave,c,dash){ctx.strokeStyle=c||CL.acc;ctx.lineWidth=2;ctx.setLineDash(dash||[]);ctx.beginPath();if(!concave){ctx.moveTo(x,y-h);ctx.quadraticCurveTo(x+14,y,x,y+h);ctx.quadraticCurveTo(x-14,y,x,y-h)}else{ctx.moveTo(x-8,y-h);ctx.lineTo(x+8,y-h);ctx.quadraticCurveTo(x+1,y,x+8,y+h);ctx.lineTo(x-8,y+h);ctx.quadraticCurveTo(x-1,y,x-8,y-h)}ctx.fillStyle=dash?"transparent":"rgba(47,79,168,.12)";ctx.fill();ctx.stroke();ctx.setLineDash([])}
+function lamRGB(l){let r=0,g=0,b=0;if(l<440){r=-(l-440)/60;b=1}else if(l<490){g=(l-440)/50;b=1}else if(l<510){g=1;b=-(l-510)/20}else if(l<580){r=(l-510)/70;g=1}else if(l<645){r=1;g=-(l-645)/65}else r=1;return[r,g,b].map(v=>Math.round(255*Math.pow(v,0.8)))}
+function draw(){const nw=cv.parentElement.clientWidth<680,want=nw?(st.q.startsWith("II")?900:600):520;if(nw!==narrow||want!==H)resize();
+ ctx.setTransform(K,0,0,K,0,0);ctx.fillStyle=CL.bg;ctx.fillRect(0,0,W,H);
+ if(st.q==="I1"||st.q==="I2")drawSingle();else if(st.q.startsWith("II"))drawWave();else drawTele()}
+function drawSingle(){const u=narrow?100:120,xL=narrow?300:520,ya=narrow?300:270,A=95; // lens half height px
+ const d=st.d,D=d*st.Dd,b=bI(),Hc=st.H,vs=90/Hc; // vertical px per cm
+ const X=x=>xL+x*u/d; // x in cm -> px
+ line([[20,ya],[W-20,ya]],CL.mute,1,[6,5]);
+ lens(xL,ya,A);txt("L₁",xL,ya-A-14,CL.acc,{s:16,al:"center"});
+ // focal points
+ [-d,d].forEach(f=>{ctx.fillStyle=CL.ink;ctx.beginPath();ctx.arc(X(f),ya,4,0,7);ctx.fill()});txt("F",X(d),ya+18,CL.ink,{s:15,al:"center"});
+ line([[X(0),ya+A+30],[X(d),ya+A+30]],CL.mute,1);txt("d",(X(0)+X(d))/2,ya+A+44,CL.mute,{it:1,s:17,al:"center"});
+ // object
+ const far=X(-D)<70,ox=far?40:X(-D),oy=ya-Hc*vs;
+ ctx.fillStyle=CL.grav;ctx.fillRect(ox-8,oy,16,Hc*vs);ctx.beginPath();ctx.moveTo(ox-16,oy+4);ctx.lineTo(ox,oy-14);ctx.lineTo(ox+16,oy+4);ctx.fill();txt("物体",ox,ya+18,CL.grav,{s:13,al:"center"});txt("H",ox+22,(ya+oy)/2,CL.grav,{it:1,s:17});
+ const xs0=far?100:ox; // where rays start
+ if(far){ctx.fillStyle=CL.bg;ctx.fillRect(64,ya-170,26,200);line([[66,ya-160],[76,ya+20]],CL.mute,1.5);line([[78,ya-160],[88,ya+20]],CL.mute,1.5);txt("D = "+D.toFixed(0)+" cm（途中省略）",100,ya+40,CL.mute,{s:13})}
+ // rays from top point (-D,H): param in cm
+ const yAt=(x0,y0,x1,y1,x)=>y0+(y1-y0)*(x-x0)/(x1-x0);
+ const xstart=far?-((xL-xs0)*d/u):-D;
+ const yimg=-Hc*b/D; // image height (cm, negative)
+ const Y=yc=>ya-yc*vs;
+ const scr=st.s;
+ const rays=[[0,"中心を通る光線"],[Hc,"光軸に平行な光線"],[-Hc*d/(D-d),"焦点を通る光線"]];
+ const [rr,gg,bb]=[217,138,0];
+ rays.forEach(([yl],i)=>{const y0=yAt(-D,Hc,0,yl,xstart);
+  ctx.globalAlpha=.9;line([[X(xstart),Y(y0)],[X(0),Y(yl)]],CL.fr,1.8);
+  // after lens: passes through image point (b,yimg)
+  const xe=Math.max(scr,b)*1.25,ye=yl+(yimg-yl)*(xe/b);line([[X(0),Y(yl)],[X(xe),Y(ye)]],CL.fr,1.8);ctx.globalAlpha=1});
+ // marginal rays (lens edges) to show blur
+ const Ac=A/vs;[Ac,-Ac].forEach(yl=>{const y0=yAt(-D,Hc,0,yl,xstart);line([[X(xstart),Y(y0)],[X(0),Y(yl)]],CL.acc,1,[4,4]);const xe=Math.max(scr,b)*1.25;line([[X(0),Y(yl)],[X(xe),Y(yl+(yimg-yl)*xe/b)]],CL.acc,1,[4,4])});
+ // image position
+ line([[X(b),ya-120],[X(b),ya+120]],CL.frc,1.2,[3,4]);txt("像の位置 b",X(b)+4,ya+132,CL.frc,{s:12});
+ // screen
+ line([[X(scr),ya-150],[X(scr),ya+150]],CL.ink,3);txt("スクリーン S",X(scr),ya-162,CL.ink,{s:14,al:"center"});
+ const top=yimg*scr/b,blur=2*Ac*Math.abs(scr-b)/b; // cm
+ // inset: screen view
+ const ix=W-(narrow?150:180),iy=narrow?60:90,iw=narrow?130:160,ih=narrow?130:150;
+ ctx.fillStyle=CL.panel;ctx.fillRect(ix-iw/2,iy-20,iw,ih+40);ctx.save();ctx.beginPath();ctx.rect(ix-iw/2,iy,iw,ih);ctx.clip();txt("スクリーン上の像",ix,iy-6,CL.mute,{s:12,al:"center"});
+ const hmax=Math.abs(Hc*d/D)*1.15,zoom=(ih*0.55)/hmax;const cy=iy+ih*0.5;
+ const hp=Math.abs(top)*zoom,bp=blur*zoom;const n=bp>1?24:1;ctx.globalAlpha=n>1?0.09:1;
+ for(let i=0;i<n;i++){const ang=i*2.4,rad=n>1?bp/2*Math.sqrt((i+.5)/n):0,dx=rad*Math.cos(ang),dy=rad*Math.sin(ang);ctx.fillStyle=CL.grav;ctx.fillRect(ix-5+dx,cy-hp/2+dy,10,hp);ctx.beginPath();ctx.moveTo(ix-11+dx,cy+hp/2-3+dy);ctx.lineTo(ix+dx,cy+hp/2+10+dy);ctx.lineTo(ix+11+dx,cy+hp/2-3+dy);ctx.fill()}
+ ctx.globalAlpha=1;ctx.restore();txt("（上下逆さ・拡大して表示）",ix,iy+ih+12,CL.mute,{s:10,al:"center"});
+ txt(Math.abs(scr-b)<0.03?"ピントが合っている":"ぼやけている",ix,iy+ih-6,Math.abs(scr-b)<0.03?CL.ok:CL.ng,{s:12,b:1,al:"center"});
+ if(st.q==="I2"){txt("h = "+(Hc*b/D).toFixed(3)+" cm",X(b)+10,Y(yimg)+16,CL.frc,{it:1,s:16})}
+ txt("物体先端から出た光線（実線）とレンズの端を通る光線（点線）",20,H-16,CL.mute,{s:12});
+}
+function drawTele(){const T=tele(),u=narrow?36:56,xL2=narrow?326:506,ya=narrow?250:230,v=narrow?150:150; // u px/d horizontal, v px/d vertical
+ const X=x=>xL2+x*u,Y=y=>ya-y*v,q=st.q;
+ line([[10,ya],[W-10,ya]],CL.mute,1,[6,5]);
+ const xf=T.xf;
+ // single lens equivalent
+ const showEq=(q==="I4"||q==="I5")&&isFinite(T.F);const xEq=xf-T.F;
+ if(showEq){lens(X(xEq),ya,1.25*v,false,CL.fic,[5,4]);txt("単レンズ（焦点距離 "+T.F.toFixed(1)+"d）",Math.max(8,X(xEq)-20),ya-1.25*v-14,CL.fic,{s:13})}
+ lens(X(0),ya,1.25*v);txt("L₂（凸, 5d）",X(0),ya-1.25*v-14,CL.acc,{s:13,al:"center"});
+ lens(X(st.e),ya,0.7*v,true);txt("L₃（凹）",X(st.e),ya-0.7*v-14,CL.acc,{s:13,al:"center"});
+ // P1
+ ctx.fillStyle=CL.ink;ctx.beginPath();ctx.arc(X(5),ya,4,0,7);ctx.fill();txt("P₁",X(5),ya+18,CL.ink,{s:14,al:"center"});
+ // screen at focus
+ if(isFinite(xf)&&xf<20){line([[X(xf),ya-1.1*v],[X(xf),ya+1.1*v]],CL.ink,3);txt("S",X(xf),ya-1.1*v-12,CL.ink,{s:15,b:1,al:"center"});ctx.fillStyle=CL.frc;ctx.beginPath();ctx.arc(X(xf),ya,5,0,7);ctx.fill();txt("P₂",X(xf)+10,ya+18,CL.frc,{s:14})}
+ // rays bundle
+ const ws=[st.w,st.w/2,-st.w/2,-st.w];const xin=showEq?Math.min(xEq-1,-1):-2.5;const xend=isFinite(xf)?Math.min(xf+1.2,15):12;
+ ws.forEach((w,i)=>{const s1=-w/5,y1=w+s1*st.e,s2=s1+y1/st.f3;const main=i===0;const c=main?CL.fr:"rgba(217,138,0,.45)";const lw=main?3:1.5;
+  line([[X(-((xL2-10)/u)),Y(w)],[X(0),Y(w)]],c,lw);line([[X(0),Y(w)],[X(st.e),Y(y1)]],c,lw);line([[X(st.e),Y(y1)],[X(xend),Y(y1+s2*(xend-st.e))]],c,lw);
+  if(main){line([[X(st.e),Y(y1)],[X(5),Y(0)]],CL.mute,1.2,[4,4])}});
+ txt("（あ）",X(-((xL2-10)/u))+8,Y(st.w)-14,CL.fr,{s:14});
+ // w label
+ line([[X(-0.4),ya],[X(-0.4),Y(st.w)]],CL.mute,1);txt("w",X(-0.4)-14,(ya+Y(st.w))/2,CL.mute,{it:1,s:17});
+ if(showEq){const w=st.w;line([[X(xEq),Y(w)],[X(xf),ya]],CL.fic,2,[6,4])}
+ // alpha
+ if(isFinite(xf)&&xf<20){const a=Math.atan(-T.s2*v/u);ctx.strokeStyle=CL.frc;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(X(xf),ya,60,Math.PI,Math.PI+a,false);ctx.stroke();txt("α",X(xf)-72,ya-10,CL.frc,{it:1,s:18})}
+ // dims
+ const dy=ya+1.4*v;const dim=(x1,x2,l,y)=>{line([[X(x1),y],[X(x2),y]],CL.mute,1);line([[X(x1),y-5],[X(x1),y+5]],CL.mute,1);line([[X(x2),y-5],[X(x2),y+5]],CL.mute,1);txt(l,(X(x1)+X(x2))/2,y+14,CL.mute,{it:1,s:15,al:"center"})};
+ if(q!=="I5"){dim(0,st.e,st.e.toFixed(1)+"d",dy);if(isFinite(xf)&&xf<20)dim(st.e,xf,(xf-st.e).toFixed(2)+"d",dy);dim(0,5,"5d（L₂の焦点距離）",dy+40)}
+ if(q==="I5"&&isFinite(xf)&&showEq){const y1=dy;ctx.fillStyle=CL.acc;ctx.fillRect(X(0),y1,(xf)*u,10);txt("望遠レンズ "+xf.toFixed(1)+"d",X(0)+4,y1-10,CL.acc,{s:13});ctx.fillStyle=CL.fic;ctx.fillRect(X(xEq),y1+26,T.F*u,10);txt("単レンズ "+T.F.toFixed(1)+"d",X(xEq)+4,y1+48,CL.fic,{s:13})}
+ if(!isFinite(xf))txt("この配置では光が集まらない（像ができない）",20,30,CL.ng,{s:15,b:1});
+}
+/* wave optics */
+let img=null,imgKey="";
+function intensity(W,x,y){const N=64;let re=0,im=0;const k=2*Math.PI/W.lam;for(let i=0;i<N;i++){const t=-W.b+2*W.b*(i+.5)/N;const ph=k*(x*(1-Math.cos(t))-y*Math.sin(t));re+=Math.cos(ph);im+=Math.sin(ph)}return(re*re+im*im)/(N*N)}
+function drawWave(){const Wv=wave(),q=st.q;
+ const P1=narrow?{x:0,y:0,w:640,h:340}:{x:0,y:0,w:470,h:520},P2=narrow?{x:0,y:340,w:640,h:560}:{x:470,y:0,w:530,h:520};
+ // geometry panel
+ const Ox=P1.x+50,Oy=P1.y+P1.h*(narrow?0.62:0.58),dp=P1.w-(narrow?200:130),sc=dp/Wv.d; // px per m
+ line([[P1.x+10,Oy],[P1.x+P1.w-10,Oy]],CL.mute,1,[6,5]);line([[Ox,P1.y+30],[Ox,P1.y+P1.h-30]],CL.ink,2);txt("S",Ox-12,P1.y+34,CL.ink,{s:15,b:1});txt("y",Ox+10,P1.y+38,CL.ink,{it:1,s:16});
+ const Rp=Wv.R*sc,xLp=Ox+dp;lens(xLp,Oy,Math.min(Rp,Oy-P1.y-20));
+ const [r,g,b]=lamRGB(st.lam);const lc=`rgba(${r},${g},${b},`;
+ // incoming plane waves (moving left) and converging spherical wavefronts
+ const ph=(tm*0.6)%1,spacing=34;
+ for(let i=0;i<4;i++){const x=xLp+20+((i+ph)%4)*spacing*0.9;line([[x,Oy-Rp],[x,Oy+Rp]],lc+"0.7)",2)}
+ for(let i=0;i<12;i++){const rr=dp-((i+ph)*spacing);if(rr<8)continue;ctx.strokeStyle=lc+(0.25+0.6*rr/dp)+")";ctx.lineWidth=2;ctx.beginPath();ctx.arc(Ox,Oy,rr,-Wv.b*rr/dp*0+-Wv.b,Wv.b);ctx.stroke()}
+ // wavefront W (bold)
+ ctx.strokeStyle=CL.ink;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(Ox,Oy,dp,-Wv.b,Wv.b);ctx.stroke();
+ const W2=[Ox+dp*Wv.cb,Oy-dp*Wv.sb],W1=[Ox+dp,Oy];
+ line([[Ox,Oy],W2],CL.mute,1.2,[4,4]);line([[Ox,Oy],W1],CL.mute,1.2);
+ [W1,W2].forEach((p,i)=>{ctx.fillStyle=CL.ink;ctx.beginPath();ctx.arc(p[0],p[1],5,0,7);ctx.fill();txt(i?"W₂":"W₁",p[0]+10,p[1]+(i?-10:16),CL.ink,{s:15})});
+ ctx.fillStyle=CL.ink;ctx.beginPath();ctx.arc(Ox,Oy,5,0,7);ctx.fill();txt("O",Ox-14,Oy+16,CL.ink,{s:15,b:1});
+ ctx.strokeStyle=CL.frc;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(Ox,Oy,70,-Wv.b,0);ctx.stroke();txt("β",Ox+82*Math.cos(Wv.b/2),Oy-82*Math.sin(Wv.b/2),CL.frc,{it:1,s:18,al:"center"});
+ txt("d = "+st.dw+" cm",(Ox+xLp)/2,Oy+28,CL.mute,{s:14,al:"center"});txt("R",xLp+14,Oy-Rp/2,CL.acc,{it:1,s:17});
+ txt("レンズを出た波面 W（O 中心・半径 d の球面）",P1.x+14,P1.y+P1.h-14,CL.mute,{s:12});
+ // zoom panel
+ const Z={x:P2.x+60,y:P2.y+44,w:P2.w-90,h:narrow?250:240};const xr=Math.max(Wv.xb*1.8,Math.abs(st.qx*1e-6)*1.15),yr=Math.max(Wv.yb*2.6,Math.abs(st.qy*1e-6)*1.15);
+ const key=[st.lam,st.dw,st.Rw,xr,yr,Z.w,Z.h].join();if(key!==imgKey||!img){imgKey=key;const nx=120,ny=80;const c2=document.createElement("canvas");c2.width=nx;c2.height=ny;const g2=c2.getContext("2d"),id=g2.createImageData(nx,ny);
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const x=-xr+2*xr*(i+.5)/nx,y=yr-2*yr*(j+.5)/ny;const I=intensity(Wv,x,y);const o=(j*nx+i)*4,v=Math.pow(I,0.6);id.data[o]=r*v;id.data[o+1]=g*v;id.data[o+2]=b*v;id.data[o+3]=255}
+  g2.putImageData(id,0,0);img=c2}
+ ctx.imageSmoothingEnabled=true;ctx.drawImage(img,Z.x,Z.y,Z.w,Z.h);ctx.strokeStyle=CL.line;ctx.lineWidth=1;ctx.strokeRect(Z.x,Z.y,Z.w,Z.h);
+ txt("焦点 O のまわりの拡大図（明るさ）",Z.x,Z.y-24,CL.ink,{s:14,b:1});
+ const zx=x=>Z.x+Z.w*(x+xr)/(2*xr),zy=y=>Z.y+Z.h*(yr-y)/(2*yr);
+ line([[zx(0),Z.y],[zx(0),Z.y+Z.h]],"rgba(255,255,255,.5)",1);line([[Z.x,zy(0)],[Z.x+Z.w,zy(0)]],"rgba(255,255,255,.5)",1);
+ // tolerance box
+ ctx.strokeStyle="#fff";ctx.setLineDash([5,4]);ctx.lineWidth=1.3;ctx.strokeRect(zx(-Wv.xb),zy(Wv.yb),zx(Wv.xb)-zx(-Wv.xb),zy(-Wv.yb)-zy(Wv.yb));ctx.setLineDash([]);
+ txt("x [μm]",Z.x+Z.w-4,zy(0)+12,"#fff",{s:11,al:"right"});txt("y [μm]",zx(0)+4,Z.y-8,CL.mute,{s:11});
+ txt((-xr*1e6).toFixed(1),Z.x,Z.y+Z.h+12,CL.mute,{s:11});txt((xr*1e6).toFixed(1),Z.x+Z.w,Z.y+Z.h+12,CL.mute,{s:11,al:"right"});txt((yr*1e6).toFixed(2),Z.x-4,Z.y+6,CL.mute,{s:11,al:"right"});txt((-yr*1e6).toFixed(2),Z.x-4,Z.y+Z.h-6,CL.mute,{s:11,al:"right"});
+ txt("点線の枠：±λ/(2sinβ) と ±λ/{2(1−cosβ)}",Z.x,Z.y+Z.h+30,CL.mute,{s:12});txt("→ レンズの方向",Z.x+Z.w-100,Z.y+14,"#fff",{s:11});
+ // Q
+ const qx=st.qx*1e-6,qy=st.qy*1e-6;const Qp=[zx(qx),zy(qy)];
+ if(q!=="II3"){ctx.fillStyle="#fff";ctx.strokeStyle=CL.frc;ctx.lineWidth=2;ctx.beginPath();ctx.arc(Qp[0],Qp[1],6,0,7);ctx.fill();ctx.stroke();txt("Q",Qp[0]+9,Qp[1]-10,"#fff",{s:15,b:1})}
+ // profile graph
+ const G={x:P2.x+60,y:Z.y+Z.h+(narrow?60:56),w:Z.w,h:narrow?150:110};const alongY=!(q==="II4");
+ line([[G.x,G.y],[G.x,G.y+G.h],[G.x+G.w,G.y+G.h]],CL.mute,1);
+ const rng=alongY?yr:xr;ctx.strokeStyle=`rgb(${r},${g},${b})`;ctx.lineWidth=2.4;ctx.beginPath();
+ for(let i=0;i<=200;i++){const s=-rng+2*rng*i/200;const I=alongY?intensity(Wv,qx,s):intensity(Wv,s,0);const X=G.x+G.w*i/200,Y=G.y+G.h-G.h*I;i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)}ctx.stroke();
+ const lim=alongY?Wv.yb:Wv.xb;[-lim,lim].forEach(s=>{const X=G.x+G.w*(s+rng)/(2*rng);line([[X,G.y],[X,G.y+G.h]],CL.frc,1.2,[4,4])});
+ txt(alongY?"スクリーン上（x = "+st.qx.toFixed(2)+" μm）の y 方向の明るさ":"光軸上（y = 0）の x 方向の明るさ",G.x,G.y-12,CL.ink,{s:13,b:1});
+ txt(alongY?"y":"x",G.x+G.w+8,G.y+G.h,CL.mute,{it:1,s:15});
+ txt(alongY?"±λ/(2sinβ)":"±λ/{2(1−cosβ)}",G.x+G.w*(lim+rng)/(2*rng)+4,G.y+8,CL.frc,{s:12});
+}
+// drag Q on zoom
+cv.addEventListener("pointerdown",e=>{if(!st.q.startsWith("II")||st.q==="II3")return;drag=true;moveQ(e)});
+let drag=false;addEventListener("pointerup",()=>drag=false);cv.addEventListener("pointermove",e=>{if(drag)moveQ(e)});
+function moveQ(e){const rc=cv.getBoundingClientRect(),x=(e.clientX-rc.left)*W/rc.width,y=(e.clientY-rc.top)*H/rc.height;const Wv=wave();
+ const P2=narrow?{x:0,y:340,w:640}:{x:470,y:0,w:530};const Z={x:P2.x+60,y:P2.y+44,w:P2.w-90,h:narrow?250:240};
+ if(x<Z.x||x>Z.x+Z.w||y<Z.y||y>Z.y+Z.h)return;const xr=Math.max(Wv.xb*1.8,Math.abs(st.qx*1e-6)*1.15),yr=Math.max(Wv.yb*2.6,Math.abs(st.qy*1e-6)*1.15);
+ st.qx=Math.max(-8,Math.min(8,(-xr+2*xr*(x-Z.x)/Z.w)*1e6));st.qy=Math.max(-3,Math.min(3,(yr-2*yr*(y-Z.y)/Z.h)*1e6));if(st.q==="II2")st.qx=0;if(st.q==="II4")st.qy=0;syncUI()}
+let last=performance.now();function frame(n){const dt=Math.min(.05,(n-last)/1000);last=n;if(playing)tm+=dt;draw();requestAnimationFrame(frame)}
+setQ("I1",true);resize();requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>回転する導体棒とコンデンサー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:flex;gap:10px;align-items:baseline}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc)}details[open] summary::before{content:"－"}
+summary .ans{margin-left:auto;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>回転する導体棒とコンデンサー（東京大学 2026年 第2問）</h1>
+<p class="lead">鉛直上向きの一様な磁場の中で、円形レールの上を導体棒（長さ <span class="v">l</span>）が回転します。レールと回転軸は抵抗 <span class="v">R</span> を通して、スイッチで直流電源 <span class="v">V</span>（X 側）かコンデンサー <span class="v">C</span>₁（Y 側）につながります。回転する棒が「コンデンサーのようにふるまう」ことを、グラフとエネルギーで確かめましょう。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="円形レール上を回転する導体棒と、抵抗・スイッチ・直流電源・コンデンサーの回路"></canvas>
+<canvas id="gr" role="img" aria-label="角速度と電流の時間変化のグラフ、エネルギーの棒グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I">I 起電力</button>
+<button class="qb" data-q="II1">II(1) 直後のモーメント</button>
+<button class="qb" data-q="II2">II(2) 回る向き</button>
+<button class="qb" data-q="II3">II(3) 最終の角速度</button>
+<button class="qb" data-q="III">III コンデンサーへ</button>
+<button class="qb" data-q="IV1">IV(1) 仮想コンデンサー</button>
+<button class="qb" data-q="IV2">IV(2)(3) 電荷の分配</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div class="row"><span>スイッチ</span><div class="seg" data-k="sw"><button data-v="open">開く</button><button data-v="X">X（電源）</button><button data-v="Y">Y（コンデンサー）</button></div></div>
+<div id="sliders"></div>
+<p class="note">棒は一様な細い棒として、回転軸まわりの慣性モーメントを <span class="v">β</span> = <span class="v">Ml</span>²/3 で計算しています。値は動きが見やすいように選んだ例です（静電容量が数 F と大きいのはそのためです）。</p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。ここでは <span class="v">α</span> = <span class="v">Bl</span>²/2 とします。</p>
+
+<details id="d-I"><summary>I　回転する棒の起電力<span class="ans">答 <span class="v">α</span> = <span class="v">Bl</span>²/2</span></summary><div class="body">
+<h3>棒が横切る面積</h3>
+<p>短い時間 Δ<span class="v">t</span> の間に、棒は角度 <span class="v">ω</span>₁Δ<span class="v">t</span> だけ回ります。棒が通過した部分は半径 <span class="v">l</span>、中心角 <span class="v">ω</span>₁Δ<span class="v">t</span> の扇形なので</p>
+<span class="eq">Δ<span class="v">S</span> = <span class="frac"><span>1</span><span>2</span></span><span class="v">l</span>²·<span class="v">ω</span>₁Δ<span class="v">t</span></span>
+<h3>ファラデーの法則</h3>
+<p>この面を貫く磁束は ΔΦ = <span class="v">B</span>Δ<span class="v">S</span>。単位時間あたりに横切る磁束が起電力なので</p>
+<span class="eq"><span class="v">E</span>₁ = <span class="frac"><span>ΔΦ</span><span>Δ<span class="v">t</span></span></span> = <span class="frac"><span>1</span><span>2</span></span><span class="v">Bl</span>²<span class="v">ω</span>₁　→　<span class="v">α</span> = <span class="frac"><span>1</span><span>2</span></span><span class="v">Bl</span>²</span>
+<h3>別の見方（ローレンツ力）</h3>
+<p>回転軸から <span class="v">r</span> の位置の電荷は速さ <span class="v">rω</span> で動くので、棒に沿って <span class="v">q</span>·<span class="v">rω</span>·<span class="v">B</span> の力を受けます。棒に沿って足し合わせると起電力は <span class="v">B</span><span class="v">ω</span>(0 + <span class="v">l</span>)/2 × <span class="v">l</span> = <span class="v">Bl</span>²<span class="v">ω</span>/2（平均の速さ <span class="v">lω</span>/2 の棒が <span class="v">vBl</span> を生むと考えても同じ）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：青い扇形が直前の短い時間に棒が横切った面積です。<span class="v">ω</span>₁ を2倍にすると扇形も起電力も2倍、<span class="v">l</span> を2倍にすると4倍になります。</div>
+<button class="goto" data-q="I">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　スイッチを X に入れた直後のモーメント<span class="ans">答 <span class="v">Bl</span>²<span class="v">V</span>/(2<span class="v">R</span>)</span></summary><div class="body">
+<p>直後は棒がまだ止まっている（<span class="v">ω</span> = 0）ので、棒の起電力は 0。回路の電流は</p>
+<span class="eq"><span class="v">I</span>₀ = <span class="frac"><span><span class="v">V</span></span><span><span class="v">R</span></span></span></span>
+<p>棒の各部分（長さ Δ<span class="v">x</span>）には同じ大きさの力 <span class="v">I</span>₀<span class="v">B</span>Δ<span class="v">x</span> がはたらきます。力は棒全体に<b>一様に分布</b>しているので、合力 <span class="v">I</span>₀<span class="v">Bl</span> が<b>棒の中点</b>（軸から <span class="v">l</span>/2）にはたらくと考えてよく、</p>
+<span class="eq"><span class="v">N</span> = <span class="frac"><span><span class="v">l</span></span><span>2</span></span>·<span class="v">I</span>₀<span class="v">Bl</span> = <span class="frac"><span><span class="v">Bl</span>²<span class="v">V</span></span><span>2<span class="v">R</span></span></span></span>
+<p>（「太さ一定・密度一様」は重心＝中点を示すための条件ではなく、ここでは力の分布が一様であることがポイントです。積分で書くと ∫₀<sup><span class="v">l</span></sup> <span class="v">x</span>·<span class="v">I</span>₀<span class="v">B</span> d<span class="v">x</span> = <span class="v">I</span>₀<span class="v">Bl</span>²/2。）なお <span class="v">N</span> = <span class="v">αI</span>₀ と書けることにも注目しておきましょう。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：棒に並んだ小さな矢印がどれも同じ長さ（一様な力）で、太い矢印が中点にはたらく合力です。「再生」すると回り始めます。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　回り始める向き<span class="ans">答 上から見て反時計回り（図の（あ）の向き）</span></summary><div class="body">
+<p>電源の正極から出た電流は、抵抗 → 端子 P → レール → 棒（<b>先端から回転軸へ</b>）→ 端子 O と流れます。磁場は紙面の裏から表向き（鉛直上向き）。フレミングの左手の法則（<span class="v">F</span> = <span class="v">IL</span>×<span class="v">B</span>）で、棒は上から見て<b>反時計回り</b>に押されます。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：オレンジの点が電流の流れ、棒の上の赤い矢印が力の向きです。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　十分時間がたった後の角速度<span class="ans">答 <span class="v">ω</span>₂ = <span class="v">V</span>/<span class="v">α</span> = 2<span class="v">V</span>/(<span class="v">Bl</span>²)</span></summary><div class="body">
+<p>棒が回り始めると、I で求めた起電力 <span class="v">αω</span> が<b>電源と逆向き</b>に生じます（逆起電力）。電流は</p>
+<span class="eq"><span class="v">I</span> = <span class="frac"><span><span class="v">V</span> − <span class="v">αω</span></span><span><span class="v">R</span></span></span></span>
+<p>と小さくなり、回転を速める力のモーメント <span class="v">αI</span> も小さくなります。<span class="v">ω</span> が一定になるのはモーメント 0、つまり <span class="v">I</span> = 0 のとき。キルヒホッフの第2法則で</p>
+<span class="eq"><span class="v">V</span> = <span class="v">αω</span>₂　→　<span class="v">ω</span>₂ = <span class="frac"><span><span class="v">V</span></span><span><span class="v">α</span></span></span> = <span class="frac"><span>2<span class="v">V</span></span><span><span class="v">Bl</span>²</span></span></span>
+<p>摩擦がないので、電流 0 になればそのまま一定の角速度で回り続けます。最終の角速度は <span class="v">R</span> や棒の質量によりません（それらは<b>近づく速さ</b>だけを決めます）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：グラフの <span class="v">ω</span> が点線 <span class="v">V</span>/<span class="v">α</span> に近づき、電流 <span class="v">I</span> は 0 に近づきます。<span class="v">R</span> や <span class="v">M</span> を変えても最終値は同じで、近づく速さだけが変わります。エネルギーを見ると、電源がした仕事の<b>ちょうど半分</b>が運動エネルギー、残り半分がジュール熱になっています。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-III"><summary>III　コンデンサー1に切り替えた後のエネルギー<span class="ans">答 <span class="v">C</span>₁<span class="v">α</span>²<span class="v">ω</span>₃²/2</span></summary><div class="body">
+<p>スイッチを Y に切り替えると、回る棒が電池の役目をしてコンデンサー1を充電します。このとき流れる電流は棒の回転を<b>妨げる</b>向きの力を生むので、棒は減速します（レンツの法則）。</p>
+<p>やがて <span class="v">ω</span> が一定（<span class="v">ω</span>₃）になるのは、電流が 0 のとき。抵抗の電圧も 0 なので、コンデンサーの電圧は棒の起電力 <span class="v">αω</span>₃ に等しくなり</p>
+<span class="eq"><span class="v">U</span>₁ = <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₁(<span class="v">αω</span>₃)² = <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₁<span class="v">α</span>²<span class="v">ω</span>₃²　（= <span class="v">C</span>₁<span class="v">B</span>²<span class="v">l</span>⁴<span class="v">ω</span>₃²/8）</span>
+<div class="box"><b>アニメーションで確かめよう</b>：<span class="v">ω</span> が下がっていき、コンデンサーの電圧 <span class="v">αω</span> と <span class="v">q</span>/<span class="v">C</span>₁ が等しくなった所で止まります。<span class="v">C</span>₁ を大きくすると、<span class="v">ω</span>₃ は小さくなります。</div>
+<button class="goto" data-q="III">この状況にする</button>
+</div></details>
+
+<details id="d-IV1"><summary>IV(1)　回る棒＝仮想コンデンサー2<span class="ans">答 <span class="v">Q</span>₂ = <span class="v">βω</span>/<span class="v">α</span>，<span class="v">C</span>₂ = <span class="v">β</span>/<span class="v">α</span>²</span></summary><div class="body">
+<h3>エネルギーで対応させる</h3>
+<p>端子 O–P 間の電圧は棒の起電力 <span class="v">V</span>₂ = <span class="v">αω</span>。運動エネルギーをこの電圧で書き直すと</p>
+<span class="eq"><span class="frac"><span>1</span><span>2</span></span><span class="v">βω</span>² = <span class="frac"><span>1</span><span>2</span></span>·<span class="frac"><span><span class="v">β</span></span><span><span class="v">α</span>²</span></span>·(<span class="v">αω</span>)²</span>
+<p>これを <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₂<span class="v">V</span>₂² と見比べて <span class="v">C</span>₂ = <span class="v">β</span>/<span class="v">α</span>²。電荷は <span class="v">Q</span>₂ = <span class="v">C</span>₂<span class="v">V</span>₂ = <span class="v">βω</span>/<span class="v">α</span>。</p>
+<h3>電流でも対応している</h3>
+<p>棒の回転の運動方程式は <span class="v">β</span><span class="frac"><span>Δ<span class="v">ω</span></span><span>Δ<span class="v">t</span></span></span> = <span class="v">αI</span>。両辺を <span class="v">α</span> で割ると <span class="v">I</span> = Δ(<span class="v">βω</span>/<span class="v">α</span>)/Δ<span class="v">t</span>。つまり<b>流れこんだ電荷の分だけ <span class="v">βω</span>/<span class="v">α</span> が増える</b>ので、<span class="v">Q</span>₂ は「本当に流れこんだ電荷の合計」になっています。だからこの見方が正しく使えるのです。</p>
+<p>（参考：一様な棒なら <span class="v">β</span> = <span class="v">Ml</span>²/3 なので <span class="v">C</span>₂ = 4<span class="v">M</span>/(3<span class="v">B</span>²<span class="v">l</span>²)。重い棒ほど「容量の大きいコンデンサー」です。）</p>
+<div class="box"><b>アニメーションで確かめよう</b>：回路図の棒の部分に「コンデンサー2」の目盛りを重ねて表示しています。<span class="v">ω</span> に比例して <span class="v">Q</span>₂ がたまり、エネルギーの棒グラフで ½<span class="v">βω</span>² と <span class="v">Q</span>₂²/(2<span class="v">C</span>₂) が一致します。</div>
+<button class="goto" data-q="IV1">この状況にする</button>
+</div></details>
+
+<details id="d-IV2"><summary>IV(2)(3)　コンデンサー2つで考える<span class="ans">答 <span class="v">U</span>₁ = <span class="v">C</span>₁<span class="v">C</span>₂²<span class="v">V</span>²/{2(<span class="v">C</span>₁+<span class="v">C</span>₂)²}，<span class="v">ω</span>₃ = <span class="v">C</span>₂<span class="v">V</span>/{<span class="v">α</span>(<span class="v">C</span>₁+<span class="v">C</span>₂)}</span></summary><div class="body">
+<h3>(2) 電荷の分配</h3>
+<p>X 側で十分時間がたつと、コンデンサー2の電圧は <span class="v">V</span>、電荷は <span class="v">C</span>₂<span class="v">V</span>。Y に切り替えると、空のコンデンサー1とつながり、電流が 0 になるまで電荷が移動します。最後は<b>2つの電圧が等しく</b>（<span class="v">v</span> とする）、<b>電荷の和は変わらない</b>ので</p>
+<span class="eq"><span class="v">C</span>₁<span class="v">v</span> + <span class="v">C</span>₂<span class="v">v</span> = <span class="v">C</span>₂<span class="v">V</span>　→　<span class="v">v</span> = <span class="frac"><span><span class="v">C</span>₂<span class="v">V</span></span><span><span class="v">C</span>₁ + <span class="v">C</span>₂</span></span></span>
+<span class="eq"><span class="v">U</span>₁ = <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₁<span class="v">v</span>² = <span class="frac"><span><span class="v">C</span>₁<span class="v">C</span>₂²<span class="v">V</span>²</span><span>2(<span class="v">C</span>₁ + <span class="v">C</span>₂)²</span></span></span>
+<h3>(3) ω₃ を求める</h3>
+<p>コンデンサー2の電圧は棒の起電力 <span class="v">αω</span>₃ なので <span class="v">αω</span>₃ = <span class="v">v</span>。</p>
+<span class="eq"><span class="v">ω</span>₃ = <span class="frac"><span><span class="v">C</span>₂<span class="v">V</span></span><span><span class="v">α</span>(<span class="v">C</span>₁ + <span class="v">C</span>₂)</span></span></span>
+<p>（<span class="v">C</span>₂ = <span class="v">β</span>/<span class="v">α</span>² を代入すると <span class="v">ω</span>₃ = <span class="v">βV</span>/{<span class="v">α</span>(<span class="v">α</span>²<span class="v">C</span>₁ + <span class="v">β</span>)}。これは「角運動量に相当する <span class="v">βω</span> と電荷 <span class="v">αq</span> の和が保存する」ことからも導けます。）</p>
+<h3>エネルギーは減っている</h3>
+<p>切り替え前の <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₂<span class="v">V</span>² と、切り替え後の2つのコンデンサーのエネルギーの和を比べると、差 <span class="frac"><span>1</span><span>2</span></span>·<span class="frac"><span><span class="v">C</span>₁<span class="v">C</span>₂</span><span><span class="v">C</span>₁+<span class="v">C</span>₂</span></span><span class="v">V</span>² がジュール熱として抵抗で失われます（抵抗 <span class="v">R</span> の値によらない）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：このボタンでは X で充電 → 自動で Y に切り替え、までを続けて再生します。グラフの点線は式で予想した <span class="v">ω</span>₂ と <span class="v">ω</span>₃。<span class="v">C</span>₁ = <span class="v">C</span>₂ にすると <span class="v">ω</span>₃ = <span class="v">ω</span>₂/2 になることを確かめてみましょう。</div>
+<button class="goto" data-q="IV2">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const st={q:"I",sw:"open",B:1,l:0.5,M:0.3,R:1,V:1.5,C1:1.0,w1:6,spd:1};
+const SL=[
+ ["B","B","磁束密度","T",0.2,2,0.05,2],
+ ["l","l","棒の長さ（レール半径）","m",0.2,0.8,0.01,2],
+ ["M","M","棒の質量","kg",0.05,1,0.01,2],
+ ["R","R","抵抗","Ω",0.2,5,0.1,1],
+ ["V","V","電源の電圧","V",0.5,3,0.1,1],
+ ["C1","C₁","コンデンサー1","F",0.1,5,0.05,2],
+ ["w1","ω₁","手で回す角速度","rad/s",0,12,0.1,1],
+ ["spd","","再生速度","倍",0.1,1,0.05,2]];
+const SHOW={I:["B","l","w1","spd"],II1:["B","l","R","V","M","spd"],II2:["B","l","R","V","M","spd"],II3:["B","l","R","V","M","spd"],III:["B","l","R","V","M","C1","spd"],IV1:["B","l","R","V","M","spd"],IV2:["B","l","R","V","M","C1","spd"]};
+$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k==="w1"&&st.sw==="open")S.w=st.w1;syncUI()})});
+document.querySelectorAll(".seg").forEach(gp=>gp.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;setSw(b.dataset.v);syncUI()}));
+const S={w:0,q:0,t:0,ang:0.5,heat:0,work:0,hist:[],auto:false,swT:null};
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches,msg="";
+const al=()=>st.B*st.l*st.l/2, be=()=>st.M*st.l*st.l/3;
+function setSw(v){if(v===st.sw)return;st.sw=v;S.auto=false;if(v==="open")S.w=st.w1;S.hist.push({t:S.t,mark:v})}
+function reset(q){S.t=0;S.heat=0;S.work=0;S.hist=[];S.q=0;S.auto=false;S.swT=null;msg="";
+ if(q==="I"){st.sw="open";S.w=st.w1}
+ else if(q==="III"){st.sw="Y";S.w=st.V/al();}
+ else if(q==="IV2"){st.sw="X";S.w=0;S.auto=true}
+ else {st.sw="X";S.w=0}
+ if(q==="II1"){playing=false;msg="スイッチを X に入れた直後（ω = 0）。「再生」で回り始めます。"}
+ syncPlay()}
+function setQ(q,open){st.q=q;reset(q);if(open)document.querySelectorAll("#kaisetsu details").forEach(d=>d.open=d.id==="d-"+q);syncUI()}
+document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.q!=="II1")playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+$("#play").onclick=()=>{playing=!playing;if(playing&&st.q==="II1")msg="";syncPlay()};
+$("#rst").onclick=()=>{reset(st.q);syncUI()};
+function cur(){const a=al();if(st.sw==="open")return 0;const Vs=st.sw==="X"?st.V:S.q/st.C1;return (Vs-a*S.w)/st.R}
+function syncUI(){
+ document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ document.querySelectorAll(".seg").forEach(gp=>gp.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===st[gp.dataset.k]))));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!SHOW[st.q].includes(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ readout()}
+function readout(){const a=al(),b=be(),I=cur(),C2=b/a/a,q=st.q,r=[];
+ r.push(["<span class='v'>α</span> = <span class='v'>Bl</span>²/2",a.toFixed(4)+" V·s"],["角速度 <span class='v'>ω</span>",S.w.toFixed(2)+" rad/s"],["棒の起電力 <span class='v'>αω</span>",(a*S.w).toFixed(3)+" V"]);
+ if(q==="I"){r.push(["<span class='v'>E</span>₁ = <span class='v'>αω</span>₁",(a*st.w1).toFixed(3)+" V"])}
+ else{r.push(["電流 <span class='v'>I</span>（P→レール→棒→O を正）",I.toFixed(3)+" A"],["棒にはたらくモーメント <span class='v'>αI</span>",(a*I).toFixed(4)+" N·m"]);
+  if(q.startsWith("II")||q==="IV1")r.push(["直後のモーメント <span class='v'>Bl</span>²<span class='v'>V</span>/(2<span class='v'>R</span>)",(st.B*st.l*st.l*st.V/2/st.R).toFixed(4)+" N·m"],["<span class='v'>ω</span>₂ = <span class='v'>V</span>/<span class='v'>α</span>",(st.V/a).toFixed(2)+" rad/s"],["近づく速さの目安 <span class='v'>βR</span>/<span class='v'>α</span>²",(b*st.R/a/a).toFixed(2)+" s"]);
+  if(q==="III"||q==="IV2"){const w3=C2*st.V/(a*(st.C1+C2));r.push(["コンデンサー1の電圧 <span class='v'>q</span>/<span class='v'>C</span>₁",(S.q/st.C1).toFixed(3)+" V"],["予想 <span class='v'>ω</span>₃ = <span class='v'>C</span>₂<span class='v'>V</span>/{<span class='v'>α</span>(<span class='v'>C</span>₁+<span class='v'>C</span>₂)}",w3.toFixed(2)+" rad/s"],["予想 <span class='v'>U</span>₁ = <span class='v'>C</span>₁<span class='v'>α</span>²<span class='v'>ω</span>₃²/2",(st.C1*a*a*w3*w3/2).toFixed(3)+" J"],["いまの <span class='v'>U</span>₁ = <span class='v'>q</span>²/(2<span class='v'>C</span>₁)",(S.q*S.q/2/st.C1).toFixed(3)+" J"])}
+  if(q.startsWith("IV")){r.push(["<span class='v'>C</span>₂ = <span class='v'>β</span>/<span class='v'>α</span>²",C2.toFixed(3)+" F"],["<span class='v'>Q</span>₂ = <span class='v'>βω</span>/<span class='v'>α</span>",(b*S.w/a).toFixed(3)+" C"])}
+ }
+ $("#read").innerHTML=r.map(([x,y])=>`<div><span>${x}</span><b>${y}</b></div>`).join("");
+}
+/* ---- simulation ---- */
+function step(dt){const a=al(),b=be(),n=Math.ceil(dt/0.0005),h=dt/n;
+ for(let i=0;i<n;i++){
+  if(st.sw==="open"){S.w=st.w1;}
+  else{const I=cur();S.heat+=I*I*st.R*h;if(st.sw==="X")S.work+=st.V*I*h;else S.q-=I*h;S.w+=a*I/b*h}
+  S.t+=h}
+ S.ang+=S.w*dt;
+ if(S.auto&&st.sw==="X"&&Math.abs(cur())<0.02*st.V/st.R&&S.t>0.5){st.sw="Y";S.auto=false;S.swT=S.t;S.hist.push({t:S.t,mark:"Y"});syncUI()}
+ const last=S.hist[S.hist.length-1];if(!last||S.t-last.t>0.02)S.hist.push({t:S.t,w:S.w,I:cur()});
+}
+/* ---- drawing ---- */
+const cv=$("#cv"),ctx=cv.getContext("2d"),gr=$("#gr"),gx=gr.getContext("2d");
+let W=1000,H=500,K=1,GW=1000,GH=250,GK=1,narrow=false,CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function resize(){const w=cv.parentElement.clientWidth;narrow=w<680;W=narrow?640:1000;H=narrow?560:500;GW=W;GH=narrow?520:250;
+ const d=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*d);cv.height=Math.round(w*H/W*d);cv.style.height=(w*H/W)+"px";K=cv.width/W;
+ gr.width=cv.width;gr.height=Math.round(w*GH/GW*d);gr.style.height=(w*GH/GW)+"px";gr.style.width="100%";gr.style.display="block";GK=gr.width/GW;colors()}
+addEventListener("resize",resize);matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function L(){ // layout
+ if(!narrow)return{rx:780,ry:262,rr:175,top:40,bot:470,bx:100,cx2:230,pv:[165,80],tX:[100,140],tY:[230,140],plate:205,node:330,res:[420,540]};
+ return{rx:470,ry:300,rr:150,top:40,bot:530,bx:70,cx2:180,pv:[125,80],tX:[70,140],tY:[180,140],plate:215,node:340,res:[250,350]}}
+let dots=0;
+function polyLen(p){let s=0;for(let i=1;i<p.length;i++)s+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);return s}
+function at(p,d){for(let i=1;i<p.length;i++){const l=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);if(d<=l){const f=l?d/l:0;return[p[i-1][0]+(p[i][0]-p[i-1][0])*f,p[i-1][1]+(p[i][1]-p[i-1][1])*f]}d-=l}return p[p.length-1]}
+function battery(c2,x,y,lab){line(c2,[[x-22,y],[x+22,y]],CL.ink,3);line(c2,[[x-12,y+12],[x+12,y+12]],CL.ink,5)}
+function cap(c2,x,y){line(c2,[[x-22,y],[x+22,y]],CL.ink,3);line(c2,[[x-22,y+12],[x+22,y+12]],CL.ink,3)}
+function draw(){const want=(cv.parentElement.clientWidth<680);if(want!==narrow||Math.abs(cv.width/K-W)>1)resize();
+ const c=ctx;c.setTransform(K,0,0,K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,W,H);const Y=L(),a=al(),I=cur();
+ const {rx,ry,rr}=Y;
+ // field dots
+ c.fillStyle=CL.acc;c.globalAlpha=.35;for(let x=rx-rr+20;x<rx+rr;x+=44)for(let y=ry-rr+20;y<ry+rr;y+=44){if(Math.hypot(x-rx,y-ry)<rr-12){c.beginPath();c.arc(x,y,6,0,7);c.strokeStyle=CL.acc;c.lineWidth=1.3;c.stroke();c.beginPath();c.arc(x,y,2,0,7);c.fill()}}c.globalAlpha=1;
+ txt(c,"磁場 B（紙面の裏→表）",rx-rr,ry-rr-22,CL.acc,{s:13});
+ // swept sector (I)
+ if(st.q==="I"&&S.w>0){const dA=Math.min(1.2,S.w*0.25);c.fillStyle=CL.soft;c.globalAlpha=1;c.beginPath();c.moveTo(rx,ry);c.arc(rx,ry,rr,-S.ang,-S.ang+dA);c.closePath();c.fillStyle="rgba(47,79,168,.28)";c.fill();txt(c,"ΔS",rx+rr*.6*Math.cos(S.ang-dA/2),ry-rr*.6*Math.sin(S.ang-dA/2),CL.acc,{it:1,s:20,al:"center"})}
+ // rail
+ c.strokeStyle=CL.road;c.lineWidth=10;c.beginPath();c.arc(rx,ry,rr,0,7);c.stroke();
+ // wires
+ const pv=Y.pv,top=Y.top,bot=Y.bot,P=[rx,ry-rr],res=Y.res;
+ line(c,[[pv[0],pv[1]],[pv[0],top],[res[0],top]],CL.ink,2);line(c,[[res[1],top],[rx,top],[rx,ry-rr-5]],CL.ink,2);
+ c.strokeStyle=CL.ink;c.lineWidth=2;c.fillStyle=CL.bg;c.fillRect(res[0],top-12,res[1]-res[0],24);c.strokeRect(res[0],top-12,res[1]-res[0],24);txt(c,"抵抗 R",(res[0]+res[1])/2,top+28,CL.ink,{s:14,al:"center"});
+ // P and O
+ c.fillStyle=CL.ink;c.beginPath();c.arc(P[0],P[1],5,0,7);c.fill();txt(c,"P",P[0]+12,P[1]-14,CL.ink,{s:17,b:1});
+ // axis lead with bridge over rail bottom
+ const yb=ry+rr;line(c,[[rx,ry],[rx,yb-14]],CL.ink,2);c.beginPath();c.arc(rx,yb,14,-Math.PI/2,Math.PI/2);c.strokeStyle=CL.ink;c.stroke();line(c,[[rx,yb+14],[rx,bot],[Y.bx,bot],[Y.bx,Y.node]],CL.ink,2);
+ txt(c,"O",rx+12,bot-14,CL.ink,{s:17,b:1});
+ // sources
+ line(c,[[Y.bx,Y.node],[Y.cx2,Y.node],[Y.cx2,Y.plate+12]],CL.ink,2);line(c,[[Y.bx,Y.node],[Y.bx,Y.plate+12]],CL.ink,2);
+ line(c,[[Y.tX[0],Y.tX[1]],[Y.bx,Y.plate]],CL.ink,2);line(c,[[Y.tY[0],Y.tY[1]],[Y.cx2,Y.plate]],CL.ink,2);
+ battery(c,Y.bx,Y.plate);cap(c,Y.cx2,Y.plate);
+ txt(c,"直流電源 V",Y.bx,Y.plate+40,CL.ink,{s:14,al:"center"});txt(c,"+",Y.bx-34,Y.plate-2,CL.ink,{s:16});
+ txt(c,"コンデンサー1",Y.cx2,Y.plate+40,CL.ink,{s:14,al:"center"});
+ // capacitor charge display
+ if(S.q>1e-6){const qv=Math.min(1,S.q/st.C1/st.V);c.fillStyle=CL.fr;c.fillRect(Y.cx2-22,Y.plate-6-14*qv,44,4);txt(c,"+q",Y.cx2+28,Y.plate-4,CL.fr,{it:1,s:15})}
+ // switch
+ [Y.tX,Y.tY].forEach(p=>{c.fillStyle=CL.ink;c.beginPath();c.arc(p[0],p[1],4,0,7);c.fill()});
+ txt(c,"X",Y.tX[0]-16,Y.tX[1]+2,CL.ink,{s:16,b:1,al:"right"});txt(c,"Y",Y.tY[0]+14,Y.tY[1]+2,CL.ink,{s:16,b:1});
+ const tgt=st.sw==="X"?Y.tX:st.sw==="Y"?Y.tY:[pv[0]+8,pv[1]+50];line(c,[pv,tgt],CL.ink,3);c.fillStyle=CL.ink;c.beginPath();c.arc(pv[0],pv[1],4,0,7);c.fill();txt(c,"スイッチ",pv[0]+12,pv[1]-14,CL.mute,{s:13});
+ // rod
+ const ang=S.ang,tip=[rx+rr*Math.cos(ang),ry-rr*Math.sin(ang)];
+ c.lineCap="round";c.strokeStyle=CL.mute;c.lineWidth=11;c.beginPath();c.moveTo(rx,ry);c.lineTo(tip[0],tip[1]);c.stroke();c.lineCap="butt";
+ c.fillStyle=CL.ink;c.beginPath();c.arc(rx,ry,7,0,7);c.fill();txt(c,"回転軸",rx-14,ry+22,CL.mute,{s:12,al:"right"});
+ // direction labels
+ const la=Math.PI*0.25;c.strokeStyle=CL.mute;c.lineWidth=1.5;c.beginPath();c.arc(rx,ry,rr+28,-la-0.25,-la+0.25);c.stroke();
+ arrow(c,rx+(rr+28)*Math.cos(la-0.2),ry-(rr+28)*Math.sin(la-0.2),rx+(rr+28)*Math.cos(la+0.25),ry-(rr+28)*Math.sin(la+0.25),CL.mute,1.5);
+ txt(c,"（あ）反時計回り",rx+(rr+40)*Math.cos(la+0.3),ry-(rr+40)*Math.sin(la+0.3)-4,CL.mute,{s:12});
+ // emf label as battery-like arrow along rod
+ if(Math.abs(S.w)>0.01){const mx=rx+rr*.72*Math.cos(ang)+26*Math.sin(ang),my=ry-rr*.72*Math.sin(ang)+26*Math.cos(ang);txt(c,"起電力 αω",mx,my,CL.acc,{s:13,al:"center"})}
+ // forces on rod
+ if(Math.abs(I)>1e-4&&st.sw!=="open"){const F=st.B*I,n=6,tx=-Math.sin(ang),ty=-Math.cos(ang),sc=Math.max(-1,Math.min(1,I/(st.V/st.R)));
+  for(let i=1;i<=n;i++){const r=rr*i/(n+0.5),x=rx+r*Math.cos(ang),y=ry-r*Math.sin(ang);arrow(c,x,y,x+tx*28*sc,y+ty*28*sc,CL.frc,2)}
+  const mx=rx+rr*.5*Math.cos(ang),my=ry-rr*.5*Math.sin(ang);arrow(c,mx,my,mx+tx*70*sc,my+ty*70*sc,CL.frc,4.5);txt(c,"合力（中点）",mx+tx*(70*sc+(sc>0?18:-18)),my+ty*(70*sc+(sc>0?18:-18)),CL.frc,{s:12,al:"center"})}
+ // current dots
+ if(st.sw!=="open"){const srcX=st.sw==="X";const path=[];
+  const sx=srcX?Y.bx:Y.cx2;path.push([sx,Y.plate],srcX?Y.tX:Y.tY,pv,[pv[0],top],[rx,top],P);
+  // arc from top (pi/2) to rod angle via shortest
+  let a0=Math.PI/2,a1=((ang%(2*Math.PI))+2*Math.PI)%(2*Math.PI),d=a1-a0;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
+  for(let i=1;i<=16;i++){const aa=a0+d*i/16;path.push([rx+rr*Math.cos(aa),ry-rr*Math.sin(aa)])}
+  path.push([rx,ry],[rx,bot],[Y.bx,bot],[Y.bx,Y.node]);if(!srcX)path.push([Y.cx2,Y.node]);path.push([sx,Y.plate+12]);
+  const len=polyLen(path);dots=(dots+I*40/ (st.V/st.R) *0.6)%28;c.fillStyle=CL.fr;
+  for(let s=((dots%28)+28)%28;s<len;s+=28){const p=at(path,s);c.beginPath();c.arc(p[0],p[1],4.5,0,7);c.fill()}
+  txt(c,"● 電流（向きは P→棒→O を正）",narrow?20:20,H-18,CL.fr,{s:13})}
+ // IV: capacitor-2 overlay
+ if(st.q.startsWith("IV")){const b=be(),C2=b/a/a,Q2=b*S.w/a,Qm=C2*st.V;const bx=narrow?rx+rr-30:rx+rr+20,by=ry+rr-10;
+  const x0=narrow?200:340,y0=narrow?190:170;
+  c.fillStyle=CL.panel;c.fillRect(x0-10,y0-30,narrow?112:175,150);txt(c,"コンデンサー2",x0,y0-14,CL.fic,{s:14,b:1});
+  line(c,[[x0+10,y0+30],[x0+90,y0+30]],CL.fic,3);line(c,[[x0+10,y0+44],[x0+90,y0+44]],CL.fic,3);
+  const f=Math.max(0,Math.min(1.1,Q2/Qm));c.fillStyle=CL.fic;c.fillRect(x0+10,y0+30-4-30*f,80,30*f);
+  txt(c,"Q₂ = βω/α",x0,y0+66,CL.fic,{it:1,s:16});txt(c,"電圧 = αω",x0,y0+88,CL.fic,{s:14})}
+ if(msg)txt(c,msg,20,H-44,CL.ng,{s:14,b:1});
+ if(st.sw==="open"&&st.q==="I")txt(c,"スイッチは開いたまま、棒を手で一定の角速度 ω₁ で回す",20,H-18,CL.mute,{s:13});
+ drawGraph()}
+function drawGraph(){const c=gx;c.setTransform(GK,0,0,GK,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,GW,GH);
+ const a=al(),b=be(),C2=b/a/a,w2=st.V/a,w3=C2*st.V/(a*(st.C1+C2));
+ const G1=narrow?{x:56,y:24,w:GW-80,h:150}:{x:60,y:24,w:520,h:90},G2=narrow?{x:56,y:210,w:GW-80,h:100}:{x:60,y:142,w:520,h:80};
+ const hist=S.hist.filter(h=>h.w!==undefined),tmax=Math.max(4,S.t*1.05),wmax=Math.max(w2,st.w1,S.w)*1.15||1,Imax=st.V/st.R*1.1;
+ [G1,G2].forEach((G,i)=>{line(c,[[G.x,G.y],[G.x,G.y+G.h],[G.x+G.w,G.y+G.h]],CL.mute,1.2);txt(c,"t",G.x+G.w+8,G.y+G.h,CL.mute,{it:1,s:16})});
+ txt(c,"ω",G1.x-30,G1.y+8,CL.ink,{it:1,s:18});txt(c,"I",G2.x-30,G2.y+8,CL.fr,{it:1,s:18});
+ const X=t=>t/tmax;
+ if(st.q!=="I"){const y2=G1.y+G1.h-G1.h*w2/wmax;line(c,[[G1.x,y2],[G1.x+G1.w,y2]],CL.mute,1,[5,4]);txt(c,"ω₂ = V/α",G1.x+G1.w-4,y2-9,CL.mute,{s:12,al:"right"});
+  if(st.q==="III"||st.q==="IV2"){const y3=G1.y+G1.h-G1.h*w3/wmax;line(c,[[G1.x,y3],[G1.x+G1.w,y3]],CL.fic,1,[5,4]);txt(c,"ω₃（予想）",G1.x+G1.w-4,y3+10,CL.fic,{s:12,al:"right"})}}
+ const yz=G2.y+G2.h/2;line(c,[[G2.x,yz],[G2.x+G2.w,yz]],CL.line,1);
+ c.strokeStyle=CL.ink;c.lineWidth=2.2;c.beginPath();hist.forEach((h,i)=>{const x=G1.x+G1.w*X(h.t),y=G1.y+G1.h-G1.h*h.w/wmax;i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();
+ c.strokeStyle=CL.fr;c.beginPath();hist.forEach((h,i)=>{const x=G2.x+G2.w*X(h.t),y=yz-(G2.h/2)*h.I/Imax;i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();
+ S.hist.filter(h=>h.mark).forEach(h=>{const x=G1.x+G1.w*X(h.t);line(c,[[x,G1.y],[x,G2.y+G2.h]],CL.acc,1,[3,3]);txt(c,"→"+h.mark,x+3,G1.y+6,CL.acc,{s:12})});
+ // energy bars
+ const E=[["運動エネルギー ½βω²",b*S.w*S.w/2,CL.ink],["コンデンサー1 q²/2C₁",S.q*S.q/2/st.C1,CL.fic],["ジュール熱（累計）",S.heat,CL.fr],["電源がした仕事（累計）",S.work,CL.acc]];
+ const ex=narrow?20:640,ey=narrow?340:24,ew=narrow?GW-200:200,emax=Math.max(b*w2*w2,...E.map(e=>e[1]),1e-6)*1.05;
+ txt(c,"エネルギー [J]",ex,ey,CL.mute,{s:13});
+ E.forEach(([l,v,col],i)=>{const y=ey+18+i*42;txt(c,l,ex,y+6,CL.ink,{s:13});c.fillStyle=col;c.fillRect(ex,y+16,ew*v/emax,14);txt(c,v.toFixed(3),ex+ew*v/emax+6,y+23,CL.ink,{s:12})});
+}
+let lastT=performance.now(),acc=0;
+function frame(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.15){acc=0;readout()}}draw();requestAnimationFrame(frame)}
+setQ("I",true);resize();requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>
