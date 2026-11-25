@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>原子核の分裂と電場中の転回軌道</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>原子核の分裂と電場中の転回軌道（東京大学 2023年 第1問）</h1>
+<p class="lead">磁場で<b>特定の運動エネルギーの原子核だけを選び出す</b>しくみ、静止した原子核の<b>分裂</b>（運動量保存とエネルギー保存）、そして一様な電場の中を進みながら分裂した原子核のかけらが<b>折り返して</b>検出器に届く条件を、軌道のアニメーションとグラフで確かめます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="原子核の軌道のアニメーション"></canvas>
+<canvas id="gr" role="img" aria-label="設問ごとのグラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 小窓を通る X</button>
+<button class="qb" data-q="I2">I(2) 分裂前に集める</button>
+<button class="qb" data-q="I3">I(3) 静止した X の分裂</button>
+<button class="qb" data-q="II1">II(1) 転回軌道の条件</button>
+<button class="qb" data-q="II2">II(2) x 軸上で検出</button>
+<button class="qb" data-q="II3">II(3) 半減期とエネルギー分布</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。X は質量 \(4m\)・電気量 \(2q\)、A は質量 \(m\)・電気量 \(q\)、B は質量 \(3m\)・電気量 \(q\) です。</p>
+
+<details id="d-I1"><summary>I(1)　小窓から集められる X の運動エネルギー<span class="ans">答 \(\dfrac{q^2a^2B^2}{8m}\)</span></summary><div class="body">
+<h3>「壁に垂直に小窓へ入る」＝ 直径 a の半円</h3>
+<p>磁場の中の荷電粒子は、速さを変えずに円運動します。原点を出て x 軸上の小窓に<b>垂直に</b>入るには、円の中心が x 軸上にあり、原点と小窓が円の直径の両端になっていなければなりません。つまり X は原点から \(+y\) 向きに飛び出し、半径 \(\dfrac a2\) の半円を描きます。</p>
+<h3>円運動の運動方程式を立てる</h3>
+<p>向心方向の運動方程式「質量 × \(\dfrac{v^2}{r}\) ＝ 中心向きの力」に、ローレンツ力 \(2qvB\) を入れます。</p>
+$$4m\frac{v^2}{a/2} = 2qvB\qquad\therefore\quad v = \frac{qaB}{4m}$$
+$$K = \frac12\cdot4m\,v^2 = \frac{q^2a^2B^2}{8m}$$
+<div class="box"><b>式の立て方</b>：磁場中の円運動は \(\dfrac{Mv^2}{r} = QvB\)、つまり \(r = \dfrac{Mv}{QB}\)（半径は<b>運動量に比例</b>）の1本で決まります。半径が装置の形（ここでは小窓までの距離）で決まれば、速さ・運動エネルギーが逆算できます。質量分析器や速度選別器も同じ考え方です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：いろいろな速さ・向きの X が飛び出しますが、小窓を抜ける（緑）のは \(+y\) 向きに出て半径 \(a/2\) の半円を描いたものだけです。\(B\) を大きくすると、通り抜ける X の速さ（運動エネルギー）が大きくなります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　分裂前に小窓を通る割合を f 以上にする B の下限<span class="ans">答 \(B \geqq \dfrac{2\pi m}{qT\log_{\frac12}f}\)</span></summary><div class="body">
+<h3>小窓までにかかる時間は速さによらない</h3>
+<p>半円を進む時間は周期の半分です。半径 \(r=\dfrac{Mv}{QB}\) と速さ \(v\) から</p>
+$$\tau = \frac{\pi r}{v} = \frac{\pi\cdot 4m}{2qB} = \frac{2\pi m}{qB}$$
+<p>速さが消えて、\(B\) だけで決まります（周期 \(\dfrac{2\pi M}{QB}\) は速さによらない）。</p>
+<h3>半減期の式で「残る割合」を書く</h3>
+<p>時間 \(t\) の間に分裂しないで残る割合は \(\left(\dfrac12\right)^{t/T}\)。これが \(f\) 以上なので</p>
+$$\left(\frac12\right)^{\tau/T} \geqq f\quad\Longleftrightarrow\quad \frac{\tau}{T} \leqq \log_{\frac12}f\quad\Longleftrightarrow\quad B \geqq \frac{2\pi m}{qT\log_{\frac12}f}$$
+<p>\(0&lt;f&lt;1\) なので \(\log_{\frac12}f &gt; 0\) です。底が \(\dfrac12\)（1より小さい）の対数をとると不等号の向きが変わる点に注意します。</p>
+<div class="box"><b>式の立て方</b>：「割合」が出てきたら \(\left(\frac12\right)^{t/T}\)、時間は運動の方程式から出す、の2段階です。磁場を強くすると軌道が小さくなって早く着くので、分裂する前に集められます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：飛んでいる途中で分裂した X は赤い印で止まります。下のグラフは「残る割合」と \(B\) の関係で、横線 \(f\) を上回る \(B\) の範囲が答えです。\(T\) を短くすると必要な \(B\) が大きくなります。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　静止した X が分裂したときの v<sub>A</sub>, v<sub>B</sub><span class="ans">答 \(v_A = \sqrt{\dfrac{3\Delta m}{2m}}\,c,\quad v_B = \sqrt{\dfrac{\Delta m}{6m}}\,c\)</span></summary><div class="body">
+<h3>運動量保存とエネルギー保存の2本</h3>
+<p>はじめ静止しているので運動量の和は 0。質量欠損のエネルギー \(\Delta m\,c^2\) がすべて運動エネルギーになります。</p>
+$$m v_A - 3m v_B = 0,\qquad \frac12 m v_A^{\,2} + \frac12\cdot 3m\,v_B^{\,2} = \Delta m\,c^2$$
+<p>1本目から \(v_B = \dfrac{v_A}{3}\)。2本目に入れると \(\dfrac12 mv_A^{\,2}\cdot\dfrac43 = \Delta mc^2\) より</p>
+$$v_A = \sqrt{\frac{3\Delta m}{2m}}\,c,\qquad v_B = \frac{v_A}{3} = \sqrt{\frac{\Delta m}{6m}}\,c$$
+<div class="box"><b>式の立て方</b>：静止した物体が2つに分かれるとき、運動量の大きさは等しく \(p\)。運動エネルギーは \(\dfrac{p^2}{2M}\) なので<b>質量の逆比</b>（ここでは A : B ＝ 3 : 1）に分かれます。原子核の崩壊でも、ばねで押し合う2物体でも同じです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：運動量の矢印は同じ長さ、速さは 3 : 1。下の棒グラフで \(\Delta mc^2\) が 3 : 1 に配分されることが確かめられます。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　転回軌道に入って検出器に届く条件（ア〜カ）<span class="ans">答 ア \(\sqrt{\dfrac{2x_0}{L}}\)　イ \(\dfrac{\alpha L}{v_A}\)　ウ \(-\alpha\)　エ \(\dfrac L2\)　オ \(-(1+\sqrt2)\alpha\)　カ \(\dfrac{3-2\sqrt2}{2}L\)</span></summary><div class="body">
+<h3>ア・イ：X の等加速度運動</h3>
+<p>X の加速度は \(\dfrac{2qE}{4m} = \dfrac{v_A^{\,2}}{L}\)（\(E = \dfrac{2mv_A^{\,2}}{qL}\) を代入）。エネルギーで速さを、運動量の変化（または \(v = at\)）で時間を出します。</p>
+$$\frac12\cdot4m(\alpha v_A)^2 = 2qE\,x_0\ \Rightarrow\ \alpha = \sqrt{\frac{2x_0}{L}},\qquad t_0 = \frac{\alpha v_A}{v_A^{\,2}/L} = \frac{\alpha L}{v_A}$$
+<h3>ウ・エ：速度の合成で「後ろ向き」かどうかを判定</h3>
+<p>X 静止系での A の速度に、X の速度 \(\alpha v_A\) を足したものが床（検出器）から見た速度です。x 成分は</p>
+$$u = v_A\cos\theta_0 + \alpha v_A$$
+<p>転回するには \(u&lt;0\)、つまり \(\cos\theta_0 &lt; -\alpha\)（ウ）。\(\cos\theta_0 \geqq -1\) なので、\(\alpha\geqq1\)、すなわち \(x_0 \geqq \dfrac L2\) では転回する向きがありません（エ）。</p>
+<h3>オ・カ：戻れる距離と x₀ を比べる</h3>
+<p>A の加速度は \(\dfrac{qE}{m} = \dfrac{2v_A^{\,2}}{L}\)（\(+x\) 向き）。初速度 \(u&lt;0\) で後ろに進める距離は \(\dfrac{u^2}{2\cdot 2v_A^{\,2}/L}\) で、これが \(x_0 = \dfrac{\alpha^2L}{2}\) より小さければ \(x&lt;0\) に入りません：</p>
+$$\frac{u^2L}{4v_A^{\,2}} &lt; \frac{\alpha^2 L}{2}\ \Leftrightarrow\ |u| &lt; \sqrt2\,\alpha v_A\ \Leftrightarrow\ \cos\theta_0 &gt; -(1+\sqrt2)\alpha$$
+<p>どの \(\theta_0\) でも満たすには \(-(1+\sqrt2)\alpha &lt; -1\)、つまり \(\alpha &gt; \sqrt2-1\)。\(x_0 = \dfrac{\alpha^2L}{2}\) に直して \(x_0 &gt; \dfrac{(\sqrt2-1)^2}{2}L = \dfrac{3-2\sqrt2}{2}L\)（カ）。</p>
+<div class="box"><b>式の立て方</b>：①乗りかえた系の速度に、その系の速度を足す（速度の合成）。②一様な力の中の運動は、その力の向きだけ等加速度、垂直な向きは等速。③「届くか届かないか」は \(v^2 = 2ax\)（またはエネルギー）で、進める距離と実際の距離を比べる。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：上の図の細い線は、いろいろな \(\theta_0\) で出た A の軌道です（青：そのまま前へ、緑：転回して検出器へ、赤：\(x&lt;0\) へ逃げる）。下のグラフは \((x_0,\ \cos\theta_0)\) 平面での条件で、境界線が \(\cos\theta_0 = -\alpha\) と \(\cos\theta_0 = -(1+\sqrt2)\alpha\) です。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　x 軸上で検出される A の運動エネルギーの範囲<span class="ans">答 \(\dfrac{3-2\sqrt2}{2}mv_A^{\,2} &lt; K \leqq 2mv_A^{\,2}\)、\(\dfrac52 mv_A^{\,2} \leqq K \leqq 3mv_A^{\,2}\)</span></summary><div class="body">
+<h3>x 軸上に届くのは θ₀ = 0 か π だけ</h3>
+<p>電場は x 向きなので y 方向は等速です。x 軸上に届くには y 方向の速度が 0、つまり \(\theta_0 = 0\)（前向き）か \(\pi\)（後ろ向き）です。</p>
+<h3>エネルギー保存：はじめの運動エネルギー ＋ 電場がした仕事</h3>
+<p>電場が A にする仕事は \(qE(L - x_0) = mv_A^{\,2}(2-\alpha^2)\)。分裂直後の速さは \((\alpha\pm1)v_A\) なので</p>
+$$K_\pm = \frac12m(\alpha\pm1)^2v_A^{\,2} + mv_A^{\,2}(2-\alpha^2) = \frac12mv_A^{\,2}\left\{6-(\alpha\mp1)^2\right\}$$
+<p>\(K_+\)（前向き）は \(0\leqq\alpha&lt;\sqrt2\) で \(\dfrac52mv_A^{\,2}\leqq K_+\leqq 3mv_A^{\,2}\)（\(\alpha=1\) で最大）。\(K_-\)（後ろ向き）は \(x&lt;0\) に入らない \(\sqrt2-1\leqq\alpha&lt;\sqrt2\) で \(\dfrac{3-2\sqrt2}{2}mv_A^{\,2} &lt; K_- \leqq 2mv_A^{\,2}\)。</p>
+<div class="box"><b>式の立て方</b>：途中の軌道が複雑でも、<b>一様な電場がする仕事は「電気量 × 電場 × x 方向の移動距離」</b>だけで決まります。最後の運動エネルギーは「最初 ＋ 仕事」。あとは文字 \(\alpha\) の2次関数の値域の問題です（\(\alpha\) の範囲に注意）。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(x_0\) を動かすと、前向き（青）と後ろ向き（赤）の A のエネルギーが下のグラフ上を動きます。\(x_0\) が小さいと後ろ向きの A は \(x&lt;0\) に逃げてしまいます。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　運動エネルギーが mv<sub>A</sub>² より小さい A が多いのは？<span class="ans">答 半減期 \(T\) が \(\dfrac{L}{v_A}\) よりはるかに長い場合</span></summary><div class="body">
+<h3>どこで分裂すると K が小さくなるか</h3>
+<p>任意の向き \(\theta_0\) で出た A の検出器での運動エネルギーは、(2) と同じく「はじめ ＋ 仕事」で</p>
+$$K = \frac12 m v_A^{\,2}(1+\alpha^2+2\alpha\cos\theta_0) + mv_A^{\,2}(2-\alpha^2) = mv_A^{\,2}\left(\frac52 - \frac{\alpha^2}{2} + \alpha\cos\theta_0\right)$$
+<p>\(K &lt; mv_A^{\,2}\) になるのは \(\cos\theta_0 &lt; \dfrac{\alpha^2-3}{2\alpha}\) のときで、右辺が \(-1\) より大きいこと、つまり \(\alpha&gt;1\)（\(x_0 &gt; \dfrac L2\)）が必要です。<b>後半で、後ろ向きに出た A だけ</b>がこうなります。</p>
+<h3>半減期が短いと、ほとんど原点の近くで分裂する</h3>
+<p>\(T \ll \dfrac{L}{v_A}\) だと X は動き出してすぐに分裂し、\(x_0 &gt; \dfrac L2\) まで進むものはほとんどありません。\(T \gg \dfrac{L}{v_A}\) だと分裂の時刻は飛行中ほぼ一様にばらつき、\(x_0 &gt; \dfrac L2\) で分裂するものが一定の割合で出てきます。よって<b>半減期が長い場合</b>の方が多くなります。</p>
+<div class="box"><b>式の立て方</b>：「割合を比べる」問題は、まず「条件を満たすのはどの場合か」を式で絞り込みます（ここでは \(\alpha&gt;1\)）。そのあとで「その場合がどれくらい起こるか」を半減期で考えると、計算せずに結論が出せます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：X を次々と入れて、検出された A のエネルギーの分布（ヒストグラム）をためていきます。赤い部分が \(K&lt;mv_A^{\,2}\)。\(T\) を変えると右のグラフ上の点が動き、\(T\) が長いほど割合が大きくなることが分かります。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+const st={q:"I1",B:1,Th:6,f:0.5,dm:1,x0:0.3,th:150,Tr:1,spd:1};
+const SL=[
+ ["B","B","磁束密度","",0.4,2.5,0.05,2,"I1 I2"],
+ ["Th","T","X の半減期","",1,30,0.5,1,"I2"],
+ ["f","f","集めたい割合","",0.1,0.95,0.05,2,"I2"],
+ ["dm","Δm/m","質量欠損の割合","×10⁻³",0.2,5,0.1,1,"I3"],
+ ["x0","x₀","分裂地点（L を 1）","",0,0.99,0.01,2,"II1 II2"],
+ ["th","θ₀","X 静止系での A の向き","°",0,360,1,0,"II1"],
+ ["Tr","T","半減期（L/v_A を 1）","",0.03,30,0.01,2,"II3"],
+ ["spd","","再生速度","倍",0.25,2,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>part()==="I"?(n?[640,520]:[1000,420]):(n?[640,640]:[1000,430]));
+const gr=mkCv($("#gr"),n=>n?[640,st.q==="II3"?660:380]:[1000,300]);
+const R2=Math.SQRT2,KAP=(3-2*R2)/2;
+let S={},P=[],stat={},hist=[],histN=0;
+function onParam(k){if(k==="Tr"||k==="Th"||k==="B"||k==="f")resetStats();if(part()!=="I")restart()}
+function resetStats(){stat={pass:0,dec:0,det:0,low:0};hist=new Array(32).fill(0);histN=0;P=[]}
+function restart(){S={t:0,sp:0,wait:0};resetStats()}
+/* ---------- part I ---------- */
+const om=()=>st.B/2;            // X: charge 2, mass 4
+const v0=()=>st.B/4;            // q a B/(4m)
+const tauI=()=>2*Math.PI/st.B;  // half period
+function mkX(phi,v){const R=2*v/st.B,cx=R*Math.sin(phi),cy=-R*Math.cos(phi),beta=Math.atan2(-cy,-cx),tl=2*phi/om(),xl=2*R*Math.sin(phi);
+ const pass=Math.abs(xl-1)<0.03&&Math.abs(phi-Math.PI/2)<0.05;return{phi,v,R,cx,cy,beta,tl,xl,pass,t:0,td:Infinity,done:false}}
+function posX(p,t){if(t<=p.tl){const a=p.beta-om()*t;return[p.cx+p.R*Math.cos(a),p.cy+p.R*Math.sin(a)]}
+ if(p.pass)return[p.xl+Math.cos(p.phi)*p.v*(t-p.tl),-Math.sin(p.phi)*p.v*(t-p.tl)];return[p.xl,0]}
+function stepI(dt){const rate=tauI()/2.6,ds=dt*rate;S.t+=ds;S.sp+=dt;
+ if(st.q==="I1"&&S.sp>0.22){S.sp=0;const r=Math.random();let p;if(r<0.18)p=mkX(Math.PI/2,v0());else if(r<0.45)p=mkX(Math.PI/2,v0()*(0.45+Math.random()*1.0));else p=mkX(0.15+Math.random()*(Math.PI-0.3),v0()*(0.4+Math.random()*1.1));P.push(p)}
+ if(st.q==="I2"&&S.sp>0.3){S.sp=0;const p=mkX(Math.PI/2,v0());p.td=-st.Th*Math.log(Math.random())/Math.LN2;P.push(p)}
+ if(st.q==="I3"){return}
+ P.forEach(p=>{p.t+=ds;if(!p.done){if(p.td<p.tl&&p.t>=p.td){p.done=true;stat.dec++}else if(p.t>=p.tl){p.done=true;if(p.pass)stat.pass++}}});
+ P=P.filter(p=>p.t<p.tl+tauI()*0.6).slice(-70)}
+function drawI(){const c=begin(cv),W=cv.W,H=cv.H,q=st.q;
+ if(q==="I3")return drawI3(c,W,H);
+ const v=view({x:24,y:30,w:W-48,h:H-50},[-0.22,1.32],[-0.22,0.8]),X=v.X,Y=v.Y;
+ // B field dots
+ for(let gx=-0.1;gx<=1.3;gx+=0.2)for(let gy=0.1;gy<=0.75;gy+=0.2){dot(c,X(gx),Y(gy),5,null,CL.line,1.2);dot(c,X(gx),Y(gy),1.6,CL.line)}
+ txt(c,"磁場 B（紙面の裏 → 表）",X(1.3),Y(0.77),CL.mute,{s:12,al:"right"});
+ // axes & wall
+ line(c,[[X(0),Y(-0.2)],[X(0),Y(0.78)]],CL.mute,1.2);txt(c,"y",X(0)+8,Y(0.76),CL.ink,{it:1,s:15});
+ const wy=Y(0),wh=v.s*0.1;rect(c,X(0.03),wy,X(0.975)-X(0.03),wh,CL.panel,CL.mute);rect(c,X(1.025),wy,X(1.32)-X(1.025),wh,CL.panel,CL.mute);
+ for(let hx=0.06;hx<0.97;hx+=0.04)line(c,[[X(hx),wy+wh],[X(hx+0.03),wy]],CL.line,1);for(let hx=1.05;hx<1.3;hx+=0.04)line(c,[[X(hx),wy+wh],[X(hx+0.03),wy]],CL.line,1);
+ txt(c,"壁",X(0.5),wy+wh/2,CL.mute,{s:13,al:"center"});txt(c,"小窓",X(1.1),wy+wh+12,CL.ink,{s:12,al:"center"});
+ rect(c,X(-0.05),wy-4,X(0.03)-X(-0.05),8,CL.mute);txt(c,"標的",X(-0.06),wy+14,CL.mute,{s:12,al:"right"});
+ line(c,[[X(0),Y(-0.16)],[X(1),Y(-0.16)]],CL.mute,1,[3,3]);line(c,[[X(1),Y(-0.1)],[X(1),Y(-0.2)]],CL.mute,1);txt(c,"a",X(0.5),Y(-0.16)+12,CL.ink,{it:1,s:14,al:"center"});
+ // ideal path
+ const pts=[];for(let i=0;i<=60;i++){const a=Math.PI-Math.PI*i/60;pts.push([X(0.5+0.5*Math.cos(a)),Y(0.5*Math.sin(a))])}line(c,pts,CL.ok,1.2,[5,4]);
+ // particles
+ P.forEach(p=>{const tt=Math.min(p.t,p.done&&!p.pass?Math.min(p.tl,p.td):p.t);const tr=[];const n=40,tm=Math.min(tt,p.tl);for(let i=0;i<=n;i++){const pp=posX(p,tm*i/n);tr.push([X(pp[0]),Y(pp[1])])}if(p.pass&&tt>p.tl){const pp=posX(p,tt);tr.push([X(pp[0]),Y(pp[1])])}
+  const dec=p.td<p.tl&&p.t>=p.td,col=dec?CL.frc:p.pass?CL.ok:CL.acc,fade=p.done&&!p.pass&&!dec?0.35:1;c.globalAlpha=fade;line(c,tr,col,1.6);const e=tr[tr.length-1];
+  if(dec){c.globalAlpha=1;for(let k=0;k<8;k++){const a=k*Math.PI/4;line(c,[[e[0]+4*Math.cos(a),e[1]+4*Math.sin(a)],[e[0]+10*Math.cos(a),e[1]+10*Math.sin(a)]],CL.frc,2)}}else dot(c,e[0],e[1],p.pass?6:4.5,col);c.globalAlpha=1});
+ txt(c,q==="I1"?"緑：小窓を通った X　青：壁に当たった X":"赤：小窓に着く前に分裂した X　緑：通った X",16,18,CL.ink,{s:13,b:1})}
+function drawI3(c,W,H){const t=S.t,dm=st.dm*1e-3,vA=Math.sqrt(1.5*dm),cx=W/2,cy=H/2,sc=Math.min(W,H)*0.17;
+ const tt=Math.max(0,t-0.8)%3.2,lam=t<0.8?0:Math.min(tt,2.4)/2.4;
+ txt(c,"静止した X が A と B に分裂（静止系）",16,20,CL.ink,{s:13,b:1});
+ if(t<0.8){dot(c,cx,cy,26,CL.panel,CL.ink,2);txt(c,"X",cx,cy,CL.ink,{s:16,b:1,al:"center"});txt(c,"4m, 2q",cx+34,cy,CL.mute,{s:13,it:1});return}
+ const yA=cy-sc*2.4*lam,yB=cy+sc*0.8*lam;
+ dot(c,cx,yA,13,CL.panel,CL.acc,2.2);txt(c,"A",cx,yA,CL.acc,{s:14,b:1,al:"center"});dot(c,cx,yB,22,CL.panel,CL.frc,2.2);txt(c,"B",cx,yB,CL.frc,{s:15,b:1,al:"center"});
+ arrow(c,cx+40,yA,cx+40,yA-sc*1.2,CL.acc,3);txt(c,"速さ v_A（3）",cx+50,yA-sc*0.6,CL.acc,{s:13});
+ arrow(c,cx+40,yB,cx+40,yB+sc*0.4,CL.frc,3);txt(c,"速さ v_B（1）",cx+50,yB+sc*0.2+8,CL.frc,{s:13});
+ arrow(c,cx-50,yA,cx-50,yA-sc*0.9,CL.fic,4);txt(c,"運動量 mv_A",cx-58,yA-sc*0.45,CL.fic,{s:13,al:"right"});
+ arrow(c,cx-50,yB,cx-50,yB+sc*0.9,CL.fic,4);txt(c,"運動量 3mv_B",cx-58,yB+sc*0.45,CL.fic,{s:13,al:"right"});
+ txt(c,"同じ大きさ",cx-58,cy,CL.fic,{s:12,al:"right"});
+ txt(c,`v_A = ${(vA).toExponential(2)} c`,W-16,H-40,CL.ink,{s:13,al:"right"});txt(c,`v_B = ${(vA/3).toExponential(2)} c`,W-16,H-20,CL.ink,{s:13,al:"right"})}
+function graphI(){const c=begin(gr),W=gr.W,H=gr.H,q=st.q,G={x:80,y:40,w:W-140,h:H-90};
+ if(q==="I1"){const Bm=2.6,{X,Y}=axes(c,G,[0,Bm],[0,Bm*Bm/8*1.1],{xl:"B",yl:"K",title:"小窓を通る X の運動エネルギー K = q²a²B²/(8m)",xt:[[1,"1"],[2,"2"]]});
+  line(c,Array.from({length:61},(_,i)=>{const b=Bm*i/60;return[X(b),Y(b*b/8)]}),CL.acc,2.4);const b=st.B;dot(c,X(b),Y(b*b/8),6,CL.frc);txt(c,`K = ${(b*b/8).toFixed(3)}`,X(b)+10,Y(b*b/8)-10,CL.frc,{s:13});txt(c,"B が 2 倍 → K は 4 倍",G.x+10,G.y+10,CL.mute,{s:12})}
+ else if(q==="I2"){const{X,Y}=axes(c,G,[0,2.6],[0,1],{xl:"B",yl:"残る割合",yit:false,title:"小窓に着くまで分裂しない割合 (1/2)^(τ/T)，τ = 2πm/(qB)",xt:[[1,"1"],[2,"2"]],yt:[[0.5,"0.5"],[1,"1"]]});
+  const fr=b=>Math.pow(0.5,2*Math.PI/b/st.Th);line(c,Array.from({length:101},(_,i)=>{const b=0.02+2.58*i/100;return[X(b),Y(fr(b))]}),CL.acc,2.4);
+  line(c,[[X(0),Y(st.f)],[X(2.6),Y(st.f)]],CL.ok,1.4,[5,4]);txt(c,"f",X(2.6)+6,Y(st.f),CL.ok,{it:1,s:14});
+  const bm=2*Math.PI/(st.Th*Math.log2(1/st.f));if(bm<2.6){rect(c,X(bm),G.y,X(2.6)-X(bm),G.h,alpha(CL.ok,0.08));line(c,[[X(bm),G.y],[X(bm),G.y+G.h]],CL.ok,1.6);txt(c,"B の下限",X(bm)+4,G.y+12,CL.ok,{s:12})}
+  dot(c,X(st.B),Y(fr(st.B)),6,CL.frc)}
+ else{const dm=st.dm,tot=1;const B0={x:G.x,y:G.y+20,w:G.w,h:40};txt(c,"Δmc² の配分（静止した X の分裂）",G.x,G.y,CL.ink,{s:13});
+  rect(c,B0.x,B0.y,B0.w*0.75,B0.h,alpha(CL.acc,0.25),CL.acc);rect(c,B0.x+B0.w*0.75,B0.y,B0.w*0.25,B0.h,alpha(CL.frc,0.25),CL.frc);
+  txt(c,"A の運動エネルギー 3/4",B0.x+B0.w*0.375,B0.y+B0.h/2,CL.ink,{s:13,al:"center"});txt(c,"B 1/4",B0.x+B0.w*0.875,B0.y+B0.h/2,CL.ink,{s:13,al:"center"});
+  txt(c,"運動量の大きさが等しい → K = p²/(2M) は質量の逆比 3m : m の逆 = 3 : 1",G.x,B0.y+B0.h+30,CL.mute,{s:13})}}
+/* ---------- part II ---------- */
+// units: L=1, vA=1, m=1. X accel 1, A accel 2, B accel 2/3.
+function traj(x0,ux,uy,a){// x=x0+ux s+a/2 s^2, y=uy s
+ let fate="direct",sEnd,sBack=null;if(ux<0)fate="turn";
+ const disc=ux*ux-2*a*x0;if(ux<0&&disc>0){fate="lost";sBack=(-ux-Math.sqrt(disc))/a}
+ sEnd=fate==="lost"?sBack:(-ux+Math.sqrt(ux*ux+2*a*(1-x0)))/a;
+ const pos=s=>{if(fate==="lost"&&s>sBack){const vx=ux+a*sBack;return[vx*(s-sBack),uy*s]}return[x0+ux*s+a/2*s*s,uy*s]};
+ return{fate,sEnd,pos}}
+const alphaOf=x0=>Math.sqrt(2*x0);
+const fateCol=f=>f==="direct"?CL.acc:f==="turn"?CL.ok:CL.ng;
+function stepII(dt){const q=st.q;S.t+=dt*0.55;
+ if(q==="II3"){S.sp+=dt;if(S.sp>0.22){S.sp=0;const td=-st.Tr*Math.log(Math.random())/Math.LN2;P.push({born:S.t,td,th:Math.random()*2*Math.PI});}
+  P.forEach(p=>{const age=S.t-p.born;if(!p.cnt&&age>=Math.min(p.td,R2)){p.cnt=1}});P=P.filter(p=>S.t-p.born<Math.min(p.td,R2)+2.2);
+  for(let i=0;i<300;i++)sampleMC();return}
+ const a=alphaOf(st.x0),tEnd=a+2.6;if(S.t>tEnd){S.wait+=dt;if(S.wait>1.2){S.t=0;S.wait=0}}}
+function sampleMC(){const td=-st.Tr*Math.log(Math.random())/Math.LN2;if(td>=R2)return;const al=td,x0=al*al/2,th=Math.random()*2*Math.PI,ux=al+Math.cos(th);if(ux<0&&ux*ux>4*x0)return;
+ const K=2.5-al*al/2+al*Math.cos(th);stat.det++;if(K<1)stat.low++;const b=Math.min(31,Math.max(0,Math.floor(K/3.2*32)));hist[b]++;histN++}
+const FR=(()=>{const out=[];for(let i=0;i<=60;i++){const lt=-1.6+3.2*i/60,T=Math.pow(10,lt),lam=Math.LN2/T;let d=0,lo=0;const Nt=200,Nh=180;
+ for(let j=0;j<Nt;j++){const t=R2*(j+0.5)/Nt,w=Math.exp(-lam*t);const x0=t*t/2;for(let k=0;k<Nh;k++){const th=2*Math.PI*(k+0.5)/Nh,ux=t+Math.cos(th);if(ux<0&&ux*ux>4*x0)continue;d+=w;if(2.5-t*t/2+t*Math.cos(th)<1)lo+=w}}out.push([lt,lo/d])}return out})();
+const frAt=T=>{const lt=Math.log10(T);for(let i=1;i<FR.length;i++)if(FR[i][0]>=lt){const[a,b]=[FR[i-1],FR[i]],u=(lt-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*u}return FR[FR.length-1][1]};
+function sceneII(c,W,H){const q=st.q,narrow=cv.narrow;const box=narrow?{x:16,y:34,w:W-32,h:390}:{x:16,y:34,w:600,h:H-50};
+ const v=view(box,[-0.42,1.12],[-0.62,0.62],narrow?null:"left"),X=v.X,Y=v.Y;
+ rect(c,X(0),Y(0.62),X(1)-X(0),Y(-0.62)-Y(0.62),CL.soft);for(const yy of [-0.45,-0.2,0.2,0.42])arrow(c,X(0.04),Y(yy),X(0.16),Y(yy),alpha(CL.mute,0.6)||CL.mute,1.6);
+ txt(c,"電場 E →（x ≧ 0）",X(0.02),Y(0.58),CL.mute,{s:12});txt(c,"E = 0",X(-0.4),Y(0.58),CL.mute,{s:12});
+ line(c,[[X(-0.42),Y(0)],[X(1.1),Y(0)]],CL.mute,1.2);line(c,[[X(0),Y(-0.62)],[X(0),Y(0.62)]],CL.mute,1.2);txt(c,"x",X(1.1)+4,Y(0)-12,CL.ink,{it:1,s:15});
+ rect(c,X(1),Y(0.62),7,Y(-0.62)-Y(0.62),CL.mute);txt(c,"検出器",X(1)+3,Y(0.62)-12,CL.mute,{s:12,al:"center"});
+ txt(c,"O",X(0)-12,Y(0)+12,CL.ink,{s:13});
+ if(q==="II1"){[[0.5,"L/2"],[KAP,"(3−2√2)L/2"]].forEach(([x,l],i)=>{line(c,[[X(x),Y(0.62)],[X(x),Y(-0.62)]],CL.fic,1,[3,4]);txt(c,l,X(x)+3,Y(-0.56)+(i?0:-14),CL.fic,{s:11})})}
+ if(q==="II3")return sceneII3(c,X,Y,v,W,H);
+ const x0=st.x0,al=alphaOf(x0),t=S.t;
+ const ths=q==="II1"?[st.th*Math.PI/180]:[0,Math.PI];
+ if(q==="II1"){for(let d=0;d<360;d+=12){const th=d*Math.PI/180,tr=traj(x0,al+Math.cos(th),Math.sin(th),2);const pts=[];const se=tr.fate==="lost"?tr.sEnd+0.4:tr.sEnd;for(let i=0;i<=40;i++){const p=tr.pos(se*i/40);pts.push([X(p[0]),Y(p[1])])}c.globalAlpha=0.35;line(c,pts,fateCol(tr.fate),1.2);c.globalAlpha=1}}
+ // X motion
+ const tx=Math.min(t,al),xx=tx*tx/2;line(c,[[X(0),Y(0)],[X(xx),Y(0)]],CL.ink,2.5);
+ if(t<al){dot(c,X(xx),Y(0),9,CL.panel,CL.ink,2);txt(c,"X",X(xx),Y(0)-18,CL.ink,{s:13,b:1,al:"center"});return insetII(c,v,W,H,al,ths)}
+ // star at decay
+ const sx=X(x0),sy=Y(0);for(let k=0;k<10;k++){const a=k*Math.PI/5,r=k%2?5:11;}c.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5-Math.PI/2,r=k%2?5:11;c.lineTo(sx+r*Math.cos(a),sy+r*Math.sin(a))}c.closePath();c.fillStyle=CL.fr;c.fill();
+ const s=t-al;
+ ths.forEach((th,i)=>{const tr=traj(x0,al+Math.cos(th),Math.sin(th),2),col=q==="II2"?(i?CL.frc:CL.acc):fateCol(tr.fate);const se=Math.min(s,tr.fate==="lost"?tr.sEnd+0.5:tr.sEnd);const pts=[];for(let k=0;k<=60;k++){const p=tr.pos(se*k/60);pts.push([X(p[0]),Y(p[1])])}line(c,pts,col,2.6);const e=pts[pts.length-1];dot(c,e[0],e[1],6,col);txt(c,"A",e[0]+8,e[1]-10,col,{s:13,b:1});
+  if(q==="II1"){const tb=traj(x0,al-Math.cos(th)/3,-Math.sin(th)/3,2/3);const sb=Math.min(s,tb.fate==="lost"?tb.sEnd+0.5:tb.sEnd);const pb=[];for(let k=0;k<=40;k++){const p=tb.pos(sb*k/40);pb.push([X(p[0]),Y(p[1])])}line(c,pb,CL.mute,1.6,[5,4]);const eb=pb[pb.length-1];dot(c,eb[0],eb[1],7,CL.panel,CL.mute,1.6);txt(c,"B",eb[0]+9,eb[1]+10,CL.mute,{s:12})}});
+ insetII(c,v,W,H,al,ths)}
+function insetII(c,v,W,H,al,ths){const narrow=cv.narrow,B=narrow?{x:30,y:440,w:W-60,h:180}:{x:v.x1+40,y:50,w:W-v.x1-60,h:H-90};
+ if(st.q==="II2"){txt(c,"θ₀ = 0（青）と θ₀ = π（赤）だけが",B.x,B.y,CL.ink,{s:13});txt(c,"y 方向の速度 0 → x 軸上に届く",B.x,B.y+20,CL.ink,{s:13});}
+ const sc=Math.min(B.w/2.8,B.h/2.6)*0.95,ox=B.x+B.w*0.38,oy=B.y+B.h*0.55+(st.q==="II2"?14:0);
+ if(st.q==="II1"){txt(c,"速度の合成（分裂直後）",B.x,B.y-8,CL.ink,{s:13,b:1});const th=ths[0],ux=al+Math.cos(th),uy=Math.sin(th);
+  arrow(c,ox,oy,ox+al*sc,oy,CL.ink,2.6);txt(c,"αv_A（X の速度）",ox+al*sc/2,oy+16,CL.ink,{s:12,al:"center"});
+  arrow(c,ox+al*sc,oy,ox+ux*sc,oy-uy*sc,CL.acc,2.6);txt(c,"v_A（X 静止系）",ox+(al+ux)*sc/2+6,oy-uy*sc/2-10,CL.acc,{s:12});
+  const tr=traj(st.x0,ux,uy,2);arrow(c,ox,oy,ox+ux*sc,oy-uy*sc,fateCol(tr.fate),3);
+  line(c,[[ox,oy-sc*1.2],[ox,oy+sc*1.2]],CL.line,1,[2,3]);txt(c,"x 成分 = v_A cosθ₀ + αv_A",B.x,B.y+B.h-6,CL.ink,{s:13});
+  txt(c,tr.fate==="direct"?"前向き → そのまま検出器へ":tr.fate==="turn"?"後ろ向き → 転回して検出器へ":"後ろ向きが強すぎ → x < 0 へ逃げる",B.x,B.y+B.h+16,fateCol(tr.fate),{s:13,b:1})}}
+function sceneII3(c,X,Y,v,W,H){P.forEach(p=>{const age=S.t-p.born,t=Math.min(age,p.td,R2),xx=t*t/2;
+  if(age<Math.min(p.td,R2)){dot(c,X(xx),Y(0),6,CL.panel,CL.ink,1.6);return}
+  if(p.td>=R2)return;const al=p.td,x0=al*al/2,tr=traj(x0,al+Math.cos(p.th),Math.sin(p.th),2),s=Math.min(age-p.td,tr.fate==="lost"?tr.sEnd+0.4:tr.sEnd);
+  const K=2.5-al*al/2+al*Math.cos(p.th),col=tr.fate==="lost"?CL.mute:K<1?CL.frc:CL.acc;const pts=[];for(let k=0;k<=30;k++){const pp=tr.pos(s*k/30);pts.push([X(pp[0]),Y(pp[1])])}
+  c.globalAlpha=Math.max(0.15,1-(age-p.td)/2.4);line(c,pts,col,1.8);dot(c,X(x0),Y(0),3,CL.fr);c.globalAlpha=1});
+ const narrow=cv.narrow,B=narrow?{x:30,y:450}:{x:v.x1+40,y:60};
+ txt(c,"X を次々と入れる",B.x,B.y,CL.ink,{s:13,b:1});txt(c,"● 黄：分裂した地点",B.x,B.y+24,CL.fr,{s:13});txt(c,"赤：K < mv_A²",B.x,B.y+46,CL.frc,{s:13});txt(c,"青：K ≧ mv_A²",B.x,B.y+68,CL.acc,{s:13});txt(c,"灰：x < 0 へ逃げた",B.x,B.y+90,CL.mute,{s:13});
+ txt(c,"x > L/2 で後ろ向きに出たものだけ赤",B.x,B.y+122,CL.ink,{s:13})}
+function graphII(){const c=begin(gr),W=gr.W,H=gr.H,q=st.q,narrow=gr.narrow;
+ if(q==="II1"){const G={x:80,y:40,w:W-150,h:H-90};const{X,Y}=axes(c,G,[0,1],[-1,1],{xl:"x₀",yl:"cosθ₀",title:"(x₀, cosθ₀) で決まる A の行き先",xt:[[0.5,"L/2"],[1,"L"],[KAP,"カ"]],yt:[[1,"1"],[0,"0"],[-1,"−1"]],y0:-1});
+  const N=200,top=[],mid=[],bot=[];for(let i=0;i<=N;i++){const x=i/N,a=alphaOf(x);top.push([X(x),Y(Math.max(-1,-a))]);bot.push([X(x),Y(Math.max(-1,-(1+R2)*a))])}
+  c.beginPath();c.moveTo(X(0),Y(1));c.lineTo(X(1),Y(1));top.slice().reverse().forEach(p=>c.lineTo(p[0],p[1]));c.closePath();c.fillStyle=alpha(CL.acc,0.15);c.fill();
+  c.beginPath();top.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));bot.slice().reverse().forEach(p=>c.lineTo(p[0],p[1]));c.closePath();c.fillStyle=alpha(CL.ok,0.2);c.fill();
+  c.beginPath();bot.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.lineTo(X(0),Y(-1));c.closePath();c.fillStyle=alpha(CL.ng,0.18);c.fill();
+  line(c,top,CL.ok,2);line(c,bot,CL.ng,2);txt(c,"cosθ₀ = −α（ウ）",X(0.22),Y(-alphaOf(0.22))-12,CL.ok,{s:12});txt(c,"cosθ₀ = −(1+√2)α（オ）",X(0.05)+6,Y(-0.62),CL.ng,{s:12});
+  txt(c,"前へ進む",X(0.6),Y(0.5),CL.acc,{s:13,b:1});txt(c,"転回して検出器へ",X(0.12),Y(-0.82)+(narrow?0:0),CL.ok,{s:12,b:1});txt(c,"x<0 へ",X(0.005),Y(-0.95),CL.ng,{s:11,b:1});
+  dot(c,X(st.x0),Y(Math.cos(st.th*Math.PI/180)),7,CL.ink,CL.bg,2)}
+ else if(q==="II2"){const G={x:80,y:40,w:W-150,h:H-90};const{X,Y}=axes(c,G,[0,1],[0,3.3],{xl:"x₀",yl:"K / mv_A²",yit:false,title:"x 軸上で検出される A の運動エネルギー",xt:[[0.5,"L/2"],[1,"L"],[KAP,"カ"]],yt:[[2,"2"],[2.5,"5/2"],[3,"3"],[(3-2*R2)/2,"0.09"]]});
+  const Kp=x=>{const a=alphaOf(x);return(6-(a-1)**2)/2},Km=x=>{const a=alphaOf(x);return(6-(a+1)**2)/2};
+  line(c,Array.from({length:101},(_,i)=>[X(i/100),Y(Kp(i/100))]),CL.acc,2.6);line(c,Array.from({length:101},(_,i)=>{const x=KAP+(1-KAP)*i/100;return[X(x),Y(Km(x))]}),CL.frc,2.6);
+  line(c,Array.from({length:21},(_,i)=>{const x=KAP*i/20;return[X(x),Y(Km(x))]}),CL.frc,1.2,[3,4]);
+  txt(c,"K₊（θ₀ = 0）",X(0.62),Y(Kp(0.62))-14,CL.acc,{s:13,b:1});txt(c,"K₋（θ₀ = π）",X(0.5),Y(Km(0.5))-14,CL.frc,{s:13,b:1});txt(c,"点線：x<0 に入るので検出されない",X(0.02),Y(0.35),CL.mute,{s:11});
+  const x=st.x0;line(c,[[X(x),G.y],[X(x),G.y+G.h]],CL.mute,1,[2,4]);dot(c,X(x),Y(Kp(x)),6,CL.acc);if(x>=KAP)dot(c,X(x),Y(Km(x)),6,CL.frc)}
+ else{const A=narrow?{x:70,y:40,w:W-110,h:230}:{x:70,y:40,w:470,h:H-90},Bx=narrow?{x:70,y:370,w:W-110,h:230}:{x:620,y:40,w:W-660,h:H-90};
+  const mx=Math.max(1,...hist)*1.1;const{X,Y}=axes(c,A,[0,3.2],[0,mx],{xl:"K / mv_A²",xit:false,title:"検出された A の運動エネルギー分布",xt:[[1,"1"],[2,"2"],[3,"3"]]});
+  hist.forEach((h,i)=>{const k0=3.2*i/32,k1=3.2*(i+1)/32;rect(c,X(k0)+0.5,Y(h),X(k1)-X(k0)-1,Y(0)-Y(h),k1<=1.001?alpha(CL.frc,0.7):alpha(CL.acc,0.55))});
+  line(c,[[X(1),A.y],[X(1),A.y+A.h]],CL.frc,1.4,[4,4]);
+  const{X:X2,Y:Y2}=axes(c,Bx,[-1.6,1.6],[0,0.3],{xl:"T",yl:"割合",yit:false,title:"K < mv_A² の割合と半減期",xt:[[-1,"0.1"],[0,"L/v_A"],[1,"10"]],yt:[[0.1,"0.1"],[0.2,"0.2"],[0.3,"0.3"]]});
+  line(c,FR.map(([lt,f])=>[X2(lt),Y2(f)]),CL.acc,2.4);dot(c,X2(Math.log10(st.Tr)),Y2(frAt(st.Tr)),7,CL.frc);if(histN>50)dot(c,X2(Math.log10(st.Tr)),Y2(stat.low/stat.det),4,CL.ink)}}
+function drawAll(){if(part()==="I"){drawI();graphI()}else{const c=begin(cv);sceneII(c,cv.W,cv.H);graphII()}}
+function step(dt){if(part()==="I"){if(st.q==="I3"){S.t+=dt;if(S.t>4.6)S.t=0}else stepI(dt)}else stepII(dt)}
+function note(){return part()==="I"?(st.q==="I3"?"静止系で見た分裂。速さの数値は Δm/m から計算した値です（光速 c に比べて十分遅い）。":"a = 1、m = 1、q = 1 とした単位で表示しています（B と T はその単位での値）。"):"L = 1、v<sub>A</sub> = 1、m = 1 の単位で表示しています。電場は E = 2mv<sub>A</sub>²/(qL) に固定。"}
+function readout(){const q=st.q,r=[];
+ if(q==="I1"){r.push(["X の速さ v = qaB/(4m)",v0().toFixed(3)],["軌道半径",(0.5).toFixed(2)+"（＝ a/2）"],["運動エネルギー q²a²B²/(8m)",(st.B*st.B/8).toFixed(4)],["小窓を通った数",stat.pass+" 個"])}
+ if(q==="I2"){const tau=tauI(),s=Math.pow(0.5,tau/st.Th),bm=2*Math.PI/(st.Th*Math.log2(1/st.f)),n=stat.pass+stat.dec;r.push(["小窓までの時間 τ = 2πm/(qB)",tau.toFixed(2)],["分裂しない割合 (1/2)^(τ/T)",s.toFixed(3)],["B の下限 2πm/(qT log_{1/2} f)",bm.toFixed(3)],["いまの B で条件を満たすか",st.B>=bm?'<span class="ok">満たす</span>':'<span class="ng">満たさない</span>'],["実際に通った割合（アニメーション）",n?(stat.pass/n).toFixed(2)+`（${n} 個中）`:"—"])}
+ if(q==="I3"){const dm=st.dm*1e-3,vA=Math.sqrt(1.5*dm);r.push(["v_A / c = √(3Δm/(2m))",vA.toFixed(4)],["v_B / c = √(Δm/(6m))",(vA/3).toFixed(4)],["運動量 mv_A と 3mv_B","等しい"],["K_A : K_B","3 : 1"])}
+ if(q==="II1"||q==="II2"){const x0=st.x0,al=alphaOf(x0);r.push(["α = √(2x₀/L)",al.toFixed(3)],["x₀ までの時間 αL/v_A",al.toFixed(3)]);
+  if(q==="II1"){const th=st.th*Math.PI/180,u=al+Math.cos(th),tr=traj(x0,u,Math.sin(th),2);r.push(["A の初速度の x 成分（v_A を 1）",u.toFixed(3)],["転回の条件 cosθ₀ < −α",Math.cos(th)<-al?'<span class="ok">満たす</span>':"満たさない"],["x<0 に入らない cosθ₀ > −(1+√2)α",tr.fate!=="lost"?'<span class="ok">満たす</span>':'<span class="ng">満たさない</span>'],["転回できる x₀ の上限 L/2 ／ どの向きでも x<0 に入らない x₀ の下限",`0.5 ／ ${KAP.toFixed(4)}`])}
+  else{r.push(["K₊ / mv_A²（θ₀ = 0）",((6-(al-1)**2)/2).toFixed(3)],["K₋ / mv_A²（θ₀ = π）",al>=R2-1?((6-(al+1)**2)/2).toFixed(3):"x<0 に入る（検出されない）"])}}
+ if(q==="II3"){r.push(["半減期 T（L/v_A を 1）",st.Tr.toFixed(2)],["検出された A の数（集計）",stat.det],["K < mv_A² の割合（集計）",stat.det?(stat.low/stat.det).toFixed(3):"—"],["K < mv_A² の割合（計算）",frAt(st.Tr).toFixed(3)],["T → ∞ の極限",FR[FR.length-1][1].toFixed(3),"T が短いと、ほぼ全部が x₀ ≈ 0 で分裂して K ≈ 5/2 mv_A² になります。"])}
+ return r.map(([a,b,c])=>[a.replace(/v_A/g,"v<sub>A</sub>"),b,c])}
+initUI("I1");
+}
+</script>
+</body>
+</html>

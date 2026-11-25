@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>風船の膜張力と2つの風船</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E7%86%B1%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>風船の膜張力と2つの風船（東京大学 2023年 第3問）</h1>
+<p class="lead">ゴム膜の<b>膜張力</b>が風船の内圧を外気圧より高くするしくみを、仕事のつり合いから導きます。2つの風船をつなぐと<b>小さい方がしぼむ</b>のはなぜか、実際の風船（膜張力が半径で変わる）では大きさがどう分かれるか、温度を変えると何が起こるかを、圧力–半径のグラフで確かめます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="風船のアニメーション"></canvas>
+<canvas id="gr" role="img" aria-label="圧力と半径のグラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1)(2)(3) 膜張力と内圧</button>
+<button class="qb" data-q="II1">II(1) 2つの風船をつなぐ</button>
+<button class="qb" data-q="II2">II(2) σ を求める</button>
+<button class="qb" data-q="III1">III(1) 実際の風船</button>
+<button class="qb" data-q="III2">III(2) 温度を上げる</button>
+<button class="qb" data-q="III3">III(3) 温度を下げる</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。膜を面積 \(\Delta S\) 広げるのに必要な仕事は \(\Delta W = \sigma\Delta S\)、外気圧は \(p_0\) です。</p>
+
+<details id="d-I1"><summary>I(1)(2)(3)　ピストンの仕事・膜の仕事・内圧 p<span class="ans">答 (1) \(4\pi(p-p_0)r^2\Delta r\)　(2) \(8\pi\sigma r\Delta r\)　(3) \(p = p_0 + \dfrac{2\sigma}{r}\)</span></summary><div class="body">
+<h3>(1) 圧力がする仕事 ＝ 圧力差 × 体積変化</h3>
+<p>液体の体積は一定なので、ピストンが押しのけた体積がそのまま風船の体積の増加 \(\Delta V\) になります。ピストンには内側から \(p\)、外側から \(p_0\) がはたらくので、ゆっくり押すのに必要な力は \((p-p_0)\times\)（ピストンの面積）。仕事は</p>
+$$W_1 = (p-p_0)\Delta V,\qquad \Delta V = \frac43\pi(r+\Delta r)^3 - \frac43\pi r^3 \fallingdotseq 4\pi r^2\Delta r$$
+$$W_1 = 4\pi(p-p_0)r^2\Delta r$$
+<h3>(2) 膜を広げる仕事</h3>
+$$\Delta S = 4\pi(r+\Delta r)^2 - 4\pi r^2 \fallingdotseq 8\pi r\Delta r,\qquad W_2 = \sigma\Delta S = 8\pi\sigma r\Delta r$$
+<h3>(3) 2つの仕事が等しい</h3>
+$$4\pi(p-p_0)r^2\Delta r = 8\pi\sigma r\Delta r\qquad\therefore\quad p = p_0 + \frac{2\sigma}{r}$$
+<h3>別の見方：半分に切って力のつり合い</h3>
+<p>風船を半球に切って、半分にはたらく力を考えます。圧力差が押し広げる力は \((p-p_0)\times\pi r^2\)（切り口の円の面積）、切り口の縁で膜が引き戻す力は \(\sigma\times2\pi r\)（\(\sigma\) は単位長さあたりの力）。等しいとおくと同じ式が出ます。</p>
+<div class="box"><b>式の立て方</b>：「少しだけ変化させたときの仕事のつり合い」（仮想仕事）か「半分に切った部分の力のつり合い」のどちらでも立てられます。\(\Delta r\) の2次以上を捨てる近似は、球の体積・表面積を \(r\) で微分したもの（\(4\pi r^2\)、\(8\pi r\)）を使うのと同じです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは \(p - p_0 = \dfrac{2\sigma}{r}\)。<b>小さい風船ほど内圧が高い</b>ことが分かります。右の棒グラフで、ピストンの仕事と膜の仕事が等しいことも確かめられます。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　小さい風船と大きい風船をつなぐと<span class="ans">答 ア ②（小さい）　イ ④（他方はしぼみきっている）　理由：\(p = p_0 + \dfrac{2\sigma}{r}\) より、半径の小さい風船の方が内圧が高いから</span></summary><div class="body">
+<p>弁を開くと、気体は<b>圧力の高い方から低い方へ</b>移ります。(3) より半径が小さいほど内圧が高いので、小さい風船 A から大きい風船 B へ気体が移ります。</p>
+<p>A はしぼむとさらに内圧が上がり、B はふくらむとさらに内圧が下がります。圧力差は広がる一方なので、途中で止まることはなく、A がしぼみきるまで続きます。</p>
+<div class="box"><b>考え方</b>：「ずれが生じたとき、そのずれを戻す向きに変化するか（安定）、さらに広げる向きに変化するか（不安定）」を調べます。ここでは半径が小さくなるほど圧力が上がる（\(p\) が \(r\) の<b>減少</b>関数）ので不安定です。シャボン玉を2つつないでも同じことが起こります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフの曲線上で、A（赤）は左上へ、B（青）は右下へ動いていきます。\(r_A\) と \(r_B\) を入れかえても、必ず小さい方がしぼみます。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　σ を p₀, r<sub>A</sub>, r<sub>B</sub>, r<sub>C</sub> で表す<span class="ans">答 \(\sigma = \dfrac{p_0\left(r_C^{\,3} - r_A^{\,3} - r_B^{\,3}\right)}{2\left(r_A^{\,2} + r_B^{\,2} - r_C^{\,2}\right)}\)</span></summary><div class="body">
+<h3>温度一定・物質量一定 → pV の和が変わらない</h3>
+<p>理想気体の状態方程式 \(pV = nRT\) で、\(T\) が一定で気体の出入りがない（2つの風船の合計）ので、\(pV\) の和が保存されます：</p>
+$$\left(p_0 + \frac{2\sigma}{r_A}\right)\frac43\pi r_A^{\,3} + \left(p_0 + \frac{2\sigma}{r_B}\right)\frac43\pi r_B^{\,3} = \left(p_0 + \frac{2\sigma}{r_C}\right)\frac43\pi r_C^{\,3}$$
+<p>\(\dfrac43\pi\) で割ると \(p_0(r_A^{\,3}+r_B^{\,3}) + 2\sigma(r_A^{\,2}+r_B^{\,2}) = p_0r_C^{\,3} + 2\sigma r_C^{\,2}\)。σ について解いて答えになります。</p>
+<div class="box"><b>式の立て方</b>：気体がつながった容器の間を移動する問題では、まず「全体で何が保存されるか」を探します。温度が一定なら \(\sum pV\)（物質量の和）、断熱ならエネルギー、と決めてから、各容器の \(p\) と \(V\) を半径で書きます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：弁を開く前と後で \(\sum pV\) が同じになっていることを、下の棒グラフで確かめられます。最後の半径 \(r_C\) から計算した σ は、設定した σ と一致します。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)　半径 r<sub>D</sub> が満たすべき条件<span class="ans">答 \(r_D &gt; \dfrac32 r_0\)</span></summary><div class="body">
+<h3>内圧を半径の関数として書く</h3>
+<p>(3) の \(\sigma\) に \(\sigma(r) = a\dfrac{r-r_0}{r^2}\) を入れると</p>
+$$p(r) = p_0 + \frac{2\sigma(r)}{r} = p_0 + 2a\,\frac{r-r_0}{r^3},\qquad p'(r) = 2a\,\frac{3r_0 - 2r}{r^4}$$
+<p>\(p(r)\) は \(r = \dfrac32r_0\) で最大になる山形のグラフです。</p>
+<h3>安定か不安定かは、グラフの傾きで決まる</h3>
+<p>片方を少ししぼませると、気体はもう一方へ移ります。</p>
+<p>・\(p'(r_D) &gt; 0\)（山の左側）：しぼんだ方は内圧が<b>下がり</b>、ふくらんだ方は上がるので、気体は押し戻され、元の同じ大きさに戻ります。</p>
+<p>・\(p'(r_D) &lt; 0\)（山の右側）：しぼんだ方は内圧が<b>上がり</b>、さらに気体を送り出すので、差が広がります（II と同じ）。</p>
+<p>大きさが異なる2つになったので \(p'(r_D) &lt; 0\)、つまり \(r_D &gt; \dfrac32r_0\)。</p>
+<div class="box"><b>式の立て方</b>：つり合いの安定性は「少しずらしたとき、元に戻す向きの変化が起こるか」を、ずれに対する圧力（力）の変化の符号で判定します。ばねのつり合いや浮力のつり合いの安定性と同じ考え方です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(r_D\) を \(1.5r_0\) より小さくすると、しぼませても元に戻ります。大きくすると、一方は山の左側、もう一方は右側の<b>同じ高さ（同じ圧力）</b>の点に分かれて止まります。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>III(2)　温度をわずかに上げると内圧は？<span class="ans">答 低くなる</span></summary><div class="body">
+<p>III(1) のあと、2つの風船の圧力は等しく、小さい方は山の左側（\(r &lt; \dfrac32r_0\)）、大きい方は右側（\(r &gt; \dfrac32r_0\)）にあります。</p>
+<p>いったん弁を閉じたまま温度を上げると、どちらの気体も膨張して半径が大きくなります。すると山の左側の小さい風船は内圧が<b>上がり</b>、右側の大きい風船は内圧が<b>下がり</b>ます。弁を開けると小さい方から大きい方へ気体が移り、大きい風船はさらにふくらんで内圧がさらに下がります。小さい方も気体を失ってしぼむので、左側の坂を下って内圧が下がります。結局、両方の内圧は<b>はじめより低い</b>同じ値にそろいます。</p>
+<div class="box"><b>考え方</b>：「弁を閉じて変化させる → 弁を開いて圧力をそろえる」と2段階に分けると、つながった容器の変化を追いやすくなります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：温度を上げると、下のグラフの2点は同じ高さを保ったまま山の両側を<b>下がって</b>いきます（大きい方は右へ、小さい方は \(r_0\) の方へ）。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+
+<details id="d-III3"><summary>III(3)　温度をゆっくり下げたときの半径の変化<span class="ans">答 ⑥（温度を下げると2つの半径が近づいて \(\tfrac32r_0\) で一致し、その後は同じ半径のまま \(r_0\) に近づくグラフ）</span></summary><div class="body">
+<p>III(2) の逆に、温度を下げると2点は山の両側を<b>上がって</b>いき、大きい風船は小さく、小さい風船は大きくなって、山の頂上 \(r = \dfrac32r_0\) で一致します。</p>
+<p>そこからさらに温度を下げると、両方とも山の左側（安定な側）にあるので、同じ半径を保ったまましぼみ、\(r_0\) に近づいていきます。</p>
+<p>温度を横軸にして描き直すと、高温側では2本（大きい方は温度とともに大きくなり、小さい方は \(r_0\) に近づく）、ある温度より低温側では1本にまとまった、枝分かれのグラフになります。</p>
+<div class="box"><b>式の立て方</b>：状態は「圧力が等しい」「\(\sum pV = nRT\)」の2つの式で決まります。下の右のグラフは、この2式を数値で解いて、温度ごとの2つの半径を描いたものです（点線は不安定なつり合い）。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：温度のスライダーを左右に動かすと、2つの風船と、右のグラフ上の点が動きます。</div>
+<button class="goto" data-q="III3">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+const P0=1,R0=1,FPI=4*Math.PI/3;
+const st={q:"I1",r:1.5,sg:0.25,rA:0.9,rB:1.6,sg2:0.25,a:1,rD:2,T:1,spd:1};
+const SL=[
+ ["r","r","風船の半径","",0.5,3,0.05,2,"I1"],
+ ["sg","σ","膜張力の係数","",0.05,0.6,0.01,2,"I1"],
+ ["rA","r<sub>A</sub>","風船 A の半径","",0.4,2.5,0.05,2,"II"],
+ ["rB","r<sub>B</sub>","風船 B の半径","",0.4,2.5,0.05,2,"II"],
+ ["sg2","σ","膜張力の係数","",0.05,0.6,0.01,2,"II"],
+ ["a","a","係数 a","",0.3,2,0.05,2,"III"],
+ ["rD","r<sub>D</sub>","はじめの半径（r₀ を 1）","",1.1,3,0.05,2,"III1"],
+ ["T","T","温度（はじめを 1）","",0.3,3,0.01,2,"III2 III3"],
+ ["spd","","再生速度","倍",0.25,2,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>n?[640,460]:[1000,380]);
+const gr=mkCv($("#gr"),n=>n?[640,part()==="III"&&st.q!=="III1"||part()==="II"||part()==="I"?620:340]:[1000,300]);
+let S={},B2={};
+/* pressure laws */
+const pc=(r,s)=>P0+2*s/r;                               // constant sigma
+const pr=r=>P0+2*st.a*(r-R0)/(r*r*r);                   // real balloon
+const nc=(r,s)=>FPI*(P0*r*r*r+2*s*r*r);                 // pV for const sigma (RT=1)
+const nr=r=>FPI*(P0*r*r*r+2*st.a*(r-R0));               // pV for real balloon
+function solveR(f,n,r0){let r=Math.max(r0||1,1e-3);for(let i=0;i<40;i++){const h=1e-5,d=(f(r+h)-f(r-h))/(2*h),e=f(r)-n;r=Math.max(1e-4,r-e/d);if(Math.abs(e)<1e-12)break}return r}
+function restart(){S={t:0,wait:0};const q=st.q;
+ if(part()==="II"){B2={nA:nc(st.rA,st.sg2),nB:nc(st.rB,st.sg2),rA:st.rA,rB:st.rB,open:false,done:false};B2.n0=B2.nA+B2.nB}
+ if(q==="III1"){const n=nr(st.rD);B2={nA:n,nB:n,rA:st.rD,rB:st.rD,open:false,squeezed:false}}}
+function onParam(k){if(k!=="T")restart()}
+function flowStep(dt,pf,nf,isC){const G=0.6;let h=dt/40;for(let i=0;i<40;i++){if(B2.nA<=0||B2.nB<=0)break;const pA=pf(B2.rA),pB=pf(B2.rB);let dn=G*(pA-pB)*h*(B2.nA+B2.nB);
+  if(dn>0)dn=Math.min(dn,B2.nA*0.05+1e-6);else dn=Math.max(dn,-(B2.nB*0.05+1e-6));B2.nA-=dn;B2.nB+=dn;
+  if(isC){if(B2.nA<1e-4){B2.nB+=B2.nA;B2.nA=0;B2.rA=0}if(B2.nB<1e-4){B2.nA+=B2.nB;B2.nB=0;B2.rB=0}}
+  if(B2.nA>0)B2.rA=solveR(nf,B2.nA,B2.rA);if(B2.nB>0)B2.rB=solveR(nf,B2.nB,B2.rB)}}
+function step(dt){S.t+=dt;const q=st.q;
+ if(part()==="II"){if(S.t>1)B2.open=true;if(B2.open&&!B2.done){const pf=r=>pc(r,st.sg2),nf=r=>nc(r,st.sg2);flowStep(dt*0.12,pf,nf,true);if(B2.nA===0||B2.nB===0||Math.abs(pf(B2.rA)-pf(B2.rB))<1e-6)B2.done=true}
+  if(B2.done){S.wait+=dt;if(S.wait>3)restart()}}
+ if(q==="III1"){if(S.t>0.8&&!B2.squeezed){B2.squeezed=true;const d=B2.nA*0.03;B2.nA-=d;B2.nB+=d;B2.rA=solveR(nr,B2.nA,B2.rA);B2.rB=solveR(nr,B2.nB,B2.rB)}
+  if(S.t>1.4){flowStep(dt*4,pr,nr,false)}if(S.t>12){restart()}}}
+/* ---------- part III equilibria vs temperature ---------- */
+const RM=1.5*R0;
+function branches(){// returns {nR, asym:[[T,r1,r2,p]], sym:[[T,r]], unst:[[T,r]], Tm}
+ const nR=2*nr(st.rD);const pm=pr(RM);const asym=[];
+ for(let i=0;i<=300;i++){const u=i/300,p=pm-(pm-P0)*(1-Math.pow(1-u,3))*0.9995;// p from pm down to ~p0
+  const r1=bis(r=>pr(r)-p,R0,RM),r2=bis(r=>pr(r)-p,RM,400);asym.push([(nr(r1)+nr(r2))/nR,r1,r2,p])}
+ const sym=[],unst=[];for(let i=0;i<=120;i++){const r=R0+(RM-R0)*i/120;sym.push([2*nr(r)/nR,r])}for(let i=0;i<=120;i++){const r=RM+(4-RM)*i/120;unst.push([2*nr(r)/nR,r])}
+ return{nR,asym,sym,unst,Tm:2*nr(RM)/nR}}
+function bis(f,a,b){let fa=f(a);for(let i=0;i<80;i++){const m=(a+b)/2,fm=f(m);if((fm>0)===(fa>0)){a=m;fa=fm}else b=m}return(a+b)/2}
+function stateAtT(T,br){if(T<=br.Tm){const r=bis(r=>2*nr(r)/br.nR-T,R0,RM);return{r1:r,r2:r,p:pr(r)}}
+ const A=br.asym;for(let i=1;i<A.length;i++)if(A[i][0]>=T){const u=(T-A[i-1][0])/(A[i][0]-A[i-1][0]);const L=(k)=>A[i-1][k]+(A[i][k]-A[i-1][k])*u;return{r1:L(1),r2:L(2),p:L(3)}}
+ const z=A[A.length-1];return{r1:z[1],r2:z[2],p:z[3]}}
+/* ---------- drawing ---------- */
+function balloon(c,x,y,R,col,label,pin){dot(c,x,y,Math.max(R,1.5),CL.bg,null);dot(c,x,y,Math.max(R,1.5),alpha(col,0.18),col,2.4);if(label)txt(c,label,x,y-R-14,col,{s:13,b:1,al:"center"});if(pin!=null&&R>26)txt(c,pin,x,y+16,CL.ink,{s:12,al:"center"})}
+function drawI(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const sc=n?60:68,ph=(S.t%4)/4,grow=ph<0.6?ph/0.6:ph<0.85?1:1-(ph-0.85)/0.15,dr=0.12*grow;
+ const R=(st.r+dr)*sc,bx=n?W*0.34:W*0.3,by=H*0.52;
+ // outside pressure arrows
+ for(let i=0;i<12;i++){const a=i*Math.PI/6+0.26;if(Math.abs(Math.cos(a)-1)<0.1)continue;arrow(c,bx+(R+34)*Math.cos(a),by+(R+34)*Math.sin(a),bx+(R+6)*Math.cos(a),by+(R+6)*Math.sin(a),CL.mute,1.6)}
+ dot(c,bx,by,st.r*sc,null,CL.mute,1.2);c.setLineDash([4,4]);dot(c,bx,by,(st.r+0.12)*sc,null,CL.mute,1.2);c.setLineDash([]);
+ dot(c,bx,by,R,alpha(CL.acc,0.22),CL.fr,3);txt(c,"圧力 p",bx,by-10,CL.acc,{s:14,b:1,al:"center"});txt(c,`p − p₀ = 2σ/r = ${(2*st.sg/st.r).toFixed(3)}`,bx,by+12,CL.ink,{s:12,al:"center"});
+ txt(c,"外気圧 p₀",bx,by-R-44,CL.mute,{s:13,al:"center"});
+ // neck & cylinder
+ const nx0=bx+R-2,cyx=n?W*0.62:W*0.55,cw=n?150:220,chh=70,pist=cyx+cw*(0.75-0.35*grow*0.6);
+ rect(c,nx0,by-7,cyx-nx0,14,alpha(CL.acc,0.22),null);line(c,[[nx0,by-7],[cyx,by-7]],CL.ink,1.6);line(c,[[nx0,by+7],[cyx,by+7]],CL.ink,1.6);
+ rect(c,cyx,by-chh/2,pist-cyx,chh,alpha(CL.acc,0.22),null);line(c,[[cyx,by-chh/2],[cyx+cw,by-chh/2]],CL.ink,2);line(c,[[cyx,by+chh/2],[cyx+cw,by+chh/2]],CL.ink,2);line(c,[[cyx,by-chh/2],[cyx,by-7]],CL.ink,2);line(c,[[cyx,by+7],[cyx,by+chh/2]],CL.ink,2);
+ rect(c,pist,by-chh/2+2,10,chh-4,CL.road);rect(c,pist+10,by-5,cw*0.55,10,CL.road);rect(c,cyx+cw*0.75+10,by-chh/2-8,8,10,CL.ink);rect(c,cyx+cw*0.75+10,by+chh/2-2,8,10,CL.ink);
+ txt(c,"ストッパー",cyx+cw*0.75+20,by-chh/2-16,CL.mute,{s:11});txt(c,"ピストン",pist,by+chh/2+16,CL.mute,{s:12,al:"center"});
+ arrow(c,pist+cw*0.55+30,by-22,pist+cw*0.55,by-22,CL.frc,2.4);txt(c,"ゆっくり押す",pist+cw*0.55+34,by-22,CL.frc,{s:12});
+ txt(c,"液体（体積一定）",cyx+8,by-chh/2-14,CL.acc,{s:12});
+ // tension arrows on membrane at top
+ const tx=bx,ty=by-R;arrow(c,tx,ty,tx-46,ty,CL.frc,2.4);arrow(c,tx,ty,tx+46,ty,CL.frc,2.4);txt(c,"膜張力",tx+50,ty-12,CL.frc,{s:12})}
+function drawII(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const mx=Math.max(2.6,B2.rA,B2.rB),sc=Math.min(W*0.2,H*0.42)/mx*1.0;
+ const xa=W*0.26,xb=W*0.74,y=H*0.5;rect(c,xa,y-5,xb-xa,10,CL.panel);line(c,[[xa,y-5],[xb,y-5]],CL.ink,1.6);line(c,[[xa,y+5],[xb,y+5]],CL.ink,1.6);
+ const pf=r=>pc(r,st.sg2);
+ balloon(c,xa,y,B2.rA*sc,CL.frc,"A",B2.rA>0?`p = ${pf(B2.rA).toFixed(3)}`:null);balloon(c,xb,y,B2.rB*sc,CL.acc,"B",B2.rB>0?`p = ${pf(B2.rB).toFixed(3)}`:null);
+ dot(c,W/2,y,11,CL.bg,CL.ink,1.6);if(B2.open){line(c,[[W/2-8,y],[W/2+8,y]],CL.ink,2)}else{line(c,[[W/2,y-8],[W/2,y+8]],CL.ink,2)}txt(c,B2.open?"弁：開":"弁：閉",W/2,y-24,CL.ink,{s:13,b:1,al:"center"});
+ if(B2.open&&!B2.done&&B2.rA>0&&B2.rB>0){const dir=pf(B2.rA)>pf(B2.rB)?1:-1;arrow(c,W/2-dir*40,y+26,W/2+dir*40,y+26,CL.fic,2.6);txt(c,"気体の移動",W/2,y+44,CL.fic,{s:12,al:"center"})}
+ if(B2.done)txt(c,"しぼみきった → 残った風船の半径 r_C",W/2,H-20,CL.ink,{s:14,b:1,al:"center"});txt(c,"外気圧 p₀ = 1",16,20,CL.mute,{s:13})}
+function drawIII(){const c=begin(cv),W=cv.W,H=cv.H;let rA,rB,lab="";
+ if(st.q==="III1"){rA=B2.rA;rB=B2.rB}else{const br=branches(),s=stateAtT(st.T,br);rA=s.r1;rB=s.r2;lab=`温度 T = ${st.T.toFixed(2)}`}
+ const sc=Math.min(W*0.2,H*0.42)/Math.max(3,rA,rB);const xa=W*0.26,xb=W*0.74,y=H*0.5;rect(c,xa,y-5,xb-xa,10,CL.panel);line(c,[[xa,y-5],[xb,y-5]],CL.ink,1.6);line(c,[[xa,y+5],[xb,y+5]],CL.ink,1.6);
+ balloon(c,xa,y,rA*sc,CL.frc,"1",null);balloon(c,xb,y,rB*sc,CL.acc,"2",null);
+ dot(c,xa,y,R0*sc,null,CL.line,1);dot(c,xb,y,R0*sc,null,CL.line,1);c.setLineDash([3,4]);dot(c,xa,y,RM*sc,null,CL.fic,1.2);dot(c,xb,y,RM*sc,null,CL.fic,1.2);c.setLineDash([]);
+ txt(c,`r = ${rA.toFixed(2)}`,xa,y+20,CL.ink,{s:12,al:"center"});txt(c,`r = ${rB.toFixed(2)}`,xb,y+20,CL.ink,{s:12,al:"center"});
+ dot(c,W/2,y,11,CL.bg,CL.ink,1.6);line(c,[[W/2-8,y],[W/2+8,y]],CL.ink,2);
+ txt(c,"細い円：r₀　紫の点線：3r₀/2",16,H-16,CL.mute,{s:12});if(lab)txt(c,lab,16,22,CL.ink,{s:14,b:1});
+ if(st.q==="III1"){txt(c,S.t<0.8?"同じ半径 r_D の2つの風船（弁は開いている）":S.t<1.4?"風船1を手で少ししぼませる":"手を放す",16,22,CL.ink,{s:14,b:1})}}
+function graphI(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow;const A=n?{x:70,y:40,w:W-110,h:300}:{x:70,y:40,w:520,h:H-90},Bb=n?{x:70,y:420,w:W-110,h:150}:{x:680,y:50,w:W-720,h:H-110};
+ const ym=2*st.sg/0.4;const{X,Y}=axes(c,A,[0,3.2],[0,ym],{xl:"r",yl:"p − p₀",yit:false,title:"内圧と外気圧の差 p − p₀ = 2σ/r",xt:[[1,"1"],[2,"2"],[3,"3"]]});
+ line(c,Array.from({length:150},(_,i)=>{const r=0.3+2.9*i/149;return[X(r),Y(Math.min(ym,2*st.sg/r))]}).filter(p=>p[1]>A.y-1),CL.acc,2.4);dot(c,X(st.r),Y(2*st.sg/st.r),6,CL.frc);txt(c,"小さいほど内圧が高い",X(0.55),Y(ym*0.9),CL.mute,{s:12});
+ const dr=0.01,W1=(2*st.sg/st.r)*4*Math.PI*st.r*st.r*dr,W2=st.sg*8*Math.PI*st.r*dr;txt(c,`Δr = ${dr} のときの仕事`,Bb.x,Bb.y-14,CL.ink,{s:13});
+ const m=Math.max(W1,W2)*1.25;[["ピストンの仕事 (p−p₀)·4πr²Δr",W1,CL.acc],["膜の仕事 σ·8πrΔr",W2,CL.frc]].forEach(([l,v,col],i)=>{const y=Bb.y+i*(Bb.h/2)+8,w=Bb.w*v/m;rect(c,Bb.x,y+18,w,22,alpha(col,0.35),col);txt(c,l,Bb.x,y+8,col,{s:12});txt(c,v.toFixed(4),Bb.x+w+6,y+29,col,{s:12,b:1})})}
+function graphII(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow;const A=n?{x:70,y:40,w:W-110,h:300}:{x:70,y:40,w:520,h:H-90},Bb=n?{x:70,y:420,w:W-110,h:150}:{x:680,y:50,w:W-720,h:H-110};
+ const s=st.sg2,ym=pc(0.3,s);const{X,Y}=axes(c,A,[0,3.4],[0.8,ym],{xl:"r",yl:"p",title:"p = p₀ + 2σ/r（σ 一定）",xt:[[1,"1"],[2,"2"],[3,"3"]],yt:[[1,"p₀"]]});
+ line(c,[[X(0),Y(1)],[X(3.4),Y(1)]],CL.line,1,[4,4]);line(c,Array.from({length:160},(_,i)=>{const r=0.3+3.1*i/159;return[X(r),Y(pc(r,s))]}),CL.mute,2);
+ if(B2.rA>0)dot(c,X(B2.rA),Y(pc(B2.rA,s)),7,CL.frc);if(B2.rB>0)dot(c,X(B2.rB),Y(pc(B2.rB,s)),7,CL.acc);
+ if(st.q==="II2"){const tot=B2.nA+B2.nB;txt(c,"Σ pV（物質量に比例）",Bb.x,Bb.y-14,CL.ink,{s:13});const m=B2.n0*1.25;
+  [["はじめ（A＋B）",B2.n0,CL.mute],["いま",tot,CL.ok]].forEach(([l,v,col],i)=>{const y=Bb.y+i*(Bb.h/2)+8,w=Bb.w*v/m;rect(c,Bb.x,y+18,w,22,alpha(col,0.35),col);txt(c,l,Bb.x,y+8,col,{s:12});txt(c,v.toFixed(3),Bb.x+w+6,y+29,col,{s:12,b:1})})}
+ else{txt(c,"圧力の高い方から低い方へ気体が移る",Bb.x,Bb.y,CL.ink,{s:13});txt(c,"赤 A：しぼむほど内圧が上がる",Bb.x,Bb.y+26,CL.frc,{s:13});txt(c,"青 B：ふくらむほど内圧が下がる",Bb.x,Bb.y+50,CL.acc,{s:13});txt(c,"→ 差は広がる一方（不安定）",Bb.x,Bb.y+80,CL.ink,{s:13,b:1})}}
+function graphIII(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q;const A=q==="III1"?{x:70,y:40,w:W-140,h:H-90}:(n?{x:70,y:40,w:W-110,h:240}:{x:70,y:40,w:430,h:H-90});
+ const pm=pr(RM),ym=P0+(pm-P0)*1.25;const{X,Y}=axes(c,A,[0.9,4.2],[P0-(pm-P0)*0.15,ym],{xl:"r",yl:"p",title:"p(r) = p₀ + 2a(r − r₀)/r³",xt:[[1,"r₀"],[1.5,"3r₀/2"],[2,"2"],[3,"3"],[4,"4"]],yt:[[1,"p₀"]],x0:0.9});
+ rect(c,X(1),A.y,X(1.5)-X(1),A.h,alpha(CL.ok,0.08));txt(c,"安定（傾き＋）",X(1.02),A.y+12,CL.ok,{s:12});txt(c,"不安定（傾き−）",X(2.3),A.y+12,CL.ng,{s:12});
+ line(c,Array.from({length:200},(_,i)=>{const r=1+3.2*i/199;return[X(r),Y(pr(r))]}),CL.mute,2.2);line(c,[[X(1.5),A.y],[X(1.5),A.y+A.h]],CL.fic,1,[4,4]);
+ let rA,rB;if(q==="III1"){rA=B2.rA;rB=B2.rB}else{const br=branches(),s=stateAtT(st.T,br);rA=s.r1;rB=s.r2;
+  const Bb=n?{x:70,y:360,w:W-110,h:220}:{x:580,y:40,w:W-620,h:H-90};const Tx=3,rmx=4.2;const{X:X2,Y:Y2}=axes(c,Bb,[0,Tx],[0.9,rmx],{xl:"温度 T",xit:false,yl:"半径",yit:false,title:"温度と2つの半径",xt:[[1,"はじめ"],[br.Tm,""]],yt:[[1,"r₀"],[1.5,"3r₀/2"]],x0:0,y0:0.9});
+  const cl=a=>a.filter(p=>p[0]<=Tx);line(c,cl(br.asym).map(p=>[X2(p[0]),Y2(Math.min(rmx,p[2]))]),CL.acc,2.4);line(c,cl(br.asym).map(p=>[X2(p[0]),Y2(p[1])]),CL.frc,2.4);
+  line(c,cl(br.sym).map(p=>[X2(p[0]),Y2(p[1])]),CL.ink,2.4);line(c,cl(br.unst).map(p=>[X2(p[0]),Y2(Math.min(rmx,p[1]))]),CL.mute,1.2,[4,4]);
+  line(c,[[X2(st.T),Bb.y],[X2(st.T),Bb.y+Bb.h]],CL.mute,1,[2,4]);dot(c,X2(st.T),Y2(Math.min(rmx,rB)),6,CL.acc);dot(c,X2(st.T),Y2(rA),6,CL.frc);line(c,[[X2(1),Bb.y+Bb.h-4],[X2(1),Bb.y+Bb.h+4]],CL.ink,1.6)}
+ dot(c,X(rA),Y(pr(rA)),7,CL.frc);if(rB<4.2)dot(c,X(rB),Y(pr(rB)),7,CL.acc);line(c,[[X(0.9),Y(pr(rA))],[X(4.2),Y(pr(rA))]],CL.line,1,[2,4])}
+function drawAll(){const p=part();if(p==="I"){drawI();graphI()}else if(p==="II"){drawII();graphII()}else{drawIII();graphIII()}}
+function note(){const p=part();if(p==="I")return"p₀ = 1、長さの単位を 1 とした値で表示しています。風船の大きさの変化 Δr は見やすく拡大しています。";
+ if(p==="II")return"p₀ = 1、温度一定で計算しています。弁は 1 秒後に開きます。";
+ return"p₀ = 1、r₀ = 1 の単位。気体の温度は "+(st.q==="III1"?"一定です。風船1を少ししぼませた（気体の 3 % を風船2へ移した）あと、手を放します。":"スライダーで変えます。2つの風船の気体の物質量の和は III(1) のはじめ（2つとも r<sub>D</sub> = "+st.rD.toFixed(2)+"）と同じです。")}
+function readout(){const q=st.q,r=[];
+ if(q==="I1"){const dr=0.01;r.push(["p − p₀ = 2σ/r",(2*st.sg/st.r).toFixed(4)],["ΔV ≒ 4πr²Δr（Δr = 0.01）",(4*Math.PI*st.r**2*dr).toFixed(4)],["ΔS ≒ 8πrΔr",(8*Math.PI*st.r*dr).toFixed(4)],["半球のつり合い (p−p₀)πr² と σ·2πr",`${(2*st.sg/st.r*Math.PI*st.r**2).toFixed(3)} ＝ ${(st.sg*2*Math.PI*st.r).toFixed(3)}`])}
+ if(part()==="II"){const s=st.sg2,rC=solveR(r=>nc(r,s),B2.n0,Math.max(st.rA,st.rB));r.push(["A の半径／内圧",B2.rA>0?`${B2.rA.toFixed(3)} ／ ${pc(B2.rA,s).toFixed(3)}`:"しぼみきった"],["B の半径／内圧",B2.rB>0?`${B2.rB.toFixed(3)} ／ ${pc(B2.rB,s).toFixed(3)}`:"しぼみきった"],["Σ pV から予想される r_C",rC.toFixed(3)]);
+  if(q==="II2"){const rA=st.rA,rB=st.rB,sgc=P0*(rC**3-rA**3-rB**3)/(2*(rA**2+rB**2-rC**2));r.push(["σ = p₀(r_C³−r_A³−r_B³)/{2(r_A²+r_B²−r_C²)}",sgc.toFixed(3)],["設定した σ",s.toFixed(3)])}}
+ if(q==="III1"){const sl=2*st.a*(3*R0-2*st.rD)/st.rD**4;r.push(["3r₀/2",RM.toFixed(2)],["p′(r_D) の符号",sl>0?'<span class="ok">＋（元に戻る）</span>':'<span class="ng">−（2つに分かれる）</span>'],["風船1 の半径／内圧",`${B2.rA.toFixed(3)} ／ ${pr(B2.rA).toFixed(4)}`],["風船2 の半径／内圧",`${B2.rB.toFixed(3)} ／ ${pr(B2.rB).toFixed(4)}`])}
+ if(q==="III2"||q==="III3"){const br=branches(),s=stateAtT(st.T,br),s1=stateAtT(1,br);r.push(["2つの半径",`${s.r1.toFixed(3)} と ${s.r2.toFixed(3)}`],["内圧 p",s.p.toFixed(4)],["はじめ（T = 1）の内圧",s1.p.toFixed(4)],["2つが一致する温度",br.Tm.toFixed(3)])}
+ return r.map(([a,b,c])=>[a.replace(/r_([A-D])/g,"r<sub>$1</sub>"),b,c])}
+initUI("I1");
+}
+</script>
+</body>
+</html>
