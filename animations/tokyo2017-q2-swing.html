@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>磁場中のブランコ：電磁誘導による減衰・つり合い・共振</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>磁場中のブランコ：電磁誘導による減衰・つり合い・共振（東京大学 2017年 第2問）</h1>
+<p class="lead">鉛直上向きの磁場の中で、導体棒をつるしたブランコを振らせます。棒が動くと<b>誘導起電力</b>で電流が流れ、その電流が磁場から受ける力が運動を変えます。電源なし・直流電源・交流電源の3つの場合で、回路の式と運動方程式がどう組み合わさるかを見ていきます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="導体棒の方向から見たブランコと回路図"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 電流 I₁</button>
+<button class="qb" data-q="I2">I(2) ジュール熱</button>
+<button class="qb" data-q="I3">I(3) 抵抗を 2R に</button>
+<button class="qb" data-q="II1">II(1) つり合いの電流</button>
+<button class="qb" data-q="II2">II(2) 周期 P</button>
+<button class="qb" data-q="II3">II(3) 長時間の振動</button>
+<button class="qb" data-q="III1">III(1) 誘導起電力</button>
+<button class="qb" data-q="III2">III(2) 電源の振幅</button>
+<button class="qb" data-q="III3">III(3) 抵抗を 2R に</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。左の図は<b>導体棒の向きから見た</b>ブランコです（棒は紙面に垂直）。色は図と式で共通です：<span class="t-acc">角度・速度（青）</span>、<span class="t-grav">重力（緑）</span>、<span class="t-fr">電流が磁場から受ける力（オレンジ）</span>、<span class="t-frc">電流・ジュール熱（赤）</span>、<span class="t-fic">誘導起電力・電源の電圧（紫）</span>。</p>
+
+<details id="d-I1"><summary>I(1)　θ = 0 を速さ v で通るときの電流<span class="ans">答 \(I_1=\dfrac{vBL}{R}\)</span></summary><div class="body">
+<h3>起電力を生むのは「磁場を横切る速度」</h3>
+<p>導体棒が磁場を横切ると、棒の中の電荷がローレンツ力を受けて起電力が生じます。磁場は鉛直なので、起電力に効くのは速度の<b>水平成分</b>だけです。\(\theta=0\) では速度がちょうど水平です。</p>
+<p class="law">誘導起電力（磁場に垂直な速度成分 × B × 長さ）</p>
+$$\cfic{V}=\cacc{v}BL$$
+<p class="law">キルヒホッフの第2法則</p>
+$$\cfic{vBL}=R\,\cfrc{I_1}\qquad\therefore\ \cfrc{I_1}=\frac{vBL}{R}$$
+<p>角度 \(\theta\) の位置では、速度の水平成分は \(v\cos\theta\) なので起電力は \(vBL\cos\theta\) です。</p>
+<div class="box"><b>式の立て方</b>：動く導体棒は「起電力 \(v_\perp BL\) の電池」に置きかえます（\(v_\perp\) は磁場に垂直な速度成分）。あとは普通の回路と同じく、閉じた回路を1周して「起電力の和 ＝ 電圧降下の和」を書きます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右の回路図で、棒は紫の電池として描かれ、その電圧 \(vBL\cos\theta\) は速さとともに変わります。最下点を通るたびに電流（赤い矢印）が最大になり、往きと帰りで向きが逆になります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　止まるまでに発生するジュール熱<span class="ans">答 \(Q=Mgl(1-\cos\alpha)\)</span></summary><div class="body">
+<p>電流が流れると、棒は磁場から運動を妨げる向きの力を受け、力学的エネルギーが減っていきます。減った分はすべて抵抗のジュール熱になります。</p>
+<p class="law">エネルギー保存則（力学的エネルギーの減少 ＝ ジュール熱）</p>
+$$\cfrc{Q}=\underbrace{Mgl(1-\cos\alpha)}_{\text{はじめ}}-\underbrace{0}_{\text{最後（最下点で静止）}}=Mgl(1-\cos\alpha)$$
+<h3>着眼点：電磁力の仕事率 ＝ ジュール熱の発生率</h3>
+<p>棒が受ける力 \(IBL\) の、速度の向きの成分は \(IBL\cos\theta\) です。この力が1秒あたりにする負の仕事は \(IBL\cos\theta\cdot v=I\cdot(vBL\cos\theta)=I\cdot RI=RI^2\) となり、ジュール熱の発生率とちょうど等しくなります。電磁誘導は、運動エネルギーを電気エネルギーに変える変換器です。</p>
+<div class="box"><b>式の立て方</b>：過程の途中が複雑でも、はじめと終わりの状態が分かればエネルギー保存則で熱量が出せます。「力学的エネルギー ＋ 発生した熱 ＝ 一定」と書きます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下の右の棒グラフで、緑（力学的エネルギー）が減った分だけ赤（ジュール熱の合計）が増え、2つの和はいつも一定です。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　抵抗を 2R にすると、振幅が半分になるまでの時間は<span class="ans">答 ア（長くなる）</span></summary><div class="body">
+<p>同じ速さで動いているとき、抵抗を大きくすると電流 \(\dfrac{vBL\cos\theta}{R}\) が小さくなり、運動を妨げる力も小さくなります。</p>
+<p class="law">ジュール熱の発生率（同じ速さ v で比べる）</p>
+$$\cfrc{RI^2}=\frac{(vBL\cos\theta)^2}{R}\qquad\Rightarrow\qquad R\to2R\ \text{で半分}$$
+<p>エネルギーが失われる速さが遅くなるので、振幅が半分になるまでの時間は長くなります。</p>
+<h3>参考：減衰の式</h3>
+<p>微小振動では、運動方程式は \(Ml\ddot\theta=-Mg\theta-\dfrac{B^2L^2l}{R}\dot\theta\) です。速度に比例する抵抗力がはたらく減衰振動で、振幅は \(e^{-\gamma t}\)（\(\gamma=\dfrac{B^2L^2}{2MR}\)）で小さくなります。振幅が半分になる時間 \(\dfrac{\ln2}{\gamma}\) は \(R\) に比例し、\(2R\) にすると2倍になります。</p>
+<div class="box"><b>式の立て方</b>：電磁誘導による力は、電流 \(I=\dfrac{v_\perp BL}{R}\) を力 \(IBL\) に入れて「速度 × \(\dfrac{B^2L^2}{R}\)」と書けます。速度に比例するブレーキなので、比例係数が大きいほど早く止まります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：抵抗 \(R\) のブランコ（実線）と \(2R\) のブランコ（破線）を同時に放します。下のグラフで、破線の振幅の減り方がゆっくりです。読み取り欄に、振幅が半分になった時刻を表示します。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　θ = π/4 で静止させる電流<span class="ans">答 \(I_2=\dfrac{Mg}{BL}\)</span></summary><div class="body">
+<p>電流が流れる棒は、磁場から水平な力 \(I_2BL\) を受けます（向きは電流と磁場に垂直）。棒にはたらく力は、重力・導線の張力・この力の3つです。</p>
+<p class="law">力のつり合い（導線に垂直な方向）</p>
+$$\cfr{I_2BL}\cos\frac{\pi}{4}=\cgrav{Mg}\sin\frac{\pi}{4}\qquad\therefore\ \cfrc{I_2}=\frac{Mg}{BL}$$
+<p>導線に垂直な方向で書くと、張力が式に入りません。重力と電磁力の合力が導線の方向（\(\tan\theta=\dfrac{I_2BL}{Mg}=1\)）を向く、と考えても同じです。</p>
+<div class="box"><b>式の立て方</b>：未知の力（ここでは張力）があるときは、その力に垂直な方向のつり合いを書くと、未知の力を消せます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：オレンジの矢印（\(I_2BL\)）と緑の矢印（\(Mg\)）が同じ長さで、その合力が導線の延長上を向きます。電源の電圧は \(V_0=RI_2\) にしてあります。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　π/4 のまわりの微小振動の周期<span class="ans">答 \(P=2\pi\sqrt{\dfrac{l}{\sqrt2\,g}}\)</span></summary><div class="body">
+<p>振れ幅が小さく電流が \(I_2\) のままとみなせるなら、棒にはたらく重力と電磁力の合力は大きさ \(\sqrt2Mg\)、向きは \(\theta=\dfrac\pi4\) の方向で一定です。これは<b>大きさ \(\sqrt2g\) の見かけの重力</b>と同じです。</p>
+<p class="law">見かけの重力 ＋ 単振り子の周期</p>
+$$g'=\frac{\sqrt{(Mg)^2+(I_2BL)^2}}{M}=\sqrt2\,g,\qquad P=2\pi\sqrt{\frac{l}{g'}}=2\pi\sqrt{\frac{l}{\sqrt2\,g}}$$
+<p>振動の中心は見かけの重力の向き（\(\theta=\dfrac\pi4\)）です。</p>
+<div class="box"><b>式の立て方</b>：重力のほかに一定の力（一定の電場や磁場からの力、慣性力など）がはたらくときは、それらの合力を「見かけの重力」にまとめます。周期は \(g\) を \(g'\) に置きかえた式、振動の中心は \(g'\) の向きです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：読み取り欄の「周期（測定）」が \(P\) に一致し、電源なしの周期 \(2\pi\sqrt{l/g}\) より短くなっています。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　長い時間で見た振動<span class="ans">答 イ（π/4 を中心に振動しながら、振幅がゆっくり小さくなる）</span></summary><div class="body">
+<p>(2) では電流を一定としましたが、実際には棒が動くと誘導起電力が加わり、電流が少し変わります。</p>
+<p class="law">キルヒホッフの第2法則（電源 \(V_0=RI_2\) あり）</p>
+$$V_0-\cfic{v BL\cos\theta}=R\,\cfrc{I}\qquad\therefore\ \cfrc{I}=I_2-\frac{vBL\cos\theta}{R}$$
+<p>2項目の「動きによる電流」がつくる力 \(-\dfrac{vB^2L^2\cos\theta}{R}\) は、I と同じく速度に比例して運動を妨げます。振動の中心は \(\dfrac\pi4\) のままで、振幅だけがゆっくり小さくなります。\(\cos^2\dfrac\pi4=\dfrac12\) なので、減衰の速さは I の場合の半分です。</p>
+<h3>注意：「電流が流れるから熱で減衰する」だけでは不十分</h3>
+<p>この回路には電源があり、電源も仕事をします。減衰するかどうかは、電流を「電源による一定の電流」と「動きによる電流」に分け、後者が運動を妨げることを確かめて判断します。</p>
+<div class="box"><b>式の立て方</b>：電源と誘導起電力が両方ある回路では、電流を足し合わせ（重ね合わせ）で考えます。一定の部分はつり合いの位置を決め、速度に比例する部分は減衰を決めます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは長い時間の θ–t です。\(\dfrac\pi4\)（破線）のまわりで振動し、振幅がゆっくり小さくなります。抵抗 \(R\) を変えると、減衰の速さが変わります。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)　一定振幅のときの誘導起電力<span class="ans">答 \(V=\dfrac{2\pi\beta lBL}{T}\cos\dfrac{2\pi t}{T}\)</span></summary><div class="body">
+<p>円弧に沿った速さは \(u=l\dfrac{d\theta}{dt}\) です。</p>
+<p class="law">速度 ＝ 半径 × 角速度</p>
+$$\cacc{u}=l\frac{d\theta}{dt}=\frac{2\pi\beta l}{T}\cos\frac{2\pi t}{T}$$
+<p class="law">誘導起電力（\(\cos\theta\fallingdotseq1\)）</p>
+$$\cfic{V}=\cacc{u}BL\cos\theta\fallingdotseq\frac{2\pi\beta lBL}{T}\cos\frac{2\pi t}{T}$$
+<h3>別解：ファラデーの法則</h3>
+<p>軸受を結ぶ線・2本の導線・棒で囲まれた面を、鉛直な磁場が貫きます。面を水平面に映した面積は \(Ll\sin\theta\) なので、磁束は \(\Phi=BLl\sin\theta\fallingdotseq BLl\theta\)。時間で微分すると同じ \(V=\dfrac{d\Phi}{dt}\) が得られます。</p>
+<div class="box"><b>式の立て方</b>：起電力は「\(v_\perp BL\)」と「\(\dfrac{d\Phi}{dt}\)」のどちらでも書けます。動く棒が1本なら前者、回路の形が変わるなら後者が便利です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：一定振幅になったあと、下の右のグラフで紫の実線（誘導起電力）は \(\theta\) が 0 のとき最大、端で 0 です。θ のグラフより4分の1周期だけずれています。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>III(2)　交流電源の電圧の振幅<span class="ans">答 \(A=\dfrac{2\pi\beta lBL}{T}\)</span></summary><div class="body">
+<p>一定振幅の振動 \(\theta=\beta\sin\dfrac{2\pi t}{T}\) は、周期 \(T\) がもともとのブランコの周期（\(2\pi\sqrt{l/g}\)）と同じです。つまり重力だけで起こる自由な振動で、棒が磁場から受ける力は 0、電流も 0 です。</p>
+<p class="law">キルヒホッフの第2法則（電流 0）</p>
+$$\cfic{A\cos\frac{2\pi t}{T}}-\cfic{V}=R\cdot\cfrc{0}\qquad\therefore\ A=\frac{2\pi\beta lBL}{T}$$
+<p>電源の電圧が誘導起電力をちょうど打ち消し、回路に電流が流れない状態です。</p>
+<h3>着眼点：共振で振幅が育つしくみ</h3>
+<p>放した直後は棒が止まっているので、電源の電圧がそのまま電流を流し、棒を押します。電源の周期がブランコの周期と同じなので、押す向きがいつも速度の向きとそろい、振幅が大きくなります（共振）。振幅が大きくなるほど誘導起電力が電源電圧に近づいて電流が減り、両者が等しくなったところで振幅が一定になります。</p>
+<div class="box"><b>式の立て方</b>：一定振幅になった状態（定常状態）では、「その状態がずっと続くには何が必要か」を考えます。ここでは自由振動と同じ周期なので、電磁力 0、電流 0 が条件です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下の右のグラフで、紫の破線（電源電圧）と紫の実線（誘導起電力）が重なっていき、赤（電流）が 0 に近づきます。β を変えると、必要な \(A\) が比例して変わります。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+
+<details id="d-III3"><summary>III(3)　抵抗を 2R にしたときの最大振れ角<span class="ans">答 \(\beta'=\beta\)</span></summary><div class="body">
+<p>抵抗を変えても、十分に時間が経った一定振幅の状態では電流は 0 です。抵抗の両端の電圧 \(RI\) は \(R\) によらず 0 なので、(2) と同じ式が成り立ちます。</p>
+<p class="law">キルヒホッフの第2法則（電流 0）</p>
+$$A=\frac{2\pi\beta' lBL}{T}=\frac{2\pi\beta lBL}{T}\qquad\therefore\ \beta'=\beta$$
+<p>抵抗が変えるのは、一定振幅になるまでの<b>速さ</b>だけです（時定数 \(\dfrac{2MR}{B^2L^2}\) が2倍になります）。</p>
+<div class="box"><b>式の立て方</b>：定常状態の条件に、変えたもの（ここでは \(R\)）が入っているかを確かめます。入っていなければ、定常状態は変わりません。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(R\)（実線）と \(2R\)（破線）のブランコを同じ電源で動かします。\(2R\) の方がゆっくり振幅が育ちますが、最後は同じ振幅 \(\beta\) にそろいます。</div>
+<button class="goto" data-q="III3">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const st={q:"I1",al:12,R:1.0,B:1.0,dl:6,be:6,spd:1};
+const SL=[
+ ["al","α","はじめの振れ角","°",2,30,1,0,"I"],
+ ["dl","δ","π/4 からのずれ","°",1,12,0.5,1,"II2 II3"],
+ ["be","β","目標の最大振れ角","°",2,12,0.5,1,"III"],
+ ["R","R","抵抗","Ω",0.3,4,0.05,2,"all"],
+ ["B","B","磁束密度","T",0.3,2,0.05,2,"all"],
+ ["spd","","再生速度","倍",0.25,4,0.05,2,"all"]];
+const NAMES={th:"振れ角 θ",v:"棒の速度 v",Mg:"重力 Mg",F:"電流が磁場から受ける力 IBL",I:"電流 I",V:"誘導起電力 vBL cosθ",Vs:"電源の電圧",Q:"ジュール熱",E:"力学的エネルギー",Tn:"導線の張力",g2:"見かけの重力 √2 Mg"};
+const G=9.8,D2R=Math.PI/180,Mm=0.05,ll=0.5,LL=0.2,QDEF={III1:{spd:2},III2:{spd:2},III3:{spd:2},I1:{spd:1},I2:{spd:1},I3:{spd:1},II1:{spd:1},II2:{spd:1},II3:{spd:2}};
+const cv=mkCv($("#cv"),n=>n?[480,690]:[1000,430]);
+const gr=mkCv($("#gr"),n=>n?[480,520]:[1000,260]);
+const T0=()=>2*Math.PI*Math.sqrt(ll/G),I2=()=>Mm*G/(st.B*LL),V0=()=>st.R*I2(),Aac=()=>2*Math.PI*st.be*D2R*ll*st.B*LL/T0(),Pp=()=>2*Math.PI*Math.sqrt(ll/(Math.SQRT2*G));
+const gam=R=>st.B**2*LL**2/(2*Mm*R);
+let lastQ="",S={};
+function Vs(t){const p=part();return p==="I"?0:p==="II"?V0():Aac()*Math.cos(2*Math.PI*t/T0())}
+function cur(s,t,R){return(Vs(t)-st.B*LL*ll*s[1]*Math.cos(s[0]))/R}
+function der(s,t,R){const I=cur(s,t,R);return[s[1],(I*st.B*LL*Math.cos(s[0])-Mm*G*Math.sin(s[0]))/(Mm*ll)]}
+function rk(s,t,h,R){const a=der(s,t,R),b=der([s[0]+h/2*a[0],s[1]+h/2*a[1]],t+h/2,R),c=der([s[0]+h/2*b[0],s[1]+h/2*b[1]],t+h/2,R),d=der([s[0]+h*c[0],s[1]+h*c[1]],t+h,R);return[s[0]+h/6*(a[0]+2*b[0]+2*c[0]+d[0]),s[1]+h/6*(a[1]+2*b[1]+2*c[1]+d[1])]}
+const two=()=>st.q==="I3"||st.q==="III3";
+function tEnd(){const q=st.q,p=part();if(p==="I")return q==="I3"?12:10;if(q==="II1")return 4;if(q==="II2")return 6;if(q==="II3")return 30;return 26}
+function restart(){if(st.q!==lastQ){const D=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in D)if(P[k]!==D[k])st[k]=D[k];lastQ=st.q}
+ const p=part(),q=st.q;let th0=p==="I"?st.al*D2R:p==="II"?(q==="II1"?Math.PI/4:Math.PI/4+st.dl*D2R):0;
+ S={t:-0.5,s:[th0,0],s2:[th0,0],Q:0,Q2:0,hist:[],cross:[],half:null,half2:null,amp0:th0-(p==="II"?Math.PI/4:0),peak:[],hold:0};S.E0=Mm*G*ll*(1-Math.cos(th0));S.hist.push(rec())}
+function onParam(k){if(k!=="spd")restart()}
+function rec(){const t=Math.max(0,S.t),I=cur(S.s,t,st.R),I_=cur(S.s2,t,2*st.R);return{t,th:S.s[0],w:S.s[1],I,V:st.B*LL*ll*S.s[1]*Math.cos(S.s[0]),Vs:Vs(t),Q:S.Q,th2:S.s2[0],I2:I_,E:Mm*G*ll*(1-Math.cos(S.s[0]))+0.5*Mm*(ll*S.s[1])**2}}
+function step(dt){if(S.t<0){S.t=Math.min(0,S.t+dt);return}
+ if(S.t>=tEnd()){S.hold+=dt;if(S.hold>1.5)restart();return}
+ const n=Math.ceil(dt/0.002),h=dt/n,c0=part()==="II"?Math.PI/4:0;
+ for(let i=0;i<n;i++){const pw=st.R*cur(S.s,S.t,st.R)**2,pw2=2*st.R*cur(S.s2,S.t,2*st.R)**2,prev=S.s[1],prev2=S.s2[1];S.s=rk(S.s,S.t,h,st.R);if(two())S.s2=rk(S.s2,S.t,h,2*st.R);S.Q+=pw*h;S.Q2+=pw2*h;S.t+=h;
+  if(prev<0&&S.s[1]>=0)S.cross.push(S.t);
+  if(part()==="I"){if(prev*S.s[1]<=0&&prev!==S.s[1])halfChk("half","_pk",S.s[0]);if(two()&&prev2*S.s2[1]<=0&&prev2!==S.s2[1])halfChk("half2","_pk2",S.s2[0])}}
+ S.hist.push(rec())}
+/* 振幅が半分になる時刻：折り返し点（半周期ごと）の振幅を対数で直線補間 */
+function halfChk(key,pk,th){const a=Math.abs(th),P=S[pk]||{t:0,a:S.amp0};if(S[key]==null&&a<=S.amp0/2){const l0=Math.log(P.a),l1=Math.log(a),lh=Math.log(S.amp0/2);S[key]=P.t+(S.t-P.t)*(l0-lh)/(l0-l1)}S[pk]={t:S.t,a}}
+const period=()=>S.cross.length>=2?S.cross[S.cross.length-1]-S.cross[S.cross.length-2]:null;
+/* ---------- drawing ---------- */
+function curve(c,A,h,fx,fy,col,k,w=2.2,dash){glow(c,k,col);line(c,h.map(e=>[A.X(fx(e)),A.Y(fy(e))]),col,W_(k,w),dash);noglow(c)}
+function tlab(c,B,s){txt(c,s,B.x-30,B.y-34,CL.ink,{s:13,b:1})}
+function curSym(c,x,y,r,I,Imax){const col=CL.frc,on=HL("I");dot(c,x,y,r,CL.bg,CL.ink,2);if(Math.abs(I)<Imax*0.03)return;const k=Math.min(1,Math.abs(I)/Imax)*0.6+0.4,rr=r*0.62*k;
+ if(I>0){dot(c,x,y,rr*0.45+1.5,col)}else{line(c,[[x-rr,y-rr],[x+rr,y+rr]],col,on?3.4:2.4);line(c,[[x-rr,y+rr],[x+rr,y-rr]],col,on?3.4:2.4)}}
+function drawMain(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,q=st.q,p=part(),e=S.hist[S.hist.length-1];
+ const px=n?(part()==="II"?120:W/2):290,py=n?70:70,Lp=n?220:235,ang=e.th,bx=px+Lp*Math.sin(ang),by=py+Lp*Math.cos(ang);
+ // field
+ for(let i=0;i<(n?7:9);i++){const x=(n?40:30)+i*(n?62:66),y1=py+Lp+40,y2=py-30;line(c,[[x,y1],[x,y2+14]],alpha(CL.mute,0.35),1.2);arrow(c,x,y2+24,x,y2+10,alpha(CL.mute,0.5),1.2)}
+ txt(c,"磁場 B（上向き）",n?14:20,py+Lp+56,CL.mute,{s:12});
+ // ghost swing (2R)
+ if(two()){const a2=e.th2,gx=px+Lp*Math.sin(a2),gy=py+Lp*Math.cos(a2);line(c,[[px,py],[gx,gy]],alpha(CL.ink,0.5),1.6,[6,4]);dot(c,gx,gy,13,CL.bg,alpha(CL.ink,0.5),1.5);txt(c,"2R",gx+(a2>0?18:-18),gy+20,CL.mute,{s:12,b:1,al:"center"})}
+ // reference lines
+ line(c,[[px,py],[px,py+Lp+18]],alpha(CL.mute,0.8),1,[4,4]);if(p==="II"){const a=Math.PI/4;line(c,[[px,py],[px+(Lp+24)*Math.sin(a),py+(Lp+24)*Math.cos(a)]],alpha(CL.fic,0.7),1.2,[5,4]);txt(c,"π/4",px+(Lp+34)*Math.sin(a),py+(Lp+34)*Math.cos(a),CL.fic,{s:13})}
+ if(p==="III"){[1,-1].forEach(sg=>{const a=sg*st.be*D2R;line(c,[[px+(Lp-16)*Math.sin(a),py+(Lp-16)*Math.cos(a)],[px+(Lp+16)*Math.sin(a),py+(Lp+16)*Math.cos(a)]],CL.fic,1.6)});txt(c,"±β",px+(Lp+26)*Math.sin(st.be*D2R),py+Lp+24,CL.fic,{s:13,it:1})}
+ // pivot + wire
+ rect(c,px-40,py-14,80,8,CL.panel,CL.ink,1.2);dot(c,px,py,6,CL.bg,CL.ink,2);txt(c,"軸受",px+48,py-10,CL.mute,{s:12});
+ glow(c,"Tn",CL.ink);line(c,[[px,py],[bx,by]],CL.ink,W_("Tn",2.2));noglow(c);
+ // angle arc
+ if(Math.abs(ang)>0.02){c.strokeStyle=CL.acc;c.lineWidth=W_("th",1.8);c.beginPath();const r=60;if(ang>0)c.arc(px,py,r,Math.PI/2-ang,Math.PI/2);else c.arc(px,py,r,Math.PI/2,Math.PI/2-ang);c.stroke();ktag(c,"th","θ",px+74*Math.sin(ang/2),py+74*Math.cos(ang/2),CL.acc,{it:1,s:16,al:"center"})}
+ // rod
+ const Imax=I2()*1.2+Math.abs(st.B*LL*ll*st.al*D2R*Math.sqrt(G/ll)/st.R)+0.02;curSym(c,bx,by,15,e.I,Math.max(Imax,Math.abs(e.I)));
+ // forces (per Mg scale)
+ const FS=n?62:70,Fm=e.I*st.B*LL/(Mm*G);
+ karrow(c,"Mg",bx,by+16,bx,by+16+FS,CL.grav,3);ktag(c,"Mg","Mg",bx+8,by+16+FS-8,CL.grav,{it:1});
+ if(Math.abs(Fm)>0.03){karrow(c,"F",bx+Math.sign(Fm)*16,by,bx+Math.sign(Fm)*16+Fm*FS,by,CL.fr,3);ktag(c,"F","IBL",bx+Math.sign(Fm)*16+Fm*FS+(Fm>0?6:-6),by-14,CL.fr,{it:1,al:Fm>0?"left":"right"})}
+ if(p==="II"&&(q==="II1"||q==="II2")){const gx=bx+FS*1,gy=by+FS*1;line(c,[[bx+FS,by],[gx,gy],[bx,by+FS]],alpha(CL.mute,0.7),1,[3,3]);karrow(c,"g2",bx,by,gx,gy,CL.fic,2.4);ktag(c,"g2","√2 Mg",gx+6,gy+8,CL.fic,{s:13})}
+ const v=e.w*ll,VSc=n?60:70;if(Math.abs(v)>0.01){const ux=Math.cos(ang),uy=-Math.sin(ang);karrow(c,"v",bx,by,bx+ux*v*VSc,by+uy*v*VSc,CL.acc,2.6);ktag(c,"v","v",bx+ux*v*VSc+(v>0?8:-8),by+uy*v*VSc-8,CL.acc,{it:1,al:v>0?"left":"right"})}
+ txt(c,"棒の向きから見た図（⊙：手前向きの電流　⊗：奥向きの電流）",n?12:16,22,CL.ink,{s:13,b:1});
+ // circuit
+ const Cx=n?60:620,Cy=n?py+Lp+130:80,Cw=n?W-170:260,Ch=n?200:250;circuit(c,Cx,Cy,Cw,Ch,e)}
+function circuit(c,x,y,w,h,e){const p=part(),R=st.R,I=e.I;
+ line(c,[[x,y],[x+w,y],[x+w,y+h],[x,y+h],[x,y]],CL.ink,1.8);
+ // resistor top
+ const rw=70;rect(c,x+w/2-rw/2,y-12,rw,24,CL.bg,CL.ink,1.8);txt(c,"R",x+w/2,y,CL.ink,{s:14,it:1,al:"center"});ktag(c,"I",`RI = ${(R*I).toFixed(2)} V`,x+w/2,y-28,CL.frc,{s:12,al:"center"});
+ // rod emf bottom (battery)
+ const bx=x+w/2,byy=y+h,V=e.V;rect(c,bx-22,byy-16,44,32,CL.bg);glow(c,"V",CL.fic);line(c,[[bx-6,byy-16],[bx-6,byy+16]],CL.fic,W_("V",2.4));line(c,[[bx+6,byy-9],[bx+6,byy+9]],CL.fic,W_("V",4.5));noglow(c);
+ ktag(c,"V",`棒の起電力 vBLcosθ = ${Math.abs(V).toFixed(3)} V`,bx,byy+30,CL.fic,{s:12,al:"center"});
+ // source left
+ const sx=x,sy=y+h/2;rect(c,sx-20,sy-24,40,48,CL.bg);
+ if(p==="I"){line(c,[[sx,sy-24],[sx,sy+24]],CL.ink,1.8);txt(c,"電源なし",sx+10,sy,CL.mute,{s:12})}
+ else if(p==="II"){glow(c,"Vs",CL.fic);line(c,[[sx-14,sy-6],[sx+14,sy-6]],CL.fic,W_("Vs",4.5));line(c,[[sx-9,sy+6],[sx+9,sy+6]],CL.fic,W_("Vs",2.4));noglow(c);ktag(c,"Vs",`直流 V₀ = ${V0().toFixed(2)} V`,sx+28,sy,CL.fic,{s:12})}
+ else{glow(c,"Vs",CL.fic);dot(c,sx,sy,16,CL.bg,CL.fic,W_("Vs",2));const pts=[];for(let i=0;i<=20;i++)pts.push([sx-10+i,sy-6*Math.sin(i/20*2*Math.PI)]);line(c,pts,CL.fic,1.8);noglow(c);ktag(c,"Vs",`交流 ${e.Vs.toFixed(3)} V`,sx+28,sy,CL.fic,{s:12})}
+ // current arrows
+ const Im=Math.max(I2()*1.1,0.05),k=Math.min(1,Math.abs(I)/Im);if(Math.abs(I)>Im*0.02){const dir=Math.sign(I),wdt=1.5+4*k;glow(c,"I",CL.frc);
+  [[x+w*0.25,y,1,0],[x+w,y+h*0.5,0,1],[x+w*0.75,y+h,-1,0]].forEach(([ax,ay,dx,dy])=>arrow(c,ax-dx*dir*18,ay-dy*dir*18,ax+dx*dir*18,ay+dy*dir*18,CL.frc,W_("I",wdt)));noglow(c);
+  ktag(c,"I",`I = ${I.toFixed(3)} A`,x+w+12,y+h*0.5+26,CL.frc,{s:13,b:1})}
+ else txt(c,"I ≈ 0",x+w+12,y+h*0.5+26,CL.frc,{s:13,b:1});
+ txt(c,"回路（棒 ＝ 起電力 vBLcosθ の電池）",x,y-44,CL.ink,{s:12,b:1})}
+function boxes(W,H,n){return n?[{x:58,y:50,w:W-90,h:(H-170)/2},{x:58,y:50+(H-170)/2+82,w:W-90,h:(H-170)/2}]:[{x:76,y:50,w:W*0.46-90,h:H-92},{x:W*0.5+70,y:50,w:W*0.5-110,h:H-92}]}
+function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q,p=part(),h=S.hist,e=h[h.length-1];const[B1,B2]=boxes(W,H,n),te=tEnd();
+ const wide=q==="II3",BW=wide?{x:n?58:76,y:50,w:W-(n?90:130),h:H-(n?110:92)}:B1;
+ let yr;if(p==="I")yr=[-st.al*1.15,st.al*1.15];else if(p==="II")yr=[45-st.dl*1.3-1,45+st.dl*1.3+1];else yr=[-st.be*1.6,st.be*1.6];
+ const A=axes(c,BW,[0,te],yr,{xl:"t [s]",xit:false,yl:"θ [°]",yit:false,y0:p==="II"?yr[0]:0,xt:[[te/2,(te/2).toFixed(0)],[te,te.toFixed(0)]],yt:p==="II"?[[45,"π/4"]]:p==="III"?[[st.be,"β"],[-st.be,"−β"]]:[[st.al,"α"],[st.al/2,"α/2"]]});
+ if(p==="II")line(c,[[A.X(0),A.Y(45)],[A.X(te),A.Y(45)]],alpha(CL.fic,0.7),1.2,[5,4]);if(p==="III")[st.be,-st.be].forEach(v=>line(c,[[A.X(0),A.Y(v)],[A.X(te),A.Y(v)]],alpha(CL.fic,0.6),1,[5,4]));
+ if(p==="I")[st.al/2,-st.al/2].forEach(v=>line(c,[[A.X(0),A.Y(v)],[A.X(te),A.Y(v)]],alpha(CL.mute,0.6),1,[3,3]));
+ if(two())curve(c,A,h,e=>e.t,e=>e.th2/D2R,alpha(CL.ink,0.55),"th",1.6,[6,4]);curve(c,A,h,e=>e.t,e=>e.th/D2R,CL.acc,"th",2);
+ tlab(c,BW,two()?"θ–t グラフ（実線：R，破線：2R）":"θ–t グラフ");if(wide)return;
+ if(p==="I"){const items=[["力学的エネルギー",e.E,CL.grav,"E"],["ジュール熱の合計",e.Q,CL.frc,"Q"],["和",e.E+e.Q,CL.mute,""]],Em=S.E0*1.15;
+  items.forEach(([l,v,col,k],i)=>{const bw=B2.w/3*0.5,bx=B2.x+B2.w*(i+0.5)/3-bw/2,hh=B2.h*v/Em;glow(c,k,col);rect(c,bx,B2.y+B2.h-hh,bw,hh,alpha(col,0.6),col,1.2);noglow(c);txt(c,l,bx+bw/2,B2.y+B2.h+16,CL.ink,{s:n?11:12,al:"center"});txt(c,(v*1000).toFixed(2)+" mJ",bx+bw/2,B2.y+B2.h-hh-10,CL.ink,{s:12,al:"center",b:1})});
+  line(c,[[B2.x,B2.y+B2.h],[B2.x+B2.w,B2.y+B2.h]],CL.mute,1.2);tlab(c,B2,"エネルギー：減った分がジュール熱に");return}
+ if(p==="II"){const Im=I2();const A2=axes(c,B2,[0,te],[Im*0.6,Im*1.4],{xl:"t [s]",xit:false,yl:"I [A]",yit:false,xt:[[te,te.toFixed(0)]],yt:[[Im,"I₂"]]});line(c,[[A2.X(0),A2.Y(Im)],[A2.X(te),A2.Y(Im)]],alpha(CL.frc,0.6),1,[5,4]);
+  curve(c,A2,h,e=>e.t,e=>e.I,CL.frc,"I",2);tlab(c,B2,"電流：I₂ のまわりで少し変わる");return}
+ const Vm=Aac()*1.6;const A2=axes(c,B2,[0,te],[-Vm,Vm],{xl:"t [s]",xit:false,yl:"電圧 [V]",yit:false,y0:0,xt:[[te,te.toFixed(0)]],yt:[[Aac(),"A"],[-Aac(),"−A"]]});
+ curve(c,A2,h,e=>e.t,e=>e.Vs,alpha(CL.fic,0.7),"Vs",1.6,[6,4]);curve(c,A2,h,e=>e.t,e=>e.V,CL.fic,"V",2);curve(c,A2,h,e=>e.t,e=>e.I*st.R,CL.frc,"I",1.8);
+ txt(c,"破線：電源　実線：誘導起電力　赤：RI",B2.x+B2.w,B2.y-12,CL.mute,{s:11,al:"right"});tlab(c,B2,"電圧：起電力が電源を打ち消していく")}
+function drawAll(){drawMain();drawGr()}
+/* ---------- live equations ---------- */
+function eqs(){const q=st.q,R=String.raw,N=cv.narrow,e=S.hist[S.hist.length-1],v=e.w*ll;
+ if(q==="I1")return{title:"誘導起電力とキルヒホッフの第2法則",list:[{t:TK("V","fic",R`V`)+"="+TK("v","acc","v")+R`BL\cos`+TK("th","acc",R`\theta`)+"="+TK("I","frc","R I"),n:`${NS((st.B*LL*v*Math.cos(e.th)).toFixed(4),"fic")} V = R × ${NS(e.I.toFixed(4),"frc")} A`},{t:R`\theta=0:\ \ `+TK("I","frc",R`I_1`)+R`=\frac{`+TK("v","acc","v")+R`BL}{R}`,n:`v = ${NS(v.toFixed(3),"acc")} m/s`}]};
+ if(q==="I2")return{title:"エネルギー保存則",list:[{t:TK("E","grav",R`Mgl(1-\cos\alpha)`)+"="+TK("E","grav",R`\bigl(\text{いまの力学的エネルギー}\bigr)`)+"+"+TK("Q","frc",R`Q_{\text{これまで}}`),n:`${(S.E0*1000).toFixed(3)} = ${NS((e.E*1000).toFixed(3),"grav")} + ${NS((e.Q*1000).toFixed(3),"frc")} [mJ]`}]};
+ if(q==="I3")return{title:"電磁誘導のブレーキ力（速度に比例）",list:[{t:TK("F","fr",R`IBL\cos\theta`)+R`=\frac{B^2L^2\cos^2\theta}{R}\,`+TK("v","acc","v"),n:""},{t:R`\text{振幅}\propto e^{-\gamma t},\quad\gamma=\frac{B^2L^2}{2MR}`,n:`半分になる時間 ln2/γ：R → ${(Math.log(2)/gam(st.R)).toFixed(2)} s，2R → ${(Math.log(2)/gam(2*st.R)).toFixed(2)} s`}]};
+ if(q==="II1")return{title:"力のつり合い（導線に垂直な方向）",list:cv.narrow?[{t:TK("F","fr",R`I_2BL`)+R`\cos\frac\pi4=`+TK("Mg","grav","Mg")+R`\sin\frac\pi4`,n:""},{t:R`I_2=\frac{Mg}{BL}`,n:`I₂ = ${NS(I2().toFixed(3),"frc")} A，V₀ = RI₂ = ${V0().toFixed(3)} V`}]:[{t:TK("F","fr",R`I_2BL`)+R`\cos\frac\pi4=`+TK("Mg","grav","Mg")+R`\sin\frac\pi4\;\Rightarrow\;I_2=\frac{Mg}{BL}`,n:`I₂ = ${NS(I2().toFixed(3),"frc")} A，V₀ = RI₂ = ${V0().toFixed(3)} V`}]};
+ if(q==="II2")return{title:"見かけの重力と周期",list:[{t:TK("g2","fic",R`Mg'`)+R`=\sqrt{`+TK("Mg","grav","(Mg)^2")+"+"+TK("F","fr",R`(I_2BL)^2`)+(cv.narrow?"}":R`}=\sqrt2Mg`),n:cv.narrow?"= √2 Mg（I₂BL = Mg のとき）":""},{t:R`P=2\pi\sqrt{\frac{l}{\sqrt2\,g}}`,n:`P = ${NS(Pp().toFixed(3),"acc")} s，測定 ${period()?period().toFixed(3)+" s":"—"}（電源なしでは ${T0().toFixed(3)} s）`}]};
+ if(q==="II3")return{title:"電流 ＝ 電源による分 ＋ 動きによる分",list:[{t:TK("I","frc","I")+"=I_2-\\frac{"+TK("V","fic",R`vBL\cos\theta`)+"}{R}",n:`I = ${NS(e.I.toFixed(3),"frc")} A（I₂ = ${I2().toFixed(3)} A）`}]};
+ if(q==="III1")return{title:"一定振幅での誘導起電力",list:[{t:TK("V","fic","V")+"="+TK("v","acc",R`l\frac{d\theta}{dt}`)+R`\,BL\cos\theta\fallingdotseq\frac{2\pi\beta lBL}{T}\cos\frac{2\pi t}{T}`,n:`いま V = ${NS(e.V.toFixed(4),"fic")} V，振幅の式 ${Aac().toFixed(4)} V`}]};
+ if(q==="III2")return{title:"キルヒホッフの第2法則",list:[{t:TK("Vs","fic",R`A\cos\frac{2\pi t}{T}`)+"-"+TK("V","fic","V")+"="+TK("I","frc","RI")+R`\;\to\;0`,n:`${NS(e.Vs.toFixed(4),"fic")} − ${NS(e.V.toFixed(4),"fic")} = ${NS((e.I*st.R).toFixed(4),"frc")} [V]`},{t:R`A=\frac{2\pi\beta lBL}{T}`,n:`A = ${Aac().toFixed(4)} V`}]};
+ return{title:"定常状態では電流 0（R によらない）",list:[{t:R`A=\frac{2\pi\beta' lBL}{T}=\frac{2\pi\beta lBL}{T}\;\Rightarrow\;\beta'=\beta`,n:`時定数 2MR/B²L²：R → ${(1/gam(st.R)).toFixed(2)} s，2R → ${(1/gam(2*st.R)).toFixed(2)} s`}]}}
+function note(){return`M = ${Mm} kg，l = ${ll} m，L = ${LL} m，g = 9.8 m/s²。`+(part()==="III"?"電源の周期は T = 2π√(l/g) にしてあります。":"")+(two()?"破線のブランコは抵抗だけを 2R にしたものです。":"")}
+function amp(key){const h=S.hist,c0=part()==="II"?Math.PI/4:0;let m=0;for(let i=h.length-1;i>=0&&h[h.length-1].t-h[i].t<T0()*1.05;i--)m=Math.max(m,Math.abs(h[i][key]-c0));return m/D2R}
+function readout(){const q=st.q,p=part(),e=S.hist[S.hist.length-1],r=[["時刻 t",e.t.toFixed(2)+" s"],["振れ角 θ",(e.th/D2R).toFixed(2)+"°"],["電流 I",e.I.toFixed(4)+" A"]];
+ if(p==="I"){r.push(["ジュール熱の合計",(e.Q*1000).toFixed(3)+" mJ"],["Mgl(1−cosα)",(S.E0*1000).toFixed(3)+" mJ"]);if(q==="I3")r.push(["振幅が半分になった時刻（R）",S.half?S.half.toFixed(2)+" s":"—"],["振幅が半分になった時刻（2R）",S.half2?S.half2.toFixed(2)+" s":"—"]);return r}
+ if(p==="II"){r.push(["I₂ = Mg/BL",I2().toFixed(4)+" A"],["周期 P（式）",Pp().toFixed(3)+" s"],["周期（測定）",period()?period().toFixed(3)+" s":"—"],["π/4 からの振幅",amp("th").toFixed(2)+"°"]);return r}
+ r.push(["いまの振幅",amp("th").toFixed(2)+"°"],["目標 β",st.be.toFixed(1)+"°"],["電源の振幅 A",Aac().toFixed(4)+" V"]);if(q==="III3")r.push(["2R の振幅",amp("th2").toFixed(2)+"°"]);return r}
+initUI("I1");
+}
+</script>
+</body>
+</html>
