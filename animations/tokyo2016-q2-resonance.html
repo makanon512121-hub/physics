@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>共振の2つの顔：RLC回路とサイクロトロン共鳴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>共振の2つの顔：RLC回路とサイクロトロン共鳴（東京大学 2016年 第2問）</h1>
+<p class="lead">交流回路の電流と、回る電場に押される荷電粒子。見た目はまったく違いますが、どちらも「ある角周波数で電力の吸収がいちばん大きくなる」<b>共振</b>を起こします。左の図で動きを、右の図で<b>フェーザー図</b>（回路）や<b>力のつり合い</b>（粒子）を、下のグラフで共振曲線を見比べてください。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="RLC直列回路とフェーザー図、または回転する電場の中で円運動する荷電粒子"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<canvas id="gr" role="img" aria-label="電圧と電流の波形、電力の共振曲線、位相のグラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) I₀ と tan δ</button>
+<button class="qb" data-q="I2">I(2) 電力の平均</button>
+<button class="qb" data-q="I3">I(3) 共振と R</button>
+<button class="qb" data-q="I4">I(4) 半値幅と L</button>
+<button class="qb" data-q="II1">II(1) 力のつり合い</button>
+<button class="qb" data-q="II2">II(2) v と tan δ</button>
+<button class="qb" data-q="II3">II(3) 仕事率 P</button>
+<button class="qb" data-q="II4">II(4) 質量 m</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<style>.cmp{border-collapse:collapse;margin:10px 0;font-size:14px;width:100%}.cmp th,.cmp td{border:1px solid var(--line);padding:6px 8px;text-align:center}.cmp th{background:var(--panel)}.cmpw{overflow-x:auto}</style>
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。図の色（I）：<span class="t-frc">電源電圧 V（赤）</span>、<span class="t-acc">抵抗の電圧 V<sub>R</sub>（青）</span>、<span class="t-fic">コイルの電圧 V<sub>L</sub>（紫）</span>、<span class="t-grav">コンデンサーの電圧 V<sub>C</sub>（緑）</span>、<span class="t-fr">電流 I（オレンジ）</span>。図の色（II）：<span class="t-frc">電場の力 qE（赤）</span>、<span class="t-acc">速度 v（青）</span>、<span class="t-fic">ローレンツ力 qvB（紫）</span>、<span class="t-fr">抵抗力 kv（オレンジ）</span>、<span class="t-grav">mvω（緑）</span>。</p>
+
+<details id="d-I1"><summary>I(1)　電流の振幅 I₀ と tan δ<span class="ans">答 \(I_0=\dfrac{V_0}{\sqrt{R^2+\bigl(\omega L-\frac1{\omega C}\bigr)^2}},\ \ \tan\delta=\dfrac{\omega L-\frac1{\omega C}}{R}\)</span></summary><div class="body">
+<p>直列回路では、どの素子にも同じ電流 \(I=I_0\sin\omega t\) が流れます。そこで、各素子の電圧を電流で表してから足し合わせます。</p>
+<p class="law">各素子の電圧</p>
+$$\cacc{V_R}=RI=RI_0\sin\omega t,\qquad \cfic{V_L}=L\frac{dI}{dt}=\omega LI_0\cos\omega t,\qquad \cgrav{V_C}=\frac QC=-\frac{I_0}{\omega C}\cos\omega t$$
+<p>コンデンサーの電荷は \(I=\dfrac{dQ}{dt}\) より \(Q=-\dfrac{I_0}{\omega}\cos\omega t\) です。\(V_R\) は電流と同じ位相、\(V_L\) は \(\dfrac\pi2\) 進み、\(V_C\) は \(\dfrac\pi2\) 遅れます。</p>
+<p class="law">キルヒホッフの第2法則（電圧の和）</p>
+$$\cfrc{V_0}\sin(\omega t+\delta)=RI_0\sin\omega t+\Bigl(\omega L-\frac1{\omega C}\Bigr)I_0\cos\omega t$$
+<p>右辺を三角関数の合成でまとめると、振幅は \(I_0\sqrt{R^2+\bigl(\omega L-\frac1{\omega C}\bigr)^2}\)、位相のずれは \(\tan\delta=\dfrac{\omega L-1/(\omega C)}{R}\) です。左辺と比べて</p>
+$$I_0=\frac{V_0}{\sqrt{R^2+\bigl(\omega L-\frac1{\omega C}\bigr)^2}},\qquad \tan\delta=\frac{\omega L-\frac1{\omega C}}{R}$$
+<h3>着眼点：フェーザー図（回転するベクトル）</h3>
+<p>\(\sin\) で振動する量を「角速度 \(\omega\) で回るベクトルの縦成分」と考えると、位相のずれはベクトルの向きの差になります。\(\cacc{V_R}\) を電流と同じ向きに、\(\cfic{V_L}\) をそこから 90° 先に、\(\cgrav{V_C}\) を 90° 後ろに描いて、矢印をつなげた先が \(\cfrc{V_0}\) です。\(V_L\) と \(V_C\) は逆向きなので打ち消し合い、残りの \((\omega L-\frac1{\omega C})I_0\) と \(RI_0\) が直角三角形をつくります。三平方の定理から \(I_0\) が、三角形の角から \(\tan\delta\) がすぐに読めます。</p>
+<div class="box"><b>式の立て方</b>：直列回路では「共通な電流」を \(I_0\sin\omega t\) とおき、各素子の電圧を電流で書いてキルヒホッフの第2法則で足します（並列回路なら共通なのは電圧です）。あとは \(\sin\omega t\) と \(\cos\omega t\) の係数を比べるか、フェーザー図の直角三角形を使います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右のフェーザー図では、\(V_R\) の先から \(V_L\)（紫）と \(V_C\)（緑）を逆向きに描き、その和（灰色の点線）と \(V_R\) をつないだ先が \(V\)（赤）になっています。各矢印の縦成分が、左の回路の電圧の棒の長さと一致します。\(\omega\) を動かすと紫と緑の矢印の長さが変わり、赤い矢印の向き（\(\delta\)）が電流（オレンジ）より前になったり後ろになったりします。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　電源が供給する電力の時間平均 P̄<span class="ans">答 \(\overline P=\dfrac{RV_0^2}{2\bigl\{R^2+\bigl(\omega L-\frac1{\omega C}\bigr)^2\bigr\}}\)</span></summary><div class="body">
+<p>コイルとコンデンサーはエネルギーをたくわえては返すだけなので、1周期で平均すると電力を消費しません。電源の電力の平均は、抵抗で消費されるジュール熱の平均に等しくなります。</p>
+<p class="law">抵抗の消費電力（ジュール熱）の時間平均</p>
+$$\overline P=\overline{RI^2}=RI_0^2\,\overline{\sin^2\omega t}=\frac12RI_0^2=\frac{RV_0^2}{2\bigl\{R^2+\bigl(\omega L-\frac1{\omega C}\bigr)^2\bigr\}}$$
+<h3>別解：電源の電力 VI を直接平均する</h3>
+<p>\(\overline{VI}=V_0I_0\,\overline{\sin(\omega t+\delta)\sin\omega t}=\dfrac12V_0I_0\cos\delta\) です。フェーザー図の直角三角形から \(\cos\delta=\dfrac{R}{\sqrt{R^2+(\omega L-\frac1{\omega C})^2}}\) なので、同じ結果になります。\(\cos\delta\) は<b>力率</b>と呼ばれ、電圧と電流の向きがそろっているほど電力が大きくなります。</p>
+<div class="box"><b>式の立て方</b>：時間平均は \(\overline{\sin^2\omega t}=\dfrac12\)、\(\overline{\sin\omega t\cos\omega t}=0\) を使える形に変形します。「平均で電力を使うのは抵抗だけ」と分かっていれば、\(\dfrac12RI_0^2\) がいちばん速い道です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下の左のグラフの黒い線が瞬間の電力 \(VI\) です。電圧と電流の符号が違う区間では \(VI<0\)（コイルやコンデンサーから電源へエネルギーが戻る）になります。平均（黒の点線）は \(\frac12\cos\delta\) で、\(\omega\) を共振に近づけると負の区間が消えていきます。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　電力が最大 P₀ のときの抵抗値 R<span class="ans">答 \(R=\dfrac{V_0^2}{2P_0}\)</span></summary><div class="body">
+<p>I(2) の式で \(\omega\) によって変わるのは分母の \(\bigl(\omega L-\frac1{\omega C}\bigr)^2\) だけです。これが 0 のとき \(\overline P\) は最大です。</p>
+<p class="law">共振の条件</p>
+$$\omega L=\frac1{\omega C}\quad\Longrightarrow\quad \omega_0=\frac1{\sqrt{LC}}$$
+<p class="law">最大電力</p>
+$$P_0=\frac{RV_0^2}{2R^2}=\frac{V_0^2}{2R}\qquad\therefore\ R=\frac{V_0^2}{2P_0}$$
+<h3>着眼点：共振では L と C が「消える」</h3>
+<p>共振のときは \(\cfic{V_L}+\cgrav{V_C}=0\) がいつでも成り立ちます。電源から見ると、回路は抵抗 \(R\) だけをつないだのと同じで、電圧と電流の位相もそろいます（\(\delta=0\)）。ただし \(V_L\) と \(V_C\) それぞれは 0 ではなく、電源電圧より大きくなることもあります。</p>
+<div class="box"><b>式の立て方</b>：「最大・最小」を問われたら、まず式の中で変数（ここでは \(\omega\)）が入っている部分を一か所に集めます。2乗の項が 0 になるときが最大・最小の候補です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：この設問では \(\omega=\omega_0\) にしてあります。フェーザー図では紫と緑の矢印が同じ長さで逆向きになり、赤とオレンジがそろいます。回路の棒グラフでも \(V_L\) と \(V_C\) が常に逆向きで同じ長さです。\(R\) を小さくすると、この2本がどんどん長くなります。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>I(4)　電力が半分になる ω₁, ω₂ から L を求める<span class="ans">答 \(L=\dfrac{V_0^2}{2P_0\,\Delta\omega}\)</span></summary><div class="body">
+<p>I(2), I(3) の式を比べると、\(\overline P=\dfrac{P_0}2\) になるのは分母が \(R^2\) の2倍のときです。</p>
+<p class="law">電力が半分になる条件</p>
+$$\Bigl(\omega L-\frac1{\omega C}\Bigr)^2=R^2$$
+<p>\(\omega L-\dfrac1{\omega C}\) は \(\omega\) とともに増えるので、小さい方の \(\omega_1\) では \(-R\)、大きい方の \(\omega_2\) では \(+R\) です。</p>
+$$\omega_2L-\frac1{\omega_2C}=R,\qquad \omega_1L-\frac1{\omega_1C}=-R$$
+<p>2式を足すと \((\omega_1+\omega_2)\Bigl(L-\dfrac1{\omega_1\omega_2C}\Bigr)=0\) より \(\omega_1\omega_2=\dfrac1{LC}\)。2式を引くと \(\Delta\omega\Bigl(L+\dfrac1{\omega_1\omega_2C}\Bigr)=2R\) なので、これを入れて \(2L\,\Delta\omega=2R\) です。</p>
+$$\Delta\omega=\frac RL\qquad\therefore\ L=\frac R{\Delta\omega}=\frac{V_0^2}{2P_0\,\Delta\omega}$$
+<h3>着眼点：半分の電力は δ = ±45°</h3>
+<p>\(\overline P=P_0\cos^2\delta\) と書けるので、電力が半分になるのは \(\cos^2\delta=\frac12\)、つまり \(\tan\delta=\pm1\) のときです。フェーザー図では \((\omega L-\frac1{\omega C})I_0\) と \(RI_0\) が同じ長さの直角二等辺三角形になります。また \(\omega_1\omega_2=\omega_0^2\) なので、共振の角周波数は \(\omega_1\) と \(\omega_2\) の相乗平均です。</p>
+<p>\(\Delta\omega\) は共振の鋭さを表し、\(R\) が小さいほど、\(L\) が大きいほど鋭い共振になります。</p>
+<div class="box"><b>式の立て方</b>：\(\pm\) の2つの条件式が出たら、「足す」と「引く」の両方を試します。ここでは足すと \(\omega_1\omega_2\) が、引くと \(\Delta\omega\) が出てきて、2次方程式を解かずに済みます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：この設問では \(\omega\) を \(\omega_1\) 付近にしてあります。下の右のグラフで点が半分の高さの線に乗り、フェーザー図の \(\delta\) が約 −45° になります。\(R\) や \(L\) を動かして、読み取り欄の \(\Delta\omega\) と \(R/L\) がいつも一致することを確かめてください。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　速度に平行な方向と垂直な方向の力のつり合い<span class="ans">答 平行：\(qE\cos\delta=kv\)　垂直：\(mv\omega=qvB+qE\sin\delta\)</span></summary><div class="body">
+<p>粒子にはたらく力は3つです。</p>
+<ul>
+<li><span class="t-frc">電場からの力 \(qE\)</span>：速度から角 \(\delta\) だけ回転の向き（円の内側寄り）にずれた向き</li>
+<li><span class="t-fic">ローレンツ力 \(qvB\)</span>：速度に垂直。磁場が紙面の表から裏、粒子が反時計回りなので、フレミングの左手の法則より円の中心向き</li>
+<li><span class="t-fr">抵抗力 \(kv\)</span>：速度と逆向き</li>
+</ul>
+<p>等速円運動なので、速度方向の加速度は 0、中心方向の加速度は \(\dfrac{v^2}r=v\omega\)（\(v=r\omega\) を使いました）です。</p>
+<p class="law">運動方程式（等速円運動）</p>
+$$\text{速度方向：}\ 0=\cfrc{qE\cos\delta}-\cfr{kv},\qquad \text{中心方向：}\ m\cgrav{v\omega}=\cfic{qvB}+\cfrc{qE\sin\delta}$$
+<h3>粒子と一緒に回る見方</h3>
+<p>問題文の「力の釣り合い」は、粒子と一緒に回転する立場で見ると自然です。この立場では中心から外向きに遠心力 \(mr\omega^2=mv\omega\) が加わり、すべての力がつり合います。</p>
+$$\cfrc{qE\cos\delta}=\cfr{kv},\qquad \cgrav{mv\omega}=\cfic{qvB}+\cfrc{qE\sin\delta}$$
+<div class="box"><b>式の立て方</b>：円運動は「速度（接線）方向」と「中心方向」に分けます。中心方向の加速度は \(\dfrac{v^2}r=r\omega^2=v\omega\) のどれでも同じなので、問題で与えられた文字（ここでは \(v\) と \(\omega\)）で書ける形を選びます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右の図は粒子と一緒に回る見方です。オレンジの抵抗力と赤の縦成分、緑の遠心力と紫＋赤の横成分が、いつも同じ長さでつり合っています。左の図では、赤い矢印（電場）が青い矢印（速度）と一定の角 \(\delta\) を保ったまま一緒に回ります。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　速さ v と tan δ<span class="ans">答 \(v=\dfrac{qE}{\sqrt{k^2+(m\omega-qB)^2}},\ \ \tan\delta=\dfrac{m\omega-qB}{k}\)</span></summary><div class="body">
+<p>II(1) の2式を \(qE\cos\delta\)、\(qE\sin\delta\) について整理します。</p>
+$$qE\cos\delta=kv,\qquad qE\sin\delta=(m\omega-qB)\,v$$
+<p class="law">2式の比（割り算）</p>
+$$\tan\delta=\frac{m\omega-qB}{k}$$
+<p class="law">2式の2乗の和</p>
+$$(qE)^2=\bigl\{k^2+(m\omega-qB)^2\bigr\}v^2\qquad\therefore\ v=\frac{qE}{\sqrt{k^2+(m\omega-qB)^2}}$$
+<h3>着眼点：δ の符号の意味</h3>
+<p>\(\omega=\dfrac{qB}m\) のとき、磁場の力だけで円運動の向心力をちょうどまかなえます（磁場中の荷電粒子が自然に回る角速度です）。このとき \(\delta=0\) で、電場は速度と同じ向きに押すだけなので、速さが最大になります。\(\omega\) がこれより小さいと磁場の力が強すぎるので、電場は少し外向き（\(\delta<0\)）に、大きいと内向き（\(\delta>0\)）に向いて不足分を補います。</p>
+<div class="box"><b>式の立て方</b>：\(A\cos\delta=X,\ A\sin\delta=Y\) の形の2式は、「割ると \(\tan\delta\)」「2乗して足すと \(A^2\)」が定番です。I(1) の三角関数の合成と同じ計算です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(\omega/\omega_0\) を1より小さくすると左の図の赤い矢印が青より外側に、1より大きくすると内側に向きます。下の右のグラフの \(\delta\) の曲線と、読み取り欄の \(v\) の値が最大になる位置を確かめてください。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　電場がする仕事率 P<span class="ans">答 \(P=\dfrac{kq^2E^2}{k^2+(m\omega-qB)^2}\)</span></summary><div class="body">
+<p>仕事率は「力 × 速度方向の成分 × 速さ」です。ローレンツ力は速度に垂直なので仕事をしません。</p>
+<p class="law">仕事率</p>
+$$P=\cfrc{qE\cos\delta}\cdot v=\cfr{kv}\cdot v=kv^2=\frac{kq^2E^2}{k^2+(m\omega-qB)^2}$$
+<p>粒子の速さは一定で運動エネルギーは変わらないので、電場が与えたエネルギーはすべて抵抗力（中性ガス）に熱として渡されます。これは I(2) で「電源の電力 ＝ 抵抗のジュール熱」となったのと同じ構図です。</p>
+<div class="box"><b>式の立て方</b>：仕事率 \(P=\vec F\cdot\vec v=Fv\cos\theta\) です。等速運動なら「仕事率の和 ＝ 0」から、電場の仕事率 ＝ 抵抗力が奪う仕事率 \(kv^2\) と考える方が速いことがあります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下の左のグラフが \(P/P_0\) の共振曲線です。\(k\) を小さくすると山が高く鋭くなり、\(k\) を大きくすると低くなだらかになります（縦軸は \(P_0\) でそろえてあります）。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>II(4)　共振のデータから質量 m を求める<span class="ans">答 \(m=\dfrac{P_0B^2\,\Delta\omega}{2E^2\omega_0^2}\)</span></summary><div class="body">
+<p class="law">共振の条件と最大値</p>
+$$m\omega_0=qB\ \Rightarrow\ \omega_0=\frac{qB}m,\qquad P_0=\frac{q^2E^2}{k}$$
+<p class="law">仕事率が半分になる条件</p>
+$$(m\omega-qB)^2=k^2\ \Rightarrow\ \omega=\omega_0\pm\frac km\qquad\therefore\ \Delta\omega=\frac{2k}m$$
+<p>未知の \(q\) と \(k\) を消します。\(q=\dfrac{m\omega_0}B\)、\(k=\dfrac{m\,\Delta\omega}2\) を \(P_0\) の式に入れると</p>
+$$P_0=\frac{m^2\omega_0^2E^2}{B^2}\cdot\frac2{m\,\Delta\omega}=\frac{2m\omega_0^2E^2}{B^2\,\Delta\omega}\qquad\therefore\ m=\frac{P_0B^2\,\Delta\omega}{2E^2\omega_0^2}$$
+<h3>着眼点：2つの共振を並べてみる</h3>
+<div class="cmpw"><table class="cmp"><tr><th></th><th>I　RLC回路</th><th>II　荷電粒子</th></tr>
+<tr><td>応答の大きさ</td><td>\(I_0=\dfrac{V_0}{\sqrt{R^2+(\omega L-\frac1{\omega C})^2}}\)</td><td>\(v=\dfrac{qE}{\sqrt{k^2+(m\omega-qB)^2}}\)</td></tr>
+<tr><td>位相のずれ</td><td>\(\tan\delta=\dfrac{\omega L-\frac1{\omega C}}R\)</td><td>\(\tan\delta=\dfrac{m\omega-qB}k\)</td></tr>
+<tr><td>エネルギーを奪うもの</td><td>抵抗 \(R\)：\(\frac12RI_0^2\)</td><td>抵抗力 \(k\)：\(kv^2\)</td></tr>
+<tr><td>共振</td><td>\(\omega_0=\dfrac1{\sqrt{LC}}\)</td><td>\(\omega_0=\dfrac{qB}m\)</td></tr>
+<tr><td>半値幅</td><td>\(\Delta\omega=\dfrac RL\)</td><td>\(\Delta\omega=\dfrac{2k}m\)</td></tr></table></div>
+<p>どちらも「電力 ＝ \(P_0\cos^2\delta\)」で、電力が半分になるのは \(\delta=\pm45^\circ\) のときです。半値幅に 2 の違いがあるのは、\(m\omega-qB=m(\omega-\omega_0)\) がちょうど \(\omega\) の1次式なのに対し、\(\omega L-\dfrac1{\omega C}=\dfrac{L(\omega+\omega_0)(\omega-\omega_0)}{\omega}\) は共振の近くで \(2L(\omega-\omega_0)\) になる（傾きが2倍）からです。実際、粒子の速度の1成分（たとえば \(v_y\)）だけを見ると、回路の電流と同じ形の「抵抗のある強制振動」の式に従います。</p>
+<p><b>補足</b>：この方法はサイクロトロン共鳴と呼ばれ、結晶の中を動く電子の「見かけの質量（有効質量）」を測る実験に実際に使われています。共振の位置 \(\omega_0\) と幅 \(\Delta\omega\) を測れば、質量と抵抗の強さが両方わかります。</p>
+<div class="box"><b>式の立て方</b>：「〜を用いて表せ」で使えない文字（ここでは \(q\) と \(k\)）があるときは、条件式の数を数えて、その文字を順に消去します。\(\omega_0\) の式で \(q\)、\(\Delta\omega\) の式で \(k\) が消せます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：この設問では \(\omega/\omega_0=1+k/(m\omega_0)\)（電力が半分になる \(\omega_2\)）にしてあります。下の右のグラフで \(\delta=45^\circ\)、左のグラフで \(P/P_0=0.5\) になっていることを確かめてください。\(k\) を変えると、半値幅 \(\Delta\omega\) がいつも \(2k/m\) になります。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const st={q:"I1",w:250,R:10,L:0.1,C:100,wr:0.8,kk:0.3,spd:1};
+const SL=[
+ ["w","ω","電源の角周波数","rad/s",50,800,1,0,"I"],
+ ["R","R","抵抗","Ω",2,60,1,0,"I"],
+ ["L","L","自己インダクタンス","H",0.02,0.5,0.01,2,"I"],
+ ["C","C","電気容量","μF",20,500,5,0,"I"],
+ ["wr","ω/ω₀","電場が回る角周波数（ω₀ = qB/m）","",0.2,2.5,0.01,2,"II"],
+ ["kk","k/(mω₀)","抵抗力の強さ","",0.05,1,0.01,2,"II"],
+ ["spd","","再生速度","倍",0.1,2,0.05,2,"all"]];
+const NAMES={V:"電源電圧 V（振幅 V₀）",VR:"抵抗の電圧 V<sub>R</sub>",VL:"コイルの電圧 V<sub>L</sub>",VC:"コンデンサーの電圧 V<sub>C</sub>",I:"電流 I",d:"位相のずれ δ",P:"電力 P",P0:"最大電力 P₀",dw:"半値幅 Δω",w:"角周波数 ω",E:"電場からの力 qE",v:"速度 v",B:"ローレンツ力 qvB",k:"抵抗力 kv",cf:"mvω（向心力に必要な大きさ・遠心力）"};
+const QDEF={I1:{w:250,R:10,L:0.1,C:100},I2:{w:250,R:10,L:0.1,C:100},I3:{w:316,R:10,L:0.1,C:100},I4:{w:270,R:10,L:0.1,C:100},II1:{wr:0.8,kk:0.3},II2:{wr:0.8,kk:0.3},II3:{wr:0.8,kk:0.3},II4:{wr:1.3,kk:0.3}};
+const cv=mkCv($("#cv"),n=>n?[480,860]:[1000,430]);
+const gr=mkCv($("#gr"),n=>n?[480,640]:[1000,300]);
+const V0=10,D=Math.PI/180;let lastQ="",S={ph:0};
+/* ---------- physics ---------- */
+function circ(w){w=w==null?st.w:w;const L=st.L,C=st.C*1e-6,R=st.R,X=w*L-1/(w*C),Z=Math.hypot(R,X),I0=V0/Z;return{w,L,C,R,X,Z,I0,d:Math.atan2(X,R),P:R*I0*I0/2,P0:V0*V0/(2*R),w0:1/Math.sqrt(L*C),VR:R*I0,VL:w*L*I0,VC:I0/(w*C),w1:(-R+Math.sqrt(R*R+4*L/C))/(2*L),w2:(R+Math.sqrt(R*R+4*L/C))/(2*L)}}
+/* particle: units m = q = B = E = 1 -> omega0 = 1 */
+function part2(w){w=w==null?st.wr:w;const k=st.kk,X=w-1,v=1/Math.hypot(k,X);return{w,k,X,v,r:v/w,d:Math.atan2(X,k),P:k*v*v,P0:1/k,PP:k*k/(k*k+X*X)}}
+function restart(){if(st.q!==lastQ){const Dq=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in Dq)if(P[k]!==Dq[k])st[k]=Dq[k];lastQ=st.q}S={ph:0}}
+function onParam(k){}
+function step(dt){S.ph+=dt*2*Math.PI*0.45;if(S.ph>400*Math.PI)S.ph-=400*Math.PI}
+/* ---------- drawing helpers ---------- */
+const P2=(cx,cy,r,a)=>[cx+r*Math.cos(a),cy-r*Math.sin(a)];
+function parr(c,k,x,y,len,a,col,w=3){const[x2,y2]=P2(x,y,len,a);karrow(c,k,x,y,x2,y2,col,w);return[x2,y2]}
+function arc(c,cx,cy,r,a1,a2,col,w=1.4){c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.arc(cx,cy,r,-a1,-a2,a2>a1);c.stroke()}
+function coil(c,x1,x2,y,col,w){const n=4,dw=(x2-x1)/n;c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(x1,y);for(let i=0;i<n;i++){c.arc(x1+dw*(i+0.5),y,dw/2,Math.PI,0,false)}c.stroke()}
+/* ---------- circuit (part I) ---------- */
+function boxesI(W,H,n){return n?[{x:10,y:30,w:460,h:380},{x:10,y:450,w:460,h:400}]:[{x:14,y:30,w:460,h:390},{x:510,y:30,w:476,h:390}]}
+function drawCircuit(c,B,e,ph){const xl=B.x+30,xr=B.x+B.w-30,yt=B.y+66,yb=B.y+B.h-60,cxm=(xl+xr)/2;
+ txt(c,"RLC直列回路（電流の流れと各素子の電圧）",B.x,B.y,CL.ink,{s:13,b:1});
+ const xs=[xl+(xr-xl)*0.2,xl+(xr-xl)*0.5,xl+(xr-xl)*0.8],hw=32;
+ // wires
+ c.strokeStyle=CL.ink;c.lineWidth=2;c.beginPath();c.moveTo(xl,yt);c.lineTo(xs[0]-hw,yt);c.moveTo(xs[0]+hw,yt);c.lineTo(xs[1]-hw,yt);c.moveTo(xs[1]+hw,yt);c.lineTo(xs[2]-5,yt);c.moveTo(xs[2]+5,yt);c.lineTo(xr,yt);c.lineTo(xr,yb);c.lineTo(cxm+22,yb);c.moveTo(cxm-22,yb);c.lineTo(xl,yb);c.lineTo(xl,yt);c.stroke();
+ glow(c,"VR",CL.acc);rect(c,xs[0]-hw,yt-11,2*hw,22,alpha(CL.acc,0.12),CL.acc,W_("VR",2));noglow(c);txt(c,"R",xs[0],yt-26,CL.acc,{it:1,s:16,al:"center"});
+ glow(c,"VL",CL.fic);coil(c,xs[1]-hw,xs[1]+hw,yt,CL.fic,W_("VL",2.2));noglow(c);txt(c,"L",xs[1],yt-30,CL.fic,{it:1,s:16,al:"center"});
+ glow(c,"VC",CL.grav);[-5,5].forEach(d=>line(c,[[xs[2]+d,yt-18],[xs[2]+d,yt+18]],CL.grav,W_("VC",3)));noglow(c);txt(c,"C",xs[2],yt-30,CL.grav,{it:1,s:16,al:"center"});
+ glow(c,"V",CL.frc);dot(c,cxm,yb,22,CL.bg,CL.frc,W_("V",2));noglow(c);const sw=[];for(let i=0;i<=20;i++){const u=i/20;sw.push([cxm-12+24*u,yb-7*Math.sin(u*2*Math.PI)])}line(c,sw,CL.frc,1.8);txt(c,"交流電源",cxm,yb+36,CL.frc,{s:12,al:"center"});
+ // current dots: displacement ∝ charge = -cos(ph)
+ const per=2*((xr-xl)+(yb-yt)),segs=[[xl,yt,xr,yt],[xr,yt,xr,yb],[xr,yb,xl,yb],[xl,yb,xl,yt]];
+ const at=s=>{s=((s%per)+per)%per;for(const[a,b,cc,d]of segs){const L=Math.hypot(cc-a,d-b);if(s<=L)return[a+(cc-a)*s/L,b+(d-b)*s/L];s-=L}return[xl,yt]};
+ const amp=Math.min(70,34*e.I0),off=-amp*Math.cos(ph);glow(c,"I",CL.fr);for(let s=0;s<per;s+=30){const[x,y]=at(s+off);dot(c,x,y,HL("I")?4.5:3.4,CL.fr)}noglow(c);
+ arrow(c,xl+12,yt+20,xl+46,yt+20,CL.fr,2);ktag(c,"I","I の正の向き",xl+52,yt+20,CL.fr,{s:12});
+ // voltage gauges
+ const vm=Math.max(V0,e.VL,e.VC,e.VR),y0=(yt+yb)/2+4,hm=Math.min(78,(yb-yt)/2-26),gs=hm/vm;
+ const vals=[["V_R",e.VR*Math.sin(ph),CL.acc,"VR"],["V_L",e.VL*Math.cos(ph),CL.fic,"VL"],["V_C",-e.VC*Math.cos(ph),CL.grav,"VC"],["V",V0*Math.sin(ph+e.d),CL.frc,"V"]];
+ const gx=[0.14,0.32,0.68,0.86].map(f=>xl+(xr-xl)*f);line(c,[[gx[0]-26,y0],[gx[1]+26,y0]],CL.line,1);line(c,[[gx[2]-26,y0],[gx[3]+26,y0]],CL.line,1);
+ vals.forEach(([lab,v,col,k],i)=>{const h=v*gs;glow(c,k,col);rect(c,gx[i]-9,Math.min(y0,y0-h),18,Math.abs(h),alpha(col,0.55),col,W_(k,1.2));noglow(c);txt(c,lab,gx[i],y0+hm+14,col,{s:13,it:1,al:"center",b:HL(k)})});
+ txt(c,"棒：いまの電圧（上が＋）",(gx[1]+gx[2])/2,y0-hm-8,CL.mute,{s:11,al:"center"});
+ if(Math.abs(e.X)<0.02*e.R)txt(c,"共振：いつでも V_L + V_C = 0",(gx[1]+gx[2])/2,y0-hm+10,CL.ink,{s:12,b:1,al:"center"})}
+function drawPhasor(c,B,e,ph){const n=cv.narrow,cx=B.x+B.w/2,cy=B.y+B.h/2+14,Rp=Math.min(B.w,B.h)/2-40;
+ txt(c,"フェーザー図（角速度 ω で回る矢印。縦成分がいまの値）",B.x,B.y,CL.ink,{s:13,b:1});txt(c,"灰色の点線：V_L + V_C　（≈ の印：長すぎるので途中を省略）",B.x,B.y+20,CL.mute,{s:11});
+ const vm=Math.max(V0*1.7,e.VR),s=Rp/vm,Lc=Rp*1.12,cut=[];
+ line(c,[[cx-Rp-14,cy],[cx+Rp+14,cy]],CL.line,1);line(c,[[cx,cy+Rp+14],[cx,cy-Rp-14]],CL.line,1);
+ const a=ph%(2*Math.PI);
+ // tip-to-tail chain
+ const p0=[cx,cy],p1=P2(cx,cy,e.VR*s,a),p2=P2(p1[0],p1[1],Math.min(Lc,e.VL*s),a+Math.PI/2),p2c=P2(p1[0],p1[1],Math.min(Lc,e.VC*s),a-Math.PI/2),p3=P2(p1[0],p1[1],(e.VL-e.VC)*s,a+Math.PI/2);
+ const pi=P2(cx,cy,Math.max(30,e.VR*s*0.55),a);karrow(c,"I",cx,cy,pi[0],pi[1],alpha(CL.fr,0.85),7);
+ karrow(c,"VR",p0[0],p0[1],p1[0],p1[1],CL.acc,3);karrow(c,"VL",p1[0],p1[1],p2[0],p2[1],CL.fic,3);karrow(c,"VC",p1[0],p1[1],p2c[0],p2c[1],CL.grav,3);
+ [[e.VL,a+Math.PI/2,CL.fic],[e.VC,a-Math.PI/2,CL.grav]].forEach(([v,an,col])=>{if(v*s>Lc){const[mx,my]=P2(p1[0],p1[1],Lc*0.8,an);[-4,4].forEach(o=>{const[bx,by]=P2(mx,my,o,an);const[u1,v1]=P2(bx,by,7,an+Math.PI/2+0.5),[u2,v2]=P2(bx,by,7,an-Math.PI/2+0.5);line(c,[[u1,v1],[u2,v2]],CL.bg,4);line(c,[[u1,v1],[u2,v2]],col,1.4)})}});
+ if(Math.abs(e.VL-e.VC)*s>6){arrow(c,p1[0],p1[1],p3[0],p3[1],alpha(CL.ink,0.55),2,[4,3])}
+ const pv=P2(cx,cy,V0*s,a+e.d);karrow(c,"V",cx,cy,pv[0],pv[1],CL.frc,3.4);
+ // delta arc
+ if(Math.abs(e.d)>0.02){glow(c,"d",CL.frc);arc(c,cx,cy,34,a,a+e.d,CL.frc,W_("d",1.6));noglow(c);const[lx,ly]=P2(cx,cy,48,a+e.d/2);ktag(c,"d","δ",lx,ly,CL.frc,{it:1,s:15,al:"center"})}
+ // labels
+ const lab=(k,t,pa,pb,col,sd)=>{const dx=pb[0]-pa[0],dy=pb[1]-pa[1],L=Math.hypot(dx,dy)||1,nx=-dy/L*sd,ny=dx/L*sd;ktag(c,k,t,(pa[0]+pb[0])/2+nx*16,(pa[1]+pb[1])/2+ny*16,col,{it:1,s:14,al:"center"})};
+ lab("VR","V_R",p0,p1,CL.acc,-1);const ql=P2(p2[0],p2[1],16,a+Math.PI/2),qc=P2(p2c[0],p2c[1],16,a-Math.PI/2);ktag(c,"VL","V_L",ql[0],ql[1],CL.fic,{it:1,s:14,al:"center"});ktag(c,"VC","V_C",qc[0],qc[1],CL.grav,{it:1,s:14,al:"center"});const pvo=P2(cx,cy,V0*s+16,a+e.d);ktag(c,"V","V",pvo[0],pvo[1],CL.frc,{it:1,s:15,al:"center"});lab("I","I",p0,pi,CL.fr,1);
+ // projections on vertical axis
+ line(c,[[pv[0],pv[1]],[cx,pv[1]]],alpha(CL.frc,0.6),1.2,[3,3]);dot(c,cx,pv[1],4,CL.frc);
+ if(Math.abs(e.X)<0.02*e.R)txt(c,"V_L と V_C が打ち消し合う（共振）",B.x+B.w/2,B.y+B.h-4,CL.ink,{s:12,b:1,al:"center"});
+ else txt(c,e.d>0?"V が I より進む（コイルの性質が強い：ω > ω₀）":"V が I より遅れる（コンデンサーの性質が強い：ω < ω₀）",B.x+B.w/2,B.y+B.h-4,CL.mute,{s:12,al:"center"})}
+/* ---------- particle (part II) ---------- */
+function boxesII(W,H,n){return n?[{x:10,y:30,w:460,h:400},{x:10,y:470,w:460,h:380}]:[{x:14,y:30,w:480,h:390},{x:530,y:30,w:456,h:390}]}
+let rmaxK=null,rmaxV=0;
+function rmax(){if(rmaxK!==st.kk){rmaxK=st.kk;rmaxV=0;for(let w=0.2;w<=2.5;w+=0.005)rmaxV=Math.max(rmaxV,part2(w).r)}return rmaxV}
+function drawOrbit(c,B,e,ph){const cx=B.x+B.w/2,cy=B.y+B.h/2+12,Rm=Math.min(B.w,B.h)/2-34,s=Rm/rmax(),r=Math.max(6,e.r*s);
+ txt(c,"真上から見た粒子の運動（磁場は紙面の表→裏）",B.x,B.y,CL.ink,{s:13,b:1});
+ const th=ph%(2*Math.PI),aE=th+Math.PI/2+e.d;
+ // uniform rotating E field (faint)
+ for(let gx=B.x+40;gx<B.x+B.w-20;gx+=70)for(let gy=B.y+50;gy<B.y+B.h-10;gy+=70){const[x2,y2]=P2(gx,gy,18,aE);arrow(c,gx,gy,x2,y2,alpha(CL.frc,0.18),1.4)}
+ txt(c,"⊗ B",B.x+B.w-8,B.y+22,CL.mute,{s:14,al:"right"});txt(c,"薄い赤：一様な電場（向きが回転）",B.x,B.y+B.h-4,alpha(CL.frc,0.9),{s:11});
+ c.strokeStyle=CL.mute;c.lineWidth=1.2;c.setLineDash([4,4]);c.beginPath();c.arc(cx,cy,r,0,2*Math.PI);c.stroke();c.setLineDash([]);dot(c,cx,cy,2.5,CL.mute);
+ const[px,py]=P2(cx,cy,r,th);
+ const vl=Math.max(26,Math.min(80,80*e.v/(1/e.k)));const pv=parr(c,"v",px,py,vl,th+Math.PI/2,CL.acc,3);const pE=parr(c,"E",px,py,62,aE,CL.frc,3);
+ dot(c,px,py,7,CL.ink);
+ if(Math.abs(e.d)>0.03){glow(c,"d",CL.frc);arc(c,px,py,26,th+Math.PI/2,aE,CL.frc,W_("d",1.5));noglow(c);const[lx,ly]=P2(px,py,40,th+Math.PI/2+e.d/2);ktag(c,"d","δ",lx,ly,CL.frc,{it:1,s:14,al:"center"})}
+ ktag(c,"v","v",pv[0]+6,pv[1],CL.acc,{it:1,s:14});ktag(c,"E","qE",pE[0]+6,pE[1]-6,CL.frc,{it:1,s:14});
+ txt(c,`半径 r = v/ω`,cx,cy+14,CL.mute,{s:11,al:"center"})}
+function drawForces(c,B,e){const n=cv.narrow;
+ txt(c,"粒子と一緒に回る見方での力のつり合い",B.x,B.y,CL.ink,{s:13,b:1});
+ const px=B.x+B.w*0.56,py=B.y+B.h*0.56,Lm=Math.min(B.w*0.36,B.h*0.4),F={E:1,k:e.k*e.v,B:e.v,cf:e.v*e.w},s=Lm/Math.max(1,F.B,F.cf,F.k);
+ // axes: velocity up, center to the left
+ line(c,[[px,py+Lm*0.6],[px,py-Lm-24]],CL.line,1,[5,4]);line(c,[[px+Lm*0.9,py],[px-Lm-30,py]],CL.line,1,[5,4]);
+ txt(c,"速度の向き",px+6,py-Lm-22,CL.acc,{s:11});txt(c,"← 円の中心の向き",px-Lm-30,py-12,CL.mute,{s:11});
+ const vEnd=[px,py-Math.min(Lm*0.5,60)];
+ // forces
+ const fE=[px-F.E*s*Math.sin(e.d),py-F.E*s*Math.cos(e.d)];
+ line(c,[[fE[0],fE[1]],[px,fE[1]]],alpha(CL.frc,0.7),1.2,[3,3]);line(c,[[fE[0],fE[1]],[fE[0],py]],alpha(CL.frc,0.7),1.2,[3,3]);
+ karrow(c,"E",px,py,fE[0],fE[1],CL.frc,3);ktag(c,"E","qE",fE[0]+(e.d>0?-10:8),fE[1]-12,CL.frc,{it:1,s:14,al:e.d>0?"right":"left"});
+ karrow(c,"k",px,py,px,py+F.k*s,CL.fr,3.4);ktag(c,"k","kv",px+8,py+F.k*s-4,CL.fr,{it:1,s:14});
+ karrow(c,"B",px,py,px-F.B*s,py,CL.fic,3.4);ktag(c,"B","qvB",px-F.B*s,py+18,CL.fic,{it:1,s:14,al:"center"});
+ karrow(c,"cf",px,py,px+F.cf*s,py,CL.grav,3.4);ktag(c,"cf","mvω",px+F.cf*s,py+18,CL.grav,{it:1,s:14,al:"center"});
+ dot(c,px,py,7,CL.ink);
+ const f=x=>x.toFixed(2);
+ const yy=B.y+B.h-30;txt(c,`速度方向： qE cos δ = ${f(Math.cos(e.d))} ， kv = ${f(F.k)}`,B.x+4,yy,CL.ink,{s:12});
+ txt(c,`中心方向： qvB + qE sin δ = ${f(F.B+Math.sin(e.d))} ， mvω = ${f(F.cf)}`,B.x+4,yy+18,CL.ink,{s:12});
+ txt(c,"（緑は回る立場で見た遠心力。静止した立場では必要な向心力の大きさ）",B.x+4,B.y+20,CL.mute,{s:11})}
+function drawMain(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,p=part(),ph=S.ph;
+ if(p==="I"){const e=circ(),[B1,B2]=boxesI(W,H,n);drawCircuit(c,B1,e,ph);drawPhasor(c,B2,e,ph);if(!n)line(c,[[B2.x-16,B2.y],[B2.x-16,B2.y+B2.h]],CL.line,1)}
+ else{const e=part2(),[B1,B2]=boxesII(W,H,n);drawOrbit(c,B1,e,ph);drawForces(c,B2,e);if(!n)line(c,[[B2.x-16,B2.y],[B2.x-16,B2.y+B2.h]],CL.line,1)}}
+/* ---------- graphs ---------- */
+function gboxes(W,H,n){return n?[{x:56,y:56,w:380,h:210},{x:56,y:384,w:380,h:210}]:[{x:66,y:56,w:390,h:190},{x:584,y:56,w:370,h:190}]}
+function curve(c,A,f,x0,x1,col,w,dash){const pts=[];for(let i=0;i<=300;i++){const x=x0+(x1-x0)*i/300;pts.push([A.X(x),A.Y(f(x))])}line(c,pts,col,w,dash)}
+function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q,p=part(),[B1,B2]=gboxes(W,H,n),ph=S.ph,f=(x,d=2)=>x.toFixed(d);
+ if(p==="I"){const e=circ(),T=4*Math.PI;
+  const A=axes(c,B1,[0,T],[-1.25,1.25],{xl:"ωt",y0:0,yl:"",xt:[[Math.PI,"π"],[2*Math.PI,"2π"],[3*Math.PI,"3π"],[T,"4π"]],yt:[[1,"1"],[-1,"−1"]]});
+  txt(c,"いまの値（それぞれの振幅で割った値）",B1.x-50,B1.y-36,CL.ink,{s:12,b:1});
+  if(q==="I2"){const pf=x=>Math.sin(x+e.d)*Math.sin(x);glow(c,"P",CL.ink);const pts=[];for(let i=0;i<=300;i++){const x=T*i/300;pts.push([A.X(x),A.Y(pf(x))])}c.fillStyle=alpha(CL.ink,0.08);c.beginPath();c.moveTo(A.X(0),A.Y(0));pts.forEach(p=>c.lineTo(p[0],p[1]));c.lineTo(A.X(T),A.Y(0));c.fill();line(c,pts,CL.ink,W_("P",1.8));noglow(c);line(c,[[A.X(0),A.Y(0.5*Math.cos(e.d))],[A.X(T),A.Y(0.5*Math.cos(e.d))]],CL.ink,1.2,[5,4]);txt(c,"VI/(V₀I₀) の平均 = ½cos δ",A.X(T)-2,A.Y(0.5*Math.cos(e.d))-10,CL.ink,{s:11,al:"right"})}
+  glow(c,"V",CL.frc);curve(c,A,x=>Math.sin(x+e.d),0,T,CL.frc,W_("V",2.2));noglow(c);glow(c,"I",CL.fr);curve(c,A,x=>Math.sin(x),0,T,CL.fr,W_("I",2.2),[6,4]);noglow(c);
+  const x=ph%T;line(c,[[A.X(x),B1.y],[A.X(x),B1.y+B1.h]],CL.mute,1,[2,3]);dot(c,A.X(x),A.Y(Math.sin(x+e.d)),5,CL.frc);dot(c,A.X(x),A.Y(Math.sin(x)),5,CL.fr);
+  txt(c,"赤：V/V₀　オレンジ破線：I/I₀"+(q==="I2"?"　黒：VI/(V₀I₀)":""),B1.x+B1.w,B1.y-14,CL.mute,{s:11,al:"right"});
+  // resonance curve
+  const wm=800,Pm=e.P0*1.15,A2=axes(c,B2,[0,wm],[0,Pm],{xl:"ω",yl:"P̄ [W]",xt:[[e.w0,"ω₀"],[wm,"800"]],yt:[[e.P0,f(e.P0,1)],[e.P0/2,f(e.P0/2,1)]]});
+  txt(c,"電力の平均 P̄ と角周波数 ω（共振曲線）",B2.x-30,B2.y-36,CL.ink,{s:12,b:1});
+  line(c,[[A2.X(0),A2.Y(e.P0/2)],[A2.X(wm),A2.Y(e.P0/2)]],alpha(CL.mute,0.8),1,[4,4]);
+  if(q==="I4"||q==="I3"){glow(c,"dw",CL.acc);[e.w1,e.w2].forEach(w=>line(c,[[A2.X(w),A2.Y(0)],[A2.X(w),A2.Y(e.P0/2)]],CL.acc,W_("dw",1.2),[3,3]));if(q==="I4"){line(c,[[A2.X(e.w1),A2.Y(e.P0*0.22)],[A2.X(e.w2),A2.Y(e.P0*0.22)]],CL.acc,W_("dw",1.6));ktag(c,"dw","Δω",(A2.X(e.w1)+A2.X(e.w2))/2,A2.Y(e.P0*0.22)+14,CL.acc,{it:1,s:13,al:"center"});txt(c,"ω₁",A2.X(e.w1)-4,A2.Y(0)-10,CL.acc,{s:11,al:"right"});txt(c,"ω₂",A2.X(e.w2)+4,A2.Y(0)-10,CL.acc,{s:11})}noglow(c)}
+  glow(c,"P",CL.ink);curve(c,A2,w=>circ(Math.max(w,1)).P,1,wm,CL.ink,W_("P",2));noglow(c);
+  glow(c,"P0",CL.ink);dot(c,A2.X(e.w0),A2.Y(e.P0),HL("P0")?6:3.5,CL.ink);noglow(c);
+  glow(c,"w",CL.frc);dot(c,A2.X(e.w),A2.Y(e.P),6,CL.frc);noglow(c)}
+ else{const e=part2(),wm=2.5;
+  const A=axes(c,B1,[0,wm],[0,1.15],{xl:"ω/ω₀",xit:false,yl:"P/P₀",yit:false,xt:[[1,"1"],[2,"2"]],yt:[[1,"1"],[0.5,"0.5"]]});
+  txt(c,"仕事率 P の共振曲線（P₀ = q²E²/k でそろえた値）",B1.x-50,B1.y-36,CL.ink,{s:12,b:1});
+  line(c,[[A.X(0),A.Y(0.5)],[A.X(wm),A.Y(0.5)]],alpha(CL.mute,0.8),1,[4,4]);
+  const w1=1-e.k,w2=1+e.k;glow(c,"dw",CL.acc);[w1,w2].filter(w=>w>0).forEach(w=>line(c,[[A.X(w),A.Y(0)],[A.X(w),A.Y(0.5)]],CL.acc,W_("dw",1.2),[3,3]));if(q==="II4"){line(c,[[A.X(Math.max(0,w1)),A.Y(0.25)],[A.X(w2),A.Y(0.25)]],CL.acc,W_("dw",1.6));ktag(c,"dw","Δω = 2k/m",A.X(1),A.Y(0.25)+14,CL.acc,{s:12,al:"center"})}noglow(c);
+  glow(c,"P",CL.ink);curve(c,A,w=>part2(w).PP,0.001,wm,CL.ink,W_("P",2));noglow(c);dot(c,A.X(e.w),A.Y(e.PP),6,CL.frc);
+  const A2=axes(c,B2,[0,wm],[-90,90],{xl:"ω/ω₀",xit:false,yl:"δ [°]",yit:false,y0:0,xt:[[1,"1"],[2,"2"]],yt:[[90,"90"],[45,"45"],[-45,"−45"],[-90,"−90"]]});
+  txt(c,"電場と速度の角 δ（tan δ = (mω − qB)/k）",B2.x-30,B2.y-36,CL.ink,{s:12,b:1});
+  [45,-45].forEach(d=>line(c,[[A2.X(0),A2.Y(d)],[A2.X(wm),A2.Y(d)]],alpha(CL.mute,0.6),1,[4,4]));
+  glow(c,"d",CL.frc);curve(c,A2,w=>part2(w).d/D,0.001,wm,CL.frc,W_("d",2));noglow(c);dot(c,A2.X(e.w),A2.Y(e.d/D),6,CL.frc)}}
+function drawAll(){drawMain();drawGr()}
+/* ---------- live equations ---------- */
+function eqs(){const q=st.q,R_=String.raw,N=cv.narrow,f=(x,d=2)=>x.toFixed(d);
+ const VV=TK("V","frc","V_0"),VR=TK("VR","acc","RI_0"),VL=TK("VL","fic",R_`\omega LI_0`),VC=TK("VC","grav",R_`\frac{I_0}{\omega C}`),XX=R_`\omega L-\frac1{\omega C}`;
+ if(part()==="I"){const e=circ();
+  if(q==="I1")return{title:"キルヒホッフの第2法則とフェーザー図",list:[{t:VV+"^2=("+VR+R_`)^2+\Bigl(`+VL+"-"+VC+R_`\Bigr)^2`,n:`R I₀ = ${NS(f(e.VR),"acc")} V，ωL I₀ = ${NS(f(e.VL),"fic")} V，I₀/(ωC) = ${NS(f(e.VC),"grav")} V`},{t:TK("I","fr","I_0")+R_`=\frac{V_0}{\sqrt{R^2+\bigl(`+XX+R_`\bigr)^2}}`,n:`I₀ = ${NS(f(e.I0,3),"fr")} A`},{t:TK("d","frc",R_`\tan\delta`)+R_`=\frac{`+XX+"}{R}",n:`δ = ${NS(f(e.d/D,1),"frc")}°`}]};
+  if(q==="I2")return{title:"電力の時間平均（平均で電力を使うのは抵抗だけ）",list:[{t:TK("P","ink",R_`\overline P`)+R_`=\overline{VI}=\frac12V_0I_0\cos`+TK("d","frc",R_`\delta`),n:`½ × ${f(V0,0)} × ${f(e.I0,3)} × cos(${f(e.d/D,1)}°) = ${f(e.P)} W`},{t:R_`=\frac12R`+TK("I","fr","I_0")+(N?"^2":R_`^2=\frac{RV_0^2}{2\{R^2+(`+XX+R_`)^2\}}`),n:`P̄ = ${NS(f(e.P),"ink")} W`}]};
+  if(q==="I3")return{title:"共振：P̄ が最大になる条件",list:[{t:VL+"="+VC+R_`\ \Rightarrow\ \omega_0=\frac1{\sqrt{LC}}`,n:`ω₀ = ${f(e.w0,0)} rad/s（いま ω = ${f(e.w,0)}）`},{t:TK("P0","ink","P_0")+R_`=\frac{V_0^2}{2R}\ \Rightarrow\ R=\frac{V_0^2}{2P_0}`,n:`P₀ = ${f(e.P0)} W，V₀²/(2P₀) = ${f(V0*V0/(2*e.P0),1)} Ω`}]};
+  return{title:"電力が半分になる ω₁, ω₂",list:[{t:R_`\overline P=\frac{P_0}2\iff\Bigl(`+XX+R_`\Bigr)^2=R^2`,n:`ω₁ = ${f(e.w1,1)}，ω₂ = ${f(e.w2,1)} rad/s`},{t:N?R_`\omega_1\omega_2=\frac1{LC},\ \ 2L`+TK("dw","acc",R_`\Delta\omega`)+"=2R":R_`\omega_1\omega_2=\frac1{LC},\qquad 2L`+TK("dw","acc",R_`\Delta\omega`)+"=2R",n:`ω₁ω₂ = ${f(e.w1*e.w2,0)}，1/(LC) = ${f(1/(e.L*e.C),0)}`},{t:"L="+R_`\frac{R}{`+TK("dw","acc",R_`\Delta\omega`)+R_`}=\frac{V_0^2}{2P_0\,\Delta\omega}`,n:`Δω = ${NS(f(e.w2-e.w1,1),"acc")} rad/s，R/L = ${f(e.R/e.L,1)} rad/s`}]}}
+ const e=part2(),qE=TK("E","frc","qE"),qEc=TK("E","frc",R_`qE\cos\delta`),qEs=TK("E","frc",R_`qE\sin\delta`),kv=TK("k","fr","kv"),qvB=TK("B","fic","qvB"),cf=TK("cf","grav",R_`mv\omega`);
+ if(q==="II1")return{title:"力のつり合い（粒子と一緒に回る見方）",list:[{t:R_`\text{速度方向：}\ `+qEc+"="+kv,n:`${NS(f(Math.cos(e.d),3),"frc")} = ${NS(f(e.k*e.v,3),"fr")}`},{t:R_`\text{中心方向：}\ `+cf+"="+qvB+"+"+qEs,n:`${NS(f(e.v*e.w,3),"grav")} = ${NS(f(e.v,3),"fic")} + (${NS(f(Math.sin(e.d),3),"frc")})`}]};
+ if(q==="II2")return{title:"割り算で tan δ、2乗の和で v",list:[{t:TK("d","frc",R_`\tan\delta`)+R_`=\frac{m\omega-qB}{k}`,n:`δ = ${NS(f(e.d/D,1),"frc")}°`},{t:TK("v","acc","v")+R_`=\frac{qE}{\sqrt{k^2+(m\omega-qB)^2}}`,n:`v = ${NS(f(e.v,3),"acc")}（最大値 qE/k = ${f(1/e.k,2)}）`}]};
+ if(q==="II3")return{title:"電場の仕事率 ＝ 抵抗力が奪う仕事率",list:[{t:TK("P","ink","P")+"="+qEc+R_`\cdot v=`+kv+R_`\cdot v`,n:""},{t:R_`=\frac{kq^2E^2}{k^2+(m\omega-qB)^2}`,n:`P/P₀ = ${NS(f(e.PP,3),"ink")} = cos²δ`}]};
+ return{title:"共振と半値幅から m を求める",list:[{t:R_`\omega_0=\frac{qB}m,\qquad `+TK("P0","ink","P_0")+R_`=\frac{q^2E^2}k`,n:""},{t:R_`(m\omega-qB)^2=k^2\ \Rightarrow\ `+TK("dw","acc",R_`\Delta\omega`)+R_`=\frac{2k}m`,n:`Δω/ω₀ = ${NS(f(2*e.k,2),"acc")}，いま P/P₀ = ${f(e.PP,3)}，δ = ${f(e.d/D,1)}°`},{t:R_`m=\frac{P_0B^2\,\Delta\omega}{2E^2\omega_0^2}`,n:""}]}}
+function note(){return part()==="I"?`電源電圧の振幅 V₀ = 10 V。ω₀ = 1/√(LC) = ${circ().w0.toFixed(0)} rad/s。アニメーションは実際よりずっとゆっくり（1周期 約2秒）表示しています。`:"m = q = B = E = 1 となる単位で計算しています（ω₀ = qB/m = 1）。速さは qE/k、仕事率は P₀ = q²E²/k を基準に読むと比べやすくなります。"}
+function readout(){const f=(x,d=2)=>x.toFixed(d);
+ if(part()==="I"){const e=circ();return[["ω",f(e.w,0)+" rad/s"],["ω₀ = 1/√(LC)",f(e.w0,0)+" rad/s"],["電流の振幅 I₀",f(e.I0,3)+" A"],["位相のずれ δ",f(e.d/D,1)+"°"],["電力の平均 P̄",f(e.P)+" W"],["最大電力 P₀ = V₀²/(2R)",f(e.P0)+" W"],["V_L の振幅 ωLI₀",f(e.VL)+" V"],["V_C の振幅 I₀/(ωC)",f(e.VC)+" V"],["ω₁, ω₂",f(e.w1,1)+", "+f(e.w2,1)+" rad/s"],["Δω と R/L",f(e.w2-e.w1,1)+" と "+f(e.R/e.L,1)+" rad/s"]].map(([a,b])=>[a.replace("V_L","V<sub>L</sub>").replace("V_C","V<sub>C</sub>"),b])}
+ const e=part2();return[["ω/ω₀",f(e.w)],["k/(mω₀)",f(e.k)],["速さ v",f(e.v,3)],["半径 r = v/ω",f(e.r,3)],["角 δ",f(e.d/D,1)+"°"],["P/P₀",f(e.PP,3)],["cos²δ",f(Math.cos(e.d)**2,3)],["半値幅 Δω/ω₀ = 2k/(mω₀)",f(2*e.k)]]}
+initUI("I1");
+}
+</script>
+</body>
+</html>
