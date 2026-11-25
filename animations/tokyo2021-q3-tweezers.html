@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>光ピンセット：光の運動量で微粒子をつかむ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;transition:background-color .15s,box-shadow .15s}
+.tk.on{background:var(--soft);box-shadow:0 0 0 2px var(--soft)}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E6%B3%A2%E5%8B%95">← 物理のHPに戻る</a></div>
+<h1>光ピンセット：光の運動量で微粒子をつかむ（東京大学 2021年 第3問）</h1>
+<p class="lead">光は運動量をもつ光子の流れです。透明な微粒子を通り抜けるとき、屈折で光の向きが変わると光の運動量が変わり、その反作用で微粒子が力を受けます。<b>屈折の法則 → 運動量の変化 → 作用・反作用 → 力のつり合い</b>の順に、2本の光で微粒子が光の交点に引き寄せられるしくみを確かめます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="微粒子を通る光線と力のアニメーション"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<canvas id="gr" role="img" aria-label="グラフ・運動量の図" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 屈折の法則</button>
+<button class="qb" data-q="I2">I(2) 光の運動量</button>
+<button class="qb" data-q="I3">I(3) 運動量の変化</button>
+<button class="qb" data-q="I4">I(4) 微粒子が受ける力</button>
+<button class="qb" data-q="I5">I(5) 小さい角度の近似</button>
+<button class="qb" data-q="II1">II(1) 中心が交点</button>
+<button class="qb" data-q="II2">II(2) 中心が交点の下</button>
+<button class="qb" data-q="II3">II(3) 力とずれの関係</button>
+<button class="qb" data-q="III1">III(1) h と d</button>
+<button class="qb" data-q="III2">III(2) 合力 f′</button>
+<button class="qb" data-q="III3">III(3) 外力 f₀ の数値</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。微粒子の屈折率 \(n\)、半径 \(r\)、光線1本が単位時間に運ぶエネルギー \(Q\)、光速 \(c\) です。アニメーションの力は、光線を近似なしで追跡して計算しています。</p>
+
+<details id="d-I1"><summary>I(1)　入射角と屈折角の関係<span class="ans">答 \(\sin\theta = n\sin\phi\)</span></summary><div class="body">
+<p>真空（屈折率 1）から屈折率 \(n\) の物質へ入るときの屈折の法則です。</p>
+$$1\cdot\sin\cfrc{\theta} = n\sin\cacc{\phi}$$
+<p>球の中では、入射点 A と射出点 B がどちらも中心 O から距離 \(r\) にあるので、三角形 OAB は二等辺三角形です。よって B での入射角（球の内側から）も \(\phi\)、B から出る角も \(\theta\) になります。<b>入るときと出るときで同じ角度の組</b>が現れるのが球の特徴です。</p>
+<div class="box"><b>式の立て方</b>：屈折は必ず「境界面の法線」からの角度で考えます。球の場合、法線は中心を通る直線（半径の延長）です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(D/r\)（光線と中心のずれ）を大きくすると \(\theta\) が大きくなり、\(\theta-\phi\) も大きくなります。下のグラフは \(\theta\) と \(\phi\) の変化です。\(n=1\) にすると曲がらなくなります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　時間 \(\Delta t\) に出た光の運動量<span class="ans">答 \(p = \dfrac{Q\Delta t}{c}\)</span></summary><div class="body">
+<p>時間 \(\Delta t\) に光源から出るエネルギーは \(E = Q\Delta t\) です。光の集まりでは \(p = \dfrac{E}{c}\) なので</p>
+$$\cacc{p} = \frac{Q\Delta t}{c}$$
+<p>\(n\) は使いません。問われているのは真空中での運動量で、ここでは球に入る前と出た後の光だけを比べるためです。</p>
+<div class="box"><b>式の立て方</b>：光の力の問題は「単位時間あたりのエネルギー \(Q\) → 単位時間あたりの運動量 \(Q/c\)」を最初に作ります。単位時間あたりの運動量の変化が、そのまま力になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：入射光の上に、時間 \(\Delta t\) の間に出た光の集まり（長さ \(c\Delta t\)）を青で示しています。下の図の青い矢印がその運動量 \(p\) です。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　光が受ける運動量の変化<span class="ans">答 \(\Delta p = 2p\sin(\theta-\phi)\)，向きは C → O</span></summary><div class="body">
+<h3>向きが変わる角度を求める</h3>
+<p>A で光は \(\theta-\phi\) だけ曲がり、B でも同じ向きにさらに \(\theta-\phi\) 曲がります。合計の曲がり角は \(2(\theta-\phi)\) です。</p>
+<h3>大きさが同じで向きだけ変わるベクトルの差</h3>
+<p>入る前の運動量 \(\vec p_1\) と出た後の \(\vec p_2\) は大きさが同じ \(p\) で、なす角が \(2(\theta-\phi)\) です。2つを始点をそろえて描くと二等辺三角形になり、底辺の長さが変化量です。</p>
+$$\cfrc{\Delta p} = |\vec p_2 - \vec p_1| = 2p\sin(\theta-\phi)$$
+<p>向きは \(\vec p_2-\vec p_1\) で、二等辺三角形の頂角の二等分線に垂直です。図では入射光と射出光の延長の交点 C から、中心 O に向かう向きになります（OC は ∠ACB の二等分線で、AB に垂直）。</p>
+<div class="box"><b>式の立て方</b>：運動量の変化は「後 − 前」のベクトルの引き算です。大きさが等しい2つのベクトルなら、なす角を \(\delta\) として \(|\Delta\vec p| = 2p\sin\frac{\delta}{2}\) です。成分で計算するなら、2つのベクトルの二等分線の方向と、それに垂直な方向に軸をとると、片方の成分が打ち消し合って楽になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下の図で \(\vec p_1\)（青）と \(\vec p_2\)（水色の破線）の先端を結ぶ赤い矢印が \(\Delta\vec p\) です。上の図の赤い矢印（C から O へ）と同じ向きです。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>I(4)　微粒子が光から受ける力<span class="ans">答 \(f = \dfrac{2Q}{c}\sin(\theta-\phi)\)，向きは O → C</span></summary><div class="body">
+<p>光の運動量を変えたのは微粒子です。作用・反作用の法則より、微粒子は光が受けた力積と<b>逆向きで同じ大きさ</b>の力積を受けます。単位時間あたりにすると力になります。</p>
+$$\cgrav{f} = \frac{\cfrc{\Delta p}}{\Delta t} = \frac{2p\sin(\theta-\phi)}{\Delta t} = \frac{2Q}{c}\sin(\theta-\phi)$$
+<p>向きは光の運動量変化（C → O）と逆の O → C です。光が曲がる側と<b>反対側</b>に微粒子は押されます。光は微粒子の中心の方へ曲げられるので、微粒子は光線の方へ引き寄せられます。</p>
+<div class="box"><b>式の立て方</b>：「光（や気体分子）が物体から受ける力積」を先に求め、作用・反作用で物体が受ける力にする、という2段階で立てます。単位時間に \(N\) 個ぶつかるなら、力 ＝ \(N\) × 1個あたりの力積 です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：緑の矢印が微粒子が受ける力です。光線を中心から遠ざける（\(D/r\) を大きくする）と力が強くなり、向きはつねに光線の方を向いています。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-I5"><summary>I(5)　角度が小さいときの力<span class="ans">答 \(f \fallingdotseq \dfrac{2(n-1)Qd}{cr}\)</span></summary><div class="body">
+<p>OD は AB に垂直なので、直角三角形 OAD から</p>
+$$\sin\phi = \frac{\cfic{d}}{r}$$
+<p>角度が小さいとき \(\sin\theta\fallingdotseq\theta,\ \sin\phi\fallingdotseq\phi\) なので、屈折の法則は \(\theta\fallingdotseq n\phi\) です。</p>
+$$\sin(\theta-\phi)\fallingdotseq\theta-\phi\fallingdotseq(n-1)\phi\fallingdotseq(n-1)\frac{d}{r}$$
+$$f\fallingdotseq\frac{2(n-1)Q\cfic{d}}{cr}$$
+<p>力は、中心 O から球の中の光の道すじまでの距離 \(d\) に<b>比例</b>します。光線が中心を通れば \(d=0\) で力は 0、光線が中心からずれるほど力が大きくなります。この比例関係が II・III で微粒子が捕まる理由です。</p>
+<div class="box"><b>式の立て方</b>：近似は「どの量が小さいか」を決めてから、すべての角度をその小さい量の1次式で書きます。ここでは \(\phi\) を \(d/r\) で表し、\(\theta\) を \(n\phi\) で表して1つの小さい量にそろえました。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは、近似なしの力（実線）と近似式（破線）を \(d/r\) に対して描いたものです。\(d/r\) が小さい範囲で一致し、大きくなるとずれます。</div>
+<button class="goto" data-q="I5">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　中心 O が交点 F に一致するとき<span class="ans">答 力は働かない</span></summary><div class="body">
+<p>2本の光線はどちらも中心 O を通ります。中心を通る光線は球面に垂直に入射し（入射角 0）、曲がらずにまっすぐ抜けます。運動量が変わらないので、微粒子は力を受けません。</p>
+<p>I(5) の言葉でいえば、どちらの光線も \(d=0\) です。</p>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　中心 O が交点 F の下にあるとき<span class="ans">答 上</span></summary><div class="body">
+<p>I(4) より、それぞれの光線から受ける力は、中心 O から<b>その光線の道すじの方へ</b>向かう向き（O → C）です。O が F より下にあると、左下から来る光線は O の左上側を、右下から来る光線は O の右上側を通ります。</p>
+<p>左の光線からの力は左上向き、右の光線からの力は右上向きで、大きさは等しいです。水平成分は打ち消し合い、上向きの成分が残ります。合力は<b>上</b>、つまり F に近づく向きです。</p>
+<div class="box"><b>式の立て方</b>：複数の力の合力は、対称性で打ち消し合う成分を先に見つけます。左右対称な配置なら、水平成分が消えて鉛直成分だけが残ります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：細い緑の矢印が各光線からの力、太い矢印が合力です。\(\Delta y\) を負にする（O を F の上にする）と、合力は下向き（やはり F の方）になります。微粒子はどちらにずれても F に引き戻されます。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　合力の大きさとずれ \(\Delta y\) の関係<span class="ans">答 イ（\(\Delta y\) に比例する）</span></summary><div class="body">
+<p>I(5) より、1本の光線からの力は \(d\) に比例します。\(d\) は「O から光の道すじまでの距離」で、ずれ \(\Delta y\) が小さいとき \(\Delta y\) に比例します（O が F と一致すれば \(d=0\)、\(\Delta y\) を2倍にすれば光線との距離も2倍）。合力はその鉛直成分の和なので、やはり \(\Delta y\) に比例します。</p>
+<p>実際に計算すると、光線が鉛直となす角を \(\alpha\) として、O から各光線（の延長）までの距離は \(\Delta y\sin\alpha\) なので、1本あたり \(f = \dfrac{2(n-1)Q\sin\alpha}{ncr}\Delta y\)、その鉛直成分は \(f\sin\alpha\) です。</p>
+$$f' = \frac{4(n-1)Q\sin^2\alpha}{ncr}\,\Delta y$$
+<div class="box"><b>式の立て方</b>：比例・反比例を問われたら、因果の鎖（ずれ → 距離 \(d\) → 力 \(f\) → 合力 \(f'\)）の各段階が比例かどうかを確認します。全部比例なら最後も比例です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは合力の鉛直成分（近似なし）を \(\Delta y\) に対して描いたものです。原点付近では直線（破線の近似式）に乗っていて、ばねのような復元力になっています。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)　垂線の長さ \(h\) と \(d\)<span class="ans">答 \(h = \Delta x\cos\alpha\)，\(d = \dfrac{1}{n}\Delta x\cos\alpha\)</span></summary><div class="body">
+<h3>\(h\)：直線と点の距離</h3>
+<p>直線 AF は鉛直と角 \(\alpha\) をなし、OF は水平で長さ \(\Delta x\) です。O から直線 AF に下ろした垂線は、OF と角 \(\alpha\) をなす（直線 AF の向きは水平と \(90^\circ-\alpha\)）ので</p>
+$$\cfr{h} = \Delta x\cos\alpha$$
+<h3>\(d\)：屈折の法則につなぐ</h3>
+<p>\(h\) は「入射光をまっすぐ延ばした直線」と O の距離なので、A での入射角 \(\theta\) について \(h = r\sin\theta\)。\(d\) は「球の中の光の道すじ」と O の距離なので \(d = r\sin\phi\) です。屈折の法則 \(\sin\theta = n\sin\phi\) から</p>
+$$\cfic{d} = \frac{h}{n} = \frac1n\Delta x\cos\alpha$$
+<div class="box"><b>式の立て方</b>：球（円）と直線の問題では「中心から直線までの距離 ＝ \(r\sin\)（入射角）」が強力です。入射前の直線には \(\theta\)、球の中の直線には \(\phi\) が対応し、屈折の法則がそのまま距離の比 \(h:d = n:1\) になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：オレンジの線分が \(h\)、紫の線分が \(d\) です。\(n\) を変えると \(d\) だけが変わり、\(h/d\) がつねに \(n\) になります。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>III(2)　2本の光線からの合力 \(f'\)<span class="ans">答 \(f' = \dfrac{4(n-1)Q}{ncr}\Delta x\cos^2\alpha\)</span></summary><div class="body">
+<p>I(5) の式に III(1) の \(d\) を入れると、光線1本からの力の大きさは</p>
+$$f_1 = \frac{2(n-1)Q}{cr}\cdot\frac{\Delta x\cos\alpha}{n}$$
+<p>向きは光線（の延長）に垂直な向きからわずか \(\theta-\phi\) だけ傾いた向きで、近似ではそれを無視して<b>光線に垂直</b>と考えます。光線は鉛直と \(\alpha\) をなすので、力は水平と \(\alpha\) をなします。2本の力の鉛直成分は打ち消し合い、水平成分 \(f_1\cos\alpha\) が2つ足されます。</p>
+$$\cgrav{f'} = 2f_1\cos\alpha = \frac{4(n-1)Q}{ncr}\Delta x\cos^2\alpha$$
+<p>向きは F の方（左）で、ずれ \(\Delta x\) に比例する復元力です。これが外力 \(f_0\) とつり合います。</p>
+<div class="box"><b>式の立て方</b>：同じ大きさの力が対称に2つあるときは「1本の大きさ × 必要な方向の成分 × 2」で合力を立てます。どの角度が成分に効くかは、力の向き（ここでは光線に垂直）から決めます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：細い緑の矢印が各光線からの力、太い矢印が合力の水平成分です。\(\alpha\) を大きくすると \(\cos^2\alpha\) が小さくなり、合力が弱くなります。光を斜めから当てるほど、水平方向にはつかみにくくなります。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+
+<details id="d-III3"><summary>III(3)　外力 \(f_0\) の数値<span class="ans">答 \(f_0 \fallingdotseq 1\times10^{-12}\ \rm N\)</span></summary><div class="body">
+<p>微粒子は静止しているので \(f_0 = f'\) です。数値を代入すると</p>
+$$f_0 = \frac{4\times(1.5-1)\times5\times10^{-3}}{1.5\times3\times10^{8}\times1\times10^{-5}}\times1\times10^{-6}\times\cos^2 45^\circ = 1.1\times10^{-12}\ \rm N$$
+<p>有効数字1桁で \(1\times10^{-12}\ \rm N\) です。1 pN（ピコニュートン）は細菌や細胞の中の分子モーターが出す力と同じくらいの大きさで、光ピンセットはこの大きさの力を測る道具として使われています。</p>
+<div class="box"><b>式の立て方</b>：数値計算は、指数部分（\(10^{-3}\times10^{-6}\div(10^{8}\times10^{-5})\)）と係数部分を分けて計算すると間違いにくくなります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：外力 \(f_0\) を変えると、微粒子は \(f_0\) と光の力がつり合う位置まで動いて止まります。初期値の \(f_0 = 1.1\ \rm pN\) で \(\Delta x\) が約 \(1\ \mu\rm m\) になります。\(f_0\) を大きくしすぎると、光の力が追いつかず微粒子が流されます。</div>
+<button class="goto" data-q="III3">この状況にする</button>
+</div></details>
+
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)))};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>式の色つきの項に触れると、図の対応する部分が強調されます</span></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"))}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i);if(n&&n.innerHTML!==(e.n||""))n.innerHTML=e.n||""})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+
+const D2R=Math.PI/180,CQ=1/3e8;
+const st={q:"I1",n:1.5,D:0.45,Qm:5,dy:0.25,al:30,dx:1,f0:1.1,spd:1};
+const SL=[
+ ["n","n","微粒子の屈折率","",1,2,0.01,2,"all"],
+ ["D","D/r","光線と中心のずれ","",0,0.95,0.01,2,"I"],
+ ["Qm","Q","光線1本のエネルギー（毎秒）","mW",1,20,0.5,1,"all"],
+ ["dy","Δy/r","F から O までのずれ（下が正）","",-0.6,0.6,0.01,2,"II2 II3"],
+ ["al","α","光線と鉛直のなす角","°",10,60,1,0,"II III"],
+ ["dx","Δx","F と O の水平距離","μm",0,6,0.05,2,"III1 III2"],
+ ["f0","f₀","外力","pN",0,30,0.1,1,"III3"],
+ ["spd","","再生速度","倍",0.25,3,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>n?[640,560]:[1000,440]);
+const gr=mkCv($("#gr"),n=>n?[640,380]:[1000,260]);
+const R0=10;// μm, particle radius in II/III
+let S={},LQ=null;
+const QC=()=>st.Qm*1e-3*CQ*1e12;// Q/c in pN
+function preset(){const q=st.q;if(q===LQ)return;const pp=LQ?LQ.match(/^[IV]+/)[0]:"";LQ=q;
+ if(q==="II1")st.dy=0;if(q==="II2"||q==="II3"){if(Math.abs(st.dy)<0.05)st.dy=0.25}
+ if(part()==="II"&&pp!=="II")st.al=30;
+ if(part()==="III"&&pp!=="III"){st.al=45;st.n=1.5;st.Qm=5;st.dx=3;st.f0=1.1}
+ if(part()==="I"&&pp!=="I"){st.n=1.5}}
+function restart(){preset();S={t:0,x:st.q==="III3"?0:st.dx,v:0,esc:0}}
+function onParam(k){if(st.q!=="III3"||k==="f0"){S.esc=0;S.t=0;return}restart()}
+/* exact ray tracing through a sphere (2D). returns null if the ray misses */
+function trace(px,py,ux,uy,ox,oy,r,n){const fx=px-ox,fy=py-oy,b=fx*ux+fy*uy,cc=fx*fx+fy*fy-r*r,disc=b*b-cc;if(disc<=1e-12)return null;
+ const s=-b-Math.sqrt(disc),Ax=px+ux*s,Ay=py+uy*s,Nx=(Ax-ox)/r,Ny=(Ay-oy)/r,ci=-(Nx*ux+Ny*uy),e=1/n,k=1-e*e*(1-ci*ci),ct=Math.sqrt(k);
+ const tx=e*ux+(e*ci-ct)*Nx,ty=e*uy+(e*ci-ct)*Ny,s2=-2*((Ax-ox)*tx+(Ay-oy)*ty),Bx=Ax+tx*s2,By=Ay+ty*s2,Mx=-(Bx-ox)/r,My=-(By-oy)/r,ci2=-(Mx*tx+My*ty),k2=1-n*n*(1-ci2*ci2),c2=Math.sqrt(Math.max(0,k2));
+ const wx=n*tx+(n*ci2-c2)*Mx,wy=n*ty+(n*ci2-c2)*My;return{A:[Ax,Ay],B:[Bx,By],t:[tx,ty],w:[wx,wy],u:[ux,uy],th:Math.acos(Math.min(1,ci)),ph:Math.acos(Math.min(1,ct)),F:[ux-wx,uy-wy]}}
+/* geometry of a single ray for part I (r = 1, O at origin). ray direction 60° above horizontal, passing right of O by D */
+const UA=60*D2R,U=[Math.cos(UA),Math.sin(UA)],NR=[Math.sin(UA),-Math.cos(UA)];
+function rayI(){const D=Math.min(0.95,st.D),cp=[NR[0]*D,NR[1]*D],P0=[cp[0]-U[0]*3,cp[1]-U[1]*3];const T=trace(P0[0],P0[1],U[0],U[1],0,0,1,st.n);if(!T)return null;
+ // C: A + u s1 = B - w s2
+ const det=U[0]*(-T.w[1])-U[1]*(-T.w[0]);let C=null;if(Math.abs(det)>1e-9){const bx=T.B[0]-T.A[0],by=T.B[1]-T.A[1];const s1=(bx*(-T.w[1])-by*(-T.w[0]))/det;C=[T.A[0]+U[0]*s1,T.A[1]+U[1]*s1]}
+ const Mid=[(T.A[0]+T.B[0])/2,(T.A[1]+T.B[1])/2];return{...T,P0,C,Dp:Mid,d:Math.hypot(Mid[0],Mid[1])}}
+/* two rays crossing at F (world units μm). part II: F=(0,0), O=(0,-dy·r). part III: plate y=0, O=(x, r), F=(0, r) */
+function twoRays(Ox,Oy,Fx,Fy,al){const out=[];[[Math.sin(al),Math.cos(al)],[-Math.sin(al),Math.cos(al)]].forEach((u,i)=>{const P0=[Fx-u[0]*40,Fy-u[1]*40];const T=trace(P0[0],P0[1],u[0],u[1],Ox,Oy,R0,st.n);out.push({u,P0,T,i})});return out}
+function netForce(rs){let fx=0,fy=0;rs.forEach(r=>{if(r.T){fx+=r.T.F[0];fy+=r.T.F[1]}});return[fx*QC(),fy*QC()]}
+const fxAt=x=>netForce(twoRays(x,R0,0,R0,st.al*D2R))[0];// horizontal force (pN) when O is at x (F at 0)
+function step(dt){S.t+=dt;if(st.q==="III3"){if(S.esc){if(S.t>2.5){S.x=0;S.esc=0;S.t=0}return}const sub=20,h=dt/sub;for(let i=0;i<sub;i++){const F=st.f0+fxAt(S.x);S.x+=F*0.9*h;if(S.x>2.3*R0){S.esc=1;S.t=0;break}if(S.x<-R0)S.x=-R0}}}
+/* ---------- drawing ---------- */
+function rayPath(c,pts,col,w,k){glow(c,k,col);line(c,pts,col,W_(k,w));noglow(c)}
+function photons(c,pts,speeds,col,ph){// dots moving along polyline, speed factor per segment
+ const L=[];let tot=0;for(let i=0;i+1<pts.length;i++){const l=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);L.push(l);tot+=l}
+ for(let k=0;k<tot;k+=34){let u=((k+ph*60)%tot+tot)%tot,i=0;while(i<L.length-1&&u>L[i]){u-=L[i];i++}const a=pts[i],b=pts[i+1],f=u/L[i];dot(c,a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,2.6,col)}}
+function angArc(c,cx,cy,v1,v2,r,col,lab,k){let a1=Math.atan2(v1[1],v1[0]),a2=Math.atan2(v2[1],v2[0]);let d=a2-a1;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;glow(c,k,col);c.strokeStyle=col;c.lineWidth=W_(k,1.6);c.beginPath();c.arc(cx,cy,r,a1,a1+d,d<0);c.stroke();noglow(c);const am=a1+d/2;txt(c,lab,cx+(r+12)*Math.cos(am),cy+(r+12)*Math.sin(am),col,{s:15,it:1,b:HL(k),al:"center"})}
+function drawI(c,W,H,n){const q=st.q,R=rayI();const V=view({x:10,y:30,w:(n?W:W*0.62)-20,h:H-44},[-2,2],[-1.55,1.7]);const P=p=>[V.X(p[0]),V.Y(p[1])],s=V.s;
+ const O=P([0,0]);dot(c,O[0],O[1],s,alpha(CL.acc,0.08),CL.ink,1.6);dot(c,O[0],O[1],3.5,CL.ink);txt(c,"O",O[0]-8,O[1]-12,CL.ink,{s:15,b:1,al:"right"});txt(c,`屈折率 n = ${st.n.toFixed(2)}`,O[0]-s*0.6,O[1]+s*0.55,CL.mute,{s:12,al:"center"});
+ if(!R)return;const A=P(R.A),B=P(R.B),end=P([R.B[0]+R.w[0]*1.6,R.B[1]+R.w[1]*1.6]),P0=P(R.P0);
+ // normals
+ [R.A,R.B].forEach(pt=>{line(c,[O,P([pt[0]*1.45,pt[1]*1.45])],CL.mute,1,[4,4])});
+ // extensions to C
+ if(R.C&&Math.hypot(R.C[0],R.C[1])<4){const C=P(R.C);line(c,[A,C],alpha(CL.mute,0.9),1.2,[6,5]);line(c,[B,C],alpha(CL.mute,0.9),1.2,[6,5]);dot(c,C[0],C[1],3.5,CL.ink);txt(c,"C",C[0]+10,C[1]+4,CL.ink,{s:15,b:1});
+  if(q!=="I1"&&q!=="I2"){line(c,[O,C],CL.mute,1,[2,3]);const Dp=P(R.Dp);dot(c,Dp[0],Dp[1],3.5,CL.ink);txt(c,"D",Dp[0]-8,Dp[1]+16,CL.ink,{s:14,b:1,al:"right"})}}
+ // ray
+ rayPath(c,[P0,A],CL.fr,2.6);rayPath(c,[A,B],CL.fr,2.6);rayPath(c,[B,end],CL.fr,2.6);photons(c,[P0,A,B,end],null,alpha(CL.fr,0.9),S.t);
+ txt(c,"光",P0[0]+4,P0[1]-14,CL.fr,{s:14,b:1});
+ dot(c,A[0],A[1],3.5,CL.ink);txt(c,"A",A[0]+8,A[1]+14,CL.ink,{s:15,b:1});dot(c,B[0],B[1],3.5,CL.ink);txt(c,"B",B[0]+10,B[1],CL.ink,{s:15,b:1});
+ // angles at A
+ const sv=v=>[v[0],-v[1]];if(R.th>0.01){angArc(c,A[0],A[1],sv([-R.u[0],-R.u[1]]),sv([R.A[0],R.A[1]]),30,CL.frc,"θ","th");angArc(c,A[0],A[1],sv(R.t),sv([-R.A[0],-R.A[1]]),44,CL.acc,"φ","ph");angArc(c,B[0],B[1],sv(R.w),sv([R.B[0],R.B[1]]),30,CL.frc,"θ","th");angArc(c,B[0],B[1],sv([-R.t[0],-R.t[1]]),sv([-R.B[0],-R.B[1]]),44,CL.acc,"φ","ph")}
+ // I2: packet
+ if(q==="I2"){const a=[R.A[0]-U[0]*1.9,R.A[1]-U[1]*1.9],b=[R.A[0]-U[0]*0.6,R.A[1]-U[1]*0.6];const pa=P(a),pb=P(b);glow(c,"p",CL.acc);line(c,[pa,pb],alpha(CL.acc,0.85),W_("p",9));noglow(c);txt(c,"cΔt の長さの光：エネルギー QΔt",(pa[0]+pb[0])/2-14,(pa[1]+pb[1])/2-8,CL.acc,{s:13,b:1,al:"right"})}
+ // I3: Δp of light at C toward O ; I4: force on particle O->C
+ if((q==="I3"||q==="I5")&&R.C){const C=P(R.C),L=Math.hypot(C[0]-O[0],C[1]-O[1]),m=Math.min(L*0.85,Math.max(26,Math.hypot(R.F[0],R.F[1])*s*1.1));const ux=(O[0]-C[0])/L,uy=(O[1]-C[1])/L;karrow(c,"dp",C[0],C[1],C[0]+ux*m,C[1]+uy*m,CL.frc,3);txt(c,"Δp（光）",C[0]+12,C[1]+20,CL.frc,{s:13,b:1})}
+ if((q==="I4"||q==="I5")&&R.C){const C=P(R.C),L=Math.hypot(C[0]-O[0],C[1]-O[1]),f=Math.hypot(R.F[0],R.F[1]),m=Math.max(14,f*s*1.1);const ux=(C[0]-O[0])/L,uy=(C[1]-O[1])/L;karrow(c,"f",O[0],O[1],O[0]+ux*m,O[1]+uy*m,CL.grav,3.4);txt(c,"f（微粒子）",O[0]+ux*m+8,O[1]+uy*m-10,CL.grav,{s:13,b:1})}
+ if(q==="I5"){const Dp=P(R.Dp);glow(c,"d",CL.fic);line(c,[O,Dp],CL.fic,W_("d",3));noglow(c);txt(c,"d",(O[0]+Dp[0])/2-10,(O[1]+Dp[1])/2,CL.fic,{s:16,it:1,b:1,al:"right"});txt(c,"r",(O[0]+A[0])/2-10,(O[1]+A[1])/2,CL.ink,{s:15,it:1,al:"right"});line(c,[O,A],CL.ink,1.2)}
+ if(!n){const x0=W*0.64,y0=40;const lines={I1:["入射角 θ：法線と入射光のなす角","屈折角 φ：法線と球の中の光のなす角","B でも同じ θ, φ の組（OA = OB）"],I2:["光子の集まり：エネルギー E と運動量 p","p = E/c（真空中）","時間 Δt に QΔt のエネルギーが出る"],I3:["入る前 p₁ と出た後 p₂ は大きさ p で等しい","向きが 2(θ−φ) 変わる","Δp = p₂ − p₁ は C → O の向き"],I4:["微粒子は光から反作用を受ける","力 f = Δp/Δt：O → C の向き","光線の方へ引き寄せられる"],I5:["d = OD（中心から光の道すじまで）","sinφ = d/r","θ ≒ nφ　→　f ∝ d"]}[q];lines.forEach((l,i)=>txt(c,l,x0,y0+i*24,i===0?CL.ink:CL.mute,{s:14,b:i===0}))}}
+function sphere(c,P,O,s,lab){dot(c,O[0],O[1],R0*s,alpha(CL.acc,0.08),CL.ink,1.6);dot(c,O[0],O[1],3.5,CL.ink);txt(c,lab||"O",O[0]+8,O[1]+14,CL.ink,{s:15,b:1})}
+function drawTwo(c,W,H,n,O,F,V,rs){const P=p=>[V.X(p[0]),V.Y(p[1])],s=V.s,Op=P(O),Fp=P(F);sphere(c,P,Op,s);
+ rs.forEach((r,i)=>{const col=i?CL.fic:CL.fr;let pts;if(r.T){const end=[r.T.B[0]+r.T.w[0]*26,r.T.B[1]+r.T.w[1]*26];pts=[P(r.P0),P(r.T.A),P(r.T.B),P(end)];
+   line(c,[P(r.T.A),P([F[0]+r.u[0]*26,F[1]+r.u[1]*26])],alpha(col,0.4),1.2,[5,5])}else pts=[P(r.P0),P([F[0]+r.u[0]*26,F[1]+r.u[1]*26])];
+  rayPath(c,pts,col,2.4,"ray");photons(c,pts,null,alpha(col,0.9),S.t);txt(c,"光線"+(i+1),pts[0][0]+(i?-6:6),pts[0][1]-12,col,{s:13,b:1,al:i?"right":"left"})});
+ dot(c,Fp[0],Fp[1],4,CL.ink);txt(c,"F",Fp[0]-8,Fp[1]-12,CL.ink,{s:15,b:1,al:"right"});
+ const sc=n?26:34;let fx=0,fy=0;rs.forEach((r,i)=>{if(!r.T)return;const f=[r.T.F[0]*QC(),r.T.F[1]*QC()];fx+=f[0];fy+=f[1];karrow(c,"f1",Op[0],Op[1],Op[0]+f[0]*sc,Op[1]-f[1]*sc,alpha(CL.grav,0.7),2)});
+ return{fx,fy,sc,Op}}
+function drawII(c,W,H,n){const q=st.q,al=st.al*D2R,dy=(q==="II1"?0:st.dy)*R0;const V=view({x:10,y:24,w:(n?W:W*0.62)-20,h:H-36},[-15,15],[-16,13]);
+ const O=[0,-dy],F=[0,0],rs=twoRays(O[0],O[1],F[0],F[1],al);const r=drawTwo(c,W,H,n,O,F,V,rs);
+ if(Math.hypot(r.fx,r.fy)>1e-4)karrow(c,"fnet",r.Op[0],r.Op[1],r.Op[0]+r.fx*r.sc,r.Op[1]-r.fy*r.sc,CL.grav,4);
+ if(Math.abs(dy)>0.05){const P=p=>[V.X(p[0]),V.Y(p[1])];dimV(c,P(F)[0]+R0*V.s+20,P(F)[1],P(O)[1],"Δy",CL.ink,"dy")}
+ if(!n){const x0=W*0.64,y0=40,dir=Math.abs(r.fy)<0.002?"力は働かない":r.fy>0?"合力は上向き（F の方）":"合力は下向き（F の方）";[[`O は F の${dy>0.01?"下":dy<-0.01?"上":"位置"}${Math.abs(dy)>0.01?"にある":""}`,1],["細い矢印：各光線からの力",0],["太い矢印：合力",0],[dir,1]].forEach(([l,b],i)=>txt(c,l,x0,y0+i*24,b?CL.ink:CL.mute,{s:14,b}))}}
+function drawIII(c,W,H,n){const q=st.q,al=st.al*D2R,x=q==="III3"?S.x:st.dx;const V=view({x:10,y:24,w:(n?W:W*0.62)-20,h:H-36},[-15,15],[-3,24]);const P=p=>[V.X(p[0]),V.Y(p[1])],s=V.s;
+ // plate
+ const y0=P([0,0])[1];rect(c,0,y0,n?W:W*0.62,6,alpha(CL.mute,0.3));line(c,[[0,y0],[n?W:W*0.62,y0]],CL.mute,1.4);txt(c,"平板",(n?W:W*0.62)-10,y0+18,CL.mute,{s:12,al:"right"});
+ const O=[x,R0],F=[0,R0],rs=twoRays(O[0],O[1],F[0],F[1],al);const r=drawTwo(c,W,H,n,O,F,V,rs),Op=r.Op;
+ // horizontal net force and f0
+ const sc=r.sc;karrow(c,"fp",Op[0],Op[1]-0,Op[0]+r.fx*sc,Op[1],CL.grav,4);txt(c,"f′",Op[0]+r.fx*sc-6,Op[1]-14,CL.grav,{s:16,it:1,b:1,al:"right"});
+ const f0=q==="III3"?st.f0:-r.fx;karrow(c,"f0",Op[0]+R0*s,Op[1],Op[0]+R0*s+f0*sc,Op[1],CL.ink,4);txt(c,"f₀",Op[0]+R0*s+f0*sc+8,Op[1]-12,CL.ink,{s:16,it:1,b:1});
+ if(Math.abs(x)>0.05)dimH(c,P(F)[0],Op[0],Op[1]+R0*s*0.35,"Δx",CL.ink,"dx");
+ if(q==="III1"&&rs[0].T&&Math.abs(x)>0.05){// h: perpendicular from O to line AF (ray 1), d: to chord
+  const u=rs[0].u,T=rs[0].T,proj=(pt,a,dir)=>{const t=(pt[0]-a[0])*dir[0]+(pt[1]-a[1])*dir[1];return[a[0]+dir[0]*t,a[1]+dir[1]*t]};
+  const H1=proj(O,F,u);glow(c,"h",CL.fr);line(c,[Op,P(H1)],CL.fr,W_("h",3));noglow(c);line(c,[P(T.A),P([F[0]+u[0]*6,F[1]+u[1]*6])],alpha(CL.fr,0.7),1.4,[4,3]);txt(c,"h",(Op[0]+P(H1)[0])/2,(Op[1]+P(H1)[1])/2-12,CL.fr,{s:16,it:1,b:1,al:"center"});
+  const H2=proj(O,T.A,T.t);glow(c,"d",CL.fic);line(c,[Op,P(H2)],CL.fic,W_("d",3));noglow(c);txt(c,"d",(Op[0]+P(H2)[0])/2,(Op[1]+P(H2)[1])/2+14,CL.fic,{s:16,it:1,b:1,al:"center"});
+  dot(c,P(T.A)[0],P(T.A)[1],3.5,CL.ink);txt(c,"A",P(T.A)[0]-10,P(T.A)[1]+4,CL.ink,{s:14,b:1,al:"right"})}
+ if(!n){const x0=W*0.64,y0=40;const L=q==="III3"?[S.esc?"光の力が足りず流された！":Math.abs(st.f0+fxAt(S.x))<0.01?"f₀ と光の力がつり合って静止":"つり合いの位置へ動いている",`Δx = ${S.x.toFixed(2)} μm`,"太い緑：光からの合力（水平）","黒：外力 f₀"]:q==="III1"?["h：O から直線 AF までの距離","d：O から球の中の光までの距離","h = r sinθ，d = r sinφ → h/d = n"]:["細い緑：各光線からの力","太い緑：合力の水平成分 f′","鉛直成分は打ち消し合う（平板の抗力も）"];L.forEach((l,i)=>txt(c,l,x0,y0+i*24,i?CL.mute:CL.ink,{s:14,b:!i}))}}
+function drawMain(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,p=part();if(p==="I")drawI(c,W,H,n);else if(p==="II")drawII(c,W,H,n);else drawIII(c,W,H,n)}
+/* ---------- lower panel ---------- */
+function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q,p=part();const B={x:n?70:90,y:26,w:W-(n?110:150),h:H-62};
+ if(q==="I1"){const A=axes(c,B,[0,1],[0,90],{xl:"D/r = sinθ",xit:false,yl:"角度 [°]",yit:false,xt:[[0.25,"0.25"],[0.5,"0.5"],[0.75,"0.75"],[1,"1"]],yt:[[30,"30"],[60,"60"],[90,"90"]]});
+  const th=x=>Math.asin(x)/D2R,ph=x=>Math.asin(x/st.n)/D2R;const cvs=(f,col,k)=>{const pts=[];for(let i=0;i<=100;i++){const x=i/100*0.999;pts.push([A.X(x),A.Y(f(x))])}glow(c,k,col);line(c,pts,col,W_(k,2.4));noglow(c)};
+  cvs(th,CL.frc,"th");cvs(ph,CL.acc,"ph");cvs(x=>th(x)-ph(x),CL.grav,"dd");const x=st.D;[th,ph,x=>th(x)-ph(x)].forEach((f,i)=>dot(c,A.X(x),A.Y(f(x)),5,[CL.frc,CL.acc,CL.grav][i]));
+  txt(c,"θ",A.X(0.97),A.Y(th(0.97))-6,CL.frc,{s:15,it:1,b:1,al:"right"});txt(c,"φ",A.X(0.97),A.Y(ph(0.97))-12,CL.acc,{s:15,it:1,b:1,al:"right"});txt(c,"θ − φ（曲がる角）",A.X(0.97),A.Y(th(0.97)-ph(0.97))+14,CL.grav,{s:13,b:1,al:"right"});return}
+ if(q==="I2"||q==="I3"||q==="I4"){const R=rayI();if(!R)return;const cx=n?W*0.32:W*0.3,cy=H*0.62,L=n?120:150;const p1=[R.u[0],-R.u[1]],p2=[R.w[0],-R.w[1]];
+  txt(c,"運動量のベクトル（始点をそろえる）",16,18,CL.mute,{s:12});dot(c,cx,cy,3,CL.ink);
+  karrow(c,"p",cx,cy,cx+p1[0]*L,cy+p1[1]*L,CL.acc,3);txt(c,"p₁（入る前）",cx+p1[0]*L+8,cy+p1[1]*L+12,CL.acc,{s:13,b:1});
+  if(q!=="I2"){glow(c,"p",CL.acc);arrow(c,cx,cy,cx+p2[0]*L,cy+p2[1]*L,alpha(CL.acc,0.6),W_("p",3),[6,4]);noglow(c);txt(c,"p₂（出た後）",cx+p2[0]*L-8,cy+p2[1]*L-6,CL.acc,{s:13,b:1,al:"right"});
+   karrow(c,"dp",cx+p1[0]*L,cy+p1[1]*L,cx+p2[0]*L,cy+p2[1]*L,CL.frc,3);txt(c,"Δp",(cx+p1[0]*L+cx+p2[0]*L)/2+10,(cy+p1[1]*L+cy+p2[1]*L)/2,CL.frc,{s:15,it:1,b:1});
+   const a1=Math.atan2(p1[1],p1[0]),a2=Math.atan2(p2[1],p2[0]);c.strokeStyle=CL.mute;c.lineWidth=1.2;c.beginPath();c.arc(cx,cy,36,Math.min(a1,a2),Math.max(a1,a2));c.stroke();txt(c,"2(θ−φ)",cx+48*Math.cos((a1+a2)/2),cy+48*Math.sin((a1+a2)/2),CL.mute,{s:13,al:"center"})}
+  if(q==="I4"){const fx=(R.u[0]-R.w[0]),fy=-(R.u[1]-R.w[1]),x0=n?W*0.72:W*0.68,y0=cy-20;dot(c,x0,y0,26,alpha(CL.acc,0.1),CL.ink,1.4);karrow(c,"f",x0,y0,x0+fx*L,y0+fy*L,CL.grav,3.4);txt(c,"f = −Δp/Δt（微粒子）",x0+fx*L+8,y0+fy*L+14,CL.grav,{s:13,b:1});txt(c,"作用・反作用：逆向き",x0-30,y0+46,CL.mute,{s:12})}
+  else if(!n){const x0=W*0.62;[[`p = QΔt/c`,CL.acc],[`|p₂ − p₁| = 2p sin(θ−φ)`,CL.frc],[`θ − φ = ${((R.th-R.ph)/D2R).toFixed(1)}°`,CL.ink]].forEach(([l,col],i)=>txt(c,l,x0,60+i*30,col,{s:15,b:1}))}return}
+ if(q==="I5"){const xm=1/st.n,A=axes(c,B,[0,xm],[0,2*(st.n-1)*xm*1.15],{xl:"d/r",xit:false,yl:"f ÷ (Q/c)",yit:false,xt:[[xm/2,(xm/2).toFixed(2)],[xm,xm.toFixed(2)]]});
+  const ex=[],ap=[];for(let i=0;i<=100;i++){const s=i/100*xm*0.999,ph=Math.asin(s),th=Math.asin(Math.min(1,st.n*s));ex.push([A.X(s),A.Y(2*Math.sin(th-ph))]);ap.push([A.X(s),A.Y(2*(st.n-1)*s)])}
+  line(c,ex,CL.grav,2.6);line(c,ap,CL.fic,2,[7,5]);const R=rayI();if(R){const s=R.d;dot(c,A.X(s),A.Y(2*Math.sin(R.th-R.ph)),6,CL.grav)}
+  txt(c,"近似なし 2sin(θ−φ)",B.x+10,B.y+4,CL.grav,{s:13,b:1});txt(c,"近似 2(n−1)d/r",B.x+10,B.y+24,CL.fic,{s:13,b:1});return}
+ if(p==="II"){const al=st.al*D2R,fy=y=>netForce(twoRays(0,-y*R0,0,0,al))[1],k=4*(st.n-1)*QC()*Math.sin(al)**2/(st.n*R0);const ym=Math.max(0.2,Math.abs(fy(0.6))*1.2,k*R0*0.6*1.1);
+  const A=axes(c,B,[-0.6,0.6],[-ym,ym],{x0:0,y0:0,xl:"Δy/r（下が正）",xit:false,yl:"合力の鉛直成分 [pN]",yit:false,xt:[[-0.5,"−0.5"],[0.5,"0.5"]]});
+  const ex=[],ap=[];for(let i=0;i<=120;i++){const y=-0.6+1.2*i/120;ex.push([A.X(y),A.Y(fy(y))]);ap.push([A.X(y),A.Y(Math.max(-ym,Math.min(ym,k*y*R0)))])}line(c,ap,CL.fic,1.8,[7,5]);line(c,ex,CL.grav,2.6);
+  const y=q==="II1"?0:st.dy;dot(c,A.X(y),A.Y(fy(y)),6,CL.grav);txt(c,"近似なし",B.x+10,B.y+4,CL.grav,{s:13,b:1});txt(c,"比例の近似 4(n−1)Q sin²α Δy/(ncr)",B.x+10,B.y+24,CL.fic,{s:13,b:1});txt(c,"Δy > 0（O が下）→ 上向き（正）",B.x+B.w,B.y+B.h-6,CL.mute,{s:12,al:"right"});return}
+ // III: restoring force vs Δx
+ const al=st.al*D2R,k=4*(st.n-1)*QC()*Math.cos(al)**2/(st.n*R0),xm=20;let fm=0;const ex=[];for(let i=0;i<=120;i++){const x=xm*i/120,f=-fxAt(x);fm=Math.max(fm,f);ex.push([x,f])}
+ const ym=Math.max(fm*1.25,st.q==="III3"?st.f0*1.15:0.5),A=axes(c,B,[0,xm],[0,ym],{xl:"Δx [μm]",xit:false,yl:"光からの力（水平、F の向き） [pN]",yit:false,xt:[[1,"1"],[5,"5"],[10,"10 = r"],[15,"15"]],yt:[[fm,"最大 "+fm.toFixed(2)]]});
+ line(c,ex.map(e=>[A.X(e[0]),A.Y(e[1])]),CL.grav,2.6);const ap=[];for(let i=0;i<=60;i++){const x=xm*i/60;if(k*x<=ym)ap.push([A.X(x),A.Y(k*x)])}line(c,ap,CL.fic,1.8,[7,5]);
+ txt(c,"近似なし",B.x+10,B.y+4,CL.grav,{s:13,b:1});txt(c,"近似 f′ = 4(n−1)QΔx cos²α/(ncr)",B.x+10,B.y+24,CL.fic,{s:13,b:1});
+ if(st.q==="III3"){glow(c,"f0",CL.ink);line(c,[[A.X(0),A.Y(st.f0)],[A.X(xm),A.Y(st.f0)]],CL.ink,W_("f0",1.6),[5,4]);noglow(c);txt(c,"f₀",A.X(xm)-4,A.Y(st.f0)-10,CL.ink,{s:15,it:1,b:1,al:"right"});if(!S.esc&&S.x<xm)dot(c,A.X(S.x),A.Y(-fxAt(S.x)),6,CL.grav);if(st.f0>fm)txt(c,"f₀ が光の力の最大値をこえる → 捕まえられない",A.X(xm)-4,A.Y(st.f0)+16,CL.ng,{s:12,al:"right",b:1})}
+ else dot(c,A.X(st.dx),A.Y(-fxAt(st.dx)),6,CL.grav)}
+function drawAll(){drawMain();drawGr()}
+/* ---------- equations ---------- */
+function eqs(){const q=st.q,R=String.raw,p=part();
+ if(p==="I"){const r=rayI();if(!r)return{title:"",list:[]};const th=r.th,ph=r.ph,f=2*QC()*Math.sin(th-ph);
+  if(q==="I1")return{title:"屈折の法則（角度は法線から測る）",list:[{t:R`\sin`+TK("th","frc",R`\theta`)+"=n\\sin"+TK("ph","acc",R`\phi`),n:`sin(${NS((th/D2R).toFixed(1)+"°","frc")}) = ${Math.sin(th).toFixed(3)} ＝ ${st.n.toFixed(2)} × sin(${NS((ph/D2R).toFixed(1)+"°","acc")})`}]};
+  if(q==="I2")return{title:"光の運動量 ＝ エネルギー ÷ 光速",list:[{t:TK("p","acc",R`p=\frac{E}{c}=\frac{Q\Delta t}{c}`),n:`Q/c = ${NS(QC().toFixed(2),"acc")} pN（1 秒あたりの運動量）`}]};
+  if(q==="I3")return{title:"大きさの同じベクトルの差：二等辺三角形の底辺",list:[{t:TK("dp","frc",R`\Delta p`)+R`=2`+TK("p","acc","p")+R`\sin(\theta-\phi)`,n:`θ − φ = ${((th-ph)/D2R).toFixed(1)}°,　Δp/p = ${NS((2*Math.sin(th-ph)).toFixed(3),"frc")}`}]};
+  if(q==="I4")return{title:"作用・反作用：光が受けた力積の逆向き",list:[{t:TK("f","grav","f")+"="+TK("dp","frc",R`\frac{\Delta p}{\Delta t}`)+R`=\frac{2Q}{c}\sin(\theta-\phi)`,n:`f = ${NS(f.toFixed(2),"grav")} pN（向き O → C）`}]};
+  return{title:"小さい角度：θ ≒ nφ，sinφ = d/r",list:[{t:R`\sin\phi=\frac{`+TK("d","fic","d")+R`}{r},\qquad \theta-\phi\fallingdotseq(n-1)\phi`,n:`d/r = ${NS(r.d.toFixed(3),"fic")}`},{t:TK("f","grav","f")+R`\fallingdotseq\frac{2(n-1)Q`+TK("d","fic","d")+R`}{cr}`,n:`近似 ${NS((2*(st.n-1)*QC()*r.d).toFixed(2),"grav")} pN　／　近似なし ${f.toFixed(2)} pN`}]}}
+ if(p==="II"){const al=st.al*D2R,dy=q==="II1"?0:st.dy,F=netForce(twoRays(0,-dy*R0,0,0,al)),k=4*(st.n-1)*QC()*Math.sin(al)**2/(st.n*R0);
+  if(q==="II1")return{title:"光線が中心を通る → 曲がらない → 力 0",list:[{t:R`d=0\quad\Longrightarrow\quad `+TK("f1","grav","f")+R`\fallingdotseq\frac{2(n-1)Q}{cr}\cdot0=0`,n:`合力 ${Math.hypot(...F).toFixed(3)} pN`}]};
+  return{title:"各光線の力は光の道すじの方向へ：合力は F に向かう",list:[{t:TK("fnet","grav","f'")+R`=2f\sin\alpha\fallingdotseq\frac{4(n-1)Q\sin^2\alpha}{ncr}\,`+TK("dy","ink",R`\Delta y`),n:`近似 ${NS((k*dy*R0).toFixed(3),"grav")} pN　／　近似なし ${F[1].toFixed(3)} pN（上向きを正）`}]}}
+ const al=st.al*D2R,x=q==="III3"?S.x:st.dx,h=x*Math.cos(al),d=h/st.n,f1=2*(st.n-1)*QC()*d/R0,fp=2*f1*Math.cos(al),fex=-fxAt(x);
+ if(q==="III1")return{title:"中心から直線までの距離：h = r sinθ，d = r sinφ",list:[{t:TK("h","fr","h")+R`=\Delta x\cos\alpha,\qquad `+TK("d","fic","d")+R`=\frac{`+TK("h","fr","h")+R`}{n}=\frac1n\Delta x\cos\alpha`,n:`h = ${NS(h.toFixed(3),"fr")} μm,　d = ${NS(d.toFixed(3),"fic")} μm`}]};
+ const eq1={t:TK("f1","grav",R`f_1`)+R`=\frac{2(n-1)Q}{cr}\cdot\frac{\Delta x\cos\alpha}{n},\qquad `+TK("fp","grav","f'")+R`=2`+TK("f1","grav",R`f_1`)+R`\cos\alpha`,n:`f₁ = ${NS(f1.toFixed(3),"grav")} pN,　f′ = ${NS(fp.toFixed(3),"grav")} pN（近似なし ${fex.toFixed(3)} pN）`};
+ if(q==="III2")return{title:"1本の力 × 水平成分 × 2",list:[eq1]};
+ return{title:"静止 ⇔ 力のつり合い",list:[{t:TK("f0","ink",R`f_0`)+"="+TK("fp","grav","f'")+R`=\frac{4(n-1)Q}{ncr}\,\Delta x\cos^2\alpha`,n:`f₀ = ${NS(st.f0.toFixed(2),"ink")} pN → つり合いの Δx（近似）= ${(st.f0/(4*(st.n-1)*QC()*Math.cos(al)**2/(st.n*R0))).toFixed(2)} μm`},
+  {t:R`\frac{4\times0.5\times5\times10^{-3}}{1.5\times3\times10^{8}\times10^{-5}}\times10^{-6}\times\frac12\fallingdotseq1\times10^{-12}\ \mathrm{N}`,n:"問題の数値（Δx = 1 μm）"}]}}
+function note(){const p=part();if(p==="I")return"光線は近似を使わずに追跡しています。力は Q/c を単位にした値に Q/c を掛けて pN で表示しています。";return"微粒子の半径は r = 10 μm です。力は光線を近似なしで追跡して計算しています（1 pN = 10⁻¹² N）。"+(st.q==="III3"?" 微粒子は力の差に比例する速さで動くとして、つり合いの位置への動きを表示しています。":"")}
+function readout(){const q=st.q,p=part(),r=[];
+ if(p==="I"){const R=rayI();if(!R)return[["光線","微粒子に当たらない"]];r.push(["入射角 θ",(R.th/D2R).toFixed(2)+"°"],["屈折角 φ",(R.ph/D2R).toFixed(2)+"°"],["曲がる角 2(θ−φ)",(2*(R.th-R.ph)/D2R).toFixed(2)+"°"],["d/r = sinφ",R.d.toFixed(3)],["力 f",(2*QC()*Math.sin(R.th-R.ph)).toFixed(3)+" pN"]);return r}
+ if(p==="II"){const dy=q==="II1"?0:st.dy,F=netForce(twoRays(0,-dy*R0,0,0,st.al*D2R));r.push(["Δy",(dy*R0).toFixed(2)+" μm"],["合力（水平）",F[0].toFixed(3)+" pN"],["合力（鉛直、上が正）",F[1].toFixed(3)+" pN"],["合力 ÷ Δy",Math.abs(dy)>0.005?(F[1]/(dy*R0)).toFixed(3)+" pN/μm":"—","Δy が小さい範囲ではほぼ一定 → 比例"]);return r}
+ const x=q==="III3"?S.x:st.dx,al=st.al*D2R,k=4*(st.n-1)*QC()*Math.cos(al)**2/(st.n*R0);r.push(["Δx",x.toFixed(3)+" μm"],["光からの力（近似なし）",(-fxAt(x)).toFixed(3)+" pN"],["近似式 f′",(k*x).toFixed(3)+" pN"],["h = Δx cosα",(x*Math.cos(al)).toFixed(3)+" μm"],["d = h/n",(x*Math.cos(al)/st.n).toFixed(3)+" μm"]);if(q==="III3")r.push(["外力 f₀",st.f0.toFixed(2)+" pN = "+(st.f0*1e-12).toExponential(1)+" N"]);return r}
+initUI("I1");
+}
+</script>
+</body>
+</html>

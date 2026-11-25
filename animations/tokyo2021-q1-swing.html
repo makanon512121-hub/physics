@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>ブランコの力学：飛び降り・立ち上がり・こぎ方</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;transition:background-color .15s,box-shadow .15s}
+.tk.on{background:var(--soft);box-shadow:0 0 0 2px var(--soft)}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>ブランコの力学：飛び降り・立ち上がり・こぎ方（東京大学 2021年 第1問）</h1>
+<p class="lead">ブランコに乗った人を質点とみなし、<b>力学的エネルギー保存</b>・<b>運動量保存</b>・<b>面積速度一定</b>の3つの法則でブランコの運動を追いかけます。最低点で立ち上がると振れ幅が大きくなる理由と、何回こげば振れ幅が2倍になるかまで、アニメーションで確かめられます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="ブランコの運動のアニメーション"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I">I ア〜ウ エネルギー保存</button>
+<button class="qb" data-q="II1">II(1) 飛び降り（運動量）</button>
+<button class="qb" data-q="II2">II(2) 着地点までの距離</button>
+<button class="qb" data-q="III1">III(1) 立ち上がった後</button>
+<button class="qb" data-q="III2">III(2) 立ち上がる前後</button>
+<button class="qb" data-q="III3">III(3) どこで立つと最大か</button>
+<button class="qb" data-q="III4">III(4)(5) こぎ続ける</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。支点を O、ブランコの長さを \(\ell\)、振れ角を \(\theta\)（鉛直下向きから反時計回りが正）、重力加速度を \(g\) とします。式の色は、アニメーションの矢印や寸法線の色とそろえています。</p>
+
+<details id="d-I"><summary>I　ア〜ウ　力学的エネルギーと速さ<span class="ans">答 ア \(-mg\ell\cos\theta_0\)　イ \(\dfrac12mu^2 - mg\ell\cos\theta\)　ウ \(\sqrt{2g\ell(\cos\theta-\cos\theta_0)}\)</span></summary><div class="body">
+<h3>位置エネルギーは「基準からの高さ」で決まる</h3>
+<p>基準は支点 O の高さです。角度 \(\theta\) のとき、質点 P は O より \(\ell\cos\theta\) だけ<b>下</b>にあるので、位置エネルギーは \(\cgrav{-mg\ell\cos\theta}\) と負になります。高さが基準より下なら位置エネルギーは負、という符号の扱いに注意します。</p>
+<p>\(\theta=\theta_0\) で静かに放した瞬間は運動エネルギーが 0 なので</p>
+$$\text{ア}:\quad E_0 = -mg\ell\cos\theta_0$$
+<p>角度 \(\theta\) で速さ \(u\) のときは</p>
+$$\text{イ}:\quad E = \cfrc{\frac12mu^2} + \cgrav{\left(-mg\ell\cos\theta\right)}$$
+<h3>保存則で速さを求める</h3>
+<p>糸の張力はつねに速度と垂直なので仕事をしません。仕事をするのは重力だけなので、力学的エネルギーが保存します。ア＝イ とおいて</p>
+$$\frac12mu^2 = mg\ell(\cos\theta - \cos\theta_0)\qquad\therefore\ u = \sqrt{2g\ell(\cos\theta-\cos\theta_0)}$$
+<p>右辺の \(\ell(\cos\theta-\cos\theta_0)\) は「放した位置から何 m 下がったか」です。基準をどこに選んでも、この<b>高さの差</b>だけが速さを決めます。</p>
+<div class="box"><b>式の立て方</b>：①張力・垂直抗力など、速度と垂直な力は仕事をしないことを確認する ②基準の高さを1つ決め、各位置の高さを \(\ell\cos\theta\) のように図から読む ③「はじめ＝あと」の形に並べる。円運動の問題では、高さは「支点からの鉛直距離 \(\ell\cos\theta\)」で表すのが定番です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：上の式の \(\frac12mu^2\)（赤）と \(-mg\ell\cos\theta\)（緑）に触れると、速度の矢印と高さの寸法線が強調されます。下のグラフでは、赤と緑の和（黒線）がどの角度でも一定です。\(\theta_0\) を大きくしても式はそのまま成り立ちます（近似を使っていないため）。</div>
+<button class="goto" data-q="I">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　A が飛び降りた直後の速さ \(v_{\rm A}\)<span class="ans">答 \(v_{\rm A} = \dfrac{m_{\rm A}+m_{\rm B}}{m_{\rm A}}\,v_0\)</span></summary><div class="body">
+<h3>短い時間の出来事には運動量保存</h3>
+<p>A が飛び降りる動作は一瞬で終わります。この間に A と B の間には大きな力がはたらきますが、それは<b>内力</b>なので、2人の運動量の和を変えません。外力のうち重力と張力は鉛直方向で、\(\theta=0\) では水平成分をもちません。したがって<b>水平方向の運動量の和</b>が保存します。</p>
+$$\cacc{(m_{\rm A}+m_{\rm B})v_0} = \cfrc{m_{\rm A}v_{\rm A}} + m_{\rm B}\cdot 0$$
+<p>飛び降りた後、B を乗せたブランコは静止するので B の運動量は 0 です。よって</p>
+$$v_{\rm A} = \frac{m_{\rm A}+m_{\rm B}}{m_{\rm A}}\,v_0$$
+<p>A は軽いほど速く飛び出します。B が止まった分の運動量を A が全部受け取るためです。</p>
+<div class="box"><b>式の立て方</b>：分裂・衝突・飛び乗りのように「一瞬で起こる」ものは、まず運動量保存を考えます。①どの物体をまとめて1つの系とみるか決める ②その系にはたらく外力を書き出し、外力の成分が 0 の方向を探す ③その方向の「前の運動量の和＝後の運動量の和」を立てる。エネルギーは人が仕事をするので保存しません。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：左上の2本の矢印は運動量です。分裂の前後で長さが同じになります。下のグラフでは、直前の運動量のうち B が持っていた分（紫）が、直後には A の分（赤）にまとめて移っています。\(m_{\rm B}\) を大きくすると \(v_{\rm A}\) が大きくなり、遠くまで飛びます。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　着地点までの距離 GG′<span class="ans">答 \({\rm GG'} = \dfrac{2(m_{\rm A}+m_{\rm B})}{m_{\rm A}}\sqrt{\ell h(1-\cos\theta_0)}\)，数値は \(1.2\ \rm m\)</span></summary><div class="body">
+<h3>最低点での速さ \(v_0\)：エネルギー保存</h3>
+<p>I と同じ考え方で、\(\theta_0\) から \(\theta=0\) まで \(\ell(1-\cos\theta_0)\) だけ下がるので</p>
+$$\frac12(m_{\rm A}+m_{\rm B})v_0^{\,2} = (m_{\rm A}+m_{\rm B})g\ell(1-\cos\theta_0)\qquad\therefore\ v_0=\sqrt{2g\ell(1-\cos\theta_0)}$$
+<h3>水平投射：水平と鉛直に分けて考える</h3>
+<p>最低点の高さは \(h\) です。A は水平に速さ \(v_{\rm A}\) で飛び出すので、鉛直方向は初速度 0 の自由落下、水平方向は等速直線運動です。着地までの時間 \(t_{\rm A}\) は鉛直方向だけで決まります。</p>
+$$\cgrav{h = \frac12 g\,t_{\rm A}^{\,2}}\qquad\therefore\ \cfic{t_{\rm A}} = \sqrt{\frac{2h}{g}}$$
+$$\cacc{{\rm GG'}} = \cfrc{v_{\rm A}}\,\cfic{t_{\rm A}} = \frac{m_{\rm A}+m_{\rm B}}{m_{\rm A}}\sqrt{2g\ell(1-\cos\theta_0)}\cdot\sqrt{\frac{2h}{g}} = \frac{2(m_{\rm A}+m_{\rm B})}{m_{\rm A}}\sqrt{\ell h(1-\cos\theta_0)}$$
+<p>\(g\) が消えるのがポイントです。数値 \(\ell=2.0\ \rm m\)，\(h=0.30\ \rm m\)，\(\cos\theta_0=0.85\)，\(m_{\rm A}=m_{\rm B}\) を代入すると</p>
+$${\rm GG'} = 2\cdot2\cdot\sqrt{2.0\times0.30\times0.15} = 4\times0.30 = 1.2\ \rm m$$
+<div class="box"><b>式の立て方</b>：放物運動は「鉛直方向で時間を決め、その時間を水平方向に使う」の順で立てます。飛び出す速さは別の法則（ここではエネルギー保存＋運動量保存）で先に求めておき、最後につなげます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは、水平に進んだ距離（青、直線）と高さ（緑、放物線）を時間に対して描いたものです。緑が 0 になる時刻が \(t_{\rm A}\)（紫）で、そのときの青の値が GG′ です。初期設定は問題の数値（\(\cos\theta_0 = 0.85\) は \(\theta_0\approx31.8^\circ\)）です。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)　立ち上がった後に止まる角度 \(\theta''\)<span class="ans">答 \((\theta'')^2 = (\theta')^2 + \dfrac{v'^2}{g(\ell-\Delta\ell)}\)</span></summary><div class="body">
+<h3>立ち上がった後は「長さ \(\ell-\Delta\ell\) の振り子」</h3>
+<p>立ち上がった直後から \(\theta=-\theta''\) で止まるまでは、長さ \(\ell-\Delta\ell\) の円運動で、人は仕事をしていません。力学的エネルギー保存が使えます。\(\theta'\) の位置から \(-\theta''\) の位置まで、\((\ell-\Delta\ell)(\cos\theta'-\cos\theta'')\) だけ<b>上がる</b>ので</p>
+$$\frac12m\cfrc{v'^2} = mg\,\cgrav{(\ell-\Delta\ell)(\cos\theta'-\cos\theta'')}$$
+<h3>小さい角度の近似</h3>
+<p>\(\cos\theta\fallingdotseq 1-\dfrac{\theta^2}{2}\) を使うと \(\cos\theta'-\cos\theta''\fallingdotseq\dfrac{(\theta'')^2-(\theta')^2}{2}\) なので</p>
+$$\frac12 v'^2 = g(\ell-\Delta\ell)\,\frac{(\theta'')^2-(\theta')^2}{2}\qquad\therefore\ (\theta'')^2 = (\theta')^2 + \frac{v'^2}{g(\ell-\Delta\ell)}$$
+<div class="box"><b>式の立て方</b>：途中で条件（長さ）が変わる運動は、変わる瞬間で区切り、区間ごとに保存則を立てます。各区間で「誰も仕事をしていないか」を確認してから力学的エネルギー保存を使います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：立ち上がる瞬間に一時停止し、直前の速度 \(v\)（青）と直後の速度 \(v'\)（赤）が表示されます。緑の寸法線が \((\ell-\Delta\ell)(\cos\theta'-\cos\theta'')\) です。「いまの値」で、近似式から求めた \(\theta''\) と数値計算の \(\theta''\) を比べられます。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>III(2)　\(\theta''\) を \(\ell,\Delta\ell,\theta_0,\theta'\) で表す<span class="ans">答 \((\theta'')^2 = \left(\dfrac{\ell}{\ell-\Delta\ell}\right)^3\theta_0^{\,2} - \left\{\left(\dfrac{\ell}{\ell-\Delta\ell}\right)^3-1\right\}(\theta')^2\)</span></summary><div class="body">
+<h3>立ち上がる前：エネルギー保存で \(v\)</h3>
+<p>\(\theta_0\) から \(\theta'\) まで長さ \(\ell\) のまま \(\ell(\cos\theta'-\cos\theta_0)\) 下がるので、近似を使って</p>
+$$\frac12m\cacc{v^2} = mg\,\cgrav{\ell(\cos\theta'-\cos\theta_0)}\qquad\therefore\ v^2\fallingdotseq g\ell\{\theta_0^{\,2}-(\theta')^2\}$$
+<h3>立ち上がる瞬間：面積速度一定で \(v'\)</h3>
+<p>立ち上がるとき、人は糸の方向（O に向かう方向）に強く引かれます。O を中心とする<b>中心力</b>なので、O のまわりの面積速度が変わりません。</p>
+$$\cfic{\frac12(\ell-\Delta\ell)v' = \frac12\ell v}\qquad\therefore\ v' = \frac{\ell}{\ell-\Delta\ell}\,v$$
+<p>半径が縮むと速さが上がります。フィギュアスケートで腕を縮めると回転が速くなるのと同じしくみです。</p>
+<h3>III(1) に代入</h3>
+$$(\theta'')^2 = (\theta')^2 + \frac{1}{g(\ell-\Delta\ell)}\left(\frac{\ell}{\ell-\Delta\ell}\right)^2 g\ell\{\theta_0^{\,2}-(\theta')^2\} = \left(\frac{\ell}{\ell-\Delta\ell}\right)^3\theta_0^{\,2} - \left\{\left(\frac{\ell}{\ell-\Delta\ell}\right)^3-1\right\}(\theta')^2$$
+<h3>エネルギーはどこから来たか</h3>
+<p>立ち上がる瞬間は面積速度が保存するだけで、力学的エネルギーは保存しません。人が張力にさからって体を引き上げる仕事が、運動エネルギーの増加分になります。張力は速いほど（遠心力の分だけ）大きいので、<b>速い所で立つほど大きな仕事</b>ができます。</p>
+<div class="box"><b>式の立て方</b>：「中心に向かう力だけが一瞬はたらく」ときは面積速度 \(\frac12rv_\perp\) が保存します（中心のまわりの角運動量保存）。\(v_\perp\) は半径に垂直な速度成分で、ここでは速度がもともと半径に垂直なので \(v\) そのものです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：紫の2つの三角形は、O と速度ベクトルでつくる三角形で、面積が \(\frac12\ell v\) と \(\frac12(\ell-\Delta\ell)v'\) に比例します。底辺が短くなった分、高さ（速さ）が伸びて面積が同じになります。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+
+<details id="d-III3"><summary>III(3)　\(\theta''\) を最大にする \(\theta'\)<span class="ans">答 \(\theta'=0\)，そのとき \(\theta''=\left(\dfrac{\ell}{\ell-\Delta\ell}\right)^{3/2}\theta_0\)</span></summary><div class="body">
+<p>III(2) の結果で \(\left(\dfrac{\ell}{\ell-\Delta\ell}\right)^3 - 1 &gt; 0\) なので、\((\theta')^2\) の係数は負です。\((\theta'')^2\) は \(\theta'\) の下に凸ではなく<b>上に凸の放物線</b>になり、\(\theta'=0\) で最大です。</p>
+$$\theta'' = \left(\frac{\ell}{\ell-\Delta\ell}\right)^{3/2}\theta_0$$
+<p>物理的には「最低点で立ち上がるのが一番効率がよい」ことを表しています。最低点は速さが最大で、張力も最大なので、同じ \(\Delta\ell\) だけ体を引き上げる仕事が最も大きくなります。</p>
+<div class="box"><b>式の立て方</b>：最大・最小を聞かれたら、まず式を「変数の2乗」でまとめ、係数の符号を調べます。微分しなくても、平方完成や係数の符号で決まることが多いです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(\theta'\) のスライダーを動かすと、下のグラフの点が放物線上を動きます。\(\theta'=0\) の頂点で \(\theta''\) が最大です。\(\theta'\) を負にする（最低点を通り過ぎてから立つ）と、正のときと同じだけ効果が下がります。</div>
+<button class="goto" data-q="III3">この状況にする</button>
+</div></details>
+
+<details id="d-III4"><summary>III(4)(5)　こぎ続けたときの振れ幅<span class="ans">答 (4) \(\theta_n = \left(\dfrac{\ell}{\ell-\Delta\ell}\right)^{\frac32n}\theta_0\)　(5) \(N=5\)</span></summary><div class="body">
+<h3>1サイクルで振れ幅が何倍になるか</h3>
+<p>1サイクルは「\(\theta_{n-1}\) から出発 → 最低点で立つ → \(-\theta_n\) で止まる → 戻って \(\theta_n\) で止まる → しゃがむ」です。最低点で立つので III(3) の結果がそのまま使え、\(-\theta_n\) から \(\theta_n\) へ戻る間は長さ一定なので振れ幅は変わりません。しゃがむのは静止しているときなので、速さも角度も変わりません。</p>
+$$\theta_n = \cfr{\left(\frac{\ell}{\ell-\Delta\ell}\right)^{3/2}}\theta_{n-1}\qquad\Longrightarrow\qquad\theta_n = \left(\frac{\ell}{\ell-\Delta\ell}\right)^{\frac32n}\theta_0$$
+<p>毎回同じ倍率がかかるので、振れ幅は<b>等比数列</b>で増えます。</p>
+<h3>2倍になる回数</h3>
+<p>\(\dfrac{\Delta\ell}{\ell}=0.1\) なら \(\dfrac{\ell}{\ell-\Delta\ell} = \dfrac{1}{0.9}\) です。\(\theta_N\geqq2\theta_0\) は</p>
+$$0.9^{-\frac32N}\geqq2\quad\Longleftrightarrow\quad -\frac32N\log_{10}0.9\geqq\log_{10}2\quad\Longleftrightarrow\quad N\geqq\frac{0.30}{1.5\times0.046}=4.3\cdots$$
+<p>これを満たす最小の整数は \(N=5\) です。</p>
+<div class="box"><b>式の立て方</b>：くり返しの問題は、まず1回分の変化を「\(x_n = r\,x_{n-1}\)」や「\(x_n = x_{n-1}+d\)」の形で書きます。それから一般項を出し、不等式は対数で解きます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：人が最低点で立ち（ひもが短くなる）、端でしゃがむ様子をくり返します。下のグラフは各サイクル後の振れ幅で、棒が公式、点が数値計算です。\(\Delta\ell/\ell\) を変えると \(N\) が変わります。</div>
+<button class="goto" data-q="III4">この状況にする</button>
+</div></details>
+
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)))};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>式の色つきの項に触れると、図の対応する部分が強調されます</span></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"))}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i);if(n&&n.innerHTML!==(e.n||""))n.innerHTML=e.n||""})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+
+const g=9.8,D2R=Math.PI/180;
+const st={q:"I",th0:40,l:2,m:50,h:0.3,mA:50,mB:50,thp:6,dl:0.1,spd:1};
+const SL=[
+ ["th0","θ<sub>0</sub>","はじめの振れ角","°",5,70,0.1,1,"all"],
+ ["l","ℓ","ブランコの長さ","m",1,4,0.1,1,"all"],
+ ["m","m","人の質量","kg",20,80,1,0,"I III"],
+ ["h","h","最低点の高さ","m",0.1,1,0.01,2,"II"],
+ ["mA","m<sub>A</sub>","A の質量","kg",20,80,1,0,"II"],
+ ["mB","m<sub>B</sub>","B の質量","kg",20,80,1,0,"II"],
+ ["thp","θ′","立ち上がる角度","°",-30,30,0.5,1,"III1 III2 III3"],
+ ["dl","Δℓ/ℓ","立ち上がりで縮む割合","",0.02,0.2,0.01,2,"III"],
+ ["spd","","再生速度","倍",0.25,2,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>n?[640,600]:[1000,440]);
+const gr=mkCv($("#gr"),n=>n?[640,380]:[1000,250]);
+let S={},LP=null;
+const A_=()=>(1/(1-st.dl));            // ℓ/(ℓ-Δℓ)
+const v0f=()=>Math.sqrt(2*g*st.l*(1-Math.cos(st.th0*D2R)));
+const vAf=()=>(st.mA+st.mB)/st.mA*v0f();
+const tAf=()=>Math.sqrt(2*st.h/g);
+const GGf=()=>vAf()*tAf();
+function preset(){const p=part();if(p===LP)return;LP=p;
+ if(p==="I"){st.th0=40;st.l=2}
+ if(p==="II"){st.th0=31.8;st.l=2;st.h=0.3;st.mA=50;st.mB=50}
+ if(p==="III"){st.th0=12;st.l=2;st.dl=0.1;st.thp=6}}
+function thppExact(thp){ // exact θ'' (rad) when standing at θ'
+ const L=st.l,Lp=L*(1-st.dl),c0=Math.cos(st.th0*D2R),cp=Math.cos(thp*D2R);const v2=2*g*L*(cp-c0),vp2=v2*(L/Lp)**2;const cpp=cp-vp2/(2*g*Lp);return Math.acos(Math.max(-1,Math.min(1,cpp)))}
+const thppApprox=thp=>Math.sqrt(A_()**3*(st.th0*D2R)**2-(A_()**3-1)*(thp*D2R)**2);
+function Ncyc(){return Math.log(2)/(1.5*Math.log(A_()))}
+function restart(){preset();const p=part();
+ if(p==="III"){const lim=st.th0-0.5;st.thp=Math.max(-lim,Math.min(lim,st.thp))}
+ S={th:st.th0*D2R,w:0,L:st.l,t:0,ph:"swing",wait:0,pause:0,hist:[],trace:[],stood:null,thpp:null,cyc:0,amps:[st.th0],x:0,y:0,tf:0,v0s:null,neg:null}}
+function onParam(k){if(k==="th0"&&part()==="III"&&st.thp>st.th0-0.5)st.thp=Math.max(-st.th0+0.5,st.th0-0.5);restart()}
+const accf=(th,L)=>-g/L*Math.sin(th);
+function rk(h){const th=S.th,w=S.w,L=S.L;const k1t=w,k1w=accf(th,L),k2t=w+h/2*k1w,k2w=accf(th+h/2*k1t,L),k3t=w+h/2*k2w,k3w=accf(th+h/2*k2t,L),k4t=w+h*k3w,k4w=accf(th+h*k3t,L);S.th+=h/6*(k1t+2*k2t+2*k3t+k4t);S.w+=h/6*(k1w+2*k2w+2*k3w+k4w)}
+function step(dt){const q=st.q,p=part();
+ if(S.ph==="done"){S.wait+=dt;if(S.wait>(q==="III4"?4:2.6))restart();return}
+ if(S.pause>0){S.pause-=dt;return}
+ const N=40,h=dt/N;
+ for(let i=0;i<N;i++){
+  if(p==="II"&&S.ph==="fly"){S.tf+=h;S.x=-vAf()*S.tf;S.y=st.h-0.5*g*S.tf**2;if(S.y<=0){S.tf=tAf();S.x=-GGf();S.y=0;S.ph="done";break}continue}
+  const th0=S.th,w0=S.w;rk(h);S.t+=h;
+  if(p==="II"&&th0>0&&S.th<=0){S.v0s=Math.abs(w0)*st.l;S.th=0;S.w=0;S.ph="fly";S.tf=0;S.x=0;S.y=st.h;S.pause=q==="II1"?1.6:0.5;break}
+  if(p==="III"&&q!=="III4"){
+   if(S.ph==="swing"&&w0<0&&th0>st.thp*D2R&&S.th<=st.thp*D2R){const v=Math.abs(S.w)*st.l;S.th=st.thp*D2R;S.L=st.l*(1-st.dl);S.w=S.w*(st.l/S.L)**2;S.stood={th:S.th,v,vp:Math.abs(S.w)*S.L};S.ph="after";S.pause=1.6;break}
+   if(S.ph==="after"&&w0<0&&S.w>=0){S.thpp=-S.th;S.ph="done";break}}
+  if(q==="III4"){
+   if(S.L===st.l&&w0<0&&th0>0&&S.th<=0){S.L=st.l*(1-st.dl);S.w*=(st.l/S.L)**2;S.flash=0.5}
+   else if(S.L<st.l&&w0<0&&S.w>=0){S.neg=-S.th/D2R}
+   else if(S.L<st.l&&w0>0&&S.w<=0){S.cyc++;S.amps.push(S.th/D2R);S.L=st.l;S.w=0;S.flash=-0.5;S.pause=0.15;
+    if(S.cyc>=Math.ceil(Ncyc())+1||S.th/D2R>75){S.ph="done"}break}}}
+ if(S.flash)S.flash=S.flash>0?Math.max(0,S.flash-dt):Math.min(0,S.flash+dt);
+ if(p!=="II"||S.ph==="swing"){S.trace.push([S.L*Math.sin(S.th),-S.L*Math.cos(S.th)]);if(S.trace.length>1400)S.trace.shift()}
+ S.hist.push([S.t,S.th/D2R]);if(S.hist.length>3000)S.hist.shift()}
+/* ---------- drawing helpers ---------- */
+function bob(c,x,y,r,lab,col,fill){dot(c,x,y,r,fill||CL.bg,col||CL.ink,2);if(lab)txt(c,lab,x,y+1,col||CL.ink,{s:13,al:"center",b:1})}
+function pivot(c,x,y){rect(c,x-26,y-10,52,8,alpha(CL.mute,0.25));line(c,[[x-26,y-2],[x+26,y-2]],CL.mute,1.5);dot(c,x,y,4,CL.ink)}
+function arcA(c,x,y,r,a1,a2,col,lab,k){c.strokeStyle=col;c.lineWidth=W_(k,1.4);c.beginPath();c.arc(x,y,r,Math.min(a1,a2),Math.max(a1,a2));c.stroke();if(lab){const am=(a1+a2)/2;txt(c,lab,x+(r+13)*Math.cos(am),y+(r+13)*Math.sin(am),col,{s:14,it:1,al:"center"})}}
+function hInset(c,W,H,n){const w=n?250:300,h=n?170:178,x0=W-w-10,y0=n?40:36;rect(c,x0,y0,w,h,alpha(CL.panel,0.95),CL.line,1);
+ txt(c,"高さの比較（縦方向を拡大）",x0+8,y0+13,CL.mute,{s:12});
+ const L=st.l,Lp=L*(1-st.dl),th0=st.th0*D2R,thp=st.thp*D2R,tpp=S.thpp!=null?S.thpp:thppExact(st.thp);
+ const d1=L*(Math.cos(thp)-Math.cos(th0)),d2=Lp*(Math.cos(thp)-Math.cos(tpp)),yb=y0+h-34,K=(h-84)/Math.max(d1,d2,1e-5);
+ const col=(cx,dd,top,bot,lab,k,cap,on)=>{const yt=yb-dd*K,cl=on?CL.ink:alpha(CL.mute,0.7);line(c,[[cx-52,yt],[cx+52,yt]],cl,1.4);line(c,[[cx-52,yb],[cx+52,yb]],cl,1.4);txt(c,top,cx,yt-9,cl,{s:11,al:"center"});txt(c,bot,cx,yb+9,cl,{s:11,al:"center"});
+  dimV(c,cx+40,yt,yb,"",on?CL.grav:alpha(CL.grav,0.5),k);txt(c,(dd*1000).toFixed(1)+" mm",cx+36,(yt+yb)/2,on?CL.grav:alpha(CL.grav,0.6),{s:11,al:"right"});txt(c,cap,cx,yb+25,on?CL.ink:CL.mute,{s:12,b:1,al:"center"})};
+ const q=st.q;col(x0+w*0.27,d1,"θ₀（放す）","θ′（立つ直前）","","dh0","立つ前：長さ ℓ",q!=="III1");col(x0+w*0.73,d2,"−θ″（止まる）","θ′（立った直後）","","dh","立った後：ℓ−Δℓ",q!=="III2")}
+/* screen angle of rope at angle th (from downward vertical, ccw positive -> to the right) */
+const scrA=th=>Math.PI/2-th;
+/* ---------- main scene ---------- */
+function drawMain(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,p=part();if(p==="II")return drawII(c,W,H,n);
+ const L=st.l,zx=p==="III"?(n?0.62:0.95):(n?1.08:1.6);
+ const V=view({x:14,y:n?54:40,w:W-28,h:H-(n?70:54)},[-zx*L,zx*L],[-1.12*L,0.06*L]);const O=[V.X(0),V.Y(0)],P=(th,r)=>[V.X(r*Math.sin(th)),V.Y(-r*Math.cos(th))];
+ line(c,[O,[O[0],V.Y(-1.12*L)]],CL.mute,1,[4,5]);pivot(c,O[0],O[1]);txt(c,"O",O[0]-14,O[1]+10,CL.ink,{s:15,b:1,al:"right"});
+ if(p==="I")return drawI(c,V,O,P,W,H,n);
+ // III
+ const Lp=L*(1-st.dl);c.strokeStyle=alpha(CL.mute,0.6);c.lineWidth=1;c.beginPath();c.arc(O[0],O[1],L*V.s,Math.PI/2-0.75,Math.PI/2+0.75);c.stroke();c.setLineDash([5,5]);c.beginPath();c.arc(O[0],O[1],Lp*V.s,Math.PI/2-0.75,Math.PI/2+0.75);c.stroke();c.setLineDash([]);
+ if(!n)txt(c,"半径 ℓ",V.X(L*Math.sin(0.72)),V.Y(-L*Math.cos(0.72))+4,CL.mute,{s:12});
+ line(c,S.trace.map(t=>[V.X(t[0]),V.Y(t[1])]),alpha(CL.acc,0.55),1.6);
+ const cur=P(S.th,S.L);
+ if(st.q==="III4")return drawIII4(c,V,O,P,cur,W,H,n);
+ const thp=st.thp*D2R,Pa=P(thp,L),Pb=P(thp,Lp);
+ // ghost start & predicted stop
+ bob(c,...P(st.th0*D2R,L),11,"",alpha(CL.mute,0.7));txt(c,"θ₀ で放す",P(st.th0*D2R,L)[0]+16,P(st.th0*D2R,L)[1]-12,CL.mute,{s:12});
+ const tpp=S.thpp!=null?S.thpp:thppExact(st.thp),Pc=P(-tpp,Lp);
+ bob(c,...Pc,11,"",alpha(CL.frc,0.6));c.setLineDash([3,4]);line(c,[O,Pc],alpha(CL.frc,0.5),1.2);c.setLineDash([]);txt(c,"−θ″ で静止",Pc[0]-16,Pc[1]-14,CL.frc,{s:12,al:"right"});
+ // Δℓ segment at stand point
+ glow(c,"dl",CL.fr);line(c,[Pa,Pb],CL.fr,W_("dl",3.2));noglow(c);txt(c,"Δℓ",Pa[0]+10,(Pa[1]+Pb[1])/2+6,CL.fr,{s:14,it:1,b:1});
+ c.setLineDash([3,4]);line(c,[O,Pa],alpha(CL.mute,0.8),1);c.setLineDash([]);
+ // angles
+ arcA(c,O[0],O[1],46,Math.PI/2,scrA(thp),CL.ink,"θ′");arcA(c,O[0],O[1],70,Math.PI/2,scrA(-tpp),CL.frc,"θ″");
+ hInset(c,W,H,n);
+ // rope & bob
+ line(c,[O,cur],CL.ink,2);bob(c,...cur,13,"P",CL.ink);
+ // stand event arrows & areal triangles
+ if(S.stood){const k=44,ux=-Math.cos(thp),uy=-Math.sin(thp);// direction of motion (theta decreasing): d/dθ of position times -1
+  const ta=[Pa[0]+ux*S.stood.v*k*1.6,Pa[1]-uy*S.stood.v*k*1.6],tb=[Pb[0]+ux*S.stood.vp*k*1.6,Pb[1]-uy*S.stood.vp*k*1.6];
+  const showT=st.q!=="III1"||HL("areal");if(showT){glow(c,"areal",CL.fic);c.fillStyle=alpha(CL.fic,HL("areal")?0.32:0.12);[[Pa,ta],[Pb,tb]].forEach(([a,b])=>{c.beginPath();c.moveTo(O[0],O[1]);c.lineTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.closePath();c.fill()});noglow(c)}
+  karrow(c,"v",Pa[0],Pa[1],ta[0],ta[1],CL.acc,2.6);txt(c,"v",ta[0]-8,ta[1]-10,CL.acc,{s:16,it:1,b:1,al:"right"});
+  karrow(c,"vp",Pb[0],Pb[1],tb[0],tb[1],CL.frc,3);txt(c,"v′",tb[0]-8,tb[1]+12,CL.frc,{s:16,it:1,b:1,al:"right"})}
+ const msg=S.ph==="swing"?"長さ ℓ で振れている（立ち上がる前）":S.ph==="after"?(S.pause>0?"θ′ で立ち上がった瞬間：長さ ℓ → ℓ−Δℓ、速さ v → v′":"長さ ℓ−Δℓ で振れている（立ち上がった後）"):"θ = −θ″ で静止";
+ txt(c,msg,14,20,CL.ink,{s:14,b:1})}
+function drawI(c,V,O,P,W,H,n){const L=st.l,th=S.th,cur=P(th,L),th0=st.th0*D2R,P0=P(th0,L);
+ line(c,[[V.X(-1.5*L),O[1]],[V.X(1.5*L),O[1]]],alpha(CL.grav,0.6),1,[6,5]);txt(c,"位置エネルギーの基準（O の高さ）",n?W-14:V.X(1.5*L)-4,O[1]+14,CL.grav,{s:12,al:"right"});
+ bob(c,...P0,12,"",alpha(CL.mute,0.6));c.setLineDash([3,4]);line(c,[O,P0],alpha(CL.mute,0.7),1);c.setLineDash([]);
+ dimV(c,P0[0]+36,O[1],P0[1],"ℓcosθ₀",CL.mute,"E0");
+ const xs=cur[0]<O[0]?cur[0]-34:Math.min(cur[0]-34,P0[0]-34);
+ dimV(c,cur[0]+(cur[0]<O[0]?-34:-34),O[1],cur[1],"ℓcosθ",CL.grav,"PE",-1);
+ line(c,[O,cur],CL.ink,2);arcA(c,O[0],O[1],50,Math.PI/2,scrA(th),CL.ink,"θ");
+ bob(c,...cur,13,"P");
+ const u=Math.abs(S.w)*L,sg=Math.sign(S.w)||-1,k=40;const dx=Math.cos(th)*sg,dy=Math.sin(th)*sg;// velocity dir (world): (cos,sin)*w
+ if(u>0.02){karrow(c,"KE",cur[0],cur[1],cur[0]+dx*u*k,cur[1]-dy*u*k,CL.frc,3);txt(c,"u",cur[0]+dx*u*k+8,cur[1]-dy*u*k-10,CL.frc,{s:16,it:1,b:1})}
+ txt(c,"張力は速度と垂直 → 仕事をしない",14,20,CL.ink,{s:14,b:1})}
+function drawIII4(c,V,O,P,cur,W,H,n){const L=st.l;line(c,[O,cur],CL.ink,2);
+ const stand=S.L<st.l;bob(c,...cur,13,"P",stand?CL.frc:CL.ink);
+ const am=S.amps[S.amps.length-1];[am,-am].forEach(a=>{const q=P(a*D2R,L*1.04);line(c,[P(a*D2R,L*0.98),q],CL.fr,2)});
+ txt(c,`サイクル ${S.cyc} 回後：振れ幅 θ${S.cyc===0?"₀":"ₙ"} = ${am.toFixed(2)}°`,14,20,CL.ink,{s:14,b:1});
+ txt(c,stand?"立っている（長さ ℓ−Δℓ）":"しゃがんでいる（長さ ℓ）",14,42,stand?CL.frc:CL.mute,{s:13});
+ if(S.flash>0)txt(c,"最低点で立ち上がる！",cur[0],cur[1]+34,CL.frc,{s:14,b:1,al:"center"});if(S.flash<0)txt(c,"端でしゃがむ",cur[0],cur[1]+34,CL.acc,{s:14,b:1,al:"center"})}
+function drawII(c,W,H,n){const L=st.l,h=st.h,GG=GGf(),th0=st.th0*D2R;
+ const V=view({x:14,y:n?60:44,w:W-28,h:H-(n?84:66)},[-GG-0.35,L*Math.sin(th0)+0.4],[-0.06,L+h+0.08]);
+ const O=[V.X(0),V.Y(L+h)],Gx=V.X(0),Gy=V.Y(0);
+ rect(c,0,Gy,W,8,alpha(CL.road,0.25));line(c,[[0,Gy],[W,Gy]],CL.road,2);
+ line(c,[O,[Gx,Gy]],CL.mute,1,[4,5]);pivot(c,O[0],O[1]);txt(c,"O",O[0]-12,O[1]+10,CL.ink,{s:15,b:1,al:"right"});txt(c,"G",Gx,Gy+20,CL.ink,{s:15,b:1,al:"center"});
+ const Gp=V.X(-GG);line(c,[[Gp,Gy-5],[Gp,Gy+5]],CL.ink,2);txt(c,"G′",Gp,Gy+20,CL.ink,{s:15,b:1,al:"center"});
+ dimV(c,Gx+46,Gy,V.Y(h),"h",CL.grav,"h");
+ dimH(c,Gp,Gx,Gy+(n?40:42),"GG′",CL.acc,"GG");
+ // predicted parabola
+ const pts=[];for(let i=0;i<=40;i++){const t=tAf()*i/40;pts.push([V.X(-vAf()*t),V.Y(h-0.5*g*t*t)])}line(c,pts,alpha(CL.frc,0.4),1.4,[5,5]);
+ const r=n?11:12;
+ if(S.ph==="swing"){const P=[V.X(L*Math.sin(S.th)),V.Y(L+h-L*Math.cos(S.th))];line(c,[O,P],CL.ink,2);bob(c,P[0]-r,P[1],r,"A",CL.frc);bob(c,P[0]+r,P[1],r,"B",CL.fic);
+  const v=Math.abs(S.w)*L;if(v>0.05)karrow(c,"v0",P[0],P[1]-r-8,P[0]-Math.cos(S.th)*v*22,P[1]-r-8-Math.sin(S.th)*v*22,CL.acc,2.6);
+  txt(c,"A と B が一緒にこいでいる（θ₀ から静かに放す）",14,20,CL.ink,{s:14,b:1})}
+ else{const Pb=[Gx,V.Y(h)];line(c,[O,Pb],CL.ink,2);bob(c,Pb[0]+r,Pb[1],r,"B",CL.fic);txt(c,"静止",Pb[0]+r+16,Pb[1]-14,CL.fic,{s:12});
+  const tr=[];const tt=S.ph==="done"?tAf():S.tf;for(let i=0;i<=30;i++){const t=tt*i/30;tr.push([V.X(-vAf()*t),V.Y(h-0.5*g*t*t)])}line(c,tr,CL.frc,2);
+  const A=[V.X(S.x),V.Y(S.y)];bob(c,A[0],A[1]-(S.ph==="done"?r:0),r,"A",CL.frc);
+  karrow(c,"vA",Pb[0]-r,Pb[1],Pb[0]-r-vAf()*22,Pb[1],CL.frc,3);txt(c,"v_A",Pb[0]-r-vAf()*22,Pb[1]-14,CL.frc,{s:14,it:1,b:1});
+  txt(c,S.ph==="done"?`G′ に着地（t_A = ${tAf().toFixed(3)} s）`:`A が水平に飛び出した　t = ${S.tf.toFixed(3)} s`,14,20,CL.ink,{s:14,b:1});
+  if(st.q==="II1"||S.pause>0){// momentum panel
+   const x0=n?20:24,y0=n?50:46,sc=(n?150:220)/((st.mA+st.mB)*vAf()*0.62+1e-9)*0.62;const P0=(st.mA+st.mB)*v0f();
+   rect(c,x0-8,y0-6,(n?250:330),70,alpha(CL.panel,0.9),CL.line,1);
+   txt(c,"運動量（水平）",x0,y0+6,CL.mute,{s:12});
+   karrow(c,"P0",x0+P0*sc+96,y0+26,x0+96,y0+26,CL.acc,3);txt(c,"直前",x0,y0+26,CL.acc,{s:13,b:1});
+   karrow(c,"PA",x0+P0*sc+96,y0+50,x0+96,y0+50,CL.frc,3);txt(c,"直後",x0,y0+50,CL.frc,{s:13,b:1})}}}
+/* ---------- graphs ---------- */
+function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q;
+ if(q==="I"){const th0=st.th0,mgl=st.m*g*st.l;const B={x:n?70:90,y:26,w:W-(n?110:150),h:H-62};
+  const K=t=>mgl*(Math.cos(t*D2R)-Math.cos(th0*D2R)),U=t=>-mgl*Math.cos(t*D2R),E=-mgl*Math.cos(th0*D2R);
+  const lo=-mgl*1.04,hi=Math.max(mgl*(1-Math.cos(th0*D2R))*1.25,mgl*0.08);
+  const A=axes(c,B,[-th0*1.1,th0*1.1],[lo,hi],{y0:0,xl:"θ [°]",xit:false,yl:"エネルギー [J]",yit:false,xt:[[-th0,"−θ₀"],[0,"0"],[th0,"θ₀"]],yt:[[E,E.toFixed(0)],[0,"0"]]});
+  const cvs=(f,col,k)=>{const pts=[];for(let i=0;i<=80;i++){const t=-th0+2*th0*i/80;pts.push([A.X(t),A.Y(f(t))])}glow(c,k,col);line(c,pts,col,W_(k,2.4));noglow(c)};
+  cvs(K,CL.frc,"KE");cvs(U,CL.grav,"PE");cvs(()=>E,CL.ink,"E0");const t=S.th/D2R;dot(c,A.X(t),A.Y(K(t)),5,CL.frc);dot(c,A.X(t),A.Y(U(t)),5,CL.grav);dot(c,A.X(t),A.Y(E),5,CL.ink);
+  txt(c,"運動エネルギー ½mu²",B.x+8,B.y+4,CL.frc,{s:13,b:1});txt(c,"位置エネルギー −mgℓcosθ",B.x+8,B.y+24,CL.grav,{s:13,b:1});txt(c,"和（一定）",A.X(th0*1.1)-4,A.Y(E)-12,CL.ink,{s:13,b:1,al:"right"});return}
+ if(q==="II1"){const P0=(st.mA+st.mB)*v0f(),B={x:n?80:110,y:30,w:W-(n?120:170),h:H-70};const X=v=>B.x+B.w*v/(P0*1.08);const bh=n?40:46;
+  axes(c,{x:B.x,y:B.y,w:B.w,h:B.h},[0,P0*1.08],[0,1],{xl:"運動量 [kg·m/s]",xit:false,xt:[[P0,P0.toFixed(0)]]});
+  const y1=B.y+B.h*0.16,y2=B.y+B.h*0.6;txt(c,"直前",B.x-10,y1+bh/2,CL.acc,{s:14,b:1,al:"right"});txt(c,"直後",B.x-10,y2+bh/2,CL.frc,{s:14,b:1,al:"right"});
+  const pa=st.mA*v0f(),pb=st.mB*v0f();glow(c,"P0",CL.acc);rect(c,X(0),y1,X(pa)-X(0),bh,alpha(CL.frc,0.35),CL.acc,W_("P0",1.5));rect(c,X(pa),y1,X(pa+pb)-X(pa),bh,alpha(CL.fic,0.35),CL.acc,W_("P0",1.5));noglow(c);
+  txt(c,"A：m_A v₀",(X(0)+X(pa))/2,y1+bh/2,CL.ink,{s:13,al:"center"});txt(c,"B：m_B v₀",(X(pa)+X(pa+pb))/2,y1+bh/2,CL.ink,{s:13,al:"center"});
+  glow(c,"PA",CL.frc);rect(c,X(0),y2,X(st.mA*vAf())-X(0),bh,alpha(CL.frc,0.35),CL.frc,W_("PA",1.5));noglow(c);txt(c,"A：m_A v_A（B は 0）",(X(0)+X(st.mA*vAf()))/2,y2+bh/2,CL.ink,{s:13,al:"center"});return}
+ if(q==="II2"){const tA=tAf(),GG=GGf(),h=st.h,B={x:n?70:90,y:26,w:W-(n?110:150),h:H-62};const top=Math.max(GG,h)*1.1;
+  const A=axes(c,B,[0,tA*1.2],[0,top],{xl:"t [s]",xit:false,yl:"[m]",yit:false,xt:[[tA,"t_A"]],yt:[[GG,"GG′ "+GG.toFixed(2)],[h,"h "+h.toFixed(2)]]});
+  const xs=[],ys=[];for(let i=0;i<=60;i++){const t=tA*1.2*i/60;xs.push([A.X(t),A.Y(Math.min(top,vAf()*t))]);if(t<=tA)ys.push([A.X(t),A.Y(h-0.5*g*t*t)])}
+  glow(c,"GG",CL.acc);line(c,xs,CL.acc,W_("GG",2.4));noglow(c);glow(c,"h",CL.grav);line(c,ys,CL.grav,W_("h",2.4));noglow(c);
+  glow(c,"tA",CL.fic);line(c,[[A.X(tA),B.y],[A.X(tA),B.y+B.h]],CL.fic,W_("tA",1.4),[5,4]);noglow(c);
+  txt(c,"水平に進んだ距離 v_A t",B.x+8,B.y+4,CL.acc,{s:13,b:1});txt(c,"高さ h − ½gt²",B.x+8,B.y+24,CL.grav,{s:13,b:1});
+  if(S.ph!=="swing"){const t=S.ph==="done"?tA:S.tf;dot(c,A.X(t),A.Y(vAf()*t),5,CL.acc);dot(c,A.X(t),A.Y(Math.max(0,h-0.5*g*t*t)),5,CL.grav)}return}
+ if(q==="III3"){const th0=st.th0,a3=A_()**3,B={x:n?70:90,y:26,w:W-(n?110:150),h:H-62};const f=t=>a3*th0*th0-(a3-1)*t*t;
+  const A=axes(c,B,[-th0,th0],[0,f(0)*1.12],{xl:"θ′ [°]",xit:false,yl:"(θ″)² [deg²]",yit:false,xt:[[-th0,"−θ₀"],[th0,"θ₀"]],yt:[[f(0),f(0).toFixed(0)],[th0*th0,"θ₀²"]]});
+  const pts=[];for(let i=0;i<=80;i++){const t=-th0+2*th0*i/80;pts.push([A.X(t),A.Y(f(t))])}line(c,pts,CL.frc,2.4);line(c,[[A.X(-th0),A.Y(th0*th0)],[A.X(th0),A.Y(th0*th0)]],CL.mute,1,[4,4]);
+  line(c,[[A.X(0),A.Y(0)],[A.X(0),A.Y(f(0))]],CL.mute,1,[3,4]);dot(c,A.X(st.thp),A.Y(f(st.thp)),7,CL.frc,CL.bg,2);txt(c,"最大：θ′ = 0（最低点で立つ）",A.X(0)+8,A.Y(f(0))-12,CL.ink,{s:13,b:1});txt(c,"立たない場合 θ″ = θ₀",A.X(th0)-4,A.Y(th0*th0)+14,CL.mute,{s:12,al:"right"});return}
+ if(q==="III4"){const Nm=Math.max(7,Math.ceil(Ncyc())+2),r=A_()**1.5,th0=st.th0,top=th0*r**Nm*1.08,B={x:n?60:80,y:26,w:W-(n?100:130),h:H-62};
+  const A=axes(c,B,[-0.6,Nm+0.6],[0,top],{xl:"n",yl:"θₙ [°]",yit:false,xt:[...Array(Nm+1).keys()].map(i=>[i,String(i)]),yt:[[th0,"θ₀"],[2*th0,"2θ₀"]]});
+  line(c,[[A.X(-0.6),A.Y(2*th0)],[A.X(Nm+0.6),A.Y(2*th0)]],CL.grav,1.4,[6,4]);const Nn=Math.ceil(Ncyc()-1e-9);
+  for(let i=0;i<=Nm;i++){const v=th0*r**i,bw=Math.min(36,B.w/(Nm+1)*0.5);glow(c,"rate",CL.fr);rect(c,A.X(i)-bw/2,A.Y(v),bw,A.Y(0)-A.Y(v),alpha(i===Nn?CL.grav:CL.fr,0.35),i===Nn?CL.grav:CL.fr,W_("rate",1.2));noglow(c)}
+  S.amps.forEach((a,i)=>dot(c,A.X(i),A.Y(a),4.5,CL.ink));txt(c,`初めて 2θ₀ 以上：N = ${Nn}`,A.X(Nn)+14,A.Y(th0*r**Nn)-4,CL.grav,{s:13,b:1});txt(c,"棒：公式　点：数値計算",B.x+8,B.y+4,CL.mute,{s:12});return}
+ // III1 / III2 : θ(t)
+ const B={x:n?70:90,y:24,w:W-(n?110:150),h:H-60},hs=S.hist,Tm=Math.max(3,hs.length?hs[hs.length-1][0]+0.3:3),th0=st.th0,tp=thppExact(st.thp)/D2R;
+ const A=axes(c,B,[0,Tm],[-Math.max(th0,tp)*1.15,Math.max(th0,tp)*1.15],{y0:0,xl:"t [s]",xit:false,yl:"θ [°]",yit:false,yt:[[th0,"θ₀"],[st.thp,"θ′"],[-tp,"−θ″"]]});
+ line(c,[[B.x,A.Y(st.thp)],[B.x+B.w,A.Y(st.thp)]],CL.mute,1,[3,4]);line(c,[[B.x,A.Y(-tp)],[B.x+B.w,A.Y(-tp)]],alpha(CL.frc,0.6),1,[3,4]);
+ line(c,hs.map(h=>[A.X(h[0]),A.Y(h[1])]),CL.acc,2.2);if(S.stood){const i=hs.findIndex(h=>Math.abs(h[1]-st.thp)<0.6);}
+ txt(c,"振れ角の時間変化（立ち上がった後は振れ幅が大きい）",B.x+B.w,B.y+4,CL.mute,{s:12,al:"right"})}
+function drawAll(){drawMain();drawGr()}
+/* ---------- equations linked to the picture ---------- */
+function eqs(){const q=st.q,R=String.raw;
+ if(q==="I"){const L=st.l,m=st.m,th=S.th,u=Math.abs(S.w)*L,K=0.5*m*u*u,U=-m*g*L*Math.cos(th),E0=-m*g*L*Math.cos(st.th0*D2R);
+  return{title:"力学的エネルギー保存（基準：O の高さ）",list:[{t:TK("KE","frc",R`\frac12 m u^2`)+"+"+TK("PE","grav",R`\left(-mg\ell\cos\theta\right)`)+"="+TK("E0","ink",R`-mg\ell\cos\theta_0`),n:`${NS(K.toFixed(1),"frc")} J ＋ (${NS(U.toFixed(1),"grav")} J) ＝ ${NS(E0.toFixed(1),"ink")} J`},
+   {t:R`u=\sqrt{2g\ell\,(\cos\theta-\cos\theta_0)}`,n:`u = ${u.toFixed(3)} m/s`}]}}
+ if(q==="II1"){const v0=v0f(),vA=vAf();return{title:"一瞬の分裂：水平方向の運動量保存",list:[{t:TK("P0","acc",R`(m_{\rm A}+m_{\rm B})\,v_0`)+"="+TK("PA","frc",R`m_{\rm A}v_{\rm A}`)+R`+m_{\rm B}\cdot0`,n:`${NS(((st.mA+st.mB)*v0).toFixed(1),"acc")} ＝ ${NS((st.mA*vA).toFixed(1),"frc")} ＋ 0　[kg·m/s]`},
+   {t:TK("v0","acc",R`v_0=\sqrt{2g\ell(1-\cos\theta_0)}`)+R`,\qquad v_{\rm A}=\frac{m_{\rm A}+m_{\rm B}}{m_{\rm A}}\,v_0`,n:`v₀ = ${v0.toFixed(3)} m/s,　v<sub>A</sub> = ${vA.toFixed(3)} m/s`}]}}
+ if(q==="II2"){const tA=tAf();return{title:"水平投射：鉛直で時間、水平で距離",list:[{t:TK("h","grav",R`h=\frac12 g\,t_{\rm A}^{\,2}`)+R`\quad\Rightarrow\quad `+TK("tA","fic",R`t_{\rm A}`)+R`=\sqrt{\frac{2h}{g}}`,n:`t<sub>A</sub> = ${NS(tA.toFixed(3),"fic")} s`},
+   {t:TK("GG","acc",R`{\rm GG'}`)+"="+TK("vA","frc",R`v_{\rm A}`)+TK("tA","fic",R`\,t_{\rm A}`)+R`=\frac{2(m_{\rm A}+m_{\rm B})}{m_{\rm A}}\sqrt{\ell h(1-\cos\theta_0)}`,n:`${NS(GGf().toFixed(3),"acc")} m ＝ ${NS(vAf().toFixed(3),"frc")} m/s × ${NS(tA.toFixed(3),"fic")} s`}]}}
+ const L=st.l,Lp=L*(1-st.dl),thp=st.thp*D2R,c0=Math.cos(st.th0*D2R),v=Math.sqrt(2*g*L*(Math.cos(thp)-c0)),vp=v*L/Lp,tpp=thppExact(st.thp);
+ if(q==="III1")return{title:"立ち上がった後（長さ ℓ−Δℓ）：力学的エネルギー保存",list:[{t:R`\frac12m`+TK("vp","frc",R`v'^2`)+"=mg"+TK("dh","grav",R`(\ell-\Delta\ell)(\cos\theta'-\cos\theta'')`),n:`v′ = ${NS(vp.toFixed(3),"frc")} m/s,　高さの差 ${NS((Lp*(Math.cos(thp)-Math.cos(tpp))).toFixed(4),"grav")} m`},
+   {t:R`(\theta'')^2\fallingdotseq(\theta')^2+\frac{`+TK("vp","frc","v'^2")+R`}{g(\ell-\Delta\ell)}`,n:`θ″：近似式 ${(Math.sqrt(thp*thp+vp*vp/(g*Lp))/D2R).toFixed(2)}°　／　数値計算 ${(tpp/D2R).toFixed(2)}°`}]};
+ if(q==="III2")return{title:"立ち上がる前はエネルギー保存、立つ瞬間は面積速度一定",list:[{t:R`\frac12m`+TK("v","acc","v^2")+"=mg"+TK("dh0","grav",R`\ell(\cos\theta'-\cos\theta_0)`),n:`v = ${NS(v.toFixed(3),"acc")} m/s`},
+   {t:TK("areal","fic",R`\frac12(\ell-\Delta\ell)\,`)+TK("vp","frc","v'")+"="+TK("areal","fic",R`\frac12\ell\,`)+TK("v","acc","v"),n:`${NS((0.5*Lp*vp).toFixed(3),"fic")} ＝ ${NS((0.5*L*v).toFixed(3),"fic")}　[m²/s]`},
+   {t:R`(\theta'')^2=`+TK("a","fr",R`\left(\frac{\ell}{\ell-\Delta\ell}\right)^3`)+R`\theta_0^{\,2}-\left\{`+TK("a","fr",R`\left(\frac{\ell}{\ell-\Delta\ell}\right)^3`)+R`-1\right\}(\theta')^2`,n:`θ″：公式 ${(thppApprox(st.thp)/D2R).toFixed(2)}°　／　数値計算 ${(tpp/D2R).toFixed(2)}°`}]};
+ if(q==="III3")return{title:"(θ″)² は θ′ の上に凸な2次関数",list:[{t:R`(\theta'')^2=`+TK("a","fr",R`\left(\frac{\ell}{\ell-\Delta\ell}\right)^3`)+R`\theta_0^{\,2}-\underbrace{\left\{`+TK("a","fr",R`\left(\frac{\ell}{\ell-\Delta\ell}\right)^3`)+R`-1\right\}}_{>0}(\theta')^2`,n:`(ℓ/(ℓ−Δℓ))³ = ${(A_()**3).toFixed(4)}`},
+   {t:R`\theta'=0\ \text{のとき最大：}\ \theta''=\left(\frac{\ell}{\ell-\Delta\ell}\right)^{3/2}\theta_0`,n:`θ′ = ${st.thp.toFixed(1)}° のとき θ″ = ${(thppApprox(st.thp)/D2R).toFixed(2)}°（最大 ${(A_()**1.5*st.th0).toFixed(2)}°）`}]};
+ const r=A_()**1.5;return{title:"1サイクルごとに同じ倍率：等比数列",list:[{t:R`\theta_n=`+TK("rate","fr",R`\left(\frac{\ell}{\ell-\Delta\ell}\right)^{3/2}`)+R`\theta_{n-1}=\left(\frac{\ell}{\ell-\Delta\ell}\right)^{\frac32 n}\theta_0`,n:`1サイクルの倍率 ${NS(r.toFixed(4),"fr")}`},
+   {t:R`\left(\frac{\ell}{\ell-\Delta\ell}\right)^{\frac32N}\geqq2\iff N\geqq\frac{\log_{10}2}{\frac32\log_{10}\frac{\ell}{\ell-\Delta\ell}}`,n:`N ≧ ${Ncyc().toFixed(2)} → N = ${Math.ceil(Ncyc()-1e-9)}`}]}}
+function note(){const q=st.q,p=part();if(p==="I")return"振り子の運動は近似を使わずに数値計算しています（実時間）。";if(p==="II")return"初期値は問題の数値（ℓ = 2.0 m, h = 0.30 m, cosθ₀ = 0.85, m_A = m_B）です。";
+ return"III では θ₀ を小さくしておくと近似式と数値計算がよく一致します。立ち上がりは瞬間的に行うとしています。"}
+function readout(){const q=st.q,r=[];
+ if(q==="I"){const u=Math.abs(S.w)*st.l;r.push(["θ",(S.th/D2R).toFixed(2)+"°"],["u（数値計算）",u.toFixed(3)+" m/s"],["√(2gℓ(cosθ−cosθ₀))",Math.sqrt(Math.max(0,2*g*st.l*(Math.cos(S.th)-Math.cos(st.th0*D2R)))).toFixed(3)+" m/s","2つが一致：エネルギー保存"],["力学的エネルギー",(0.5*st.m*u*u-st.m*g*st.l*Math.cos(S.th)).toFixed(2)+" J"])}
+ if(q==="II1"||q==="II2"){r.push(["v₀（最低点、数値計算）",S.v0s!=null?S.v0s.toFixed(3)+" m/s":"—"],["v₀ = √(2gℓ(1−cosθ₀))",v0f().toFixed(3)+" m/s"],["v_A = (m_A+m_B)v₀/m_A",vAf().toFixed(3)+" m/s"],["t_A = √(2h/g)",tAf().toFixed(3)+" s"],["GG′",GGf().toFixed(3)+" m","cosθ₀ = "+Math.cos(st.th0*D2R).toFixed(3)])}
+ if(q==="III1"||q==="III2"||q==="III3"){const tp=thppExact(st.thp)/D2R;r.push(["θ″（近似なしの計算）",tp.toFixed(2)+"°"],["θ″（III(2) の公式）",(thppApprox(st.thp)/D2R).toFixed(2)+"°"],["立たない場合（θ₀）",st.th0.toFixed(2)+"°"],["θ′ = 0 で立った場合",(A_()**1.5*st.th0).toFixed(2)+"°"]);if(S.stood)r.push(["v → v′",`${S.stood.v.toFixed(3)} → ${S.stood.vp.toFixed(3)} m/s`,"v′/v = ℓ/(ℓ−Δℓ) = "+A_().toFixed(3)])}
+ if(q==="III4"){const am=S.amps[S.amps.length-1];r.push(["サイクル数 n",String(S.cyc)],["θₙ（数値計算）",am.toFixed(2)+"°"],["θₙ（公式）",(st.th0*A_()**(1.5*S.cyc)).toFixed(2)+"°"],["2θ₀",(2*st.th0).toFixed(2)+"°"],["N（公式）",String(Math.ceil(Ncyc()-1e-9))])}
+ return r}
+initUI("I");
+}
+</script>
+</body>
+</html>
