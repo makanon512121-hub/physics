@@ -267,14 +267,6 @@ $$T_2=T_1=2\pi\sqrt{\frac{ML}{(m+M)g}}$$
 <button class="goto" data-q="II4">この状況にする</button>
 </div></details>
 
-<details id="d-ex"><summary>類題で確かめる：レールにつるした振り子<span class="ans">重心から見る考え方の練習</span></summary><div class="body">
-<p>水平なレールの上をなめらかに動く質量 \(M\) の小物体に、長さ \(\ell\) の糸で質量 \(m\) の小球をつるします。全体が静止した状態から、小球に水平な初速 \(v_0\) を与えます。</p>
-<p>① 小球が上がる最大の高さ：最高点では小球は小物体に対して止まり、両方とも重心の速度 \(\dfrac{m}{m+M}v_0\) で動きます。</p>
-<p class="law">運動量保存則＋力学的エネルギー保存則</p>
-$$\frac12mv_0^{\,2}=\frac12(m+M)\Bigl(\frac{m v_0}{m+M}\Bigr)^2+mgH\qquad\therefore\ H=\frac{Mv_0^{\,2}}{2(m+M)g}$$
-<p>② \(v_0\) が小さいときの周期：本問 I(4) と同じく、重心から見た長さ \(\dfrac{M}{m+M}\ell\) の単振り子なので \(2\pi\sqrt{\dfrac{M\ell}{(m+M)g}}\)。</p>
-<p>本問の I は「位置エネルギーから始まる」、類題は「運動エネルギーから始まる」違いだけで、使う法則は同じです。</p>
-</div></details>
 </section>
 </div>
 
@@ -490,7 +482,7 @@ function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q,p=part(),h=
    if(q==="I2")curve(c,A2,h,e=>e.t,e=>e.X+st.ell*st.L*Math.sin(e.th),CL.fr,"u",2.2);else curve(c,A2,h,e=>e.t,e=>e.xQ,CL.fr,"Q",2.8);
    tlab(c,B2,q==="I2"?"位置 x：P（青）・小球（赤）・ℓ の点（オレンジ）":"位置 x：Q（オレンジ）は一定");return}
   const t0=st.th0;const A=axes(c,BW,[0,tm],[-t0*1.2,t0*1.2],{xl:"t",yl:"θ [°]",yit:false,y0:0,xt});
-  const N=200,fp=[],fl=[],Tf=2*Math.PI*Math.sqrt(st.L/G);for(let i=0;i<=N;i++){const t=tm*i/N;fp.push([A.X(t),A.Y(-t0*Math.cos(2*Math.PI*t/T))]);fl.push([A.X(t),A.Y(-t0*Math.cos(2*Math.PI*t/Tf))])}
+  const T=T1(),N=200,fp=[],fl=[],Tf=2*Math.PI*Math.sqrt(st.L/G);for(let i=0;i<=N;i++){const t=tm*i/N;fp.push([A.X(t),A.Y(-t0*Math.cos(2*Math.PI*t/T))]);fl.push([A.X(t),A.Y(-t0*Math.cos(2*Math.PI*t/Tf))])}
   line(c,fl,alpha(CL.mute,0.8),1.3,[3,4]);glow(c,"T1",CL.fr);line(c,fp,CL.fr,W_("T1",1.8),[7,5]);noglow(c);curve(c,A,h,e=>e.t,e=>e.th/D2R,CL.ink,"th",2.4);
   txt(c,"黒：実際の θ　オレンジ破線：周期 T₁ の単振動　灰：台を固定した振り子（周期 2π√(L/g)）",BW.x-30,BW.y-34,CL.ink,{s:n?11:13,b:1});return}
  // part II
