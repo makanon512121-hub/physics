@@ -321,6 +321,38 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
 .hero p.today-word + .eyebrow { display: block; }
 .admin-box { max-width: 560px; }
 .admin-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.admin-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; max-width: 720px; margin-bottom: 20px; }
+.admin-jump a { font-weight: 700; font-size: .9rem; color: var(--accent); text-decoration: none; }
+.admin-jump a:hover { text-decoration: underline; }
+.admin-jump .btn { margin-left: auto; padding: 8px 16px; font-size: .85rem; }
+.admin-sec { max-width: 720px; margin-bottom: 24px; scroll-margin-top: 80px; }
+.admin-h { margin: 0; font-size: 1.15rem; }
+.admin-sub { margin: 8px 0 0; font-size: .95rem; }
+.admin-note { margin: 0; color: var(--sub); font-size: .88rem; }
+.admin-mode { margin: 0; font-weight: 700; font-size: .85rem; color: var(--accent); }
+.admin-check { display: flex; align-items: center; gap: 8px; font-size: .88rem; color: var(--sub); cursor: pointer; }
+.admin-en summary { cursor: pointer; font-weight: 700; font-size: .9rem; color: var(--sub); margin-bottom: 12px; }
+.admin-en[open] { display: grid; gap: 14px; }
+#ad-diary-form { display: grid; gap: 18px; }
+.admin-diary { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.admin-diary li { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.ad-d-info { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.ad-d-date { font-size: .78rem; color: var(--sub); }
+.ad-d-title { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-d-btns { flex: none; display: flex; gap: 6px; }
+.btn.small { padding: 6px 14px; font-size: .82rem; }
+.btn.danger { color: #dc2626; }
+.btn.danger[data-sure] { background: #dc2626; color: #fff; border-color: #dc2626; }
+@media (max-width: 600px) { .admin-diary li { flex-wrap: wrap; } .ad-d-btns { margin-left: auto; } }
+
+/* ===== 日記 ===== */
+.diary-list { display: grid; gap: 18px; max-width: 760px; }
+.diary-entry { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 28px; box-shadow: var(--shadow); }
+.diary-date { display: block; font-size: .85rem; font-weight: 700; color: var(--accent); }
+.diary-title { margin: 6px 0 0; font-size: 1.2rem; }
+.diary-body { margin-top: 10px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
+.diary-body a { color: var(--accent); }
+@media (max-width: 600px) { .diary-entry { padding: 18px; } }
 a.last-updated { text-decoration: none; }
 a.last-updated:hover { color: #fff !important; border-color: rgba(255,255,255,.4); }
 

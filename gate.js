@@ -1,17 +1,32 @@
 // =============================================
 //  パスワード画面（ふだんは触らなくてOK）
-//  config.js の passwordHash が空なら何もしません。
+//  パスワードは「管理」ページで変えられます（Apps Script に保存）。
+//  Apps Script に届かないときは、前に読んだもの → config.js の passwordHash の順で使います。
+//  どれも空なら何もしません。
 //  ※ GitHub Pages ではファイルが公開されるので、これは「目隠し」程度の守りです。
 // =============================================
 (function () {
   var cfg = typeof CONFIG !== "undefined" ? CONFIG : {};
-  var HASH = String(cfg.passwordHash || "").trim().toLowerCase();
-  if (!HASH) return;
-  var KEY = "physics-hp-auth";
-  try { if (localStorage.getItem(KEY) === HASH) return; } catch (e) {}
+  var CFG_HASH = String(cfg.passwordHash || "").trim().toLowerCase();
+  var KEY = "physics-hp-auth", HASH_KEY = "physics-hp-sitehash";
+  function get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
+  function put(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
+  var isHash = function (h) { return /^[0-9a-f]{64}$/.test(h); };
+  var HASH = get(HASH_KEY) || CFG_HASH; // いま分かっている最新のパスワード
 
-  // 中身を隠す
-  var hide = document.createElement("style");
+  // Apps Script から最新の設定（パスワード・今日の一言）を読む。app.js もこれを使い回します
+  var url = String(cfg.questionUrl || "").trim();
+  var info = url && window.fetch
+    ? fetch(url, { cache: "no-store" }).then(function (r) { return r.json(); }).catch(function () { return null; })
+    : Promise.resolve(null);
+  window.SITE_INFO = info;
+
+  // 管理ページでパスワードを変えた人は、そのまま見られるようにする
+  window.SiteGate = {
+    remember: function (h) { HASH = h; put(HASH_KEY, h); put(KEY, h); },
+  };
+
+  var hide = document.createElement("style"), box = null;
   hide.textContent =
     "html{visibility:hidden!important}" +
     "#pw-gate,#pw-gate *{visibility:visible!important}" +
@@ -33,7 +48,6 @@
     ja: { title: "パスワードを入力してください", text: "このサイトを見るにはパスワードが必要です。", label: "パスワード", open: "ひらく", wrong: "パスワードがちがいます。", lang: "English" },
     en: { title: "Enter the password", text: "A password is required to view this site.", label: "Password", open: "Open", wrong: "Wrong password.", lang: "日本語" },
   };
-  document.head.appendChild(hide);
 
   function sha256(text) {
     return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(function (buf) {
@@ -42,7 +56,8 @@
   }
 
   function show() {
-    var box = document.createElement("div");
+    if (box || !lockedNow) return;
+    box = document.createElement("div");
     box.id = "pw-gate";
     box.innerHTML =
       '<form autocomplete="on"><div class="top"><div class="mark">Φ</div><button type="button" class="lang"></button></div><h1></h1><p></p>' +
@@ -71,11 +86,15 @@
     input.focus();
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      sha256(input.value).then(function (h) {
-        if (h === HASH) {
-          try { localStorage.setItem(KEY, HASH); } catch (x) {}
-          box.remove();
-          hide.remove();
+      var go = box.querySelector(".go");
+      go.disabled = true;
+      // 最新のパスワードを読み終えるまで少し待つ（最大5秒）
+      var wait = new Promise(function (ok) { setTimeout(ok, 5000); });
+      Promise.race([info, wait]).then(function () { return sha256(input.value); }).then(function (h) {
+        go.disabled = false;
+        if (!HASH || h === HASH) {
+          put(KEY, HASH);
+          unlock();
         } else {
           err.textContent = TEXT[lang].wrong;
           input.select();
@@ -83,5 +102,28 @@
       });
     });
   }
-  if (document.body) show(); else document.addEventListener("DOMContentLoaded", show);
+  var lockedNow = false;
+  function lock() {
+    if (lockedNow) return;
+    lockedNow = true;
+    document.head.appendChild(hide);
+    if (document.body) show(); else document.addEventListener("DOMContentLoaded", show);
+  }
+  function unlock() {
+    lockedNow = false;
+    if (box) { box.remove(); box = null; }
+    hide.remove();
+  }
+  function check() { if (HASH && get(KEY) !== HASH) lock(); else unlock(); }
+  check();
+
+  // 最新のパスワードが届いたら、変わっていればもう一度パスワードを聞く
+  info.then(function (j) {
+    if (!j || typeof j !== "object") return; // 読めなかった → いまのまま
+    var remote = String(j.siteHash || "").toLowerCase();
+    if (!isHash(remote)) remote = "";
+    put(HASH_KEY, remote);
+    var next = remote || CFG_HASH;
+    if (next !== HASH) { HASH = next; check(); }
+  });
 })();

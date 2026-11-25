@@ -60,7 +60,7 @@ const L = (ja, english) => (en() ? english : ja); // 日本語と英語のどち
 
 const NAV_TEXT = {
   exams: ["過去問研究", "Past Exams"], anime: ["アニメーション集", "Animations"],
-  ask: ["質問箱", "Q&A"], updates: ["更新内容", "Updates"], links: ["リンク集", "Links"],
+  ask: ["質問箱", "Q&A"], updates: ["更新内容", "Updates"], links: ["リンク集", "Links"], diary: ["日記", "Diary"],
   admin: ["管理", "Admin"],
 };
 const CATEGORY_EN = { "力学": "Mechanics", "電磁気学": "Electromagnetism", "熱力学": "Thermodynamics", "波動": "Waves", "原子": "Atomic Physics", "その他": "Other" };
@@ -234,6 +234,7 @@ function route() {
   else if (page === "ask") { view.innerHTML = askPage(); bindAsk(); }
   else if (page === "updates") view.innerHTML = updatesPage();
   else if (page === "links") view.innerHTML = linksPage();
+  else if (page === "diary") { view.innerHTML = diaryPage(); loadDiary(); }
   else if (page === "admin") { view.innerHTML = adminPage(); bindAdmin(); }
   else view.innerHTML = homePage();
   bindCards(view);
@@ -324,9 +325,9 @@ async function loadTodayWord() {
   const url = (CONFIG.questionUrl || "").trim();
   if (!url) return;
   try {
-    const res = await fetch(url, { cache: "no-store" });
-    const j = await res.json();
-    if (typeof j.word !== "string") return; // まだ一度も書いていない → config.js のまま
+    // gate.js がもう読みに行っていれば、それを使い回す
+    const j = (window.SITE_INFO && await window.SITE_INFO) || await (await fetch(url, { cache: "no-store" })).json();
+    if (!j || typeof j.word !== "string") return; // まだ一度も書いていない → config.js のまま
     setTodayWord({ word: j.word, wordEn: j.wordEn || "" });
   } catch (e) { /* 読めなければ config.js のまま */ }
 }
@@ -759,8 +760,64 @@ function linksPage() {
   </div></section>`;
 }
 
-// ---------- 管理（今日の一言の書きかえ） ----------
-// パスワードは Apps Script 側で確かめます（このファイルには書きません）
+// ---------- 日記 ----------
+// 中身は Apps Script（スプレッドシートの「日記」シート）に保存。書く・直す・消すは「管理」から
+const DIARY_KEY = "physics-hp-diary";
+function diaryEntries() {
+  if (data.diary) return data.diary;
+  try { const c = JSON.parse(localStorage.getItem(DIARY_KEY) || "null"); if (Array.isArray(c)) return c; } catch (e) {}
+  return null;
+}
+async function fetchDiary() {
+  const url = (CONFIG.questionUrl || "").trim();
+  if (!url) return [];
+  const res = await fetch(url + (url.includes("?") ? "&" : "?") + "diary=1", { cache: "no-store" });
+  const j = await res.json();
+  if (!Array.isArray(j.entries)) throw new Error("script");
+  return j.entries;
+}
+function setDiary(list) {
+  data.diary = list;
+  try { localStorage.setItem(DIARY_KEY, JSON.stringify(list)); } catch (e) {}
+}
+async function loadDiary() {
+  try { setDiary(await fetchDiary()); data.diaryError = false; }
+  catch (e) { data.diaryError = true; }
+  const box = $("diary-list");
+  if (box) box.innerHTML = diaryListHtml();
+}
+function diaryDate(d) {
+  const m = String(d || "").match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (!m) return String(d || "");
+  if (en()) return new Date(+m[1], m[2] - 1, +m[3]).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", weekday: "short" });
+  const wd = "日月火水木金土"[new Date(+m[1], m[2] - 1, +m[3]).getDay()];
+  return `${+m[1]}年${+m[2]}月${+m[3]}日（${wd}）`;
+}
+// 本文：改行をそのまま出し、URLはリンクにする
+function diaryText(text) {
+  return esc(text).replace(/https?:\/\/[^\s<"']+/g, (u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+}
+function diaryListHtml() {
+  const list = diaryEntries();
+  if (!list) return data.diaryError ? `<p class="notice ng">${L("日記を読み込めませんでした。時間をおいてもう一度お試しください。", "Could not load the diary. Please try again later.")}</p>`
+    : `<p class="status">${L("読み込み中…", "Loading…")}</p>`;
+  if (!list.length) return `<p class="empty">${L("まだ日記がありません。", "No diary entries yet.")}</p>`;
+  return `<div class="diary-list">${list.map((d) => {
+    const title = L(d.title, d.titleEn || d.title), body = L(d.body, d.bodyEn || d.body);
+    return `<article class="diary-entry">
+      <time class="diary-date" datetime="${esc(d.date)}">${esc(diaryDate(d.date))}</time>
+      ${title ? `<h2 class="diary-title">${esc(title)}</h2>` : ""}
+      ${body ? `<div class="diary-body">${diaryText(body)}</div>` : ""}
+    </article>`;
+  }).join("")}</div>`;
+}
+function diaryPage() {
+  return pageHead("Diary", L(...NAV_TEXT.diary), L("日々のできごとや、サイトづくりのメモを書いています。", "Notes on everyday things and on building this site.")) + `
+  <section class="section"><div class="wrap"><div id="diary-list">${diaryListHtml()}</div></div></section>`;
+}
+
+// ---------- 管理（今日の一言・日記・サイトのパスワード） ----------
+// 管理パスワードは Apps Script 側で確かめます（このファイルには書きません）
 const ADMIN_KEY = "physics-hp-admin";
 async function adminCall(params) {
   const body = new URLSearchParams(params);
@@ -768,62 +825,172 @@ async function adminCall(params) {
   const text = await res.text();
   try { return JSON.parse(text); } catch (e) { return { ok: false, error: "script" }; }
 }
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 function adminPage() {
   return pageHead("Admin", L(...NAV_TEXT.admin), "") + `
-  <section class="section"><div class="wrap"><div class="form admin-box" id="admin-box"></div></div></section>`;
+  <section class="section"><div class="wrap" id="admin-box"></div></section>`;
 }
 function bindAdmin() {
   const box = $("admin-box");
   let pw = "";
   try { pw = sessionStorage.getItem(ADMIN_KEY) || ""; } catch (e) {}
   const errText = (r) => r.error === "password" ? L("パスワードがちがいます。", "Wrong password.")
-    : r.error === "script" ? L("Apps Script の更新がまだのようです（使い方ガイドの「B7. 管理ページ」を見てください）。", "The Apps Script has not been updated yet.")
+    : r.error === "script" || r.error === "action" ? L("Apps Script の更新がまだのようです（使い方ガイドの「B7. 管理ページ」を見てください）。", "The Apps Script has not been updated yet.")
     : L("うまくいきませんでした。時間をおいてもう一度お試しください。", "Something went wrong. Please try again later.");
+  const show = (id, ok, msg) => { $(id).innerHTML = `<p class="notice ${ok ? "ok" : "ng"}">${msg}</p>`; };
+  const failed = (id, r) => {
+    show(id, false, errText(r));
+    if (r.error === "password") { try { sessionStorage.removeItem(ADMIN_KEY); } catch (e) {} }
+  };
+  // ボタンを押している間は「…中」にする
+  async function busy(btn, label, fn) {
+    const old = btn.textContent;
+    btn.disabled = true; btn.textContent = label;
+    try { return await fn(); } catch (e) { return { ok: false }; } finally { btn.disabled = false; btn.textContent = old; }
+  }
+
   function login() {
-    box.innerHTML = `
+    box.innerHTML = `<div class="form admin-box">
       <div class="field"><label for="ad-pw">${L("管理パスワード", "Admin password")}</label><input id="ad-pw" type="password" autocomplete="current-password"></div>
       <div id="ad-result"></div>
-      <div><button class="btn" id="ad-login" type="button">${L("ログイン", "Log in")}</button></div>`;
+      <div><button class="btn" id="ad-login" type="button">${L("ログイン", "Log in")}</button></div></div>`;
     const go = async () => {
-      const btn = $("ad-login"), v = $("ad-pw").value;
+      const v = $("ad-pw").value;
       if (!v) return;
-      btn.disabled = true; btn.textContent = L("確認中…", "Checking…");
-      let r;
-      try { r = await adminCall({ _action: "login", _password: v }); } catch (e) { r = { ok: false }; }
+      const r = await busy($("ad-login"), L("確認中…", "Checking…"), () => adminCall({ _action: "login", _password: v }));
       if (r.ok) { pw = v; try { sessionStorage.setItem(ADMIN_KEY, v); } catch (e) {} editor(r); return; }
-      $("ad-result").innerHTML = `<p class="notice ng">${errText(r)}</p>`;
-      btn.disabled = false; btn.textContent = L("ログイン", "Log in");
+      show("ad-result", false, errText(r));
     };
     $("ad-login").onclick = go;
     $("ad-pw").onkeydown = (e) => { if (e.key === "Enter") go(); };
     $("ad-pw").focus();
   }
+
   function editor(r) {
     const cw = typeof r.word === "string" ? r : currentWord();
     box.innerHTML = `
-      <div class="field"><label for="ad-word">${L("今日の一言", "Today's note")}<span class="opt">${L("空にすると表示しません", "Leave empty to hide")}</span></label>
-        <textarea id="ad-word" maxlength="200" style="min-height:90px">${esc(cw.word || "")}</textarea></div>
-      <div class="field"><label for="ad-word-en">${L("英語表示のときの一言", "Note in English")}<span class="opt">${L("空なら日本語のまま", "Optional")}</span></label>
-        <input id="ad-word-en" maxlength="200" value="${esc(cw.wordEn || "")}"></div>
-      <div id="ad-result"></div>
-      <div class="admin-btns"><button class="btn" id="ad-save" type="button">${L("保存する", "Save")}</button>
-        <button class="btn ghost" id="ad-logout" type="button">${L("ログアウト", "Log out")}</button></div>`;
+      <nav class="admin-jump">
+        <a href="#ad-word-sec" data-jump>${L("今日の一言", "Today's note")}</a>
+        <a href="#ad-diary-sec" data-jump>${L("日記", "Diary")}</a>
+        <a href="#ad-pass-sec" data-jump>${L("サイトのパスワード", "Site password")}</a>
+        <button class="btn ghost" id="ad-logout" type="button">${L("ログアウト", "Log out")}</button>
+      </nav>
+      <div class="form admin-box admin-sec" id="ad-word-sec">
+        <h2 class="admin-h">${L("今日の一言", "Today's note")}</h2>
+        <div class="field"><label for="ad-word">${L("今日の一言", "Today's note")}<span class="opt">${L("空にすると表示しません", "Leave empty to hide")}</span></label>
+          <textarea id="ad-word" maxlength="200" style="min-height:90px">${esc(cw.word || "")}</textarea></div>
+        <div class="field"><label for="ad-word-en">${L("英語表示のときの一言", "Note in English")}<span class="opt">${L("空なら日本語のまま", "Optional")}</span></label>
+          <input id="ad-word-en" maxlength="200" value="${esc(cw.wordEn || "")}"></div>
+        <div id="ad-result"></div>
+        <div class="admin-btns"><button class="btn" id="ad-save" type="button">${L("保存する", "Save")}</button></div>
+      </div>
+      <div class="form admin-box admin-sec" id="ad-diary-sec">
+        <h2 class="admin-h">${L("日記", "Diary")}</h2>
+        <div id="ad-diary-form"></div>
+        <div id="ad-diary-result"></div>
+        <div id="ad-diary-list"><p class="status">${L("読み込み中…", "Loading…")}</p></div>
+      </div>
+      <div class="form admin-box admin-sec" id="ad-pass-sec">
+        <h2 class="admin-h">${L("サイトを見るためのパスワード", "Password to view the site")}</h2>
+        <p class="admin-note">${L("サイトを開いたときに聞かれるパスワードを変えます（管理パスワードは変わりません）。変えると、見に来た人はもう一度新しいパスワードを入れることになります。",
+          "Changes the password asked when opening the site (not the admin password). Visitors will need to enter the new one.")}</p>
+        <div class="field"><label for="ad-pass1">${L("新しいパスワード", "New password")}<span class="opt">${L("4文字以上", "4+ characters")}</span></label><input id="ad-pass1" type="password" autocomplete="new-password"></div>
+        <div class="field"><label for="ad-pass2">${L("もう一度（確認）", "Again (to confirm)")}</label><input id="ad-pass2" type="password" autocomplete="new-password"></div>
+        <label class="admin-check"><input type="checkbox" id="ad-pass-show"> ${L("入力した文字を見る", "Show what I typed")}</label>
+        <div id="ad-pass-result"></div>
+        <div class="admin-btns"><button class="btn" id="ad-pass-save" type="button">${L("パスワードを変える", "Change password")}</button></div>
+      </div>`;
+    box.querySelectorAll("[data-jump]").forEach((a) => { a.onclick = (e) => { e.preventDefault(); $(a.getAttribute("href").slice(1)).scrollIntoView({ behavior: "smooth" }); }; });
+    $("ad-logout").onclick = () => { pw = ""; try { sessionStorage.removeItem(ADMIN_KEY); } catch (e) {} login(); };
+
+    // 今日の一言
     $("ad-save").onclick = async () => {
-      const btn = $("ad-save"), word = $("ad-word").value.trim(), wordEn = $("ad-word-en").value.trim();
-      btn.disabled = true; btn.textContent = L("保存中…", "Saving…");
-      let res;
-      try { res = await adminCall({ _action: "setWord", _password: pw, _word: word, _wordEn: wordEn }); } catch (e) { res = { ok: false }; }
+      const word = $("ad-word").value.trim(), wordEn = $("ad-word-en").value.trim();
+      const res = await busy($("ad-save"), L("保存中…", "Saving…"), () => adminCall({ _action: "setWord", _password: pw, _word: word, _wordEn: wordEn }));
       if (res.ok) {
         setTodayWord({ word, wordEn });
-        $("ad-result").innerHTML = `<p class="notice ok">${L("保存しました。トップページに反映されています。", "Saved. It now shows on the top page.")} <a href="#home">${L("トップを見る →", "View top page →")}</a></p>`;
-      } else {
-        $("ad-result").innerHTML = `<p class="notice ng">${errText(res)}</p>`;
-        if (res.error === "password") { try { sessionStorage.removeItem(ADMIN_KEY); } catch (e) {} }
-      }
-      btn.disabled = false; btn.textContent = L("保存する", "Save");
+        show("ad-result", true, `${L("保存しました。トップページに反映されています。", "Saved. It now shows on the top page.")} <a href="#home">${L("トップを見る →", "View top page →")}</a>`);
+      } else failed("ad-result", res);
     };
-    $("ad-logout").onclick = () => { pw = ""; try { sessionStorage.removeItem(ADMIN_KEY); } catch (e) {} login(); };
+
+    // サイトのパスワード
+    $("ad-pass-show").onchange = (e) => { $("ad-pass1").type = $("ad-pass2").type = e.target.checked ? "text" : "password"; };
+    $("ad-pass-save").onclick = async () => {
+      const a = $("ad-pass1").value, b = $("ad-pass2").value;
+      if (a.length < 4) return show("ad-pass-result", false, L("4文字以上にしてください。", "Use at least 4 characters."));
+      if (a !== b) return show("ad-pass-result", false, L("2つの欄のパスワードが同じではありません。", "The two passwords do not match."));
+      if (a.trim() !== a) return show("ad-pass-result", false, L("最初と最後にスペースは入れられません。", "No spaces at the start or end."));
+      const hash = await sha256Hex(a); // パスワードそのものは送らず、変換した値だけ送る
+      const res = await busy($("ad-pass-save"), L("変更中…", "Changing…"), () => adminCall({ _action: "setSiteHash", _password: pw, _hash: hash }));
+      if (res.ok) {
+        if (window.SiteGate) window.SiteGate.remember(hash); // この端末はそのまま見られる
+        $("ad-pass1").value = $("ad-pass2").value = "";
+        show("ad-pass-result", true, L("サイトのパスワードを変えました。忘れないようにメモしておいてください。", "Site password changed. Make a note of it."));
+      } else failed("ad-pass-result", res);
+    };
+
+    // 日記
+    let entries = [];
+    function diaryForm(d) {
+      d = d || { id: "", date: todayIso(), title: "", body: "", titleEn: "", bodyEn: "" };
+      $("ad-diary-form").innerHTML = `
+        <p class="admin-mode">${d.id ? L("日記を直しています", "Editing an entry") : L("新しい日記を書く", "Write a new entry")}</p>
+        <div class="field"><label for="ad-d-date">${L("日付", "Date")}</label><input id="ad-d-date" type="date" value="${esc(d.date)}"></div>
+        <div class="field"><label for="ad-d-title">${L("タイトル", "Title")}<span class="opt">${L("なくてもOK", "Optional")}</span></label><input id="ad-d-title" maxlength="100" value="${esc(d.title)}"></div>
+        <div class="field"><label for="ad-d-body">${L("本文", "Text")}</label><textarea id="ad-d-body" maxlength="20000" style="min-height:180px">${esc(d.body)}</textarea></div>
+        <details class="admin-en"${d.titleEn || d.bodyEn ? " open" : ""}><summary>${L("英語表示のとき（なくてもOK）", "English version (optional)")}</summary>
+          <div class="field"><label for="ad-d-title-en">${L("タイトル（英語）", "Title (English)")}</label><input id="ad-d-title-en" maxlength="100" value="${esc(d.titleEn)}"></div>
+          <div class="field"><label for="ad-d-body-en">${L("本文（英語）", "Text (English)")}</label><textarea id="ad-d-body-en" maxlength="20000" style="min-height:120px">${esc(d.bodyEn)}</textarea></div>
+        </details>
+        <div class="admin-btns"><button class="btn" id="ad-d-save" type="button">${d.id ? L("直した内容を保存", "Save changes") : L("日記を公開する", "Publish")}</button>
+          ${d.id ? `<button class="btn ghost" id="ad-d-cancel" type="button">${L("やめる（新しく書く）", "Cancel")}</button>` : ""}</div>`;
+      if (d.id) $("ad-d-cancel").onclick = () => { diaryForm(); $("ad-diary-result").innerHTML = ""; };
+      $("ad-d-save").onclick = async () => {
+        const v = { date: $("ad-d-date").value || todayIso(), title: $("ad-d-title").value.trim(), body: $("ad-d-body").value.replace(/\s+$/, ""),
+          titleEn: $("ad-d-title-en").value.trim(), bodyEn: $("ad-d-body-en").value.replace(/\s+$/, "") };
+        if (!v.title && !v.body.trim()) return show("ad-diary-result", false, L("タイトルか本文を書いてください。", "Write a title or some text."));
+        const res = await busy($("ad-d-save"), L("保存中…", "Saving…"), () => adminCall({ _action: "diarySave", _password: pw, _id: d.id,
+          _date: v.date, _title: v.title, _body: v.body, _titleEn: v.titleEn, _bodyEn: v.bodyEn }));
+        if (res.ok) {
+          show("ad-diary-result", true, `${d.id ? L("直しました。", "Saved.") : L("公開しました。", "Published.")} <a href="#diary">${L("日記を見る →", "View diary →")}</a>`);
+          diaryForm(); gotList(res.entries);
+        } else failed("ad-diary-result", res);
+      };
+    }
+    function gotList(list) {
+      if (Array.isArray(list)) { entries = list; setDiary(list); }
+      const el = $("ad-diary-list");
+      if (!el) return;
+      if (!entries.length) { el.innerHTML = `<p class="admin-note">${L("まだ日記はありません。", "No entries yet.")}</p>`; return; }
+      el.innerHTML = `<h3 class="admin-sub">${L("これまでの日記", "Entries")}（${entries.length}）</h3><ul class="admin-diary">${entries.map((d) => `
+        <li data-id="${esc(d.id)}"><span class="ad-d-info"><span class="ad-d-date">${esc(diaryDate(d.date))}</span>
+          <span class="ad-d-title">${esc(d.title || String(d.body || "").slice(0, 40))}</span></span>
+          <span class="ad-d-btns"><button class="btn ghost small" data-edit type="button">${L("直す", "Edit")}</button>
+          <button class="btn ghost small danger" data-del type="button">${L("消す", "Delete")}</button></span></li>`).join("")}</ul>`;
+      el.querySelectorAll("li").forEach((li) => {
+        const d = entries.find((x) => String(x.id) === li.dataset.id);
+        li.querySelector("[data-edit]").onclick = () => { diaryForm(d); $("ad-diary-result").innerHTML = ""; $("ad-diary-sec").scrollIntoView({ behavior: "smooth" }); $("ad-d-body").focus({ preventScroll: true }); };
+        const del = li.querySelector("[data-del]");
+        del.onclick = async () => {
+          // 1回目は確認、2回目で本当に消す
+          if (!del.dataset.sure) { del.dataset.sure = "1"; del.textContent = L("本当に消す？", "Really delete?"); setTimeout(() => { if (del.isConnected) { delete del.dataset.sure; del.textContent = L("消す", "Delete"); } }, 4000); return; }
+          const res = await busy(del, L("削除中…", "Deleting…"), () => adminCall({ _action: "diaryDelete", _password: pw, _id: d.id }));
+          if (res.ok) { show("ad-diary-result", true, L("消しました。", "Deleted.")); gotList(res.entries); }
+          else failed("ad-diary-result", res);
+        };
+      });
+    }
+    diaryForm();
+    fetchDiary().then(gotList).catch(() => { $("ad-diary-list").innerHTML = `<p class="notice ng">${errText({ error: "script" })}</p>`; });
   }
+
   if (!(CONFIG.questionUrl || "").trim()) { box.innerHTML = `<p class="notice info">${L("Apps Script のURLが設定されていません。", "Apps Script URL is not set.")}</p>`; return; }
   if (pw) {
     box.innerHTML = `<p class="status">${L("読み込み中…", "Loading…")}</p>`;
