@@ -50,10 +50,10 @@ output{text-align:right;white-space:nowrap}
 #kaisetsu>h2{font-size:22px;margin:0 0 4px}
 details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
 details[open]{border-color:var(--acc)}
-summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:flex;gap:10px;align-items:baseline}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
 summary::-webkit-details-marker{display:none}
-summary::before{content:"＋";color:var(--acc)}details[open] summary::before{content:"－"}
-summary .ans{margin-left:auto;font-weight:400;color:var(--mute);font-size:14px}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
 .body{padding:0 18px 16px}
 .body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
 .body p{margin:6px 0}
@@ -62,7 +62,11 @@ summary .ans{margin-left:auto;font-weight:400;color:var(--mute);font-size:14px}
 .goto{min-height:36px;font-size:14px;margin-top:6px}
 .hl{background:var(--soft);border-radius:4px;padding:0 3px}
 @media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
 </head>
 <body>
 <div class="wrap">
@@ -103,79 +107,86 @@ summary .ans{margin-left:auto;font-weight:400;color:var(--mute);font-size:14px}
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。ここでは <span class="v">α</span> = <span class="v">Bl</span>²/2 とします。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。ここでは \(\alpha = \dfrac{1}{2}Bl^2\) とします。</p>
 
-<details id="d-I"><summary>I　回転する棒の起電力<span class="ans">答 <span class="v">α</span> = <span class="v">Bl</span>²/2</span></summary><div class="body">
+<details id="d-I"><summary>I　回転する棒の起電力<span class="ans">答 \(\alpha = \dfrac{1}{2}Bl^2\)</span></summary><div class="body">
 <h3>棒が横切る面積</h3>
-<p>短い時間 Δ<span class="v">t</span> の間に、棒は角度 <span class="v">ω</span>₁Δ<span class="v">t</span> だけ回ります。棒が通過した部分は半径 <span class="v">l</span>、中心角 <span class="v">ω</span>₁Δ<span class="v">t</span> の扇形なので</p>
-<span class="eq">Δ<span class="v">S</span> = <span class="frac"><span>1</span><span>2</span></span><span class="v">l</span>²·<span class="v">ω</span>₁Δ<span class="v">t</span></span>
+<p>短い時間 \(\Delta t\) の間に、棒は角度 \(\omega_1\Delta t\) だけ回ります。棒が通過した部分は半径 \(l\)、中心角 \(\omega_1\Delta t\) の扇形なので</p>
+$$\Delta S = \frac{1}{2}l^2\,\omega_1\Delta t$$
 <h3>ファラデーの法則</h3>
-<p>この面を貫く磁束は ΔΦ = <span class="v">B</span>Δ<span class="v">S</span>。単位時間あたりに横切る磁束が起電力なので</p>
-<span class="eq"><span class="v">E</span>₁ = <span class="frac"><span>ΔΦ</span><span>Δ<span class="v">t</span></span></span> = <span class="frac"><span>1</span><span>2</span></span><span class="v">Bl</span>²<span class="v">ω</span>₁　→　<span class="v">α</span> = <span class="frac"><span>1</span><span>2</span></span><span class="v">Bl</span>²</span>
+<p>この面を貫く磁束は \(\Delta\Phi = B\,\Delta S\)。単位時間あたりに横切る磁束が起電力なので</p>
+$$E_1 = \frac{\Delta\Phi}{\Delta t} = \frac{1}{2}Bl^2\omega_1 \qquad\therefore\quad \alpha = \frac{1}{2}Bl^2$$
 <h3>別の見方（ローレンツ力）</h3>
-<p>回転軸から <span class="v">r</span> の位置の電荷は速さ <span class="v">rω</span> で動くので、棒に沿って <span class="v">q</span>·<span class="v">rω</span>·<span class="v">B</span> の力を受けます。棒に沿って足し合わせると起電力は <span class="v">B</span><span class="v">ω</span>(0 + <span class="v">l</span>)/2 × <span class="v">l</span> = <span class="v">Bl</span>²<span class="v">ω</span>/2（平均の速さ <span class="v">lω</span>/2 の棒が <span class="v">vBl</span> を生むと考えても同じ）。</p>
-<div class="box"><b>アニメーションで確かめよう</b>：青い扇形が直前の短い時間に棒が横切った面積です。<span class="v">ω</span>₁ を2倍にすると扇形も起電力も2倍、<span class="v">l</span> を2倍にすると4倍になります。</div>
+<p>回転軸から \(r\) の位置の電荷は速さ \(r\omega\) で動くので、棒に沿って \(q\,r\omega B\) の力を受けます。棒の中点の速さ \(\dfrac{l\omega}{2}\) を「平均の速さ」と考えると、\(vBl\) の式から</p>
+$$E = \frac{l\omega}{2}\cdot B\cdot l = \frac{1}{2}Bl^2\omega$$
+<div class="box"><b>アニメーションで確かめよう</b>：青い扇形が直前の短い時間に棒が横切った面積です。\(\omega_1\) を2倍にすると扇形も起電力も2倍、\(l\) を2倍にすると4倍になります。</div>
 <button class="goto" data-q="I">この状況にする</button>
 </div></details>
 
-<details id="d-II1"><summary>II(1)　スイッチを X に入れた直後のモーメント<span class="ans">答 <span class="v">Bl</span>²<span class="v">V</span>/(2<span class="v">R</span>)</span></summary><div class="body">
-<p>直後は棒がまだ止まっている（<span class="v">ω</span> = 0）ので、棒の起電力は 0。回路の電流は</p>
-<span class="eq"><span class="v">I</span>₀ = <span class="frac"><span><span class="v">V</span></span><span><span class="v">R</span></span></span></span>
-<p>棒の各部分（長さ Δ<span class="v">x</span>）には同じ大きさの力 <span class="v">I</span>₀<span class="v">B</span>Δ<span class="v">x</span> がはたらきます。力は棒全体に<b>一様に分布</b>しているので、合力 <span class="v">I</span>₀<span class="v">Bl</span> が<b>棒の中点</b>（軸から <span class="v">l</span>/2）にはたらくと考えてよく、</p>
-<span class="eq"><span class="v">N</span> = <span class="frac"><span><span class="v">l</span></span><span>2</span></span>·<span class="v">I</span>₀<span class="v">Bl</span> = <span class="frac"><span><span class="v">Bl</span>²<span class="v">V</span></span><span>2<span class="v">R</span></span></span></span>
-<p>（「太さ一定・密度一様」は重心＝中点を示すための条件ではなく、ここでは力の分布が一様であることがポイントです。積分で書くと ∫₀<sup><span class="v">l</span></sup> <span class="v">x</span>·<span class="v">I</span>₀<span class="v">B</span> d<span class="v">x</span> = <span class="v">I</span>₀<span class="v">Bl</span>²/2。）なお <span class="v">N</span> = <span class="v">αI</span>₀ と書けることにも注目しておきましょう。</p>
+<details id="d-II1"><summary>II(1)　スイッチを X に入れた直後のモーメント<span class="ans">答 \(\dfrac{Bl^2V}{2R}\)</span></summary><div class="body">
+<p>直後は棒がまだ止まっている（\(\omega = 0\)）ので、棒の起電力は 0。回路の電流は</p>
+$$I_0 = \frac{V}{R}$$
+<p>棒の各部分（長さ \(\Delta x\)）には同じ大きさの力 \(I_0 B\,\Delta x\) がはたらきます。力は棒全体に<b>一様に分布</b>しているので、合力 \(I_0Bl\) が<b>棒の中点</b>（軸から \(\dfrac{l}{2}\)）にはたらくと考えてよく、</p>
+$$N = \frac{l}{2}\cdot I_0Bl = \frac{Bl^2V}{2R}$$
+<p>積分で書くと次のとおりです。なお \(N = \alpha I_0\) と書けることにも注目しておきましょう。</p>
+$$N = \int_0^l x\,I_0B\,dx = \frac{1}{2}I_0Bl^2$$
 <div class="box"><b>アニメーションで確かめよう</b>：棒に並んだ小さな矢印がどれも同じ長さ（一様な力）で、太い矢印が中点にはたらく合力です。「再生」すると回り始めます。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-II2"><summary>II(2)　回り始める向き<span class="ans">答 上から見て反時計回り（図の（あ）の向き）</span></summary><div class="body">
-<p>電源の正極から出た電流は、抵抗 → 端子 P → レール → 棒（<b>先端から回転軸へ</b>）→ 端子 O と流れます。磁場は紙面の裏から表向き（鉛直上向き）。フレミングの左手の法則（<span class="v">F</span> = <span class="v">IL</span>×<span class="v">B</span>）で、棒は上から見て<b>反時計回り</b>に押されます。</p>
+<p>電源の正極から出た電流は、抵抗 → 端子 P → レール → 棒（<b>先端から回転軸へ</b>）→ 端子 O と流れます。磁場は紙面の裏から表向き（鉛直上向き）。フレミングの左手の法則（\(\vec F = I\vec L\times\vec B\)）で、棒は上から見て<b>反時計回り</b>に押されます。</p>
 <div class="box"><b>アニメーションで確かめよう</b>：オレンジの点が電流の流れ、棒の上の赤い矢印が力の向きです。</div>
 <button class="goto" data-q="II2">この状況にする</button>
 </div></details>
 
-<details id="d-II3"><summary>II(3)　十分時間がたった後の角速度<span class="ans">答 <span class="v">ω</span>₂ = <span class="v">V</span>/<span class="v">α</span> = 2<span class="v">V</span>/(<span class="v">Bl</span>²)</span></summary><div class="body">
-<p>棒が回り始めると、I で求めた起電力 <span class="v">αω</span> が<b>電源と逆向き</b>に生じます（逆起電力）。電流は</p>
-<span class="eq"><span class="v">I</span> = <span class="frac"><span><span class="v">V</span> − <span class="v">αω</span></span><span><span class="v">R</span></span></span></span>
-<p>と小さくなり、回転を速める力のモーメント <span class="v">αI</span> も小さくなります。<span class="v">ω</span> が一定になるのはモーメント 0、つまり <span class="v">I</span> = 0 のとき。キルヒホッフの第2法則で</p>
-<span class="eq"><span class="v">V</span> = <span class="v">αω</span>₂　→　<span class="v">ω</span>₂ = <span class="frac"><span><span class="v">V</span></span><span><span class="v">α</span></span></span> = <span class="frac"><span>2<span class="v">V</span></span><span><span class="v">Bl</span>²</span></span></span>
-<p>摩擦がないので、電流 0 になればそのまま一定の角速度で回り続けます。最終の角速度は <span class="v">R</span> や棒の質量によりません（それらは<b>近づく速さ</b>だけを決めます）。</p>
-<div class="box"><b>アニメーションで確かめよう</b>：グラフの <span class="v">ω</span> が点線 <span class="v">V</span>/<span class="v">α</span> に近づき、電流 <span class="v">I</span> は 0 に近づきます。<span class="v">R</span> や <span class="v">M</span> を変えても最終値は同じで、近づく速さだけが変わります。エネルギーを見ると、電源がした仕事の<b>ちょうど半分</b>が運動エネルギー、残り半分がジュール熱になっています。</div>
+<details id="d-II3"><summary>II(3)　十分時間がたった後の角速度<span class="ans">答 \(\omega_2 = \dfrac{V}{\alpha} = \dfrac{2V}{Bl^2}\)</span></summary><div class="body">
+<p>棒が回り始めると、I で求めた起電力 \(\alpha\omega\) が<b>電源と逆向き</b>に生じます（逆起電力）。電流は</p>
+$$I = \frac{V - \alpha\omega}{R}$$
+<p>と小さくなり、回転を速める力のモーメント \(\alpha I\) も小さくなります。\(\omega\) が一定になるのはモーメント 0、つまり \(I = 0\) のとき。キルヒホッフの第2法則で</p>
+$$V = \alpha\omega_2 \qquad\therefore\quad \omega_2 = \frac{V}{\alpha} = \frac{2V}{Bl^2}$$
+<p>摩擦がないので、電流 0 になればそのまま一定の角速度で回り続けます。最終の角速度は \(R\) や棒の質量によりません（それらは<b>近づく速さ</b>だけを決めます）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：グラフの \(\omega\) が点線 \(\dfrac{V}{\alpha}\) に近づき、電流 \(I\) は 0 に近づきます。\(R\) や \(M\) を変えても最終値は同じで、近づく速さだけが変わります。エネルギーを見ると、電源がした仕事の<b>ちょうど半分</b>が運動エネルギー、残り半分がジュール熱になっています。</div>
 <button class="goto" data-q="II3">この状況にする</button>
 </div></details>
 
-<details id="d-III"><summary>III　コンデンサー1に切り替えた後のエネルギー<span class="ans">答 <span class="v">C</span>₁<span class="v">α</span>²<span class="v">ω</span>₃²/2</span></summary><div class="body">
+<details id="d-III"><summary>III　コンデンサー1に切り替えた後のエネルギー<span class="ans">答 \(\dfrac{1}{2}C_1\alpha^2\omega_3^2\)</span></summary><div class="body">
 <p>スイッチを Y に切り替えると、回る棒が電池の役目をしてコンデンサー1を充電します。このとき流れる電流は棒の回転を<b>妨げる</b>向きの力を生むので、棒は減速します（レンツの法則）。</p>
-<p>やがて <span class="v">ω</span> が一定（<span class="v">ω</span>₃）になるのは、電流が 0 のとき。抵抗の電圧も 0 なので、コンデンサーの電圧は棒の起電力 <span class="v">αω</span>₃ に等しくなり</p>
-<span class="eq"><span class="v">U</span>₁ = <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₁(<span class="v">αω</span>₃)² = <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₁<span class="v">α</span>²<span class="v">ω</span>₃²　（= <span class="v">C</span>₁<span class="v">B</span>²<span class="v">l</span>⁴<span class="v">ω</span>₃²/8）</span>
-<div class="box"><b>アニメーションで確かめよう</b>：<span class="v">ω</span> が下がっていき、コンデンサーの電圧 <span class="v">αω</span> と <span class="v">q</span>/<span class="v">C</span>₁ が等しくなった所で止まります。<span class="v">C</span>₁ を大きくすると、<span class="v">ω</span>₃ は小さくなります。</div>
+<p>やがて \(\omega\) が一定（\(\omega_3\)）になるのは、電流が 0 のとき。抵抗の電圧も 0 なので、コンデンサーの電圧は棒の起電力 \(\alpha\omega_3\) に等しくなり</p>
+$$U_1 = \frac{1}{2}C_1(\alpha\omega_3)^2 = \frac{1}{2}C_1\alpha^2\omega_3^2 \quad\left(= \frac{1}{8}C_1B^2l^4\omega_3^2\right)$$
+<div class="box"><b>アニメーションで確かめよう</b>：\(\omega\) が下がっていき、コンデンサーの電圧 \(\dfrac{q}{C_1}\) が棒の起電力 \(\alpha\omega\) と等しくなった所で止まります。\(C_1\) を大きくすると、\(\omega_3\) は小さくなります。</div>
 <button class="goto" data-q="III">この状況にする</button>
 </div></details>
 
-<details id="d-IV1"><summary>IV(1)　回る棒＝仮想コンデンサー2<span class="ans">答 <span class="v">Q</span>₂ = <span class="v">βω</span>/<span class="v">α</span>，<span class="v">C</span>₂ = <span class="v">β</span>/<span class="v">α</span>²</span></summary><div class="body">
+<details id="d-IV1"><summary>IV(1)　回る棒＝仮想コンデンサー2<span class="ans">答 \(Q_2 = \dfrac{\beta\omega}{\alpha},\ C_2 = \dfrac{\beta}{\alpha^2}\)</span></summary><div class="body">
 <h3>エネルギーで対応させる</h3>
-<p>端子 O–P 間の電圧は棒の起電力 <span class="v">V</span>₂ = <span class="v">αω</span>。運動エネルギーをこの電圧で書き直すと</p>
-<span class="eq"><span class="frac"><span>1</span><span>2</span></span><span class="v">βω</span>² = <span class="frac"><span>1</span><span>2</span></span>·<span class="frac"><span><span class="v">β</span></span><span><span class="v">α</span>²</span></span>·(<span class="v">αω</span>)²</span>
-<p>これを <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₂<span class="v">V</span>₂² と見比べて <span class="v">C</span>₂ = <span class="v">β</span>/<span class="v">α</span>²。電荷は <span class="v">Q</span>₂ = <span class="v">C</span>₂<span class="v">V</span>₂ = <span class="v">βω</span>/<span class="v">α</span>。</p>
+<p>端子 O–P 間の電圧は棒の起電力 \(V_2 = \alpha\omega\)。運動エネルギーをこの電圧で書き直すと</p>
+$$\frac{1}{2}\beta\omega^2 = \frac{1}{2}\cdot\frac{\beta}{\alpha^2}\cdot(\alpha\omega)^2$$
+<p>これを \(\dfrac{1}{2}C_2V_2^{\,2}\) と見比べて</p>
+$$C_2 = \frac{\beta}{\alpha^2}, \qquad Q_2 = C_2V_2 = \frac{\beta\omega}{\alpha}$$
 <h3>電流でも対応している</h3>
-<p>棒の回転の運動方程式は <span class="v">β</span><span class="frac"><span>Δ<span class="v">ω</span></span><span>Δ<span class="v">t</span></span></span> = <span class="v">αI</span>。両辺を <span class="v">α</span> で割ると <span class="v">I</span> = Δ(<span class="v">βω</span>/<span class="v">α</span>)/Δ<span class="v">t</span>。つまり<b>流れこんだ電荷の分だけ <span class="v">βω</span>/<span class="v">α</span> が増える</b>ので、<span class="v">Q</span>₂ は「本当に流れこんだ電荷の合計」になっています。だからこの見方が正しく使えるのです。</p>
-<p>（参考：一様な棒なら <span class="v">β</span> = <span class="v">Ml</span>²/3 なので <span class="v">C</span>₂ = 4<span class="v">M</span>/(3<span class="v">B</span>²<span class="v">l</span>²)。重い棒ほど「容量の大きいコンデンサー」です。）</p>
-<div class="box"><b>アニメーションで確かめよう</b>：回路図の棒の部分に「コンデンサー2」の目盛りを重ねて表示しています。<span class="v">ω</span> に比例して <span class="v">Q</span>₂ がたまり、エネルギーの棒グラフで ½<span class="v">βω</span>² と <span class="v">Q</span>₂²/(2<span class="v">C</span>₂) が一致します。</div>
+<p>棒の回転の運動方程式は \(\beta\dfrac{\Delta\omega}{\Delta t} = \alpha I\)。両辺を \(\alpha\) で割ると</p>
+$$I = \frac{\Delta}{\Delta t}\left(\frac{\beta\omega}{\alpha}\right)$$
+<p>つまり<b>流れこんだ電荷の分だけ \(\dfrac{\beta\omega}{\alpha}\) が増える</b>ので、\(Q_2\) は「本当に流れこんだ電荷の合計」になっています。だからこの見方が正しく使えるのです。</p>
+<p>（参考：一様な棒なら \(\beta = \dfrac{1}{3}Ml^2\) なので \(C_2 = \dfrac{4M}{3B^2l^2}\)。重い棒ほど「容量の大きいコンデンサー」です。）</p>
+<div class="box"><b>アニメーションで確かめよう</b>：回路図に「コンデンサー2」の目盛りを表示しています。\(\omega\) に比例して \(Q_2\) がたまり、エネルギーの棒グラフで \(\dfrac{1}{2}\beta\omega^2\) と \(\dfrac{Q_2^{\,2}}{2C_2}\) が一致します。</div>
 <button class="goto" data-q="IV1">この状況にする</button>
 </div></details>
 
-<details id="d-IV2"><summary>IV(2)(3)　コンデンサー2つで考える<span class="ans">答 <span class="v">U</span>₁ = <span class="v">C</span>₁<span class="v">C</span>₂²<span class="v">V</span>²/{2(<span class="v">C</span>₁+<span class="v">C</span>₂)²}，<span class="v">ω</span>₃ = <span class="v">C</span>₂<span class="v">V</span>/{<span class="v">α</span>(<span class="v">C</span>₁+<span class="v">C</span>₂)}</span></summary><div class="body">
+<details id="d-IV2"><summary>IV(2)(3)　コンデンサー2つで考える<span class="ans">答 \(U_1 = \dfrac{C_1C_2^{\,2}V^2}{2(C_1+C_2)^2},\ \omega_3 = \dfrac{C_2V}{\alpha(C_1+C_2)}\)</span></summary><div class="body">
 <h3>(2) 電荷の分配</h3>
-<p>X 側で十分時間がたつと、コンデンサー2の電圧は <span class="v">V</span>、電荷は <span class="v">C</span>₂<span class="v">V</span>。Y に切り替えると、空のコンデンサー1とつながり、電流が 0 になるまで電荷が移動します。最後は<b>2つの電圧が等しく</b>（<span class="v">v</span> とする）、<b>電荷の和は変わらない</b>ので</p>
-<span class="eq"><span class="v">C</span>₁<span class="v">v</span> + <span class="v">C</span>₂<span class="v">v</span> = <span class="v">C</span>₂<span class="v">V</span>　→　<span class="v">v</span> = <span class="frac"><span><span class="v">C</span>₂<span class="v">V</span></span><span><span class="v">C</span>₁ + <span class="v">C</span>₂</span></span></span>
-<span class="eq"><span class="v">U</span>₁ = <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₁<span class="v">v</span>² = <span class="frac"><span><span class="v">C</span>₁<span class="v">C</span>₂²<span class="v">V</span>²</span><span>2(<span class="v">C</span>₁ + <span class="v">C</span>₂)²</span></span></span>
-<h3>(3) ω₃ を求める</h3>
-<p>コンデンサー2の電圧は棒の起電力 <span class="v">αω</span>₃ なので <span class="v">αω</span>₃ = <span class="v">v</span>。</p>
-<span class="eq"><span class="v">ω</span>₃ = <span class="frac"><span><span class="v">C</span>₂<span class="v">V</span></span><span><span class="v">α</span>(<span class="v">C</span>₁ + <span class="v">C</span>₂)</span></span></span>
-<p>（<span class="v">C</span>₂ = <span class="v">β</span>/<span class="v">α</span>² を代入すると <span class="v">ω</span>₃ = <span class="v">βV</span>/{<span class="v">α</span>(<span class="v">α</span>²<span class="v">C</span>₁ + <span class="v">β</span>)}。これは「角運動量に相当する <span class="v">βω</span> と電荷 <span class="v">αq</span> の和が保存する」ことからも導けます。）</p>
+<p>X 側で十分時間がたつと、コンデンサー2の電圧は \(V\)、電荷は \(C_2V\)。Y に切り替えると、空のコンデンサー1とつながり、電流が 0 になるまで電荷が移動します。最後は<b>2つの電圧が等しく</b>（\(v\) とする）、<b>電荷の和は変わらない</b>ので</p>
+$$C_1v + C_2v = C_2V \qquad\therefore\quad v = \frac{C_2V}{C_1 + C_2}$$
+$$U_1 = \frac{1}{2}C_1v^2 = \frac{C_1C_2^{\,2}V^2}{2(C_1 + C_2)^2}$$
+<h3>(3) \(\omega_3\) を求める</h3>
+<p>コンデンサー2の電圧は棒の起電力 \(\alpha\omega_3\) なので \(\alpha\omega_3 = v\)。</p>
+$$\omega_3 = \frac{C_2V}{\alpha(C_1 + C_2)}$$
+<p>\(C_2 = \dfrac{\beta}{\alpha^2}\) を代入すると \(\omega_3 = \dfrac{\beta V}{\alpha(\alpha^2C_1 + \beta)}\)。これは「\(\beta\omega + \alpha q\) が一定に保たれる」ことからも導けます。</p>
 <h3>エネルギーは減っている</h3>
-<p>切り替え前の <span class="frac"><span>1</span><span>2</span></span><span class="v">C</span>₂<span class="v">V</span>² と、切り替え後の2つのコンデンサーのエネルギーの和を比べると、差 <span class="frac"><span>1</span><span>2</span></span>·<span class="frac"><span><span class="v">C</span>₁<span class="v">C</span>₂</span><span><span class="v">C</span>₁+<span class="v">C</span>₂</span></span><span class="v">V</span>² がジュール熱として抵抗で失われます（抵抗 <span class="v">R</span> の値によらない）。</p>
-<div class="box"><b>アニメーションで確かめよう</b>：このボタンでは X で充電 → 自動で Y に切り替え、までを続けて再生します。グラフの点線は式で予想した <span class="v">ω</span>₂ と <span class="v">ω</span>₃。<span class="v">C</span>₁ = <span class="v">C</span>₂ にすると <span class="v">ω</span>₃ = <span class="v">ω</span>₂/2 になることを確かめてみましょう。</div>
+<p>切り替え前の \(\dfrac{1}{2}C_2V^2\) と、切り替え後の2つのコンデンサーのエネルギーの和を比べると、差</p>
+$$\frac{1}{2}\cdot\frac{C_1C_2}{C_1 + C_2}V^2$$
+<p>がジュール熱として抵抗で失われます（抵抗 \(R\) の値によらない）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：このボタンでは X で充電 → 自動で Y に切り替え、までを続けて再生します。グラフの点線は式で予想した \(\omega_2\) と \(\omega_3\)。\(C_1 = C_2\) にすると \(\omega_3 = \dfrac{\omega_2}{2}\) になることを確かめてみましょう。</div>
 <button class="goto" data-q="IV2">この状況にする</button>
 </div></details>
 </section>
