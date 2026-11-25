@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>半透膜で仕切られた混合気体</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E7%86%B1%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>半透膜で仕切られた混合気体（東京大学 2022年 第3問）</h1>
+<p class="lead">気体 X は通し、気体 Y は通さない膜でシリンダーを2つに仕切ります。分子の運動から圧力を導くと、<b>X は膜がないかのように全体に広がり、Y は下の領域だけ</b>に閉じこめられていることが、圧力の式にそのまま表れます。後半は、ピストンを押し下げる断熱変化と、おもりを載せて温める定圧変化で、熱力学第1法則の立て方を確かめます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="シリンダー内の気体分子のアニメーション"></canvas>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) ピストンが受ける力</button>
+<button class="qb" data-q="I2">I(2) 底面が受ける力</button>
+<button class="qb" data-q="I3">I(3) 圧力 p₁, p₂</button>
+<button class="qb" data-q="I4">I(4) 内部エネルギー</button>
+<button class="qb" data-q="II1">II 断熱圧縮</button>
+<button class="qb" data-q="III1">III おもり＋加熱</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。気体 X・Y はどちらも 1 mol の単原子分子理想気体、断面積 \(S\)、アボガドロ定数 \(N_A\)、気体定数 \(R\)、ボルツマン定数 \(k = R/N_A\) です。</p>
+
+<details id="d-I1"><summary>I(1)　ピストンが気体 X から受ける力 F₁<span class="ans">答 \(F_1 = \dfrac{N_ASm_X\overline{v_z^{\,2}}}{V_1+V_2}\)</span></summary><div class="body">
+<h3>X にとって膜は「ないのと同じ」</h3>
+<p>X の分子は膜を素通りするので、底面からピストンまでの高さ \(h = \dfrac{V_1+V_2}{S}\) を往復します。</p>
+<h3>1分子の力積 → 平均の力</h3>
+<p>速度の \(z\) 成分 \(v_z\) の分子がピストンで弾性衝突すると、ピストンに与える力積は \(2m_Xv_z\)。次にピストンに当たるまでの時間は \(\dfrac{2h}{v_z}\) なので、1分子がピストンに及ぼす平均の力は</p>
+$$\frac{2m_Xv_z}{2h/v_z} = \frac{m_Xv_z^{\,2}}{h} = \frac{Sm_Xv_z^{\,2}}{V_1+V_2}$$
+<p>\(N_A\) 個について足し合わせ、\(v_z^{\,2}\) を平均 \(\overline{v_z^{\,2}}\) に置きかえると</p>
+$$F_1 = \frac{N_ASm_X\overline{v_z^{\,2}}}{V_1+V_2}$$
+<div class="box"><b>式の立て方</b>：気体分子運動論は、①1回の衝突で壁が受ける力積（\(2mv\)）、②次の衝突までの時間（往復距離 ÷ 速さ）、③平均の力 ＝ ①÷②、④分子数倍、の4段階です。「往復距離」は<b>その分子が実際に動ける範囲</b>で決まるので、膜を通れる X は全体の高さ、通れない Y は領域2の高さを使います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：小さい点が X、大きい点が Y です。X は膜を通り抜けて全体を飛びまわり、ピストンに当たるのは X だけです（当たった瞬間に光ります）。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　底面が X と Y から受ける力 F₂<span class="ans">答 \(F_2 = \dfrac{N_ASm_X\overline{v_z^{\,2}}}{V_1+V_2} + \dfrac{N_ASm_Y\overline{w_z^{\,2}}}{V_2}\)</span></summary><div class="body">
+<p>X は (1) と同じ高さ \(\dfrac{V_1+V_2}{S}\) を往復するので、底面が X から受ける力は \(F_1\) と同じです。</p>
+<p>Y は膜で跳ね返されるので、底面と膜の間の高さ \(\dfrac{V_2}{S}\) を往復します。同じ手順で</p>
+$$\frac{2m_Yw_z}{2(V_2/S)/w_z}\times N_A = \frac{N_ASm_Y\overline{w_z^{\,2}}}{V_2}$$
+<p>合計して答えになります。</p>
+<div class="box"><b>考え方</b>：混合気体では、それぞれの気体が「自分だけがその空間にいるとき」の圧力（分圧）を及ぼし、全圧はその和になります（ドルトンの分圧の法則）。分子どうしが衝突しないほど希薄なら、各気体の分子は互いを気にせず壁と衝突するからです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：底面には X と Y の両方が当たります。Y は膜に当たると跳ね返り、膜を上向きに押しています。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　圧力 p₁ と p₂<span class="ans">答 \(p_1 = \dfrac{RT}{V_1+V_2}\)、\(p_2 = \dfrac{RT}{V_1+V_2} + \dfrac{RT}{V_2}\)</span></summary><div class="body">
+<p>1方向あたりの運動エネルギーが \(\dfrac12kT\) なので \(m_X\overline{v_z^{\,2}} = m_Y\overline{w_z^{\,2}} = kT = \dfrac{R}{N_A}T\)。これを (1)(2) に入れて \(S\) で割ります。</p>
+$$p_1 = \frac{F_1}{S} = \frac{N_A}{V_1+V_2}\cdot\frac{R}{N_A}T = \frac{RT}{V_1+V_2}$$
+$$p_2 = \frac{F_2}{S} = \frac{RT}{V_1+V_2} + \frac{RT}{V_2}$$
+<p>X の分圧は「1 mol が体積 \(V_1+V_2\) を占める」ときの、Y の分圧は「1 mol が体積 \(V_2\) を占める」ときの状態方程式そのものです。\(p_2 &gt; p_1\) で、その差 \(\dfrac{RT}{V_2}\) は Y が膜を押し上げる圧力です（膜が固定されているので支えられています）。</p>
+<div class="box"><b>式の立て方</b>：分子運動論で求めた力の式は、最後に \(\dfrac12m\overline{v_z^{\,2}} = \dfrac12kT\) を使って温度で書き直すと、状態方程式 \(pV = nRT\) と一致することを確かめられます。逆に、状態方程式を使うときは「その気体が<b>動ける体積</b>」を \(V\) に入れます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下の棒グラフは p₁ と p₂ の内訳です。\(V_2\) を小さくすると Y の分圧だけが大きくなり、\(V_1\) を変えると X の分圧が両方の領域で同じだけ変わります。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>I(4)　内部エネルギーの合計<span class="ans">答 \(3RT\)</span></summary><div class="body">
+<p>単原子分子の内部エネルギーは分子の運動エネルギーの和です。1分子あたり3方向で \(\dfrac32kT\)、1 mol で \(\dfrac32RT\)。X と Y が 1 mol ずつなので</p>
+$$U = \frac32RT\times2 = 3RT$$
+<p>内部エネルギーは温度と物質量だけで決まり、体積や膜の位置にはよりません。</p>
+<div class="box"><b>式の立て方</b>：単原子分子理想気体は \(U = \dfrac32nRT\)（定積モル比熱 \(\dfrac32R\)）。混合気体では物質量を足して \(n = 2\) とします。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)(2)　断熱圧縮での温度変化と圧力変化<span class="ans">答 (1) \(\Delta T = \dfrac{p_1\Delta V_1}{3R}\)　(2) ア \(\dfrac43\)</span></summary><div class="body">
+<h3>(1) 熱力学第1法則</h3>
+<p>ピストンに接しているのは領域1（圧力 \(p_1\)）だけなので、気体がピストンからされる仕事は \(p_1\Delta V_1\)。熱のやりとりはないので、これがそのまま内部エネルギー \(3RT\) の増加になります。</p>
+$$3R\Delta T = p_1\Delta V_1\qquad\therefore\quad \Delta T = \frac{p_1\Delta V_1}{3R}$$
+<h3>(2) X の状態方程式を微小変化させる</h3>
+<p>\(p_1(V_1+V_2) = RT\) の変化前と変化後を比べ、微小量どうしの積を無視すると</p>
+$$(p_1+\Delta p_1)(V_1+V_2-\Delta V_1) - p_1(V_1+V_2) \fallingdotseq (V_1+V_2)\Delta p_1 - p_1\Delta V_1 = R\Delta T$$
+<p>(1) の \(R\Delta T = \dfrac{p_1\Delta V_1}{3}\) を入れると</p>
+$$(V_1+V_2)\Delta p_1 = \frac43p_1\Delta V_1\qquad\therefore\quad \frac{\Delta p_1}{p_1} = \frac43\cdot\frac{\Delta V_1}{V_1+V_2}$$
+<h3>4/3 の意味</h3>
+<p>1種類の単原子分子だけなら、断熱変化は \(pV^{5/3} = \)一定、つまり \(\dfrac{\Delta p}{p} = \dfrac53\dfrac{\Delta V}{V}\) です。ここでは仕事を受けるのは X の圧力ですが、受けたエネルギーは Y にも分けられる（熱容量が2倍の \(3R\)）ので温度が上がりにくく、圧力の上がり方は \(\dfrac53\) より小さい \(\dfrac43\) になります。等温変化（\(1\)）と単原子分子の断熱変化（\(\dfrac53\)）の間の値です。</p>
+<div class="box"><b>式の立て方</b>：断熱変化は「\(Q = 0\) の第1法則 \(\Delta U = W_{\text{された}}\)」と「状態方程式の微小変化」の2式を連立します。\(pV^\gamma =\)一定 を覚えていなくても、この2式から導けます。仕事は<b>実際に動く面</b>（ここではピストン）にはたらく圧力で計算します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：押し下げる量を大きくすると、下のグラフで、この気体の断熱曲線（\(p_1 \propto (V_1+V_2)^{-4/3}\)）が等温曲線と単原子分子の断熱曲線の間にあることが分かります。いまの値の欄では、近似式と正確な値を比べられます。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)(2)　おもりを載せて温めたときの温度と熱量<span class="ans">答 (1) \(\dfrac{2V_1+V_2}{V_1+V_2}\,T\)　(2) \(\dfrac{4V_1}{V_1+V_2}\,RT\)</span></summary><div class="body">
+<h3>(1) 領域1の圧力は一定</h3>
+<p>外は真空なので、ピストンのつり合いは「\(p_1S\) ＝ ピストンとおもりの重さ」です。ゆっくり押し上がる間このつり合いが続くので、\(p_1\) は一定です。X の状態方程式 \(p_1(V_1+V_2) = RT\) で、体積が \(2V_1+V_2\) になったときの温度を \(T'\) とすると</p>
+$$p_1(2V_1+V_2) = RT'\qquad\therefore\quad T' = \frac{2V_1+V_2}{V_1+V_2}\,T$$
+<h3>(2) 熱力学第1法則</h3>
+<p>内部エネルギーの増加は \(3R(T'-T) = \dfrac{3RTV_1}{V_1+V_2}\)。気体がした仕事はピストンを押し上げた分で \(p_1\times V_1 = \dfrac{RTV_1}{V_1+V_2}\)。吸収した熱量は</p>
+$$Q = \Delta U + W = \frac{3RTV_1}{V_1+V_2} + \frac{RTV_1}{V_1+V_2} = \frac{4V_1}{V_1+V_2}\,RT$$
+<p>Y は体積 \(V_2\) のまま温度だけが上がり（定積変化）、仕事をしません。Y の圧力 \(\dfrac{RT}{V_2}\) は温度とともに上がりますが、固定された膜が支えています。</p>
+<div class="box"><b>式の立て方</b>：①ピストンの力のつり合いで「どの圧力が一定か」を決める → ②その圧力の気体の状態方程式で温度を求める → ③第1法則 \(Q = \Delta U + W\) で、\(\Delta U\) は全部の気体、\(W\) は動いた面の分だけ、と分けて計算します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：ヒーターで温めると、ピストンが上がって領域1の体積が \(2V_1\) まで増えます。下の棒グラフは吸収した熱量の行き先（X と Y の内部エネルギー、ピストンにした仕事）です。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+const RG=8.31,KB=1.38e-23,NA=6.02e23,SA=1e-2;
+const st={q:"I1",T:300,V1:4,V2:2,dV:0.3,spd:1};
+const SL=[
+ ["T","T","はじめの温度","K",150,600,5,0,"all"],
+ ["V1","V<sub>1</sub>","領域1の体積","L",1,8,0.1,1,"all"],
+ ["V2","V<sub>2</sub>","領域2の体積","L",1,8,0.1,1,"all"],
+ ["dV","","押し下げる量 ΔV₁/V₁","",0.05,0.6,0.01,2,"II"],
+ ["spd","","再生速度","倍",0.25,3,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>n?[640,620]:[1000,450]);
+const gr=mkCv($("#gr"),n=>n?[640,420]:[1000,280]);
+let S={},P=[];
+const NX=36,NY=36;
+function gauss(){return Math.sqrt(-2*Math.log(Math.random()+1e-9))*Math.cos(2*Math.PI*Math.random())}
+function geom(){const n=cv.narrow,H=cv.H;const hmax=H-(n?170:110);const k=hmax/(2*st.V1+st.V2+0.3);return{k,cw:n?250:250}}
+function restart(){const g=geom();S={k:g.k,t:0,V1:st.V1,T:st.T,phase:0,hits:[],Q:0,W:0,dUX:0,dUY:0};P=[];
+ const top=(st.V1+st.V2)*g.k,mem=st.V2*g.k;const sc=Math.sqrt(st.T/300);
+ for(let i=0;i<NX;i++)P.push({t:"X",x:Math.random()*g.cw,y:Math.random()*top,vx:gauss()*130*sc,vy:gauss()*130*sc});
+ for(let i=0;i<NY;i++)P.push({t:"Y",x:Math.random()*g.cw,y:Math.random()*mem,vx:gauss()*65*sc,vy:gauss()*65*sc})}
+function onParam(k){restart()}
+const p1=(T,V1)=>RG*T/((V1+st.V2)*1e-3);
+function step(dt){const q=st.q,g=geom();S.t+=dt;const Told=S.T;
+ if(q==="II1"){const tt=S.t-1;const u=tt<0?0:tt<4?tt/4:1;S.V1=st.V1*(1-st.dV*u*u*(3-2*u));S.T=st.T*Math.pow((st.V1+st.V2)/(S.V1+st.V2),1/3);if(S.t>8)restart()}
+ if(q==="III1"){const tt=S.t-1.5;const u=tt<0?0:tt<5?tt/5:1;S.V1=st.V1*(1+u);S.T=st.T*(S.V1+st.V2)/(st.V1+st.V2);S.heat=tt>=0&&tt<5;if(S.t>10)restart()}
+ if(S.T!==Told){const f=Math.sqrt(S.T/Told);P.forEach(p=>{p.vx*=f;p.vy*=f})}
+ const top=(S.V1+st.V2)*g.k,mem=st.V2*g.k;
+ P.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;
+  if(p.x<0){p.x=-p.x;p.vx=Math.abs(p.vx)}if(p.x>g.cw){p.x=2*g.cw-p.x;p.vx=-Math.abs(p.vx)}
+  if(p.y<0){p.y=-p.y;p.vy=Math.abs(p.vy);S.hits.push({x:p.x,y:0,t:S.t,k:p.t})}
+  if(p.t==="X"&&p.y>top){p.y=top-(p.y-top);p.vy=-Math.abs(p.vy);S.hits.push({x:p.x,y:top,t:S.t,k:"Xp"})}
+  if(p.t==="Y"&&p.y>mem){p.y=mem-(p.y-mem);p.vy=-Math.abs(p.vy);S.hits.push({x:p.x,y:mem,t:S.t,k:"Ym"})}
+  if(p.y>top)p.y=top-1});
+ S.hits=S.hits.filter(h=>S.t-h.t<0.25)}
+function drawCyl(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const g=geom(),k=g.k,cw=g.cw;if(Math.abs(k-S.k)>1e-9)restart();const x0=n?40:70,yb=H-(n?60:50);
+ const Y=y=>yb-y,top=(S.V1+st.V2)*k,mem=st.V2*k,q=st.q;
+ // regions
+ rect(c,x0,Y(mem),cw,mem,alpha(CL.road,0.22));rect(c,x0,Y(top),cw,top-mem,alpha(CL.road,0.08));
+ // walls
+ const wallTop=Y((2*st.V1+st.V2)*k)-40;line(c,[[x0-4,wallTop],[x0-4,yb+4],[x0+cw+4,yb+4],[x0+cw+4,wallTop]],CL.ink,3);
+ // membrane
+ line(c,[[x0,Y(mem)],[x0+cw,Y(mem)]],CL.ink,2,[2,4]);txt(c,"膜",x0+cw+12,Y(mem),CL.ink,{s:13,b:1});
+ // piston + rod / weight
+ rect(c,x0,Y(top)-14,cw,14,CL.road,CL.ink,1.5);
+ if(q==="III1"){rect(c,x0+cw*0.3,Y(top)-14-44,cw*0.4,44,alpha(CL.ink,0.55),CL.ink,1.5);txt(c,"おもり",x0+cw/2,Y(top)-14-22,CL.bg,{s:13,b:1,al:"center"})}
+ else{rect(c,x0+cw/2-8,Y(top)-14-60,16,60,alpha(CL.road,0.6),CL.ink,1.2)}
+ if(q==="II1"&&S.t>1&&S.t<5)arrow(c,x0+cw/2+30,Y(top)-74,x0+cw/2+30,Y(top)-22,CL.frc,3);
+ if(q==="III1"){const hx=x0+cw+10;rect(c,hx,Y(mem*1.1),18,mem*0.9,S.heat?CL.frc:alpha(CL.road,0.5),CL.ink,1.2);txt(c,"ヒーター",hx+24,Y(mem*0.6),S.heat?CL.frc:CL.mute,{s:12})}
+ txt(c,"領域1",x0+8,Y(top)+16,CL.mute,{s:12});txt(c,"領域2",x0+8,Y(mem)+16,CL.mute,{s:12});
+ // hits
+ S.hits.forEach(h=>{const a=1-(S.t-h.t)/0.25,col=h.k==="Ym"?CL.fic:h.k==="Xp"?CL.frc:h.k==="Y"?CL.fic:CL.acc;
+  const show=q==="I1"?h.k==="Xp":q==="I2"?(h.y===0):true;if(show)dot(c,x0+h.x,Y(h.y),7*a+3,alpha(col,0.5*a))});
+ // particles
+ P.forEach(p=>{if(p.t==="Y")dot(c,x0+p.x,Y(p.y),6,alpha(CL.fic,0.75),CL.fic,1.2);else dot(c,x0+p.x,Y(p.y),3,CL.acc)});
+ // legend & text
+ const lx=n?x0+cw+40:x0+cw+90,ly=40;dot(c,lx+6,ly,3,CL.acc);txt(c,"気体 X（膜を通る）",lx+18,ly,CL.acc,{s:13});dot(c,lx+6,ly+22,6,alpha(CL.fic,0.75),CL.fic,1.2);txt(c,"気体 Y（膜で跳ね返る）",lx+18,ly+22,CL.fic,{s:13});
+const tx=lx,ty=ly+70;const P1=p1(S.T,S.V1),PY=RG*S.T/(st.V2*1e-3);
+ const lines={I1:["ピストンに当たるのは X だけ（赤く光る）","X が往復する高さ ＝ (V₁+V₂)/S"],I2:["底面には X と Y の両方が当たる","Y が往復する高さ ＝ V₂/S（膜で跳ね返る）"],I3:["p₁ ＝ X の分圧","p₂ ＝ X の分圧 ＋ Y の分圧","p₂ − p₁ ＝ Y が膜を押す圧力"],I4:["U ＝ X の 3/2 RT ＋ Y の 3/2 RT ＝ 3RT"],II1:["ゆっくり押し下げる（断熱）","仕事 p₁ΔV₁ → X と Y の両方が温まる"],III1:["おもりを載せて p₁ を一定に保つ","ヒーターで温めると V₁ → 2V₁"]}[q]||[];
+ lines.forEach((l,i)=>txt(c,l,tx,ty+i*24,CL.ink,{s:n?12:14}));
+ txt(c,`T = ${S.T.toFixed(1)} K`,tx,ty+lines.length*24+20,CL.frc,{s:16,b:1});txt(c,`p₁ = ${(P1/1e5).toFixed(3)} × 10⁵ Pa`,tx,ty+lines.length*24+46,CL.ink,{s:14});txt(c,`p₂ = ${((P1+PY)/1e5).toFixed(3)} × 10⁵ Pa`,tx,ty+lines.length*24+70,CL.ink,{s:14})}
+function graph(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow;const q=st.q;
+ if(q==="I1"||q==="I2"||q==="I3"){const PX=p1(st.T,st.V1),PY=RG*st.T/(st.V2*1e-3);const mx=(PX+PY)*1.1,B={x:n?30:120,y:30,w:W-(n?220:240),h:H-70};const bh=Math.min(40,B.h/4);
+  [["p₁（領域1）",[[PX,CL.acc,"X の分圧 RT/(V₁+V₂)"]]],["p₂（領域2）",[[PX,CL.acc,"X"],[PY,CL.fic,"Y の分圧 RT/V₂"]]]].forEach(([lab,parts],i)=>{const y=B.y+20+i*(B.h/2);txt(c,lab,B.x,y-12,CL.ink,{s:14,b:1});let x=B.x;parts.forEach(([v,col,l])=>{const w=B.w*v/mx;rect(c,x,y,w,bh,alpha(col,0.75));if(w>60)txt(c,l,x+6,y+bh/2,CL.bg,{s:12,b:1});x+=w});txt(c,`${((parts.reduce((a,p)=>a+p[0],0))/1e5).toFixed(3)} × 10⁵ Pa`,x+8,y+bh/2,CL.ink,{s:13})});return}
+ if(q==="I4"){const U=1.5*RG*S.T,B={x:n?30:120,y:30,w:W-(n?60:240),h:H-70};txt(c,"内部エネルギー",B.x,B.y,CL.ink,{s:14,b:1});rect(c,B.x,B.y+20,B.w*0.4,40,alpha(CL.acc,0.75));rect(c,B.x+B.w*0.4,B.y+20,B.w*0.4,40,alpha(CL.fic,0.75));txt(c,`X：3/2 RT = ${U.toFixed(0)} J`,B.x+6,B.y+40,CL.bg,{s:12,b:1});txt(c,`Y：3/2 RT = ${U.toFixed(0)} J`,B.x+B.w*0.4+6,B.y+40,CL.bg,{s:12,b:1});txt(c,`合計 3RT = ${(2*U).toFixed(0)} J`,B.x,B.y+90,CL.ink,{s:15,b:1});txt(c,"体積を変えても U は変わらない（温度だけで決まる）",B.x,B.y+118,CL.mute,{s:13});return}
+ if(q==="II1"){const V0=st.V1+st.V2,Vm=st.V2+st.V1*(1-0.62),B={x:90,y:30,w:W-130,h:H-74};const p0=p1(st.T,st.V1);const pmax=p0*Math.pow(V0/Vm,5/3)*1.05;
+  const A=axes(c,B,[Vm*0.97,V0*1.02],[p0*0.9,pmax],{xl:"V₁+V₂ [L]",xit:false,yl:"p₁",xt:[[V0,V0.toFixed(1)]],yt:[[p0,"p₁"]]});
+  const curve=(gm,col,dash,l)=>{const pts=[];for(let i=0;i<=80;i++){const V=V0-(V0-Vm)*i/80;pts.push([A.X(V),A.Y(p0*Math.pow(V0/V,gm))])}line(c,pts,col,2.2,dash);const e=pts[Math.round(pts.length*0.55)];txt(c,l,e[0]+4,e[1]-(gm>1.5?14:gm>1.2?-16:-14),col,{s:12,b:1})};
+  curve(1,CL.mute,[5,4],"等温 (指数 1)");curve(5/3,CL.grav,[2,4],"単原子のみの断熱 (5/3)");curve(4/3,CL.frc,null,"この気体の断熱 (4/3)");
+  const V=S.V1+st.V2;dot(c,A.X(V),A.Y(p1(S.T,S.V1)),7,CL.frc,CL.bg,2);return}
+ if(q==="III1"){const B={x:n?30:120,y:30,w:W-(n?60:240),h:H-70};const Qt=4*st.V1/(st.V1+st.V2)*RG*st.T;const dT=S.T-st.T,dUX=1.5*RG*dT,dUY=1.5*RG*dT,Wk=p1(st.T,st.V1)*(S.V1-st.V1)*1e-3;
+  txt(c,`吸収した熱量 Q（最終的に 4V₁RT/(V₁+V₂) = ${Qt.toFixed(0)} J）`,B.x,B.y,CL.ink,{s:14,b:1});let x=B.x;[[dUX,CL.acc,"ΔU（X）"],[dUY,CL.fic,"ΔU（Y）"],[Wk,CL.fr,"仕事 W"]].forEach(([v,col,l])=>{const w=B.w*v/Qt;rect(c,x,B.y+24,w,40,alpha(col,0.8));if(w>50)txt(c,l,x+5,B.y+44,CL.bg,{s:12,b:1});x+=w});
+  line(c,[[B.x+B.w,B.y+18],[B.x+B.w,B.y+70]],CL.mute,1.2,[4,4]);
+  txt(c,`ΔU(X) = ΔU(Y) = 3/2 RΔT = ${dUX.toFixed(0)} J、W = p₁ΔV₁ = ${Wk.toFixed(0)} J`,B.x,B.y+94,CL.ink,{s:13});txt(c,"ΔU : W = 3 : 1（W = RΔT、ΔU = 3RΔT）",B.x,B.y+120,CL.mute,{s:13});return}}
+function drawAll(){drawCyl();graph()}
+function note(){const q=st.q;let s="X・Y はどちらも 1 mol です（図の分子は代表として少数だけ描いています）。分子の速さは温度に合わせて変えています（Y は X より重く、遅い）。";if(q==="II1")s+="ピストンは 1 秒後から 4 秒かけて押し下げます。";if(q==="III1")s+="1.5 秒後から 5 秒かけて加熱します。";return s}
+function readout(){const q=st.q,r=[],V=st.V1+st.V2,P1=p1(st.T,st.V1),PY=RG*st.T/(st.V2*1e-3);
+ if(q==="I1"||q==="I2"){const kT=KB*st.T;r.push(["m_X v_z² の平均 ＝ kT",kT.toExponential(3)+" J"],["X の数密度 N_A/(V₁+V₂)",(NA/(V*1e-3)).toExponential(3)+" 個/m³"]);
+  r.push(["F₁（S = 1.0×10⁻² m² のとき）",(P1*SA).toFixed(0)+" N"]);if(q==="I2")r.push(["F₂ ＝ X の分 ＋ Y の分",`${(P1*SA).toFixed(0)} ＋ ${(PY*SA).toFixed(0)} N`])}
+ if(q==="I3")r.push(["p₁ = RT/(V₁+V₂)",(P1/1e5).toFixed(4)+" × 10⁵ Pa"],["p₂ = RT/(V₁+V₂) + RT/V₂",((P1+PY)/1e5).toFixed(4)+" × 10⁵ Pa"],["p₂ − p₁（膜が支える圧力）",(PY/1e5).toFixed(4)+" × 10⁵ Pa"]);
+ if(q==="I4")r.push(["U = 3RT",(3*RG*st.T).toFixed(0)+" J"]);
+ if(q==="II1"){const dV=(st.V1-S.V1)*1e-3,dTap=P1*dV/(3*RG),dpEx=p1(S.T,S.V1)-P1;r.push(["ΔV₁",(dV*1e3).toFixed(3)+" L"],["ΔT（正確）",(S.T-st.T).toFixed(2)+" K"],["ΔT ≒ p₁ΔV₁/(3R)",dTap.toFixed(2)+" K","ΔV₁ が小さいときに一致"],["Δp₁/p₁（正確）",(dpEx/P1).toFixed(4)],["(4/3)·ΔV₁/(V₁+V₂)",(4/3*dV*1e3/V).toFixed(4)])}
+ if(q==="III1"){const Tf=st.T*(2*st.V1+st.V2)/V;r.push(["いまの温度",S.T.toFixed(1)+" K"],["最終温度 (2V₁+V₂)T/(V₁+V₂)",Tf.toFixed(1)+" K"],["p₁（一定）",(P1/1e5).toFixed(4)+" × 10⁵ Pa"],["Q = 4V₁RT/(V₁+V₂)",(4*st.V1/V*RG*st.T).toFixed(0)+" J"])}
+ return r.map(([a,b,c])=>[a.replace(/m_X/g,"m<sub>X</sub>").replace(/v_z/g,"v<sub>z</sub>").replace(/N_A/g,"N<sub>A</sub>"),b,c])}
+initUI("I1");
+}
+</script>
+</body>
+</html>

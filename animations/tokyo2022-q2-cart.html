@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>磁場を通過する台車とコイルの回路</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>磁場を通過する台車とコイルの回路（東京大学 2022年 第2問）</h1>
+<p class="lead">細い帯状の磁場を、コイルを載せた台車が通り抜けます。磁束が変化する区間だけ誘導起電力が生じ、電流が流れて台車は減速します。抵抗だけの回路、電池とダイオードを入れた回路、2つのコイルと接続パネルの回路で、<b>磁束の変化 → 起電力 → 電流 → 力 → 速さの変化</b>のつながりを追いかけます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="磁場を通過する台車のアニメーション"></canvas>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 磁束の変化とジュール熱</button>
+<button class="qb" data-q="I2">I(2) 速さの変化</button>
+<button class="qb" data-q="II1">II(1)(2)(3) 電池とダイオード</button>
+<button class="qb" data-q="II4">II(4)(5) 周回をくり返す</button>
+<button class="qb" data-q="III1">III(1) 接続パネルの電位</button>
+<button class="qb" data-q="III2">III(2) 速さの変化を最小に</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。磁場の幅 \(d\)、コイルの一辺 \(L\ (&gt; d)\)、磁束密度 \(B\)（鉛直上向き）、台車の質量 \(m\) です。\(Q_1\to Q_2\) はコイルの右辺が磁場を横切る区間、\(Q_3\to Q_4\) は左辺が横切る区間です。</p>
+
+<details id="d-I1"><summary>I(1)　磁束の変化 ΔΦ とジュール熱<span class="ans">答 ア \(BLd\)　イ \(\dfrac{v_aB^2L^2d}{R}\)</span></summary><div class="body">
+<h3>磁束 ＝ 磁束密度 × 磁場の中にある面積</h3>
+<p>\(Q_1\) ではコイルの右辺が磁場に入る直前で、磁場の中にあるコイルの面積は 0 です。\(Q_2\) では右辺が磁場を通り抜けた直後で、幅 \(d\) の磁場全体がコイルの内側にあります（\(L &gt; d\) なので左辺はまだ磁場の手前）。面積は \(Ld\) です。</p>
+$$\Delta\Phi = B\cdot Ld - 0 = BLd$$
+<h3>起電力の大きさ → 電流 → ジュール熱</h3>
+<p>かかる時間は \(\Delta t = \dfrac{d}{v_a}\) なので、起電力の大きさは</p>
+$$|\overline{E}| = \frac{\Delta\Phi}{\Delta t} = \frac{BLd}{d/v_a} = v_aBL$$
+<p>これは「長さ \(L\) の導線が速さ \(v_a\) で磁場を横切るときの起電力 \(vBL\)」と同じです。抵抗で発生するジュール熱は</p>
+$$Q = \frac{\overline{E}^{\,2}}{R}\,\Delta t = \frac{(v_aBL)^2}{R}\cdot\frac{d}{v_a} = \frac{v_aB^2L^2d}{R}$$
+<div class="box"><b>式の立て方</b>：電磁誘導は ①磁束 \(\Phi = BS\) の \(S\) を「磁場の中にある部分の面積」として位置の関数で書く → ②\(E = -\dfrac{\Delta\Phi}{\Delta t}\)（または動く導線の \(vBL\)）→ ③回路の式（キルヒホッフ）で電流 → ④電流が磁場から受ける力 \(IBL\)、の順に立てます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフで、磁束 \(\Phi\) は \(Q_1Q_2\) で増え、\(Q_2Q_3\) では一定、\(Q_3Q_4\) で減ります。起電力が生じるのは磁束が変化している区間だけです。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　P₁ での速さ v₁<span class="ans">答 \(v_1 = v_0 - \dfrac{B^2L^2d}{mR}\)</span></summary><div class="body">
+<p>\(P_1\)（\(x = 0\)）は \(Q_2\) と \(Q_3\) の間にあるので、\(P_0\) から \(P_1\) までに電流が流れるのは \(Q_1Q_2\) の区間だけです。失った運動エネルギーがジュール熱になるので</p>
+$$\frac12mv_0^{\,2} - \frac12mv_1^{\,2} = \frac{v_aB^2L^2d}{R}$$
+<p>左辺を \(\dfrac12m(v_0+v_1)(v_0-v_1) = mv_a(v_0-v_1)\) と変形すると \(v_a\) が消えて</p>
+$$v_1 = v_0 - \frac{B^2L^2d}{mR}$$
+<h3>別の立て方：力積と電気量</h3>
+<p>力 \(F = -IBL\) の力積は \(-BL\displaystyle\int I\,dt = -BLq\)。流れた電気量は \(q = \dfrac{\Delta\Phi}{R} = \dfrac{BLd}{R}\) なので、\(m(v_1 - v_0) = -\dfrac{B^2L^2d}{R}\)。この方法では近似を使わずに同じ結果が出ます。<b>速さの変化は通過する速さによらない</b>ことが分かります。</p>
+<div class="box"><b>式の立て方</b>：抵抗だけの回路で「通過前後の速さ」を聞かれたら、エネルギー（ジュール熱）と力積（電気量 \(q = \Delta\Phi/R\)）の2通りで立てられます。速さの<b>変化量</b>が欲しいときは、力積の方が直接的です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは位置 \(x\) と速さ \(v\) の関係です。\(Q_1Q_2\) と \(Q_3Q_4\) で同じだけ直線的に減ります。\(B\) を大きくして変化を目立たせても、数値計算の \(v_1\) と公式の値は一致します。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)(2)(3)　電池とダイオードを入れた回路<span class="ans">答 (1) \(\dfrac{v_aBL - V}{R}\)　(2) \(-\dfrac{(v_aBL - V)BL}{R}\)　(3) 0</span></summary><div class="body">
+<h3>(1) 誘導起電力と電池の向きを比べる</h3>
+<p>\(Q_1Q_2\) では磁束が増えるので、上から見て時計回りの起電力 \(v_aBL\) が生じます。ダイオードはこの向きの電流を通し、電池は逆向きに \(V\) の起電力をもつように入っています。台車が減速した（電流が流れた）ので \(v_aBL &gt; V\) で、キルヒホッフの第2法則より</p>
+$$v_aBL - V = RI\qquad\therefore\quad I = \frac{v_aBL - V}{R}$$
+<h3>(2) 磁場中の右辺が受ける力</h3>
+<p>磁場の中にあるのは右辺だけで、力 \(IBL\) は運動を妨げる向き（\(-x\) 向き）です。</p>
+$$F = -IBL = -\frac{(v_aBL - V)BL}{R}$$
+<h3>(3) 左辺が通過するとき</h3>
+<p>\(Q_3Q_4\) では磁束が減るので、起電力は反時計回りです。これはダイオードの逆方向で、電池の起電力もさらに同じ向きに加わるだけなので、電流は流れません。力は 0 です。</p>
+<div class="box"><b>エネルギーの行き先</b>：\(Q_1Q_2\) で失う運動エネルギーは \(|F|d = (v_aBL)I\Delta t\)。このうち \(RI^2\Delta t\) がジュール熱、\(VI\Delta t\) は電池の<b>充電</b>に使われます。</div>
+<div class="box"><b>式の立て方</b>：ダイオードを含む回路は「流れると仮定して式を立て、電流の向きが順方向になるか確かめる」か「ダイオードの両端の電位を比べる」のどちらかで判断します。誘導起電力 \(vBL\) は電池と同じように扱い、向きをそろえて足し引きします。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(V\) を大きくすると電流が小さくなり、\(vBL &lt; V\) になると電流は流れません。左辺が磁場を通るときは、どんな設定でも電流は 0 です。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>II(4)(5)　周回をくり返したときの運動エネルギーと最終的な速さ<span class="ans">答 (4) ③　(5) \(v_\infty = \dfrac{V}{BL}\)</span></summary><div class="body">
+<h3>(5) 電流が流れなくなる速さ</h3>
+<p>速さが落ちて \(vBL = V\) になると、\(Q_1Q_2\) でも電流が流れなくなり、それ以上減速しません。</p>
+$$v_\infty BL = V\qquad\therefore\quad v_\infty = \frac{V}{BL}$$
+<h3>(4) 1周ごとの減り方</h3>
+<p>\(n\) 周目の速さを \(v_n\) とすると、1回の通過で失う運動エネルギーは</p>
+$$K_{n-1} - K_n = |F|d = \frac{(v_nBL - V)BLd}{R} = \frac{B^2L^2d}{R}\,(v_n - v_\infty)$$
+<p>減る量は \(v_n - v_\infty\) に比例するので、はじめは大きく減り、\(v_\infty\) に近づくほど減り方が小さくなります。\(v_\infty\) にぴったり到達することはなく、近づき続けます。したがって「はじめが急で、だんだん平らになり、一定値に漸近する」③です。</p>
+<p>②・④ は有限の回数で一定値に到達して折れ曲がっているので不適、① は最初の減り方が小さいので不適です。</p>
+<div class="box"><b>式の立て方</b>：くり返しの変化は「\(n\) 回目から \(n+1\) 回目への変化量」を式にします（漸化式）。変化量が「目標値との差」に比例するなら、差は毎回一定の割合で縮み（等比数列）、グラフは一定値に漸近します。コンデンサーの充電や物体の冷却と同じ形です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは数値計算で求めた \(K_n\) です。\(V\) を変えると漸近する値 \(\dfrac12mv_\infty^{\,2}\)（点線）が変わり、\(B\) を大きくすると速く近づきます。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)　端子 A, B の電位<span class="ans">答 A：\(2v_aBL\)　B：\(v_aBL\)</span></summary><div class="body">
+<p>2本のコイルは重なっているので、\(Q_1Q_2\) ではどちらにも同じ向き・同じ大きさの起電力 \(v_aBL\) が生じます。コイル1 は A–B 間、コイル2 は C–D 間につながっていて、起電力の向き（時計回り）から A は B より、C は D より \(v_aBL\) だけ電位が高くなります。</p>
+<p>接続パネルの中では B と C が導線でつながって（R₁ と R₂ の間の点と同じ電位で）います。D を 0 とすると</p>
+$$V_C = v_aBL,\qquad V_B = V_C = v_aBL,\qquad V_A = V_B + v_aBL = 2v_aBL$$
+<p>このとき A 側のダイオード（A → R₁）も、R₂ → D のダイオードも順方向なので、R₁ と R₂ にはどちらも \(v_aBL\) の電圧がかかり、電流が流れます。コイル1 と R₁、コイル2 と R₂ がそれぞれ独立な回路になっていると考えられます。</p>
+<p>\(Q_3Q_4\) では起電力が逆向きになり、両方のダイオードに逆向きの電圧がかかるので、電流は流れません。</p>
+<div class="box"><b>式の立て方</b>：電位を求める問題は、基準点（0 V）を決めて、導線でつながった点は同じ電位、起電力をまたぐと起電力の分だけ上がる（下がる）、抵抗を電流の向きに通ると \(RI\) 下がる、とたどっていきます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下の回路図で、電流が流れている部分が赤くなり、各端子の電位が表示されます。左辺が通過するときは、ダイオードで止まります。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>III(2)　速さの変化 |v₂ − v₀| と、それを最小にする R₁<span class="ans">答 \(|v_2 - v_0| = \dfrac{(R_1 + R_2)B^2L^2d}{mR_1R_2}\)、最小になるのは \(R_1 = 3R\)</span></summary><div class="body">
+<p>\(Q_1Q_2\) で R₁ と R₂ に電圧 \(v_aBL\) がかかるので、ジュール熱の合計とエネルギー収支は</p>
+$$\frac12mv_0^{\,2} - \frac12mv_1^{\,2} = \frac{(v_aBL)^2}{R_1}\cdot\frac{d}{v_a} + \frac{(v_aBL)^2}{R_2}\cdot\frac{d}{v_a}\qquad\therefore\quad |v_1 - v_0| = \frac{(R_1+R_2)B^2L^2d}{mR_1R_2}$$
+<p>\(Q_3Q_4\) では電流が流れないので \(v_2 = v_1\)。よって \(|v_2 - v_0|\) も同じ式です。</p>
+<h3>R₁ + R₂ = 6R のもとで最小にする</h3>
+$$|v_2 - v_0| = \frac{6RB^2L^2d}{mR_1(6R - R_1)} = \frac{6RB^2L^2d}{m}\cdot\frac{1}{9R^2 - (R_1 - 3R)^2}$$
+<p>分母 \(R_1(6R - R_1)\) は \(R_1 = 3R\) で最大になるので、そのとき \(|v_2 - v_0|\) は最小で、値は \(\dfrac{2B^2L^2d}{3mR}\) です。</p>
+<div class="box"><b>考え方</b>：電圧が一定 \(v_aBL\) のとき、消費電力 \(\dfrac{V^2}{R}\) は抵抗が<b>小さい</b>ほど大きくなります。R₁ か R₂ のどちらかを小さくすると、そちらで大きな熱が出て強くブレーキがかかります。両方を等しく（3R ずつ）するのが、ブレーキを最も弱くする選び方です。並列合成抵抗 \(\dfrac{R_1R_2}{R_1+R_2}\) が最大になる条件、と見ることもできます。</div>
+<div class="box"><b>式の立て方</b>：和が一定の2数の積 \(R_1R_2\) を最大にするには、平方完成（または相加・相乗平均）を使います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(R_1\) のスライダーを動かすと、下のグラフの点が曲線上を動き、\(R_1 = 3R\) で最小になります。台車を走らせて求めた値（数値計算）も表示されます。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+const st={q:"I1",B:1.5,L:0.3,d:0.15,m:0.5,R:0.5,v0:2,V:0.3,R1:2,spd:1};
+const SL=[
+ ["B","B","磁束密度","T",0.2,3,0.05,2,"all"],
+ ["L","L","コイルの一辺","m",0.15,0.5,0.01,2,"all"],
+ ["d","d","磁場の幅（&lt; L）","m",0.03,0.3,0.01,2,"all"],
+ ["m","m","台車の質量","kg",0.1,2,0.05,2,"all"],
+ ["R","R","抵抗値 R","Ω",0.1,2,0.05,2,"all"],
+ ["v0","v<sub>0</sub>","はじめの速さ","m/s",0.5,4,0.1,1,"all"],
+ ["V","V","電池の起電力","V",0,1.5,0.05,2,"II"],
+ ["R1","R<sub>1</sub>","R₁（R₁＋R₂＝6R）","× R",0.3,5.7,0.1,1,"III"],
+ ["spd","","再生速度","倍",0.25,3,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>n?[640,520]:[1000,370]);
+const gr=mkCv($("#gr"),n=>n?[640,st.q==="III1"?680:400]:[1000,st.q==="III1"?330:290]);
+const TS=0.25;let S={};
+const mode=()=>part();// "I","II","III"
+const XS=0.75;
+/* overlap derivative: +1 right edge in strip (Q1Q2), -1 left edge in strip (Q3Q4) */
+function zone(x){const L=st.L,d=st.d,r=x+L/2,l=x-L/2;if(r>-d/2&&r<d/2)return 1;if(l>-d/2&&l<d/2)return -1;return 0}
+function overlap(x){const L=st.L,d=st.d;return Math.max(0,Math.min(x+L/2,d/2)-Math.max(x-L/2,-d/2))}
+const R1v=()=>st.R1*st.R,R2v=()=>(6-st.R1)*st.R;
+/* returns {emf (signed: + = clockwise from above), I (main), F} */
+function elec(x,v,md){const z=zone(x),e=z*v*st.B*st.L;md=md||mode();
+ if(md==="I"){const I=e/st.R;return{e,I,F:-Math.abs(I)*st.B*st.L*Math.sign(v)*(z?1:0),I1:I,I2:0}}
+ if(md==="II"){const I=e-st.V>0?(e-st.V)/st.R:0;return{e,I,F:-I*st.B*st.L,I1:I,I2:0}}
+ const I1=e>0?e/R1v():0,I2=e>0?e/R2v():0;return{e,I:I1+I2,F:-(I1+I2)*st.B*st.L,I1,I2}}
+function x0(){return-(st.L/2+st.d/2)-0.12}function xEnd(){return st.L/2+st.d/2+0.12}
+/* integrate one passage, exact (dv/dx = F/(m v)) */
+function pass(v,md){let x=x0();const xe=xEnd(),dx=0.0004;let v1=null;while(x<xe){const F=elec(x,v,md).F;v=v+F/(st.m*v)*dx;if(v<1e-3)return{v:0,v1:v1??0,stop:1};x+=dx;if(v1===null&&x>=0)v1=v}return{v,v1}}
+function restart(){const q=st.q;if(q==="II4"){S={n:0,v:st.v0,K:[0.5*st.m*st.v0**2],ph:0,wait:0};return}
+ S={x:x0(),v:st.v0,t:0,hist:[],heat:0,v1:null,v2:null,done:0,wait:0}}
+function onParam(k){if(k==="d"||k==="L"){if(st.d>st.L-0.02){st.d=+(st.L-0.02).toFixed(2)}}restart()}
+function step(dt){const q=st.q;
+ if(q==="II4"){const vinf=st.V/(st.B*st.L);if(S.n>=60||(S.n>3&&Math.abs(S.v-vinf)<1e-4)){S.wait+=dt;if(S.wait>3)restart();return}
+  S.ph+=dt/0.55;if(S.ph>=1){S.ph-=1;S.v=pass(S.v,"II").v;S.n++;S.K.push(0.5*st.m*S.v**2)}return}
+ if(S.done){S.wait+=dt;if(S.wait>2.2)restart();return}
+ let h=dt*TS/40;for(let i=0;i<40;i++){const E=elec(S.x,S.v);const a=E.F/st.m;S.heat+=(mode()==="I"?E.I**2*st.R:mode()==="II"?E.I**2*st.R:(E.I1**2*R1v()+E.I2**2*R2v()))*h;S.v=Math.max(0,S.v+a*h);const xo=S.x;S.x+=S.v*h;if(xo<0&&S.x>=0)S.v1=S.v;
+  if(S.t%1===0){}if(S.x>=xEnd()){S.v2=S.v;S.done=1;break}if(S.v<=1e-4){S.done=1;break}}
+ S.t+=dt;const E=elec(S.x,S.v);S.hist.push([S.x,S.v,st.B*st.L*overlap(S.x),E.e,E.I,E.F,E.I1,E.I2])}
+/* ---------- drawing ---------- */
+function scl(W,H,n){return Math.min((W-40)/(2*XS),(H-(n?150:120))/0.62)}
+function hatchStrip(c,x1,x2,y1,y2){rect(c,x1,y1,x2-x1,y2-y1,alpha(CL.acc,0.12));c.save();c.beginPath();c.rect(x1,y1,x2-x1,y2-y1);c.clip();c.strokeStyle=alpha(CL.acc,0.35);c.lineWidth=1;for(let k=-200;k<y2-y1+200;k+=12){c.beginPath();c.moveTo(x1,y1+k);c.lineTo(x2,y1+k-(x2-x1));c.stroke()}c.restore();line(c,[[x1,y1],[x1,y2]],CL.acc,1.4);line(c,[[x2,y1],[x2,y2]],CL.acc,1.4)}
+function odot(c,x,y,col){dot(c,x,y,7,CL.bg,col,1.4);dot(c,x,y,2.2,col)}
+function resistor(c,x,y,w,h,lab,col){rect(c,x-w/2,y-h/2,w,h,CL.bg,col||CL.ink,1.6);if(lab)txt(c,lab,x,y,col||CL.ink,{s:12,it:1,al:"center"})}
+function diode(c,x,y,dir,col){col=col||CL.ink;const s=8;c.fillStyle=CL.bg;c.strokeStyle=col;c.lineWidth=1.6;c.beginPath();c.moveTo(x-s*dir,y-s);c.lineTo(x-s*dir,y+s);c.lineTo(x+s*dir,y);c.closePath();c.fill();c.stroke();line(c,[[x+s*dir,y-s],[x+s*dir,y+s]],col,1.8)}
+function diodeV(c,x,y,col){col=col||CL.ink;const s=8;c.fillStyle=CL.bg;c.strokeStyle=col;c.lineWidth=1.6;c.beginPath();c.moveTo(x-s,y-s);c.lineTo(x+s,y-s);c.lineTo(x,y+s);c.closePath();c.fill();c.stroke();line(c,[[x-s,y+s],[x+s,y+s]],col,1.8)}
+function battery(c,x,y,col){col=col||CL.ink;rect(c,x-6,y-12,12,24,CL.bg);line(c,[[x-4,y-12],[x-4,y+12]],col,2);line(c,[[x+4,y-6],[x+4,y+6]],col,3.5);txt(c,"+",x-12,y-16,col,{s:12,al:"center"})}
+/* current dots along a square path (clockwise on screen) */
+function flowDots(c,cx,cy,hs,I,col){if(Math.abs(I)<1e-9)return;const per=8*hs,sp=(S.t||0)*60*Math.sign(I)*Math.min(3,0.6+Math.abs(I));for(let k=0;k<per;k+=26){let u=((k+sp)%per+per)%per,x,y;if(u<2*hs){x=cx-hs+u;y=cy-hs}else if(u<4*hs){x=cx+hs;y=cy-hs+(u-2*hs)}else if(u<6*hs){x=cx+hs-(u-4*hs);y=cy+hs}else{x=cx-hs;y=cy+hs-(u-6*hs)}dot(c,x,y,3.2,col)}}
+function drawTrack(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const s=scl(W,H,n),ox=W/2,cy=n?H*0.46:H*0.5;const X=x=>ox+x*s;
+ const sx1=X(-st.d/2),sx2=X(st.d/2);hatchStrip(c,sx1,sx2,14,H-(n?96:64));for(let y=40;y<H-(n?100:70);y+=46)odot(c,(sx1+sx2)/2,y,CL.acc);
+ txt(c,"磁場 B（鉛直上向き）",sx2+8,24,CL.acc,{s:13,b:1});txt(c,"幅 d",(sx1+sx2)/2,H-(n?84:52),CL.acc,{s:13,al:"center"});
+ // rail
+ line(c,[[0,cy],[W,cy]],CL.road,1.4,[8,6]);
+ // markers
+ const L=st.L,d=st.d,mk=[["Q₁",-(L/2+d/2)],["Q₂",-(L/2-d/2)],["P₁",0],["Q₃",L/2-d/2],["Q₄",L/2+d/2]];const my=H-(n?62:30);
+ line(c,[[X(-XS),my],[X(XS),my]],CL.mute,1);mk.forEach(([l,x],i)=>{line(c,[[X(x),my-5],[X(x),my+5]],l==="P₁"?CL.ink:CL.mute,1.4);txt(c,l,X(x),my+(n&&i%2?30:16),l==="P₁"?CL.ink:CL.mute,{s:13,al:"center",b:l==="P₁"})});
+ txt(c,"台車の中心の位置",X(-XS)+4,my-14,CL.mute,{s:12});
+ if(st.q==="II4")return;
+ // cart & coil
+ const cx=X(S.x),hs=L/2*s,E=elec(S.x,S.v),md=mode();
+ rect(c,cx-hs-18,cy-hs-18,2*hs+36,2*hs+36,alpha(CL.fr,0.10),CL.fr,2.2);
+ const on=Math.abs(E.I)>1e-9,cc=on?CL.frc:CL.ink;
+ if(md!=="III"){rect(c,cx-hs,cy-hs,2*hs,2*hs,null,cc,2.6);
+  if(md==="I")resistor(c,cx,cy+hs,40,16,"R",cc);else{resistor(c,cx,cy+hs,40,16,"R",cc);diode(c,cx-hs*0.45,cy-hs,1,cc);battery(c,cx+hs*0.35,cy-hs,cc);txt(c,"V",cx+hs*0.35,cy-hs+24,CL.ink,{s:13,it:1,al:"center"})}
+  flowDots(c,cx,cy,hs,E.I,CL.frc)}
+ else{const o=5;rect(c,cx-hs-o,cy-hs-o,2*hs,2*hs,null,E.I1>0?CL.frc:CL.ink,2.2);rect(c,cx-hs+o,cy-hs+o,2*hs,2*hs,null,E.I2>0?CL.fic:CL.ink,2.2);rect(c,cx-22,cy-hs-14,44,24,alpha(CL.mute,0.35));txt(c,"パネル",cx,cy-hs-2,CL.ink,{s:11,al:"center"});
+  flowDots(c,cx-o,cy-o,hs,E.I1,CL.frc);flowDots(c,cx+o,cy+o,hs,E.I2,CL.fic)}
+ dot(c,cx,cy,3,CL.ink);txt(c,"台車",cx-hs-14,cy-hs-28,CL.fr,{s:13,b:1});
+ // force
+ if(Math.abs(E.F)>1e-9){const ex=zone(S.x)>0?cx+hs:cx-hs,len=Math.min(140,20+Math.abs(E.F)*60);arrow(c,ex,cy,ex-len,cy,CL.grav,3.2);txt(c,"力",ex-len/2,cy-14,CL.grav,{s:13,b:1,al:"center"})}
+ // velocity
+ arrow(c,cx,cy+hs+30,cx+16+S.v*28,cy+hs+30,CL.ink,2.2);txt(c,`v = ${S.v.toFixed(3)} m/s`,cx+20+S.v*28,cy+hs+30,CL.ink,{s:13});
+ const lab=zone(S.x)>0?"右辺が磁場を横切る（Q₁→Q₂）":zone(S.x)<0?"左辺が磁場を横切る（Q₃→Q₄）":S.x<0&&S.x>-(L/2-d/2)?"磁場全体がコイルの内側（磁束一定）":"";
+ if(lab)txt(c,lab,16,24,CL.ink,{s:14,b:1});if(on)txt(c,"電流が流れている",16,46,CL.frc,{s:13});else if(zone(S.x)&&md!=="I")txt(c,md==="II"&&zone(S.x)>0?"vBL ≤ V なので電流は流れない":"ダイオードで電流が止められる",16,46,CL.ng,{s:13})}
+function drawLap(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const cx=W/2,cy=H*0.45,hw=n?170:260,r=n?110:120;
+ // oval: straight bottom from (cx-hw, cy+r) to (cx+hw, cy+r)
+ c.strokeStyle=CL.road;c.lineWidth=2;c.setLineDash([8,6]);c.beginPath();c.moveTo(cx-hw,cy+r);c.lineTo(cx+hw,cy+r);c.arc(cx+hw,cy,r,Math.PI/2,-Math.PI/2,true);c.lineTo(cx-hw,cy-r);c.arc(cx-hw,cy,r,-Math.PI/2,Math.PI/2,true);c.stroke();c.setLineDash([]);
+ hatchStrip(c,cx-10,cx+10,cy+r-30,cy+r+40);txt(c,"磁場",cx+16,cy+r+30,CL.acc,{s:13,b:1});txt(c,"P₀",cx-hw,cy+r+20,CL.mute,{s:13,al:"center"});txt(c,"P₂",cx+hw,cy+r+20,CL.mute,{s:13,al:"center"});
+ const tot=4*hw+2*Math.PI*r,u=((S.ph+0.0)%1)*tot;let x,y;const sOff=hw;// start at P0 (left end of bottom straight)
+ const uu=u;if(uu<2*hw){x=cx-hw+uu;y=cy+r}else if(uu<2*hw+Math.PI*r){const a=Math.PI/2-(uu-2*hw)/r;x=cx+hw+r*Math.cos(a);y=cy+r*Math.sin(a)}else if(uu<4*hw+Math.PI*r){x=cx+hw-(uu-2*hw-Math.PI*r);y=cy-r}else{const a=-Math.PI/2-(uu-4*hw-Math.PI*r)/r;x=cx-hw+r*Math.cos(a);y=cy+r*Math.sin(a)}
+ rect(c,x-14,y-14,28,28,alpha(CL.fr,0.3),CL.fr,2);
+ const vinf=st.V/(st.B*st.L);txt(c,`${S.n} 周目を通過`,cx,cy-18,CL.ink,{s:18,b:1,al:"center"});txt(c,`v = ${S.v.toFixed(4)} m/s`,cx,cy+10,CL.ink,{s:15,al:"center"});txt(c,`v∞ = V/BL = ${vinf.toFixed(4)} m/s`,cx,cy+34,CL.mute,{s:14,al:"center"});
+ txt(c,"上側の直線と曲線部には磁場がないので、速さは変わらない",16,H-18,CL.mute,{s:12})}
+/* ---------- graphs ---------- */
+function gTrack(keys){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow;const L=st.L,d=st.d;const B={x:n?60:70,y:26,w:W-(n?90:110),h:H-64};
+ // x axis aligned with physical x
+ const xs=[x0(),xEnd()];const hist=S.hist||[];
+ const panels=keys.length,ph=(B.h-(panels-1)*18)/panels;
+ keys.forEach(([idx,lab,col,unit,rng,yt],i)=>{const BB={x:B.x,y:B.y+i*(ph+18),w:B.w,h:ph};let lo=rng[0],hi=rng[1];if(hi-lo<1e-12){hi=lo+1}
+  const A=axes(c,BB,xs,[lo,hi],{yt:yt||[],y0:lo<0&&hi>0?0:null,xl:i===panels-1?"x":"",yl:"",xt:i===panels-1?[[-(L/2+d/2),"Q₁"],[-(L/2-d/2),"Q₂"],[0,"P₁"],[L/2-d/2,"Q₃"],[L/2+d/2,"Q₄"]]:[]});
+  txt(c,lab,BB.x+8,BB.y+2,col,{s:13,b:1});
+  [-(L/2+d/2),-(L/2-d/2),L/2-d/2,L/2+d/2].forEach(q=>line(c,[[A.X(q),BB.y],[A.X(q),BB.y+BB.h]],CL.line,1,[3,4]));
+  const pts=hist.map(h=>[A.X(h[0]),A.Y(h[idx])]);line(c,pts,col,2.4);if(hist.length){const h=hist[hist.length-1];dot(c,A.X(h[0]),A.Y(h[idx]),4.5,col)}
+  if(unit)txt(c,unit,BB.x+BB.w,BB.y+2,CL.mute,{s:12,al:"right"})})}
+function graphAll(){const q=st.q,BL=st.B*st.L,vmax=st.v0*BL;
+ if(q==="I1")gTrack([[2,"磁束 Φ",CL.acc,"Wb",[0,BL*st.d*1.15]],[3,"起電力 E（時計回りを正）",CL.frc,"V",[-vmax*1.15,vmax*1.15]]]);
+ else if(q==="I2"){const dv=st.B**2*st.L**2*st.d/(st.m*st.R);gTrack([[1,"速さ v",CL.ink,"m/s",[Math.max(0,st.v0-2.3*dv)-dv*0.1,st.v0+dv*0.2],[[st.v0,"v₀"],[st.v0-dv,"v₀−Δ"],[st.v0-2*dv,"v₀−2Δ"]]]]);const c=gr.ctx;txt(c,`Δ = B²L²d/(mR) = ${dv.toFixed(4)} m/s（1回の通過で減る速さ）`,gr.W-40,gr.H-46,CL.mute,{s:12,al:"right"})}
+ else if(q==="II1"){const Imax=Math.max(1e-6,(vmax-st.V)/st.R);gTrack([[4,"電流 I",CL.frc,"A",[-Imax*0.1,Imax*1.2]],[5,"力 F（x 正の向きを正）",CL.grav,"N",[-Imax*BL*1.2,Imax*BL*0.1]]])}
+ else if(q==="III1")graphPanel();
+ else if(q==="III2")graphR1();
+ else graphLap()}
+function graphLap(){const c=begin(gr),W=gr.W,H=gr.H;const B={x:70,y:30,w:W-110,h:H-70};const K=S.K,Nm=Math.max(20,Math.min(60,K.length+5));const vinf=st.V/(st.B*st.L),Kinf=0.5*st.m*vinf**2,K0=0.5*st.m*st.v0**2;
+ const A=axes(c,B,[0,Nm],[0,K0*1.08],{xl:"n",yl:"Kₙ [J]",yit:false,xt:[[10,"10"],[20,"20"],[30,"30"],[40,"40"],[50,"50"]].filter(a=>a[0]<=Nm),yt:[[K0,K0.toFixed(2)],[Kinf,Kinf.toFixed(2)]]});
+ line(c,[[A.X(0),A.Y(Kinf)],[A.X(Nm),A.Y(Kinf)]],CL.grav,1.4,[6,4]);txt(c,"½ m v∞²",A.X(Nm)-4,A.Y(Kinf)-12,CL.grav,{s:13,al:"right"});
+ K.forEach((k,i)=>dot(c,A.X(i),A.Y(k),3.4,CL.frc));if(vinf*st.B*st.L>=st.v0*st.B*st.L)txt(c,"v₀BL ≤ V なので、はじめから電流が流れない",B.x+20,B.y+10,CL.ng,{s:13})}
+/* panel circuit + potentials */
+function graphPanel(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow;const E=elec(S.x,S.v),e=E.e,on1=E.I1>0,on2=E.I2>0;
+ // left: circuit diagram
+ const ox=n?150:150,oy=n?40:40,w=n?300:240,h=n?250:220;const A=[ox,oy+20],Bp=[ox+w,oy+20],C=[ox,oy+h-10],D=[ox+w,oy+h-10],N1=[ox+w*0.5,oy+20],M=[ox+w*0.5,oy+h*0.5],N2=[ox+w*0.5,oy+h-10];
+ const c1=on1?CL.frc:CL.ink,c2=on2?CL.fic:CL.ink;rect(c,ox-14,oy,w+28,h+10,alpha(CL.mute,0.12));
+ line(c,[A,N1,[N1[0],M[1]-50]],c1,2.2);resistor(c,N1[0],(N1[1]+M[1])/2,16,40,"",c1);txt(c,"R₁",N1[0]-14,(N1[1]+M[1])/2,c1,{s:13,al:"right"});line(c,[[N1[0],M[1]-30],M],c1,2.2);diode(c,A[0]+w*0.25,A[1],1,c1);
+ line(c,[M,[ox+w*0.8,M[1]],[ox+w*0.8,Bp[1]],Bp],c1,2.2);
+ line(c,[M,[ox+w*0.2,M[1]],[ox+w*0.2,C[1]],C],c2,2.2);line(c,[M,[M[0],M[1]+30]],c2,2.2);resistor(c,M[0],(M[1]+N2[1])/2,16,40,"",c2);txt(c,"R₂",M[0]-14,(M[1]+N2[1])/2,c2,{s:13,al:"right"});line(c,[[M[0],N2[1]-30],N2,D],c2,2.2);diode(c,ox+w*0.75,D[1],1,c2);dot(c,M[0],M[1],4,CL.ink);
+ const pot=e>0?{A:2*e,B:e,C:e,D:0}:{A:2*e,B:e,C:e,D:0};
+ [["A",A,-1],["B",Bp,1],["C",C,-1],["D",D,1]].forEach(([l,p,s])=>{dot(c,p[0],p[1],5,CL.ink);txt(c,l,p[0]+s*12,p[1],CL.ink,{s:15,b:1,al:s<0?"right":"left"});txt(c,`${pot[l].toFixed(3)} V`,p[0]+s*12,p[1]+18,CL.mute,{s:12,al:s<0?"right":"left"})});
+ txt(c,"コイル1：A(＋)–B　コイル2：C(＋)–D（Q₁Q₂ のとき）",ox-14,oy+h+30,CL.mute,{s:12});
+ txt(c,e>0?"Q₁Q₂：両方のダイオードが順方向":e<0?"Q₃Q₄：両方のダイオードが逆方向 → 電流 0":"磁束が変化していない → 起電力 0",ox-14,oy+h+52,e>0?CL.frc:e<0?CL.ng:CL.mute,{s:13,b:1});
+ // right: currents vs x
+ const gx=n?60:470,gy=n?oy+h+90:30,gw=n?W-90:W-gx-40,gh=n?H-(oy+h+90)-40:H-70;const L=st.L,d=st.d,Imax=st.v0*st.B*st.L*(1/R1v()+1/R2v())*1.15;
+ const Ax=axes(c,{x:gx,y:gy,w:gw,h:gh},[x0(),xEnd()],[0,Imax],{xl:"x",xt:[[-(L/2+d/2),"Q₁"],[-(L/2-d/2),"Q₂"],[L/2-d/2,"Q₃"],[L/2+d/2,"Q₄"]]});
+ const hist=S.hist||[];line(c,hist.map(h=>[Ax.X(h[0]),Ax.Y(h[6])]),CL.frc,2.2);line(c,hist.map(h=>[Ax.X(h[0]),Ax.Y(h[7])]),CL.fic,2.2,[6,4]);txt(c,"コイル1 の電流（R₁）",gx+8,gy+2,CL.frc,{s:13});txt(c,"コイル2 の電流（R₂）",gx+8,gy+20,CL.fic,{s:13})}
+function graphR1(){const c=begin(gr),W=gr.W,H=gr.H;const B={x:80,y:30,w:W-130,h:H-74};const k=st.B**2*st.L**2*st.d/st.m,f=r1=>k*(6*st.R)/(r1*st.R*(6-r1)*st.R);
+ const A=axes(c,B,[0,6],[0,f(3)*3],{xl:"R₁ / R",xit:false,yl:"|v₂ − v₀| [m/s]",yit:false,xt:[[1,"1"],[2,"2"],[3,"3"],[4,"4"],[5,"5"],[6,"6"]],yt:[[f(3),f(3).toFixed(4)]]});
+ const pts=[];for(let r=0.3;r<=5.7;r+=0.02)pts.push([A.X(r),A.Y(f(r))]);c.save();c.beginPath();c.rect(B.x,B.y-4,B.w,B.h+4);c.clip();line(c,pts,CL.acc,2.4);c.restore();line(c,[[A.X(3),A.Y(0)],[A.X(3),A.Y(f(3))]],CL.mute,1,[4,4]);txt(c,"最小：R₁ = 3R",A.X(3)+8,A.Y(f(3))+16,CL.ink,{s:13,b:1});
+ dot(c,A.X(st.R1),A.Y(f(st.R1)),7,CL.frc,CL.bg,2);if(S.v2!=null)dot(c,A.X(st.R1),A.Y(st.v0-S.v2),3,CL.ink)}
+function drawAll(){if(st.q==="II4")drawLap();else drawTrack();graphAll()}
+function note(){const q=st.q;let s="台車の運動は、力 F = −IBL を使って数値計算しています（スローモーション表示）。";if(q==="II4")s="1周ごとに、磁場を通過するときの運動を数値計算して速さを更新しています。60周または v∞ に十分近づくまで続けます。";if(part()==="III")s+=" R₂ = 6R − R₁ です。";return s}
+function readout(){const q=st.q,r=[],BL=st.B*st.L,E=S.x!=null?elec(S.x,S.v):null;const va=S.v;
+ if(q==="I1"){r.push(["磁束 Φ = B × (磁場内の面積)",(BL*overlap(S.x)).toFixed(4)+" Wb"],["ΔΦ = BLd",(BL*st.d).toFixed(4)+" Wb"],["起電力の大きさ vBL（いまの v）",(Math.abs(E.e)).toFixed(4)+" V"],["発生したジュール熱（数値計算）",S.heat.toFixed(5)+" J"],["失った運動エネルギー ½mv₀² − ½mv²",(0.5*st.m*(st.v0**2-S.v**2)).toFixed(5)+" J","ジュール熱と一致する（エネルギー保存）"])}
+ if(q==="I2"){const dv=st.B**2*st.L**2*st.d/(st.m*st.R);r.push(["v₀",st.v0.toFixed(4)+" m/s"],["v₁（P₁ を通過したとき、数値計算）",S.v1!=null?S.v1.toFixed(4)+" m/s":"—"],["v₀ − B²L²d/(mR)",(st.v0-dv).toFixed(4)+" m/s"],["v₂（P₂ に着いたとき）",S.v2!=null?S.v2.toFixed(4)+" m/s":"—"])}
+ if(q==="II1"){const vinf=st.V/BL;r.push(["vBL（いまの v）",(va*BL).toFixed(4)+" V"],["電池の起電力 V",st.V.toFixed(3)+" V"],["電流 I",E.I.toFixed(4)+" A",zone(S.x)>0?"(vBL − V)/R":zone(S.x)<0?"ダイオードで止まる":"磁束が一定"],["力 F",E.F.toFixed(4)+" N"],["v∞ = V/(BL)",vinf.toFixed(4)+" m/s"])}
+ if(q==="II4"){const vinf=st.V/BL;r.push(["n",String(S.n)],["vₙ",S.v.toFixed(4)+" m/s"],["Kₙ",(0.5*st.m*S.v**2).toFixed(4)+" J"],["v∞ = V/(BL)",vinf.toFixed(4)+" m/s"],["次の1周で減る K（近似 B²L²d(v−v∞)/R）",(st.B**2*st.L**2*st.d/st.R*Math.max(0,S.v-vinf)).toFixed(5)+" J"])}
+ if(q==="III1"){r.push(["起電力 vBL",(Math.abs(E.e)).toFixed(4)+" V"],["A の電位（2vBL）",(2*E.e).toFixed(4)+" V"],["B の電位（vBL）",(E.e).toFixed(4)+" V"],["R₁ の電流 / R₂ の電流",`${E.I1.toFixed(3)} / ${E.I2.toFixed(3)} A`],["R₁ / R₂",`${R1v().toFixed(2)} / ${R2v().toFixed(2)} Ω`])}
+ if(q==="III2"){const f=(R1v()+R2v())*st.B**2*st.L**2*st.d/(st.m*R1v()*R2v());r.push(["R₁ / R₂",`${R1v().toFixed(2)} / ${R2v().toFixed(2)} Ω`],["公式 (R₁+R₂)B²L²d/(mR₁R₂)",f.toFixed(4)+" m/s"],["|v₂ − v₀|（数値計算）",S.v2!=null?(st.v0-S.v2).toFixed(4)+" m/s":"走行中…"],["最小値 2B²L²d/(3mR)",(2*st.B**2*st.L**2*st.d/(3*st.m*st.R)).toFixed(4)+" m/s"])}
+ return r.map(([a,b,c])=>[a.replace(/v_a/g,"v<sub>a</sub>"),b,c?c.replace(/v_a/g,"v<sub>a</sub>"):c])}
+initUI("I1");
+}
+</script>
+</body>
+</html>

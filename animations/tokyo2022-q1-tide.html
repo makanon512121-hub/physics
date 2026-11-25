@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>潮汐力：月と太陽が海を引きのばすしくみ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>潮汐力：月と太陽が海を引きのばすしくみ（東京大学 2022年 第1問）</h1>
+<p class="lead">自転による<b>遠心力</b>から始めて、地球と月が共通重心のまわりを回るときに地球上の物体が受ける力を調べます。地球は自転しなくても月のまわりを「公転」していて、その遠心力は地球上のどこでも同じ大きさ・同じ向きです。月の引力は場所によって違うので、その<b>差</b>が潮の満ち干を起こす<b>潮汐力</b>になります。最後に、太陽の潮汐力が月の何倍かを見積もります。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="地球・月・太陽のアニメーション"></canvas>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 自転の遠心力</button>
+<button class="qb" data-q="I2">I(2) 重力加速度</button>
+<button class="qb" data-q="II1">II(1) 共通重心のまわりの公転</button>
+<button class="qb" data-q="II2">II(2) 点 X の動き</button>
+<button class="qb" data-q="II3">II(3) 公転の遠心力</button>
+<button class="qb" data-q="II4">II(4) 潮汐力</button>
+<button class="qb" data-q="III">III 太陽と月の比較</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。万有引力定数 \(G\)、地球の質量 \(M_1\)・半径 \(R\)、月の質量 \(M_2\)、地球の中心と月の距離 \(a\) を使います。</p>
+
+<details id="d-I1"><summary>I(1)　赤道上と北緯45°での遠心力<span class="ans">答 \(f_0 = \dfrac{4\pi^2 mR}{T_1^{\,2}}\)、\(f_1 = \dfrac{2\sqrt2\,\pi^2 mR}{T_1^{\,2}}\)</span></summary><div class="body">
+<h3>遠心力は「回転の中心からの距離」で決まる</h3>
+<p>地球といっしょに回る立場（回転座標系）で見ると、物体には回転軸から外向きに遠心力 \(mr\omega^2\) がはたらきます。ここで \(r\) は<b>回転軸からの距離</b>で、地球の中心からの距離ではありません。自転の角速度は</p>
+$$\omega_1 = \frac{2\pi}{T_1}$$
+<p>赤道上の点 E は回転軸から \(R\) 離れているので</p>
+$$f_0 = mR\omega_1^{\,2} = \frac{4\pi^2 mR}{T_1^{\,2}}$$
+<p>緯度 \(\lambda\) の点は、軸から \(R\cos\lambda\) の円を回ります。北緯45°では \(r = \dfrac{R}{\sqrt2}\) なので</p>
+$$f_1 = m\frac{R}{\sqrt2}\,\omega_1^{\,2} = \frac{2\sqrt2\,\pi^2 mR}{T_1^{\,2}}$$
+<div class="box"><b>式の立て方</b>：円運動の問題では、まず「何を中心に、半径いくつの円を回っているか」を図に描きます。半径が決まれば、遠心力（または向心力）は \(mr\omega^2 = m\dfrac{v^2}{r}\) で書けます。緯度 \(\lambda\) なら半径は \(R\cos\lambda\)、向きは<b>軸に垂直</b>で、地球の中心向きではありません。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：緯度を変えると、回る円が小さくなり、遠心力も \(\cos\lambda\) 倍になります。北極（90°）では遠心力はゼロです。下のグラフは \(f/f_0 = \cos\lambda\) です。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　遠心力を含めた赤道上の重力加速度<span class="ans">答 \(g_0 = \dfrac{GM_1}{R^2} - \dfrac{4\pi^2R}{T_1^{\,2}}\)</span></summary><div class="body">
+<p>地上で「重力」と呼んでいるのは、万有引力と遠心力の合力です。赤道上では、万有引力（中心向き）と遠心力（外向き）がちょうど反対向きなので、大きさを引き算できます。</p>
+$$mg_0 = G\frac{M_1 m}{R^2} - mR\omega_1^{\,2}\qquad\therefore\quad g_0 = \frac{GM_1}{R^2} - \frac{4\pi^2R}{T_1^{\,2}}$$
+<p>表の数値を入れると、万有引力の項は約 \(9.8\ \mathrm{m/s^2}\)、遠心力の項は約 \(0.034\ \mathrm{m/s^2}\) です。遠心力の効果は 0.3 % ほどで、赤道で体重がわずかに軽くなる原因になっています。</p>
+<div class="box"><b>式の立て方</b>：回転している物体の上で静止している物体は、回転座標系で「万有引力 ＋ 遠心力 ＋ 垂直抗力 ＝ 0」とつり合いの式を立てます。この「万有引力 ＋ 遠心力」が見かけの重力 \(mg\) です。赤道以外では2つの力が一直線上にないので、ベクトルとして足します（重力の向きも中心から少しずれます）。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：自転周期 \(T_1\) を短くしていくと遠心力の矢印が伸び、約 1.4 時間で \(g_0 = 0\)（赤道上の物体が浮く）になります。下のグラフで \(g_0\) と \(T_1\) の関係を確かめられます。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　地球の中心と月の速さ<span class="ans">答 \(v_1 = \sqrt{\dfrac{GM_2^{\,2}}{a(M_1+M_2)}}\)、\(v_2 = \sqrt{\dfrac{GM_1^{\,2}}{a(M_1+M_2)}}\)</span></summary><div class="body">
+<h3>① 重心の位置で半径を決める</h3>
+<p>地球と月は重心 O を中心に同じ周期で回ります。重心の定義 \(M_1a_1 = M_2a_2\)、\(a_1 + a_2 = a\) より</p>
+$$a_1 = \frac{M_2}{M_1+M_2}\,a,\qquad a_2 = \frac{M_1}{M_1+M_2}\,a$$
+<h3>② 地球の運動方程式（向心力 ＝ 月の引力）</h3>
+<p>共通の角速度を \(\omega_2\) とすると、地球は半径 \(a_1\) の円運動をしていて、その向心力は月の万有引力です。</p>
+$$M_1a_1\omega_2^{\,2} = G\frac{M_1M_2}{a^2}\qquad\therefore\quad \omega_2 = \sqrt{\frac{G(M_1+M_2)}{a^3}}$$
+<p>速さは \(v = (\text{半径})\times\omega_2\) なので</p>
+$$v_1 = a_1\omega_2 = \sqrt{\frac{GM_2^{\,2}}{a(M_1+M_2)}},\qquad v_2 = a_2\omega_2 = \sqrt{\frac{GM_1^{\,2}}{a(M_1+M_2)}}$$
+<div class="box"><b>式の立て方</b>：2体が互いの引力で回る問題（連星）は、①「重心は動かない」から各半径を決め、②どちらか一方の運動方程式「質量 × 半径 × \(\omega^2\) ＝ 万有引力」を立てる、の2段階です。引力の式の距離は2体間の距離 \(a\)、円運動の半径は重心からの距離 \(a_1\) と、<b>2つの長さを区別</b>するのがポイントです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：質量比 \(M_2/M_1\) を大きくすると重心 O が月側へ移り、地球の回る円が大きくなります。実際の値 0.0123 では \(a_1\) は約 4700 km で、O は<b>地球の内部</b>にあります。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　時刻 t における点 X の座標<span class="ans">答 \(\left(-R - a_1\cos\dfrac{2\pi t}{T_2},\ -a_1\sin\dfrac{2\pi t}{T_2}\right)\)</span></summary><div class="body">
+<h3>自転しない ＝ 平行移動しながら回る</h3>
+<p>地球の中心は O のまわりを半径 \(a_1\) で回ります。時刻 0 に \((-a_1,\,0)\) にあり、月と反対側を同じ角速度 \(\dfrac{2\pi}{T_2}\) で回るので</p>
+$$\text{中心}:\ \left(-a_1\cos\frac{2\pi t}{T_2},\ -a_1\sin\frac{2\pi t}{T_2}\right)$$
+<p>地球は自転しないので、地球の向きは変わりません（観覧車のゴンドラと同じ）。点 X は常に中心から \(x\) 方向に \(-R\) ずれた位置にあり、座標は中心の座標に \((-R,\,0)\) を足したものになります。</p>
+<p>つまり点 X は、点 \((-R,\,0)\) を中心とする半径 \(a_1\) の円を回ります。X に限らず、<b>地球上のすべての点が同じ半径 \(a_1\)・同じ周期の円運動</b>をしています（円の中心がずれているだけです）。</p>
+<div class="box"><b>式の立て方</b>：剛体の運動は「中心（重心）の運動」＋「中心のまわりの回転」に分けて書きます。ここでは回転がないので、どの点の位置も「中心の位置 ＋ 一定のベクトル」です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：地球に描いた矢印は常に同じ向きを向いたままです。X・中心・反対側の点の軌跡が、同じ大きさの円になっていることを確かめましょう。下のグラフは X の \(x\) 座標と \(y\) 座標の時間変化です。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　地球の公転で生じる遠心力<span class="ans">答 \(f_C = \dfrac{GM_2m}{a^2}\)</span></summary><div class="body">
+<p>II(2) で見たように、点 X は半径 \(a_1\)、角速度 \(\omega_2\) の円運動をしています。地球とともに動く立場では、遠心力の大きさは</p>
+$$f_C = ma_1\omega_2^{\,2} = m\cdot\frac{M_2a}{M_1+M_2}\cdot\frac{G(M_1+M_2)}{a^3} = \frac{GM_2m}{a^2}$$
+<p>これは「地球の中心に置いた質量 \(m\) が月から受ける引力」と同じ大きさです。向きは、すべての点で<b>月から遠ざかる向き</b>（O から地球の中心へ向かう向きと平行）です。</p>
+<div class="box"><b>なぜ場所によらないか</b>：遠心力は「その点が描く円の半径と角速度」で決まります。地球が自転していないとき、地球上のどの点も半径 \(a_1\)、角速度 \(\omega_2\) の円を描くので、遠心力は全地点で共通になります。I の自転の遠心力（軸からの距離で変わる）との違いに注意しましょう。</div>
+<div class="box"><b>式の立て方</b>：加速度 \(\vec{A}\) で動く座標系では、すべての物体に慣性力 \(-m\vec{A}\) がはたらきます。地球の中心の加速度は「月の引力 ÷ \(M_1\)」なので、慣性力は \(-m\times\dfrac{GM_2}{a^2}\)（月と反対向き）と、計算せずにすぐ書けます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：紫の矢印（遠心力）はどこでも同じ長さ・同じ向きです。緑の矢印（月の引力）は月に近い側ほど長くなります。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>II(4)　点 P・点 Q での合力<span class="ans">答 \(f_P = \dfrac{GM_2m}{a^2} - \dfrac{GM_2m}{(a+R)^2}\)（月から遠ざかる向き）、\(f_Q = \dfrac{GM_2m}{(a-R)^2} - \dfrac{GM_2m}{a^2}\)（月に近づく向き）</span></summary><div class="body">
+<p>P は月から \(a+R\)、Q は月から \(a-R\) の距離にあります。遠心力はどちらも月から遠ざかる向きに \(\dfrac{GM_2m}{a^2}\) です。</p>
+<p>・P：月の引力 \(\dfrac{GM_2m}{(a+R)^2}\) は遠心力より<b>小さい</b> → 合力は月から遠ざかる向き</p>
+<p>・Q：月の引力 \(\dfrac{GM_2m}{(a-R)^2}\) は遠心力より<b>大きい</b> → 合力は月に近づく向き</p>
+<p>どちらも地球の中心から<b>外向き</b>なので、海水は月の側と反対側の2か所で盛り上がります。地球が自転すると、1日に2回満潮が来る理由がこれです。</p>
+<h3>近似すると見通しがよくなる</h3>
+<p>\(R \ll a\) のとき \((1+x)^n \fallingdotseq 1+nx\) を使うと</p>
+$$f_P \fallingdotseq f_Q \fallingdotseq \frac{2GM_2mR}{a^3}$$
+<p>潮汐力は距離の<b>3乗</b>に反比例します。引力そのもの（2乗に反比例）を距離で微分した「引力の場所による差」だからです。</p>
+<div class="box"><b>式の立て方</b>：潮汐力 ＝「その点での引力」−「中心での引力」です（慣性力の考え方）。中心から月の方向に \(x\) ずれた点では \(\dfrac{GM_2m}{(a-x)^2} - \dfrac{GM_2m}{a^2} \fallingdotseq \dfrac{2GM_2m}{a^3}x\) となり、ずれ \(x\) に比例して外向きに引きのばす力になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：赤い矢印が合力（潮汐力）です。地球の大きさ \(R/a\) を大きくする（誇張する）と、Q の方が P より少し大きいことが分かります。下のグラフは月の方向の位置 \(x\) と潮汐力の関係で、実線が正確な値、点線が近似の直線です。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+
+<details id="d-III"><summary>III　太陽の潮汐力と月の潮汐力の比<span class="ans">答 ア 4（\(f_S/f_P \fallingdotseq 0.44\)）</span></summary><div class="body">
+<p>II と同じ考え方で、太陽について S（太陽から最も遠い点）での合力は</p>
+$$f_S = \frac{GM_3m}{b^2} - \frac{GM_3m}{(b+R)^2}$$
+<p>\(R \ll b\) より \(\dfrac{1}{(b+R)^2} = \dfrac{1}{b^2}\left(1+\dfrac{R}{b}\right)^{-2} \fallingdotseq \dfrac{1}{b^2}\left(1-\dfrac{2R}{b}\right)\) と近似すると</p>
+$$f_S \fallingdotseq \frac{2GM_3mR}{b^3},\qquad f_P \fallingdotseq \frac{2GM_2mR}{a^3}$$
+$$\frac{f_S}{f_P} \fallingdotseq \frac{M_3}{M_2}\left(\frac{a}{b}\right)^3 = \frac{2.0\times10^{30}}{7.3\times10^{22}}\times\left(\frac{3.8\times10^{8}}{1.5\times10^{11}}\right)^3 \fallingdotseq 0.44$$
+<p>よって ア は 4（イ は 5）です。</p>
+<div class="box"><b>引力と潮汐力の違い</b>：地球が受ける<b>引力</b>そのものは、太陽の方が月の約 180 倍です。ところが<b>潮汐力</b>は距離の3乗に反比例するので、遠い太陽は不利になり、月の半分ほどになります。</div>
+<div class="box"><b>式の立て方</b>：数値の比を求める問題は、まず文字式で比をつくり、共通の因子（\(G, m, R\)）を消してから数値を入れます。\(\left(\dfrac{a}{b}\right)^3\) のように比を先に計算すると、桁の扱いが楽になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：月が太陽と同じ方向・反対方向にあるとき（新月・満月）は2つの潮汐力が重なって<b>大潮</b>、90°ずれたとき（半月）は打ち消し合って<b>小潮</b>になります。距離 \(a\)、\(b\) を変えると、比が距離の3乗で変わることが確かめられます。</div>
+<button class="goto" data-q="III">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){$("#read").innerHTML=readout().map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+const G=6.7e-11,M1=6.0e24,M2R=7.3e22,M3=2.0e30,RE=6.4e6,AM=3.8e8,BS=1.5e11;
+const st={q:"I1",T1:24,lat:45,mu:0.0123,mu2:0.3,Rd:0.18,aM:3.8,bS:1.5,spd:1};
+const SL=[
+ ["T1","T<sub>1</sub>","自転周期","時間",1.2,30,0.1,1,"I"],
+ ["lat","λ","点 F の緯度","°",0,90,1,0,"I1"],
+ ["mu","","質量比 M₂/M₁","",0.005,1,0.0005,4,"II1"],
+ ["mu2","","質量比 M₂/M₁（誇張）","",0.05,1,0.01,2,"II2"],
+ ["Rd","","地球の大きさ R/a（誇張）","",0.03,0.35,0.01,2,"II3 II4"],
+ ["aM","a","地球と月の距離","×10⁸ m",1.5,8,0.1,1,"III"],
+ ["bS","b","地球と太陽の距離","×10¹¹ m",0.5,3,0.05,2,"III"],
+ ["spd","","再生速度","倍",0.25,3,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>n?[640,600]:[1000,440]);
+const gr=mkCv($("#gr"),n=>n?[640,400]:[1000,270]);
+let S={t:0,trail:[]};
+function restart(){S={t:0,trail:[]}}
+function onParam(k){if(k==="mu"||k==="mu2")restart()}
+function step(dt){S.t+=dt}
+const muNow=()=>st.q==="II1"?st.mu:st.mu2;
+function sci(v,d=2){if(v===0)return"0";const e=Math.floor(Math.log10(Math.abs(v))),m=v/Math.pow(10,e);const sup=String(e).replace(/-/g,"⁻").replace(/\d/g,c=>"⁰¹²³⁴⁵⁶⁷⁸⁹"[c]);return m.toFixed(d)+" × 10"+sup}
+function showGr(b){gr.el.style.display=b?"block":"none"}
+/* ---------- I : rotating Earth (side view) ---------- */
+function drawI(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const Rp=n?140:150,cx=n?W*0.32:W*0.33,cy=n?H*0.5:H*0.52;
+ const om=2*Math.PI/6,ph=S.t*om;const gR=G*M1/RE**2,cR=4*Math.PI**2*RE/(st.T1*3600)**2;
+ // axis
+ line(c,[[cx,cy-Rp-50],[cx,cy+Rp+40]],CL.mute,1.4,[6,5]);txt(c,"自転軸",cx+8,cy-Rp-46,CL.mute,{s:13});
+ c.strokeStyle=CL.mute;c.lineWidth=1.6;c.beginPath();c.ellipse(cx,cy-Rp-24,26,7,0,0.2,Math.PI*1.75);c.stroke();arrow(c,cx-18,cy-Rp-29,cx-4,cy-Rp-31,CL.mute,1.6);
+ dot(c,cx,cy,Rp,alpha(CL.acc,0.08),CL.ink,2);dot(c,cx,cy,3,CL.ink);
+ const lats=[[0,"E",CL.frc]];if(st.q==="I1")lats.push([st.lat,"F",CL.fic]);
+ const k=st.q==="I2"?110/gR:2600;// px per (m/s^2)
+ lats.forEach(([la,lab,col])=>{const l=la*Math.PI/180,rx=Rp*Math.cos(l),ry=rx*0.2,yc=cy-Rp*Math.sin(l);
+  c.strokeStyle=alpha(col,0.5);c.lineWidth=1.4;c.setLineDash([4,4]);c.beginPath();c.ellipse(cx,yc,Math.max(rx,0.1),Math.max(ry,0.1),0,Math.PI,2*Math.PI);c.stroke();c.setLineDash([]);
+  c.strokeStyle=col;c.lineWidth=1.8;c.beginPath();c.ellipse(cx,yc,Math.max(rx,0.1),Math.max(ry,0.1),0,0,Math.PI);c.stroke();
+  // static marker on right edge (front view)
+  const px=cx+rx,py=yc;line(c,[[cx,yc],[px,py]],col,1.6,[2,3]);
+  if(la>0)txt(c,"R cos λ",cx+rx/2,yc-12,col,{s:13,it:1,al:"center"});else txt(c,"R",cx+rx/2,yc-12,col,{s:14,it:1,al:"center"});
+  if(la>0){line(c,[[cx,cy],[px,py]],col,1.2,[5,4]);c.strokeStyle=col;c.lineWidth=1.4;c.beginPath();c.arc(cx,cy,42,-l,0);c.stroke();txt(c,"λ",cx+50,cy-(la>20?14:8),col,{s:15,it:1})}
+  dot(c,px,py,6,col,CL.bg,1.5);txt(c,lab,px+10,py+16,col,{s:15,b:1});
+  // moving copy
+  const x2=cx+rx*Math.sin(ph+(la?1.2:0)),y2=yc+ry*Math.cos(ph+(la?1.2:0)),front=Math.cos(ph+(la?1.2:0))>0;dot(c,x2,y2,4,front?col:alpha(col,0.35));
+  // centrifugal arrow
+  const ca=cR*Math.cos(l);const L=ca*k;arrow(c,px,py,px+Math.max(L,0),py,col,3);
+  if(st.q==="I1")txt(c,`遠心力 ${(ca).toFixed(4)} m/s²`,px+Math.max(L,0)+8,py-(la?14:-14),col,{s:13})});
+ if(st.q==="I2"){const px=cx+Rp,py=cy,Lg=gR*k,Lc=cR*k;arrow(c,px,py+16,px-Lg,py+16,CL.grav,3);txt(c,"万有引力 GM₁/R²",px-Lg/2,py+34,CL.grav,{s:13,al:"center"});
+  arrow(c,px,py-2,px+Lc,py-2,CL.frc,3);txt(c,"遠心力 Rω₁²",px+Math.max(Lc,10)+8,py-16,CL.frc,{s:13});
+  const g0=gR-cR;const bx=n?W*0.08:W*0.66,by=n?H-70:H*0.25,bw=n?W*0.84:W*0.3;
+  txt(c,`g₀ = ${gR.toFixed(3)} − ${cR.toFixed(3)} = ${g0.toFixed(3)} m/s²`,bx,by,g0>0?CL.ink:CL.ng,{s:15,b:1});
+  txt(c,g0>0?"赤道上の物体は地面に押しつけられている":"g₀ < 0：赤道上の物体は浮き上がる",bx,by+26,g0>0?CL.mute:CL.ng,{s:13})}
+ else{const bx=n?W*0.06:W*0.64,by=n?H-60:H*0.22;txt(c,"矢印の長さは遠心力の大きさ（拡大表示）",bx,by,CL.mute,{s:13});txt(c,`f/m = Rω₁² cos λ、ω₁ = 2π/T₁`,bx,by+24,CL.ink,{s:14})}}
+function graphI(){showGr(true);const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow;const B={x:70,y:34,w:W-120,h:H-80};
+ if(st.q==="I1"){const A=axes(c,B,[0,90],[0,1.05],{xl:"λ [°]",yl:"f / f₀",xit:false,yit:false,xt:[[0,"0"],[30,"30"],[45,"45"],[60,"60"],[90,"90"]],yt:[[0.5,"0.5"],[Math.SQRT1_2,"1/√2"],[1,"1"]]});
+  const pts=[];for(let i=0;i<=90;i++)pts.push([A.X(i),A.Y(Math.cos(i*Math.PI/180))]);line(c,pts,CL.fic,2.4);
+  dot(c,A.X(0),A.Y(1),6,CL.frc);txt(c,"E",A.X(0)+12,A.Y(1)+14,CL.frc,{s:14,b:1});const v=Math.cos(st.lat*Math.PI/180);dot(c,A.X(st.lat),A.Y(v),6,CL.fic);txt(c,`F（${st.lat}°）: ${v.toFixed(3)}`,A.X(st.lat)+10,A.Y(v)-14,CL.fic,{s:14,b:1});
+  txt(c,"f / f₀ = cos λ",B.x+B.w,B.y,CL.ink,{s:14,al:"right"})}
+ else{const gR=G*M1/RE**2,f=T=>gR-4*Math.PI**2*RE/(T*3600)**2;const A=axes(c,B,[0,30],[-4,11],{xl:"T₁ [時間]",yl:"g₀ [m/s²]",xit:false,yit:false,y0:0,xt:[[6,"6"],[12,"12"],[18,"18"],[24,"24"],[30,"30"]],yt:[[-4,"−4"],[5,"5"],[9.8,"9.8"]]});
+  const pts=[];for(let T=1.2;T<=30;T+=0.05)pts.push([A.X(T),A.Y(f(T))]);line(c,pts,CL.acc,2.4);line(c,[[A.X(0),A.Y(gR)],[A.X(30),A.Y(gR)]],CL.grav,1.2,[5,4]);txt(c,"万有引力だけのとき",A.X(30)-4,A.Y(gR)-12,CL.grav,{s:12,al:"right"});
+  const Tz=2*Math.PI*Math.sqrt(RE**3/(G*M1))/3600;dot(c,A.X(Tz),A.Y(0),5,CL.ng);txt(c,`g₀ = 0：T₁ ≒ ${Tz.toFixed(2)} 時間`,A.X(Tz)+10,A.Y(0)+16,CL.ng,{s:13});
+  dot(c,A.X(st.T1),A.Y(f(st.T1)),7,CL.frc,CL.bg,2)}}
+/* ---------- II : Earth–Moon ---------- */
+function geo(mu){const a1=mu/(1+mu),a2=1/(1+mu);return{a1,a2}}
+const OM=2*Math.PI/8;// animation angular speed
+function drawII1(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const {a1,a2}=geo(st.mu),Rd=0.12,th=S.t*OM;
+ const V=view({x:20,y:20,w:W-40,h:H-60},[-1.15,1.15],[-1.12,1.12]);
+ line(c,[[V.X(-1.1),V.Y(0)],[V.X(1.1),V.Y(0)]],CL.line,1);line(c,[[V.X(0),V.Y(-1.08)],[V.X(0),V.Y(1.08)]],CL.line,1);
+ c.strokeStyle=alpha(CL.acc,0.6);c.lineWidth=1.4;c.setLineDash([5,5]);c.beginPath();c.arc(V.X(0),V.Y(0),a1*V.s,0,7);c.stroke();c.beginPath();c.arc(V.X(0),V.Y(0),a2*V.s,0,7);c.stroke();c.setLineDash([]);
+ const ex=-a1*Math.cos(th),ey=-a1*Math.sin(th),mx=a2*Math.cos(th),my=a2*Math.sin(th);
+ dot(c,V.X(ex),V.Y(ey),Rd*V.s,alpha(CL.acc,0.18),CL.acc,2);dot(c,V.X(ex),V.Y(ey),3,CL.acc);
+ dot(c,V.X(mx),V.Y(my),Math.max(5,Rd*V.s*0.27),alpha(CL.mute,0.3),CL.ink,1.6);txt(c,"月",V.X(mx)+12,V.Y(my)-14,CL.ink,{s:14,b:1});txt(c,"地球",V.X(ex)-Rd*V.s-6,V.Y(ey)-Rd*V.s,CL.acc,{s:14,b:1,al:"right"});
+ line(c,[[V.X(ex),V.Y(ey)],[V.X(mx),V.Y(my)]],CL.mute,1,[2,4]);
+ const vl=Math.max(a1*0.3,0.07);arrow(c,V.X(ex),V.Y(ey),V.X(ex+Math.sin(th)*vl),V.Y(ey-Math.cos(th)*vl),CL.frc,2.6);
+ arrow(c,V.X(mx),V.Y(my),V.X(mx-Math.sin(th)*a2*0.3),V.Y(my+Math.cos(th)*a2*0.3),CL.frc,2.6);txt(c,"v₂",V.X(mx-Math.sin(th)*a2*0.3)+8,V.Y(my+Math.cos(th)*a2*0.3),CL.frc,{s:14,it:1});
+ txt(c,"v₁",V.X(ex+Math.sin(th)*vl)+8,V.Y(ey-Math.cos(th)*vl)+4,CL.frc,{s:14,it:1});
+ dot(c,V.X(0),V.Y(0),4.5,CL.ng);txt(c,"O（重心）",V.X(0)+14,V.Y(0)+26,CL.ng,{s:13,b:1});
+ txt(c,`a₁ : a₂ = M₂ : M₁ = ${(a1/a2).toFixed(4)} : 1`,16,H-22,CL.ink,{s:14});txt(c,"地球の大きさは見やすく拡大（R/a = 0.12）",W-16,H-22,CL.mute,{s:12,al:"right"})}
+function drawII2(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const {a1}=geo(st.mu2),Rd=0.18,th=S.t*OM;
+ const ext=a1+Rd;const V=view({x:20,y:20,w:W-40,h:H-50},[-ext*1.55-0.04,ext*1.55],[-ext*1.12,ext*1.12]);
+ line(c,[[V.X(-ext*1.5-0.04),V.Y(0)],[V.X(ext*1.5),V.Y(0)]],CL.line,1);line(c,[[V.X(0),V.Y(-ext*1.1)],[V.X(0),V.Y(ext*1.1)]],CL.line,1);
+ arrow(c,V.X(ext*1.3),V.Y(0),V.X(ext*1.5),V.Y(0),CL.mute,1.4);txt(c,"x",V.X(ext*1.5)+4,V.Y(0)-12,CL.mute,{s:14,it:1});txt(c,"y",V.X(0)+8,V.Y(ext*1.08),CL.mute,{s:14,it:1});
+ const ex=-a1*Math.cos(th),ey=-a1*Math.sin(th);
+ // trails (full circles) for 3 points
+ const pts=[[-Rd,0,CL.frc,"X"],[0,0,CL.acc,"中心"],[Rd,0,CL.grav,""],[0,Rd,CL.fic,""]];
+ pts.forEach(([dx,dy,col])=>{c.strokeStyle=alpha(col,0.55);c.lineWidth=1.4;c.setLineDash([5,4]);c.beginPath();c.arc(V.X(dx),V.Y(dy),a1*V.s,0,7);c.stroke();c.setLineDash([]);dot(c,V.X(dx),V.Y(dy),2.5,alpha(col,0.7))});
+ dot(c,V.X(ex),V.Y(ey),Rd*V.s,alpha(CL.acc,0.15),CL.acc,2);
+ // fixed orientation arrow on earth
+ arrow(c,V.X(ex-Rd*0.5),V.Y(ey),V.X(ex+Rd*0.55),V.Y(ey),CL.ink,2.4);
+ pts.forEach(([dx,dy,col,lab])=>{dot(c,V.X(ex+dx),V.Y(ey+dy),5.5,col,CL.bg,1.4);if(lab)txt(c,lab,V.X(ex+dx)-10,V.Y(ey+dy)-12,col,{s:14,b:1,al:"right"})});
+ dot(c,V.X(0),V.Y(0),4,CL.ng);txt(c,"O",V.X(0)+6,V.Y(0)+14,CL.ng,{s:13,b:1});
+ const md=[Math.cos(th),Math.sin(th)];arrow(c,V.X(0)+md[0]*V.s*ext*0.75,V.Y(0)-md[1]*V.s*ext*0.75,V.X(0)+md[0]*V.s*ext*1.05,V.Y(0)-md[1]*V.s*ext*1.05,CL.mute,2);txt(c,"月の方向",V.X(0)+md[0]*V.s*ext*1.08,V.Y(0)-md[1]*V.s*ext*1.08,CL.mute,{s:12,al:md[0]>0?"left":"right"});
+ txt(c,"どの点も半径 a₁ の円（中心がずれているだけ）",16,H-18,CL.ink,{s:14});
+ S.trail.push([S.t,-Rd+ex,ey]);if(S.trail.length>900)S.trail.shift()}
+function drawEarthField(mode){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const Rd=st.Rd,th=S.t*OM*0.5;const Rp=n?150:150,cx=n?W*0.45:W*0.38,cy=H*0.5;
+ const md=[Math.cos(th),Math.sin(th)];// moon direction
+ // ocean bulge for II4
+ if(mode==="tide"){c.beginPath();for(let i=0;i<=120;i++){const a=i/120*2*Math.PI,rr=Rp*(1+0.12*Math.cos(2*(a-th)));const x=cx+rr*Math.cos(a),y=cy-rr*Math.sin(a);i?c.lineTo(x,y):c.moveTo(x,y)}c.closePath();c.fillStyle=alpha(CL.acc,0.18);c.fill();c.strokeStyle=alpha(CL.acc,0.7);c.lineWidth=1.5;c.stroke();txt(c,"海水（盛り上がりを誇張）",cx-Rp*0.95,cy+Rp*1.22,CL.acc,{s:12})}
+ if(mode==="tide")dot(c,cx,cy,Rp*0.9,alpha(CL.road,0.3),CL.ink,1.6);else dot(c,cx,cy,Rp,alpha(CL.road,0.16),CL.ink,2);dot(c,cx,cy,3,CL.ink);
+ // moon indicator
+ const ml=Rp*1.55;dot(c,cx+md[0]*ml,cy-md[1]*ml,9,alpha(CL.mute,0.3),CL.ink,1.6);txt(c,"月（遠く）→ 距離 a",cx+md[0]*ml+14,cy-md[1]*ml-14,CL.ink,{s:13});line(c,[[cx,cy],[cx+md[0]*(ml-12),cy-md[1]*(ml-12)]],CL.mute,1,[3,5]);
+ const U=n?46:58;// px for GM2/a^2 in II3 ; tidal scale in II4
+ const N=16;for(let i=0;i<N;i++){const a=i/N*2*Math.PI,ux=Math.cos(a),uy=Math.sin(a),px=cx+Rp*ux,py=cy-Rp*uy;
+  // relative position in units of a
+  const rx=Rd*ux,ry=Rd*uy;const dx=md[0]-rx,dy=md[1]-ry,d=Math.hypot(dx,dy);const gx=dx/d**3,gy=dy/d**3;// moon gravity /(GM2m/a^2)
+  if(mode==="cf"){arrow(c,px,py,px-md[0]*U,py+md[1]*U,CL.fic,2.2);arrow(c,px,py,px+gx*U,py-gy*U,CL.grav,2.2)}
+  else{const tx=gx-md[0],ty=gy-md[1];const k=U*0.9/(2*Rd);arrow(c,px,py,px+tx*k,py-ty*k,CL.frc,2.6)}
+  dot(c,px,py,2.5,CL.ink)}
+ const P=[cx-md[0]*Rp,cy+md[1]*Rp],Q=[cx+md[0]*Rp,cy-md[1]*Rp];txt(c,"P",P[0]-md[0]*22-8,P[1]+md[1]*22-8,CL.ink,{s:16,b:1});txt(c,"Q",Q[0]+md[0]*22+4,Q[1]-md[1]*22+12,CL.ink,{s:16,b:1});
+ const lx=n?16:W*0.68,ly=n?H-74:H*0.2;
+ if(mode==="cf"){arrow(c,lx,ly,lx+40,ly,CL.fic,2.4);txt(c,"遠心力（どこでも同じ）",lx+48,ly,CL.fic,{s:13});arrow(c,lx,ly+28,lx+40,ly+28,CL.grav,2.4);txt(c,"月の引力（近いほど大きい）",lx+48,ly+28,CL.grav,{s:13})}
+ else{arrow(c,lx,ly,lx+40,ly,CL.frc,2.6);txt(c,"合力 ＝ 潮汐力（拡大表示）",lx+48,ly,CL.frc,{s:13});txt(c,"月の側と反対側の2か所で外向き",lx,ly+28,CL.ink,{s:13})}
+ txt(c,`地球の大きさ R/a = ${Rd.toFixed(2)}（実際は 0.017）`,16,22,CL.mute,{s:13})}
+function graphII(){if(st.q==="II2"){showGr(true);const c=begin(gr),W=gr.W,H=gr.H;const {a1}=geo(st.mu2),Rd=0.18;const B={x:70,y:30,w:W-110,h:H-70};const T=8,tm=S.t%T;
+  const A=axes(c,B,[0,T],[-(Rd+a1)*1.15,(a1)*1.3],{xl:"t",y0:0,yl:"座標",yit:false,xt:[[T/2,"T₂/2"],[T,"T₂"]],yt:[[-Rd,"−R"],[-Rd-a1,"−R−a₁"],[a1,"a₁"],[-a1,"−a₁"]]});
+  const px=[],py=[];for(let t=0;t<=T;t+=0.04){px.push([A.X(t),A.Y(-Rd-a1*Math.cos(t*OM))]);py.push([A.X(t),A.Y(-a1*Math.sin(t*OM))])}line(c,px,CL.frc,2.2);line(c,py,CL.acc,2.2,[6,4]);
+  dot(c,A.X(tm),A.Y(-Rd-a1*Math.cos(tm*OM)),5,CL.frc);dot(c,A.X(tm),A.Y(-a1*Math.sin(tm*OM)),5,CL.acc);
+  txt(c,"x 座標（実線）",B.x+B.w,B.y-4,CL.frc,{s:13,al:"right"});txt(c,"y 座標（点線）",B.x+B.w,B.y+16,CL.acc,{s:13,al:"right"});return}
+ if(st.q==="II4"){showGr(true);const c=begin(gr),W=gr.W,H=gr.H;const Rd=st.Rd,B={x:80,y:30,w:W-130,h:H-74};const f=x=>1/(1-x)**2-1;const ym=Math.max(f(Rd),2*Rd)*1.15;
+  const A=axes(c,B,[-Rd,Rd],[-ym,ym],{x0:0,y0:0,xl:"x/a",yl:"合力 ÷ (GM₂m/a²)",yit:false,xt:[[-Rd,"P（−R）"],[Rd,"Q（＋R）"]]});
+  const p1=[],p2=[];for(let i=0;i<=100;i++){const x=-Rd+2*Rd*i/100;p1.push([A.X(x),A.Y(f(x))]);p2.push([A.X(x),A.Y(2*x)])}line(c,p2,CL.mute,1.6,[6,4]);line(c,p1,CL.frc,2.4);
+  dot(c,A.X(-Rd),A.Y(f(-Rd)),5,CL.frc);dot(c,A.X(Rd),A.Y(f(Rd)),5,CL.frc);txt(c,`P: ${Math.abs(f(-Rd)).toFixed(3)}`,A.X(-Rd)+10,A.Y(f(-Rd))+14,CL.frc,{s:13});txt(c,`Q: ${f(Rd).toFixed(3)}`,A.X(Rd)-10,A.Y(f(Rd))-14,CL.frc,{s:13,al:"right"});
+  txt(c,"x：中心から月の方向へのずれ（正 ＝ 月の側）",B.x,H-12,CL.mute,{s:12});txt(c,"実線：正確な値　点線：近似 2x/a",B.x+10,B.y+4,CL.mute,{s:12});return}
+ showGr(false)}
+/* ---------- III : Sun & Moon ---------- */
+function tidal(){const a=st.aM*1e8,b=st.bS*1e11;const pm=G*M2R/a**2,ps=G*M3/b**2;const tm=pm-G*M2R/(a+RE)**2,ts=ps-G*M3/(b+RE)**2;return{a,b,pm,ps,tm,ts,ap:2*G*M2R*RE/a**3,as:2*G*M3*RE/b**3}}
+function drawIII(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;const T=tidal(),r=T.ts/T.tm;const th=S.t*2*Math.PI/10;const Rp=n?105:100,cx=n?W*0.5:W*0.5,cy=H*0.5;
+ const hm=0.14,hs=0.14*r;c.beginPath();for(let i=0;i<=160;i++){const a=i/160*2*Math.PI,rr=Rp*(1+hm*Math.cos(2*(a-th))+hs*Math.cos(2*(a-Math.PI)));const x=cx+rr*Math.cos(a),y=cy-rr*Math.sin(a);i?c.lineTo(x,y):c.moveTo(x,y)}c.closePath();c.fillStyle=alpha(CL.acc,0.2);c.fill();c.strokeStyle=CL.acc;c.lineWidth=1.6;c.stroke();
+ dot(c,cx,cy,Rp*0.86,alpha(CL.road,0.25),CL.ink,1.6);txt(c,"地球",cx,cy,CL.ink,{s:14,b:1,al:"center"});
+ const mo=Rp*1.75;c.strokeStyle=CL.line;c.lineWidth=1;c.setLineDash([4,5]);c.beginPath();c.arc(cx,cy,mo,0,7);c.stroke();c.setLineDash([]);const mx=cx+mo*Math.cos(th),my=cy-mo*Math.sin(th);
+ c.save();c.beginPath();c.arc(mx,my,12,0,7);c.clip();c.fillStyle=CL.road;c.fillRect(mx-12,my-12,24,24);c.fillStyle=CL.fr;c.fillRect(mx-12,my-12,12,24);c.restore();dot(c,mx,my,12,null,CL.ink,1.4);txt(c,"月",mx,my-24,CL.ink,{s:13,b:1,al:"center"});
+ // sun on left
+ const sx=n?28:60;dot(c,sx,cy,n?18:26,CL.fr);txt(c,"太陽（遠く）",sx+(n?-12:0),cy+(n?100:44),CL.fr,{s:13,b:1,al:n?"left":"center"});for(let i=0;i<5;i++){const yy=cy-60+i*30;arrow(c,sx+40,yy,sx+(n?66:90),yy,alpha(CL.fr,0.7),1.4)}
+ const al=Math.abs(Math.cos(th));const lab=al>0.92?"大潮（太陽・月・地球が一直線）":al<0.38?"小潮（太陽と月が直角）":"";
+ txt(c,lab,W/2,H-22,al>0.92?CL.frc:CL.acc,{s:15,b:1,al:"center"});
+ txt(c,`満潮の高さ ∝ 月の潮汐力 ${al>0.92?"＋":al<0.38?"−":"と"} 太陽の潮汐力`,W-16,22,CL.mute,{s:12,al:"right"})}
+function graphIII(){showGr(true);const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow;const T=tidal();
+ const blocks=[["地球の中心が受ける引力（GM/r²）",T.pm,T.ps],["潮汐力（2GMR/r³ の近似）",T.ap,T.as]];
+ const bw=n?W-60:(W-120)/2;blocks.forEach(([ttl,m,s],i)=>{const x0=n?30:40+i*(bw+40),y0=n?20+i*(H/2):30,h=n?H/2-50:H-80;txt(c,ttl,x0,y0,CL.ink,{s:13,b:1});
+  const mx=Math.max(m,s);[[`月 ${sci(m)}`,m,CL.mute],[`太陽 ${sci(s)}`,s,CL.fr]].forEach(([l,v,col],j)=>{const yy=y0+22+j*(h/2.2),bh=Math.min(28,h/3);rect(c,x0,yy,(bw-10)*v/mx,bh,alpha(col,0.85));txt(c,l+" m/s²",x0+4,yy+bh+12,CL.ink,{s:12})});
+  txt(c,`太陽 ÷ 月 ＝ ${(s/m).toFixed(i?3:0)}`,x0+bw-10,y0,i?CL.frc:CL.mute,{s:13,b:1,al:"right"})})}
+function drawAll(){const q=st.q;if(q==="I1"||q==="I2"){drawI();graphI()}else if(q==="II1"){drawII1();graphII()}else if(q==="II2"){drawII2();graphII()}else if(q==="II3"){drawEarthField("cf");graphII()}else if(q==="II4"){drawEarthField("tide");graphII()}else{drawIII();graphIII()}}
+function note(){const q=st.q;if(q[0]==="I"&&q[1]!=="I")return"地球の質量 6.0×10²⁴ kg、半径 6.4×10⁶ m、G = 6.7×10⁻¹¹ の値で計算しています。アニメーションの回転速度は実際よりずっと速くしています。";
+ if(q==="II1")return"実際の質量比は M₂/M₁ ≒ 0.0123 です。速さは a = 3.8×10⁸ m、M₁ = 6.0×10²⁴ kg、M₂ = (質量比)×M₁ で計算しています。";
+ if(q==="II2")return"見やすくするため質量比を大きく（重心 O を地球の外に）しています。地球の向きは変わりません。";
+ if(q==="II3"||q==="II4")return"力の大きさは GM₂m/a² を単位にしています。潮汐力の矢印は見やすく拡大しています。";
+ return"質量は表の値（月 7.3×10²² kg、太陽 2.0×10³⁰ kg）、地球の半径 6.4×10⁶ m です。月は 10 秒で地球を1周する速さで描いています。"}
+function readout(){const q=st.q,r=[];
+ if(q==="I1"||q==="I2"){const w=2*Math.PI/(st.T1*3600),f0=RE*w*w;r.push(["ω₁ = 2π/T₁",sci(w,3)+" rad/s"],["f₀/m = Rω₁²（赤道 E）",f0.toFixed(4)+" m/s²"]);
+  if(q==="I1"){r.push([`f/m（緯度 ${st.lat}°）= Rω₁² cos λ`,(f0*Math.cos(st.lat*Math.PI/180)).toFixed(4)+" m/s²"],["f / f₀",Math.cos(st.lat*Math.PI/180).toFixed(4)])}
+  else{const gR=G*M1/RE**2;r.push(["GM₁/R²",gR.toFixed(3)+" m/s²"],["g₀",(gR-f0).toFixed(3)+" m/s²"],["遠心力 ÷ 万有引力",(f0/gR*100).toFixed(2)+" %"])}}
+ if(q==="II1"){const m2=st.mu*M1,tot=M1+m2,a1=m2/tot*AM,a2=M1/tot*AM,w=Math.sqrt(G*tot/AM**3);r.push(["a₁（O と地球の中心）",sci(a1)+" m",a1<RE?"R = 6.4×10⁶ m より小さいので O は地球の内部":"O は地球の外"],["a₂（O と月）",sci(a2)+" m"],["v₁ = a₁ω₂",(a1*w).toFixed(1)+" m/s"],["v₂ = a₂ω₂",(a2*w).toFixed(0)+" m/s"],["公転周期 T₂ = 2π/ω₂",(2*Math.PI/w/86400).toFixed(1)+" 日"])}
+ if(q==="II2"){const {a1}=geo(st.mu2),Rd=0.18,ph=S.t*OM;r.push(["位相 2πt/T₂",((ph%(2*Math.PI))*180/Math.PI).toFixed(0)+"°"],["X の x 座標 −R − a₁cos(2πt/T₂)",(-Rd-a1*Math.cos(ph)).toFixed(3)],["X の y 座標 −a₁sin(2πt/T₂)",(-a1*Math.sin(ph)).toFixed(3)],["（単位）","a = 1、R = 0.18"])}
+ if(q==="II3"||q==="II4"){const Rd=st.Rd;const fP=1-1/(1+Rd)**2,fQ=1/(1-Rd)**2-1;
+  if(q==="II3")r.push(["遠心力 f_C ÷ (GM₂m/a²)","1（どこでも）"],["Q での月の引力 1/(1−R/a)²",(1/(1-Rd)**2).toFixed(3)],["P での月の引力 1/(1+R/a)²",(1/(1+Rd)**2).toFixed(3)]);
+  else{r.push(["f_P ÷ (GM₂m/a²)",fP.toFixed(4)+"（月から遠ざかる）"],["f_Q ÷ (GM₂m/a²)",fQ.toFixed(4)+"（月に近づく）"],["近似 2R/a",(2*Rd).toFixed(4)]);r.push(["実際の値 f_P/m（表の数値）",sci(G*M2R/AM**2-G*M2R/(AM+RE)**2)+" m/s²"])}}
+ if(q==="III"){const T=tidal();r.push(["引力の比 太陽/月",(T.ps/T.pm).toFixed(0)+" 倍"],["f_S/f_P（近似 M₃a³/M₂b³）",(T.as/T.ap).toFixed(3)],["f_S/f_P（近似なし）",(T.ts/T.tm).toFixed(3)],["ア",`<span class="ok">${Math.floor(T.as/T.ap*10)%10}</span>`,"距離を表の値（a = 3.8、b = 1.5）にしたとき 0.44…"])}
+ return r.map(([a,b,c])=>[a.replace(/f_([PQSC])/g,"f<sub>$1</sub>"),b,c])}
+initUI("I1");
+}
+</script>
+</body>
+</html>
