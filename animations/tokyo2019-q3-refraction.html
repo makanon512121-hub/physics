@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>球面での屈折と「見かけの光源」：板・曲面・レンズ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;transition:background-color .15s,box-shadow .15s}
+.tk.on{background:var(--soft);box-shadow:0 0 0 2px var(--soft)}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E6%B3%A2%E5%8B%95">← 物理のHPに戻る</a></div>
+<h1>球面での屈折と「見かけの光源」：板・曲面・レンズ（東京大学 2019年 第3問）</h1>
+<p class="lead">境界の向こうにある光源は、屈折のために実際とちがう位置に見えます。球面での屈折を微小角で近似して「見かけの光源」の位置の式（式1）を作り、平らな境界・板・変形した境界・レンズへと順に応用します。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="光源から出た光が境界で屈折し、見かけの光源から出たように進む図"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I12">I(1)(2) 屈折の法則</button>
+<button class="qb" data-q="I34">I(3)(4) 式1</button>
+<button class="qb" data-q="I5">I(5) 右に凸</button>
+<button class="qb" data-q="II1">II(1) 平らな境界</button>
+<button class="qb" data-q="II2">II(2) 板をのせる</button>
+<button class="qb" data-q="II3">II(3) 境界を変形</button>
+<button class="qb" data-q="II4">II(4) レンズ</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。色は図と式で共通です：<span class="t-acc">光源から出た光・x₁・α₁・θ₁（青）</span>、<span class="t-frc">屈折した光・見かけの光源・x₂・α₂・θ₂（赤）</span>、<span class="t-grav">球面の中心 O・半径 r・φ（緑）</span>、<span class="t-fic">高さ h・板の厚さ d（紫）</span>、<span class="t-fr">レンズ（オレンジ）</span>。図の点の列は、同じ時刻に光源を出た光の位置（波面）です。</p>
+
+<details id="d-I12"><summary>I(1)(2)　屈折の法則と、角度どうしの関係<span class="ans">答 \(\dfrac{\theta_1}{\theta_2}=\dfrac{n_2}{n_1}\)，\(\theta_1=\alpha_1+\phi\)，\(\theta_2=\alpha_2+\phi\)</span></summary><div class="body">
+<h3>入射角・屈折角は「法線」から測る</h3>
+<p>球面の法線は、中心 O と入射点 P を結ぶ直線です。入射角 \(\theta_1\) と屈折角 \(\theta_2\) は、この直線 OP からの角度です。</p>
+<p class="law">屈折の法則</p>
+$$n_1\sin\cacc{\theta_1}=n_2\sin\cfrc{\theta_2}$$
+<p>微小角では \(\sin\beta\fallingdotseq\beta\) なので</p>
+$$n_1\cacc{\theta_1}=n_2\cfrc{\theta_2}\qquad\therefore\ \frac{\theta_1}{\theta_2}=\frac{n_2}{n_1}$$
+<p class="law">三角形の外角の定理</p>
+<p>三角形 CPO の内角は C で \(\alpha_1\)、O で \(\phi\) です。\(\theta_1\) は P での外角（CP の延長と PO のなす角）なので、2つの内角の和になります。屈折光の延長が通る三角形 APO でも同じです。</p>
+$$\cacc{\theta_1}=\cacc{\alpha_1}+\cgrav{\phi},\qquad \cfrc{\theta_2}=\cfrc{\alpha_2}+\cgrav{\phi}$$
+<h3>着眼点：屈折は「法則」、角度の分解は「図形」</h3>
+<p>屈折の法則が結びつけるのは \(\theta_1\) と \(\theta_2\) だけです。光源や見かけの光源の位置に結びつけるには、図形の関係で \(\theta\) を「光線の傾き \(\alpha\)」と「法線の傾き \(\phi\)」に分けます。</p>
+<div class="box"><b>式の立て方</b>：曲面での屈折は、① 中心と入射点を結んで法線を引く、② 屈折の法則を書く、③ 入射角・屈折角を外角の定理で \(\alpha\)（光軸からの光線の傾き）と \(\phi\)（光軸からの法線の傾き）に分ける、の順に式を立てます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは \(\theta_1\) と \(\theta_2\) の正確な関係（実線）と近似 \(n_1\theta_1=n_2\theta_2\)（破線）です。h を大きくして入射角を増やすと、点が破線からはなれていきます。「いまの値」で \(\theta_1=\alpha_1+\phi\) が正確に成り立つことも確認できます。</div>
+<button class="goto" data-q="I12">この状況にする</button>
+</div></details>
+
+<details id="d-I34"><summary>I(3)(4)　微小角の近似と（式1）<span class="ans">答 \(\alpha_1=\dfrac h{x_1}\)，\(\alpha_2=\dfrac h{x_2}\)，\(\phi=\dfrac hr\)；ア \(\dfrac1{x_1}\)，イ \(\dfrac1{x_2}\)</span></summary><div class="body">
+<h3>角度を「高さ ÷ 距離」で表す</h3>
+<p>直角三角形で \(\tan\beta\fallingdotseq\beta\) とし、CP ≒ \(x_1\)、AP ≒ \(x_2\) と近似します。</p>
+<p class="law">微小角の近似（tan β ≒ β）</p>
+$$\cacc{\alpha_1}=\frac{\cfic{h}}{\cacc{x_1}},\qquad \cfrc{\alpha_2}=\frac{\cfic{h}}{\cfrc{x_2}},\qquad \cgrav{\phi}=\frac{\cfic{h}}{\cgrav{r}}$$
+<p class="law">屈折の法則（微小角）＋ (2) の関係</p>
+$$n_1\left(\frac{h}{r}+\frac{h}{x_1}\right)=n_2\left(\frac{h}{r}+\frac{h}{x_2}\right)$$
+<p>両辺を \(h\) でわると（式1）が完成します。</p>
+$$n_1\left(\frac1{\cgrav r}+\frac1{\cacc{x_1}}\right)=n_2\left(\frac1{\cgrav r}+\frac1{\cfrc{x_2}}\right)$$
+<h3>着眼点：h が消える ＝ 像ができる</h3>
+<p>（式1）には \(h\) が入っていません。光軸に近い光線なら、どの高さで屈折した光も同じ点 A から出たように進みます。そのため、A に光源がはっきり見えます。h が大きい光線ではこの性質がくずれ、像がぼやけます（球面収差）。</p>
+<div class="box"><b>式の立て方</b>：屈折で「位置」を求めるときは、① 屈折の法則を微小角で \(n_1\theta_1=n_2\theta_2\) とし、② 角度を「高さ ÷ 距離」に置きかえ、③ 共通の高さ \(h\) でわります。\(h\) がきれいに消えることが、近似を正しく使えたかの確認になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフは、高さ h で屈折した光線の延長が光軸と交わる位置（正確な値）です。h を小さくすると（式1）の値（破線）に近づきます。図の波面（点の列）は、屈折したあと A を中心とする円に近い形で広がります。</div>
+<button class="goto" data-q="I34">この状況にする</button>
+</div></details>
+
+<details id="d-I5"><summary>I(5)　右に凸の球面<span class="ans">答 (A)(B) とも \(n_1\left(\dfrac1r-\dfrac1{x_1}\right)=n_2\left(\dfrac1r-\dfrac1{x_2}\right)\)</span></summary><div class="body">
+<h3>入射角は「差」になる</h3>
+<p>中心 O が光源側にくると、光線の傾き \(\alpha\) と法線の傾き \(\phi\) が同じ向きになり、入射角・屈折角は差で表されます。</p>
+<p class="law">三角形の外角の定理</p>
+$$\text{(A)}\quad \cacc{\theta_1}=\cgrav{\phi}-\cacc{\alpha_1},\qquad \cfrc{\theta_2}=\cgrav{\phi}-\cfrc{\alpha_2}$$
+$$\text{(B)}\quad \cacc{\theta_1}=\cacc{\alpha_1}-\cgrav{\phi},\qquad \cfrc{\theta_2}=\cfrc{\alpha_2}-\cgrav{\phi}$$
+<p class="law">屈折の法則（微小角）</p>
+<p>\(n_1\theta_1=n_2\theta_2\) に \(\alpha_1=h/x_1\)、\(\alpha_2=h/x_2\)、\(\phi=h/r\) を入れて \(h\) でわると、(A) では</p>
+$$n_1\left(\frac1{\cgrav r}-\frac1{\cacc{x_1}}\right)=n_2\left(\frac1{\cgrav r}-\frac1{\cfrc{x_2}}\right)$$
+<p>(B) は両辺の符号がそろって反転するだけなので、同じ式になります。</p>
+<h3>着眼点：r の符号で1本の式にまとめる</h3>
+<p>この式は（式1）で \(r\to-r\) としたものです。次の約束をすれば、凸の向きによらず（式1）だけで計算できます。</p>
+<div class="box"><b>（式1）の符号の約束</b>：\(x_1>0\) は光源が入射側。\(x_2>0\) は見かけの光源が入射側（虚像）、\(x_2<0\) は反対側に光が集まる（実像）。\(r>0\) は入射側に凸（中心が反対側）、\(r<0\) は反対側に凸（中心が入射側）。</div>
+<div class="box"><b>式の立て方</b>：図の形が変わるたびに式を作り直す必要はありません。1つの図で式を作り、ほかの場合は「長さの向きが逆なら符号を変える」と考えます。レンズの式で虚像を \(b<0\)、凹レンズを \(f<0\) とするのと同じ考え方です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：x₁ を r より大きく／小さくすると、光源が O の左（(A)）と右（(B)）で切りかわります。どちらの場合も、図の A の位置は同じ式で求めた値と一致します。</div>
+<button class="goto" data-q="I5">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　平らな境界：見かけの深さ<span class="ans">答 \(L_2+\dfrac{n_2}{n_1}L_1\)</span></summary><div class="body">
+<h3>平面は「半径が無限大の球面」</h3>
+<p class="law">（式1）で 1/r → 0</p>
+$$\frac{n_1}{\cacc{L_1}}=\frac{n_2}{\cfrc{x_2}}\qquad\therefore\ \cfrc{x_2}=\frac{n_2}{n_1}\cacc{L_1}$$
+<p>観察者からの距離 \(D\) は、これに \(L_2\) を足して</p>
+$$\cfrc{D}=L_2+\frac{n_2}{n_1}L_1$$
+<h3>着眼点：深さは屈折率の比で変わる</h3>
+<p>水（\(n_1\fallingdotseq1.33\)）の中のものを空気中から真上近くで見ると、深さは約 3/4 に見えます。光源側の屈折率が大きいほど浅く見えます。</p>
+<p>別解（屈折の法則から直接）：境界上の同じ点を通る光について、水平距離が共通なので \(L_1\tan\theta_1=x_2\tan\theta_2\)。微小角で \(\tan\theta\fallingdotseq\sin\theta\) とし、\(n_1\sin\theta_1=n_2\sin\theta_2\) と組み合わせると同じ結果になります。</p>
+<div class="box"><b>式の立て方</b>：平らな境界では「見かけの距離 ＝ 実際の距離 × (観察側の屈折率) ÷ (光源側の屈折率)」です。境界がいくつもあるときは、この倍率を境界ごとに順にかけていきます（II(2)）。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：左は屈折がない場合、右がいまの設定です。下のグラフのように、斜めから見るほど見かけの深さはさらに浅くなります。（式1）の近似は、真上に近い方向から見るときに成り立ちます。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　板をのせて見かけの位置を元に戻す<span class="ans">答 \(d=\dfrac{n_f(n_1-n_2)}{n_1(n_2-n_f)}L_1\)，\(n_1<n_2<n_f\) または \(n_f<n_2<n_1\)</span></summary><div class="body">
+<h3>境界ごとに順に「見かけの光源」を作る</h3>
+<p>1つ目の境界（媒質1 → 板）で見かけの光源を作り、それを2つ目の境界（板 → 媒質2）にとっての光源とみなします。</p>
+<p class="law">平らな境界の式（1回目）</p>
+$$L_3=\frac{n_f}{n_1}\cacc{L_1}\qquad(\text{板の下面からの距離})$$
+<p class="law">平らな境界の式（2回目：板の上面から L₃ + d の光源）</p>
+$$L_4=\frac{n_2}{n_f}\left(L_3+\cfic d\right)=\frac{n_2}{n_1}L_1+\frac{n_2}{n_f}\cfic d$$
+<p>観察者からの距離 \(L_4+(L_2-d)\) が \(L_1+L_2\) に等しいので</p>
+$$\frac{n_2}{n_1}L_1+\frac{n_2}{n_f}d+L_2-d=L_1+L_2\qquad\therefore\ \cfic d=\frac{n_f(n_1-n_2)}{n_1(n_2-n_f)}L_1$$
+<p>\(d>0\) となるのは、\(n_1-n_2\) と \(n_2-n_f\) が同符号のとき、つまり \(n_2\) が \(n_1\) と \(n_f\) の間にあるときです。</p>
+<h3>着眼点：層ごとの「見かけの厚さ」を足す</h3>
+<p>媒質2 から見ると、屈折率 \(n\) で厚さ \(t\) の層は \(\dfrac{n_2}{n}t\) の厚さに見えます。平らな層だけなら、見かけの距離は層ごとの和で一気に書けます。</p>
+$$\cfrc D=\frac{n_2}{n_1}L_1+\frac{n_2}{n_f}\cfic d+(L_2-\cfic d)$$
+<p>媒質1 で浅く見えた分（\(n_1>n_2\)）を、板で深く見せて（\(n_f<n_2\)）打ち消す、と読むこともできます。</p>
+<div class="box"><b>式の立て方</b>：境界が複数あるときは、手前の境界の「見かけの光源」を次の境界の光源とみなし、同じ式をくり返し使います。平らな層だけなら、各層の厚さを（観察側の屈折率）÷（その層の屈折率）倍して足すのが速い方法です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：左が板なし、右が板あり。右では見かけの光源が本物の光源と重なります。n<sub>f</sub> を n₁ と n₂ の間にすると d が負になり、そのような板は作れません。下のグラフは板の厚さと見かけの距離の関係です。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　境界を球面に変形する<span class="ans">答 (B)，\(r=0.5\ \mathrm{m}\)</span></summary><div class="body">
+<h3>まず必要な x₂ を出す</h3>
+<p>見かけの光源は観察者から 4 m、つまり境界から \(x_2=4-L_2=2\) m です。平らな境界なら \(x_2=\frac{1}{1.5}\times1\fallingdotseq0.67\) m なので、球面で光源を遠くに見せる必要があります。</p>
+<p class="law">（式1）：(A) 下に凸 ＝ 光源側に凸（r &gt; 0）</p>
+$$1.5\left(\frac1r+\frac11\right)=1\cdot\left(\frac1r+\frac12\right)\qquad\therefore\ r=-0.5\ \mathrm m$$
+<p>\(r<0\) なので (A) は不適です。</p>
+<p class="law">（式1）で r → −r：(B) 上に凸</p>
+$$1.5\left(\frac1{\cgrav r}-\frac11\right)=1\cdot\left(\frac1{\cgrav r}-\frac12\right)\qquad\therefore\ \cgrav r=0.5\ \mathrm m$$
+<p>I(5) の符号の約束を使えば、(A) で \(r=-0.5\) m が出た時点で「(B) で \(r=0.5\) m」と読みかえられます。</p>
+<h3>着眼点：計算の前に向きを予想する</h3>
+<p>上に凸の部分は、屈折率の大きい媒質1 が空気側にふくらんだ形で、ガラスの凸レンズの表面と同じく光を集めるはたらきをします。光の広がりが弱まるので、光源は遠くに見えます。下に凸は逆に光を広げ、近くに見せます。</p>
+<div class="box"><b>式の立て方</b>：符号の約束を決めておけば、(A)(B) を別々に解く必要はありません。1つの式で r を求め、符号で凸の向きを判定します。答えが負なら「逆向きに凸で、半径はその絶対値」です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：左が (A)、右が (B)。r を動かすと、(B) では r = 0.5 m で観察者から 4 m になります。(A) ではどの r でも平らなときより近くに見えます。下のグラフで r と見かけの距離の関係を比べられます。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>II(4)　レンズで本物の位置に見せる<span class="ans">答 凹レンズ，焦点距離 12 m</span></summary><div class="body">
+<h3>見かけの光源をレンズの「物体」とみなす</h3>
+<p>レンズに入る光は、レンズから 4 m の見かけの光源から出たように広がっています。これを物体（\(a=4\) m）とします。レンズを通った光が 3 m の位置から出たように見えればよいので、虚像で \(b=-3\) m です。</p>
+<p class="law">レンズの式（写像公式）</p>
+$$\frac1a+\frac1b=\frac1{\cfr f}\qquad\frac14+\frac1{-3}=\frac1{\cfr f}\qquad\therefore\ \cfr f=-12\ \mathrm m$$
+<p>\(f<0\) なので凹レンズで、焦点距離は 12 m です。</p>
+<h3>着眼点：計算の前に凸か凹かがわかる</h3>
+<p>4 m から来た光を 3 m から来たように見せるには、光の広がりを強めます。光を広げるのは凹レンズです。なお、焦点距離はまわりが屈折率 1（空気）のときの値で、ここでは \(n_2=1\) なのでそのまま使えます。</p>
+<h3>参考：（式1）を2回使うとレンズの式になる</h3>
+<p>空気中に置いた屈折率 \(n\) の薄い両凸レンズ（面の半径 \(R_1, R_2\)）で、1つ目の面に（式1）を使い、その見かけの光源を2つ目の面の光源として（式1）をもう一度使います。厚さを無視して2式をまとめると</p>
+$$\frac1a+\frac1b=(n-1)\left(\frac1{R_1}+\frac1{R_2}\right)$$
+<p>右辺が \(1/f\) です（レンズメーカーの式）。焦点距離が材質と面の曲がり方だけで決まることがわかります。平らな面は \(1/R\to0\)、くぼんだ面は \(R\) を負にします。</p>
+<div class="box"><b>式の立て方</b>：屈折面やレンズが続くときは、前の素子が作る像を次の素子の物体とみなし、同じ式を順に使います。虚像は \(b<0\)、凸レンズは \(f>0\)・凹レンズは \(f<0\) とすれば、場合分けなしで計算できます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：左がレンズなし、右がレンズあり。f を動かすと見かけの光源が上下し、f = −12 m で本物の光源（3 m）と重なります。f が 4 m より大きい凸レンズにすると、レンズなしよりも遠くに見えます。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+</section>
+
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)))};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>式の色つきの項に触れると、図の対応する部分が強調されます</span></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"))}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+
+const st={q:"I12",n1:1.0,n2:1.5,x1:10,r:20,h:3,L1:1,L2:2,nf:2.0,rr:0.5,f:-12,spd:1};
+const SL=[
+ ["n1","n₁","媒質1（光源側）の屈折率","",1,2.4,0.01,2,"I II"],
+ ["n2","n₂","媒質2（観察側）の屈折率","",1,2.4,0.01,2,"I II"],
+ ["x1","x₁","光源 C と点 B の距離","cm",3,40,0.5,1,"I"],
+ ["r","r","球面の半径","cm",4,60,0.5,1,"I"],
+ ["h","h","光線が球面に当たる高さ","cm",0.2,8,0.1,1,"I"],
+ ["L1","L₁","境界から光源までの距離","m",0.3,2,0.05,2,"II"],
+ ["L2","L₂","境界から観察者までの距離","m",0.5,3,0.05,2,"II"],
+ ["nf","n<sub>f</sub>","板の屈折率","",1,2.4,0.01,2,"II2"],
+ ["rr","r","変形した部分の半径","m",0.2,3,0.01,2,"II3 II4"],
+ ["f","f","レンズの焦点距離（凹レンズは負）","m",-30,30,0.5,1,"II4"],
+ ["spd","","再生速度","倍",0.25,3,0.05,2,"all"]];
+const cv=mkCv($("#cv"),n=>st.q.startsWith("II")?(n?[480,600]:[1000,470]):(n?[480,430]:[1000,420]));
+const gr=mkCv($("#gr"),n=>n?[480,300]:[1000,240]);
+const PRE={I:{n1:1.0,n2:1.5,x1:10,r:20,h:3},I5:{n1:1.0,n2:1.5,x1:30,r:20,h:3},II1:{n1:1.33,n2:1.0,L1:1,L2:2},II2:{n1:1.0,n2:1.33,nf:2.0,L1:1,L2:2},II3:{n1:1.5,n2:1.0,L1:1,L2:2,rr:0.5,f:-12}};
+const grp=q=>q==="I12"||q==="I34"?"I":q==="II4"?"II3":q;
+let S={},lastG="I";
+function restart(){const g=grp(st.q);if(g!==lastG){Object.assign(st,PRE[g]);lastG=g}S={t:0}}
+function onParam(k){}
+function step(dt){S.t+=dt}
+window.pre19=k=>{Object.assign(st,k==="ans3"?{n1:1.5,n2:1,L1:1,L2:2,rr:0.5}:k==="ans4"?{n1:1.5,n2:1,L1:1,L2:2,rr:0.5,f:-12}:PRE[k]);syncUI()};
+/* ---------- optics helpers ---------- */
+const nrm=v=>{const l=Math.hypot(v.x,v.y);return{x:v.x/l,y:v.y/l}};
+function refr(d,N,na,nb){let c=d.x*N.x+d.y*N.y,Nn=N;if(c<0){Nn={x:-N.x,y:-N.y};c=-c}const k=na/nb,s2=k*k*(1-c*c);if(s2>1)return null;const c2=Math.sqrt(1-s2);return{x:k*(d.x-c*Nn.x)+c2*Nn.x,y:k*(d.y-c*Nn.y)+c2*Nn.y,c1:c,c2,Nn}}
+function x2par(n1,n2,x1,rs){const inv=(n1*(1/rs+1/x1)-n2/rs)/n2;return 1/inv}// 式1 (signed r)
+const tint=nn=>alpha(CL.mute,Math.min(0.42,0.05+0.22*(nn-1)));
+function arcW(c,x,y,a0,a1,rad,col,lab,k){let d=a1-a0;while(d>Math.PI)d-=2*Math.PI;while(d<=-Math.PI)d+=2*Math.PI;if(Math.abs(d)<0.004)return;const e=a0+d;glow(c,k,col);c.strokeStyle=col;c.lineWidth=W_(k,1.8);c.beginPath();c.arc(x,y,rad,-a0,-e,d>0);c.stroke();noglow(c);if(lab){const m=a0+d/2;txt(c,lab,x+(rad+12)*Math.cos(m),y-(rad+12)*Math.sin(m),col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}}
+function waveDots(rays,tau){return rays.map(R=>{if(!R)return null;let acc=0;for(let j=0;j+1<R.pts.length;j++){const a=R.pts[j],b=R.pts[j+1],l=Math.hypot(b.x-a.x,b.y-a.y),ol=l*R.ns[j];if(tau<=acc+ol){const f=(tau-acc)/ol;return{x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f,j}}acc+=ol}return null})}
+function drawWaves(c,V,rays,Lam,maxT){const base=(S.t*Lam*0.7)%Lam;for(let tau=base;tau<maxT;tau+=Lam){const D=waveDots(rays,tau);c.strokeStyle=alpha(CL.ink,0.3);c.lineWidth=1.2;c.beginPath();let on=false;D.forEach(p=>{if(!p){on=false;return}const X=V.X(p.x),Y=V.Y(p.y);on?c.lineTo(X,Y):c.moveTo(X,Y);on=true});c.stroke();D.forEach(p=>{if(p)dot(c,V.X(p.x),V.Y(p.y),2.3,p.j===0?CL.acc:CL.frc)})}}
+const deg=a=>(a*180/Math.PI).toFixed(1)+"°";
+/* ---------- part I : sphere, horizontal ---------- */
+const rsI=()=>st.q==="I5"?-st.r:st.r;
+function rayI(y){const rs=rsI(),r=st.r;if(Math.abs(y)>0.97*r)return null;const P={x:rs-Math.sign(rs)*Math.sqrt(r*r-y*y),y},C={x:-st.x1,y:0},O={x:rs,y:0};
+ if(P.x<=C.x+0.05)return null;const d1=nrm({x:P.x-C.x,y:P.y-C.y}),N=nrm({x:P.x-O.x,y:P.y-O.y}),t=refr(d1,N,st.n1,st.n2);if(!t)return{P,C,d1,tir:true};
+ let xA=null,sA=null;if(Math.abs(t.y)>1e-9){sA=-P.y/t.y;xA=P.x+sA*t.x}
+ return{P,C,O,d1,t,Nn:t.Nn,xA,sA,th1:Math.acos(Math.min(1,t.c1)),th2:Math.acos(Math.min(1,t.c2)),a1:Math.atan2(Math.abs(y),P.x-C.x),a2:Math.atan(Math.abs(t.y/t.x)),ph:Math.asin(Math.abs(y)/r)}}
+function viewI(){const W=cv.W,H=cv.H,n=cv.narrow,B={x:n?12:24,y:n?40:34,w:W-(n?24:48),h:H-(n?100:90)};const rs=rsI(),x2=x2par(st.n1,st.n2,st.x1,rs);
+ let XL=Math.max(st.x1,(x2>0&&x2<90)?x2:0,rs<0?st.r:0)*1.07+2;XL=Math.min(XL,100);
+ let XR=Math.max(rs>0?st.r+3:8,0.3*XL,(x2<0&&x2>-90)?-x2+4:0);XR=Math.min(XR,100);
+ const s=B.w/(XL+XR);let yt=B.h/s*0.78,yb=B.h/s*0.22;const need=st.h*1.35+1;if(yt<need){const k=need/yt;yt*=k;yb*=k}
+ return{V:view(B,[-XL,XR],[-yb,yt]),XL,XR,x2,rs,B}}
+function drawI(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,q=st.q,G=viewI(),V=G.V,rs=G.rs,r=st.r,x2=G.x2,X=V.X,Y=V.Y,s=V.s,y0=Y(0);
+ // media
+ c.fillStyle=tint(rs>0?st.n1:st.n2);c.fillRect(0,0,W,H);c.fillStyle=tint(rs>0?st.n2:st.n1);c.beginPath();c.arc(X(rs),y0,r*s,0,Math.PI*2);c.fill();
+ c.strokeStyle=CL.ink;c.lineWidth=2.2;c.beginPath();c.arc(X(rs),y0,r*s,0,Math.PI*2);c.stroke();
+ txt(c,`媒質1　n_1 = ${st.n1.toFixed(2)}`,n?10:16,16,CL.ink,{s:13,b:1});txt(c,`媒質2　n_2 = ${st.n2.toFixed(2)}`,W-(n?10:16),16,CL.ink,{s:13,b:1,al:"right"});
+ // axis
+ arrow(c,4,y0,W-6,y0,CL.mute,1.2);txt(c,"x 軸",W-8,y0-12,CL.mute,{s:12,al:"right"});
+ // fan rays (upper half)
+ const ks=[0,0.25,0.5,0.75,1],rays=[],big=4*(G.XL+G.XR);let main=null;
+ ks.forEach(k=>{const R=rayI(k*st.h);if(!R){rays.push(null);return}if(k===1)main=R;
+  if(R.tir){line(c,[[X(R.C.x),y0],[X(R.P.x),Y(R.P.y)]],alpha(CL.acc,0.5),1.2);rays.push(null);return}
+  const E={x:R.P.x+R.t.x*big,y:R.P.y+R.t.y*big};rays.push({pts:[R.C,R.P,E],ns:[st.n1,st.n2]});
+  if(k!==1){line(c,[[X(R.C.x),y0],[X(R.P.x),Y(R.P.y)]],alpha(CL.acc,0.45),1.2);line(c,[[X(R.P.x),Y(R.P.y)],[X(E.x),Y(E.y)]],alpha(CL.frc,0.45),1.2);if(R.sA!=null&&R.sA<0)line(c,[[X(R.P.x),Y(R.P.y)],[X(R.xA),y0]],alpha(CL.frc,0.35),1,[4,4])}});
+ drawWaves(c,V,rays,Math.max(1.2,(G.XL+G.XR)/16),st.n1*st.x1+st.n2*(G.XL+G.XR)*1.3);
+ // O and normal
+ const O={x:rs,y:0};dot(c,X(O.x),y0,4.5,CL.grav);txt(c,"O",X(O.x),y0+16,CL.grav,{s:14,b:1,al:"center"});
+ if(main&&!main.tir){const P=main.P,e=nrm({x:P.x-O.x,y:P.y-O.y}),ext=55/s;
+  line(c,[[X(O.x),y0],[X(P.x+e.x*ext),Y(P.y+e.y*ext)]],alpha(CL.grav,0.75),1.3,[5,4]);
+  glow(c,"r",CL.grav);line(c,[[X(O.x),y0],[X(P.x),Y(P.y)]],CL.grav,W_("r",1.8));noglow(c);
+  const mx=(O.x+P.x)/2,my=P.y/2;txt(c,"r",X(mx)+(rs>0?10:-10),Y(my)-10,CL.grav,{s:HL("r")?17:15,it:1,b:1,al:"center"});
+  // main ray
+  karrow(c,"C",X(main.C.x),y0,X(P.x),Y(P.y),CL.acc,2.6);const E=rays[4].pts[2];glow(c,"A",CL.frc);line(c,[[X(P.x),Y(P.y)],[X(E.x),Y(E.y)]],CL.frc,W_("A",2.6));noglow(c);
+  const am=[X(P.x+main.t.x*Math.min(big,90/s)),Y(P.y+main.t.y*Math.min(big,90/s))];arrow(c,X(P.x),Y(P.y),am[0],am[1],CL.frc,2.6);
+  if(main.sA!=null&&main.sA<0)line(c,[[X(P.x),Y(P.y)],[X(main.xA),y0]],CL.frc,1.6,[6,4]);
+  // angles
+  const Nn=main.Nn,ang=v=>Math.atan2(v.y,v.x);
+  arcW(c,X(P.x),Y(P.y),ang({x:-main.d1.x,y:-main.d1.y}),ang({x:-Nn.x,y:-Nn.y}),40,CL.acc,"θ_1","t1");
+  arcW(c,X(P.x),Y(P.y),ang(main.t),ang(Nn),52,CL.frc,"θ_2","t2");
+  arcW(c,X(main.C.x),y0,0,ang(main.d1),n?40:52,CL.acc,"α_1","a1");
+  if(main.sA!=null&&main.sA<0&&main.xA>-G.XL*1.2)arcW(c,X(main.xA),y0,0,ang(main.t),n?52:70,CL.frc,"α_2","a2");
+  arcW(c,X(O.x),y0,rs>0?Math.PI:0,ang({x:P.x-O.x,y:P.y-O.y}),n?34:42,CL.grav,"φ","ph");
+  dimV(c,X(P.x)+(rs>0?10:-10),y0,Y(P.y),"h",CL.fic,"h",rs>0?1:-1);
+  dot(c,X(P.x),Y(P.y),3.5,CL.ink);txt(c,"P",X(P.x)+(rs>0?-8:8),Y(P.y)-14,CL.ink,{s:14,b:1,al:rs>0?"right":"left"})}
+ if(main&&main.tir)txt(c,"全反射（屈折光なし）",X(main.P.x),Y(main.P.y)-18,CL.frc,{s:13,b:1,al:"center"});
+ // points
+ dot(c,X(0),y0,3.5,CL.ink);txt(c,"B",X(0)+(rs>0?-8:8),y0+15,CL.ink,{s:14,b:1,al:rs>0?"right":"left"});
+ glow(c,"C",CL.acc);dot(c,X(-st.x1),y0,5.5,CL.acc);noglow(c);txt(c,"C（光源）",X(-st.x1),y0-16,CL.acc,{s:13,b:1,al:"center"});
+ if(isFinite(x2)&&Math.abs(x2)<200){glow(c,"A",CL.frc);dot(c,X(-x2),y0,6,CL.bg,CL.frc,W_("A",2.2));noglow(c);txt(c,x2>0?"A":"像",X(-x2),y0-16,CL.frc,{s:14,b:1,al:"center"})}
+ // dims
+ dimH(c,X(-st.x1),X(0),y0+26,"x_1",CL.acc,"x1");
+ if(isFinite(x2)&&x2>0&&x2<200)dimH(c,X(-x2),X(0),y0+54,"x_2",CL.frc,"x2");
+ else if(isFinite(x2)&&x2<0&&x2>-200)dimH(c,X(0),X(-x2),y0+54,"|x_2|（実像）",CL.frc,"x2");
+ const cap=q==="I5"?(st.x1>st.r?"右に凸。光源 C は O の左 → 図(A) の場合":"右に凸。光源 C は O の右 → 図(B) の場合"):"破線（光線の延長）が集まる点 A が「見かけの光源」。h を小さくするほど1点に集まる";
+ txt(c,cap,n?8:16,H-10,CL.ink,{s:n?12:13,b:1})}
+/* ---------- part II : vertical, two panels ---------- */
+const capW=r=>Math.min(0.3,0.5*r);
+const dII=()=>st.nf*(st.n1-st.n2)*st.L1/(st.n1*(st.n2-st.nf));
+function panelsII(){const q=st.q,n1=st.n1,n2=st.n2,L1=st.L1,L2=st.L2,P=[];
+ if(q==="II1"){P.push({title:"屈折がない場合（n₂ = n₁）",n1,n2:n1,surf:[{t:"plane",y:0,nb:n1}],D:L1+L2});P.push({title:"いまの設定",n1,n2,surf:[{t:"plane",y:0,nb:n2}],D:L2+n2/n1*L1})}
+ if(q==="II2"){const d=dII();P.push({title:"板なし",n1,n2,surf:[{t:"plane",y:0,nb:n2}],D:L2+n2/n1*L1});
+  if(d>0&&isFinite(d))P.push({title:"板あり",n1,n2,nf:st.nf,d,surf:[{t:"plane",y:0,nb:st.nf},{t:"plane",y:d,nb:n2}],D:L2-d+n2/st.nf*(st.nf/n1*L1+d)});
+  else P.push({title:"板あり",n1,n2,surf:[{t:"plane",y:0,nb:n2}],D:L2+n2/n1*L1,bad:1})}
+ if(q==="II3")["A","B"].forEach(sh=>P.push({title:sh==="A"?"(A) 下に凸":"(B) 上に凸",n1,n2,shape:sh,r:st.rr,surf:[{t:"cap",shape:sh,r:st.rr,nb:n2}],D:L2+x2par(n1,n2,L1,sh==="A"?st.rr:-st.rr)}));
+ if(q==="II4"){const D0=L2+x2par(n1,n2,L1,-st.rr);P.push({title:"レンズなし（(B) の境界）",n1,n2,shape:"B",r:st.rr,surf:[{t:"cap",shape:"B",r:st.rr,nb:n2}],D:D0});
+  const f=Math.abs(st.f)>=0.5?st.f:0;P.push({title:f?(f<0?"凹レンズあり":"凸レンズあり"):"レンズあり（f = 0 は無効）",n1,n2,shape:"B",r:st.rr,surf:[{t:"cap",shape:"B",r:st.rr,nb:n2}],lens:f,D0,D:f?-1/(1/f-1/D0):D0})}
+ return P}
+function capC(s){const w=capW(s.r),c0=Math.sqrt(s.r*s.r-w*w);return{w,yc:s.shape==="B"?-c0:c0}}
+function traceII(a,cfg,yEnd){let p={x:0,y:-st.L1},u={x:Math.sin(a),y:Math.cos(a)},nn=cfg.n1;const pts=[p],ns=[];
+ for(const s of cfg.surf){let q=null,N={x:0,y:1};
+  if(s.t==="cap"){const{w,yc}=capC(s),dx=p.x,dy=p.y-yc,b=dx*u.x+dy*u.y,cc=dx*dx+dy*dy-s.r*s.r,D=b*b-cc;
+   if(D>=0){const sq=Math.sqrt(D);for(const k of[-b-sq,-b+sq]){if(k<=1e-9)continue;const qq={x:p.x+k*u.x,y:p.y+k*u.y};if(Math.abs(qq.x)<=w&&(s.shape==="B"?qq.y>=yc:qq.y<=yc)){q=qq;N={x:qq.x/s.r,y:(qq.y-yc)/s.r};break}}}}
+  if(!q){if(u.y<=0)return null;const y=s.t==="plane"?s.y:0,k=(y-p.y)/u.y;q={x:p.x+k*u.x,y}}
+  const t=refr(u,N,nn,s.nb);if(!t)return null;pts.push(q);ns.push(nn);p=q;u={x:t.x,y:t.y};nn=s.nb}
+ let lensPt=null;
+ if(cfg.lens){if(u.y<=0)return null;const k=(st.L2-p.y)/u.y,q={x:p.x+k*u.x,y:st.L2};pts.push(q);ns.push(nn);lensPt=q;const m=u.x/u.y-q.x/cfg.lens;u=nrm({x:m,y:1});p=q}
+ if(u.y<=0)return null;const k=(yEnd-p.y)/u.y;pts.push({x:p.x+k*u.x,y:yEnd});ns.push(nn);
+ return{pts,ns,u,last:p,lensPt}}
+function drawII(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,P=panelsII(),L1=st.L1,L2=st.L2;
+ let deep=L1;P.forEach(p=>[p.D,p.D0].forEach(D=>{if(D!=null&&isFinite(D)){const z=D-L2;if(z>deep&&z<6)deep=z}}));
+ const lo=-deep-0.3,hi=L2+0.45,hw=n?1.15:1.05,gap=n?6:20,bw=(W-gap*3)/2;
+ P.forEach((p,i)=>drawPanel(c,p,{x:gap+i*(bw+gap),y:n?46:40,w:bw,h:H-(n?92:80)},lo,hi,hw,n,i===1))}
+function drawPanel(c,p,B,lo,hi,hw,n,isMain){const V=view(B,[-hw,hw],[lo,hi]),X=V.X,Y=V.Y,L1=st.L1,L2=st.L2;
+ txt(c,p.title,B.x+B.w/2,B.y-18,isMain?CL.ink:CL.mute,{s:n?13:14,b:1,al:"center"});
+ c.save();c.beginPath();c.rect(B.x,B.y,B.w,B.h);c.clip();
+ c.fillStyle=tint(p.n2);c.fillRect(B.x,B.y,B.w,B.h);
+ // medium 1 region
+ const sf=[];const cs=p.surf.find(s=>s.t==="cap");
+ if(cs){const{w,yc}=capC(cs);sf.push([-50,0],[-w,0]);for(let i=0;i<=40;i++){const x=-w+2*w*i/40,dy=Math.sqrt(cs.r*cs.r-x*x);sf.push([x,cs.shape==="B"?yc+dy:yc-dy])}sf.push([w,0],[50,0])}else sf.push([-50,0],[50,0]);
+ c.fillStyle=tint(p.n1);c.beginPath();sf.forEach((q,i)=>i?c.lineTo(X(q[0]),Y(q[1])):c.moveTo(X(q[0]),Y(q[1])));c.lineTo(X(50),Y(-50));c.lineTo(X(-50),Y(-50));c.closePath();c.fill();
+ if(p.d){c.fillStyle=tint(p.nf);c.fillRect(B.x,Y(p.d),B.w,Y(0)-Y(p.d));line(c,[[B.x,Y(p.d)],[B.x+B.w,Y(p.d)]],CL.ink,1.6);txt(c,`n_f = ${p.nf.toFixed(2)}`,B.x+8,(Y(0)+Y(p.d))/2,CL.ink,{s:12})}
+ line(c,sf.map(q=>[X(q[0]),Y(q[1])]),CL.ink,2);
+ txt(c,`n_2 = ${p.n2.toFixed(2)}`,B.x+8,B.y+14,CL.ink,{s:12});txt(c,`n_1 = ${p.n1.toFixed(2)}`,B.x+8,Y(0)+16,CL.ink,{s:12});
+ // radius
+ if(cs){const{w,yc}=capC(cs);glow(c,"r",CL.grav);line(c,[[X(0),Y(yc)],[X(w),Y(0)]],CL.grav,W_("r",1.6),[5,4]);noglow(c);dot(c,X(0),Y(yc),3.5,CL.grav);txt(c,"r",X(w*0.5)+8,Y(yc*0.5),CL.grav,{s:HL("r")?16:14,it:1,b:1})}
+ // rays
+ const X0=cs?0.8*capW(cs.r):0.22,rays=[];for(let i=-3;i<=3;i++){const a=Math.atan(X0*i/3/L1);rays.push(traceII(a,p,hi+0.6))}
+ rays.forEach(R=>{if(!R)return;for(let j=0;j+1<R.pts.length;j++){const a=R.pts[j],b=R.pts[j+1];line(c,[[X(a.x),Y(a.y)],[X(b.x),Y(b.y)]],j===0?alpha(CL.acc,0.75):alpha(CL.frc,0.75),1.5)}
+  if(Math.abs(R.u.x)>1e-6){const k=-R.last.x/R.u.x;if(k<0)line(c,[[X(R.last.x),Y(R.last.y)],[X(0),Y(R.last.y+k*R.u.y)]],alpha(CL.frc,0.5),1.1,[4,4])}});
+ drawWaves(c,V,rays,0.3,(L1+hi+1)*2.6);
+ // lens
+ if(p.lens){const A=X(0.5)-X(0),yL=Y(L2),cx=X(0),e=p.lens<0?8:2,m=p.lens<0?2:9;glow(c,"f",CL.fr);c.fillStyle=alpha(CL.fr,0.25);c.strokeStyle=CL.fr;c.lineWidth=W_("f",1.8);c.beginPath();c.moveTo(cx-A,yL-e);c.quadraticCurveTo(cx,yL-(2*m-e),cx+A,yL-e);c.lineTo(cx+A,yL+e);c.quadraticCurveTo(cx,yL+(2*m-e),cx-A,yL+e);c.closePath();c.fill();c.stroke();noglow(c);txt(c,"レンズ",cx-A-6,yL,CL.fr,{s:12,b:1,al:"right"})}
+ // observer
+ const ey=Y(L2+(p.lens?0.22:0.08)),ex=X(0);c.strokeStyle=CL.ink;c.lineWidth=1.5;c.beginPath();c.ellipse(ex,ey,13,6,0,0,Math.PI*2);c.stroke();dot(c,ex,ey,3,CL.ink);txt(c,"観察者",ex+18,ey,CL.ink,{s:12,b:1});
+ // source and apparent
+ dot(c,X(0),Y(-L1),5.5,CL.acc);txt(c,"光源",X(0)-10,Y(-L1)+4,CL.acc,{s:12,b:1,al:"right"});
+ if(p.D0!=null&&isFinite(p.D0)&&p.lens){const ya=L2-p.D0;dot(c,X(0),Y(ya),5,CL.bg,CL.mute,1.6);txt(c,"レンズなしの見かけ",X(0)+10,Y(ya)+4,CL.mute,{s:11})}
+ if(isFinite(p.D)&&!p.bad){const ya=L2-p.D;const same=Math.abs(p.D-L1-L2)<0.03;glow(c,"D",CL.frc);same?dot(c,X(0),Y(ya),9,null,CL.frc,W_("D",2.2)):dot(c,X(0),Y(ya),6,CL.bg,CL.frc,W_("D",2.2));noglow(c);if(Math.abs(p.D-L1-L2)>0.03)txt(c,"見かけ",X(0)+10,Y(ya)+4,CL.frc,{s:12,b:1})}
+ // dims
+ const xd=-hw*0.72;dimV(c,X(xd),Y(0),Y(-L1),"L_1",CL.acc,"L1",-1);dimV(c,X(xd),Y(L2),Y(0),"L_2",CL.ink,"L2",-1);
+ if(isFinite(p.D)&&!p.bad){const ya=L2-p.D;if(ya>lo-1)dimV(c,X(hw*0.72),Y(L2),Y(Math.max(ya,lo)),"D",CL.frc,"D",1)}
+ if(p.d)dimV(c,X(hw*0.45),Y(p.d),Y(0),"d",CL.fic,"d",1);
+ if(p.bad){c.fillStyle=alpha(CL.bg,0.85);c.fillRect(B.x+10,Y(L2*0.5)-22,B.w-20,44);txt(c,"この屈折率では d > 0 の",B.x+B.w/2,Y(L2*0.5)-9,CL.ng,{s:13,b:1,al:"center"});txt(c,"板は作れません",B.x+B.w/2,Y(L2*0.5)+11,CL.ng,{s:13,b:1,al:"center"})}
+ c.restore();c.strokeStyle=CL.line;c.lineWidth=1;c.strokeRect(B.x,B.y,B.w,B.h);
+ const Ds=p.bad?"—":isFinite(p.D)?p.D.toFixed(2)+" m":"∞";txt(c,(n?"見かけ ":"見かけの光源：観察者から ")+Ds,B.x+B.w/2,B.y+B.h+17,CL.frc,{s:n?12:13,b:1,al:"center"})}
+/* ---------- graphs ---------- */
+function ttl(c,s,B){txt(c,s,B.x-40,B.y-38,CL.ink,{s:13,b:1})}
+function curve(c,A,pts,col,w=2.2,dash){const seg=[];let cur=[];pts.forEach(([x,y])=>{if(isFinite(y)&&y>-1e3&&y<1e3)cur.push([A.X(x),A.Y(y)]);else{if(cur.length>1)seg.push(cur);cur=[]}});if(cur.length>1)seg.push(cur);seg.forEach(s=>line(c,s,col,w,dash))}
+function legend(c,B,items){let x=B.x+B.w;items.slice().reverse().forEach(([s,col,dash])=>{c.font="12px "+JF;const w=c.measureText(s).width;txt(c,s,x,B.y-38,col,{s:12,al:"right"});line(c,[[x-w-26,B.y-38],[x-w-6,B.y-38]],col,2,dash);x-=w+40})}
+function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q,B={x:n?58:76,y:n?66:60,w:W-(n?84:120),h:H-(n?108:100)};
+ c.save();c.beginPath();c.rect(0,0,W,H);c.clip();
+ if(q==="I12"){const tc=st.n1>st.n2?Math.asin(st.n2/st.n1):Math.PI/2,tm=Math.min(70,tc*180/Math.PI-0.01),f=st.n1/st.n2;const ymax=Math.min(90,Math.max(tm*f,Math.asin(Math.min(1,f*Math.sin(tm*Math.PI/180)))*180/Math.PI)*1.1+2);
+  const A=axes(c,B,[0,tm*1.05],[0,ymax],{xl:"θ₁ [°]",xit:false,yl:"θ₂ [°]",yit:false,xt:[[10,"10"],[20,"20"],[30,"30"],[40,"40"],[50,"50"],[60,"60"]].filter(t=>t[0]<tm),yt:[[20,"20"],[40,"40"],[60,"60"],[80,"80"]].filter(t=>t[0]<ymax)});
+  const pe=[],pa=[];for(let t=0;t<=tm;t+=tm/120){const s=f*Math.sin(t*Math.PI/180);pe.push([t,s<=1?Math.asin(s)*180/Math.PI:NaN]);pa.push([t,f*t])}
+  curve(c,A,pa,CL.mute,1.8,[6,5]);curve(c,A,pe,CL.frc,2.4);const R=rayI(st.h);if(R&&!R.tir){const a=R.th1*180/Math.PI,b=R.th2*180/Math.PI;if(a<=tm*1.05&&b<=ymax)dot(c,A.X(a),A.Y(b),5.5,CL.frc,CL.bg,2)}
+  ttl(c,n?"θ₁ と θ₂ の関係":"屈折の法則：θ₁ と θ₂ の関係（点は光線 h）",B);legend(c,B,[["正確",CL.frc],["近似 n₁θ₁ = n₂θ₂",CL.mute,[6,5]]])}
+ else if(q==="I34"||q==="I5"){const x2=x2par(st.n1,st.n2,st.x1,rsI()),hm=Math.min(0.95*st.r,Math.max(8,st.h*1.2));const pts=[];for(let i=1;i<=120;i++){const y=hm*i/120,R=rayI(y);pts.push([y,R&&!R.tir&&R.sA!=null?-R.xA:NaN])}
+  const vals=pts.map(p=>p[1]).filter(isFinite).concat(isFinite(x2)?[x2]:[]);let y1=Math.max(...vals,1),y0=Math.min(...vals,0);if(y1>3*Math.abs(x2)+20)y1=3*Math.abs(x2)+20;if(y0<-3*Math.abs(x2)-20)y0=-3*Math.abs(x2)-20;const pad=(y1-y0)*0.1;
+  const tk=[];const stp=hm>20?10:hm>8?4:2;for(let v=stp;v<hm;v+=stp)tk.push([v,String(v)]);
+  const A=axes(c,B,[0,hm],[y0-pad,y1+pad],{xl:"h [cm]",xit:false,yl:"x₂ [cm]",yit:false,xt:tk,y0:y0<0?0:null,yt:isFinite(x2)?[[x2,x2.toFixed(1)]]:[]});
+  if(isFinite(x2))curve(c,A,[[0,x2],[hm,x2]],CL.mute,1.8,[6,5]);curve(c,A,pts,CL.frc,2.4);const R=rayI(st.h);if(R&&!R.tir&&R.sA!=null)dot(c,A.X(st.h),A.Y(-R.xA),5.5,CL.frc,CL.bg,2);
+  ttl(c,n?"光線の高さ h と A の位置":"光線の高さ h と、延長が光軸と交わる位置 x₂",B);legend(c,B,[["正確",CL.frc],["式1",CL.mute,[6,5]]])}
+ else if(q==="II1"){const n1=st.n1,n2=st.n2,L1=st.L1,zp=n2/n1*L1,bm=n1>n2?70:Math.min(70,Math.asin(n1/n2)*180/Math.PI-1);const pts=[];for(let i=1;i<=120;i++){const b=bm*i/120*Math.PI/180,a=Math.asin(n2*Math.sin(b)/n1);pts.push([b*180/Math.PI,L1*Math.tan(a)/Math.tan(b)])}
+  const ym=Math.max(L1,zp)*1.15;const A=axes(c,B,[0,bm],[0,ym],{xl:"見る角度 [°]",xit:false,yl:"見かけの深さ [m]",yit:false,xt:[[10,"10"],[20,"20"],[30,"30"],[40,"40"],[50,"50"],[60,"60"]].filter(t=>t[0]<bm),yt:[[L1,"L₁"],[zp,zp.toFixed(2)]]});
+  curve(c,A,[[0,L1],[bm,L1]],CL.acc,1.4,[3,4]);curve(c,A,[[0,zp],[bm,zp]],CL.mute,1.8,[6,5]);curve(c,A,pts,CL.frc,2.4);
+  ttl(c,n?"斜めから見たときの深さ":"真上からずれた方向から見たときの見かけの深さ",B);legend(c,B,[["正確",CL.frc],["式1",CL.mute,[6,5]]])}
+ else if(q==="II2"){const n1=st.n1,n2=st.n2,nf=st.nf,L1=st.L1,L2=st.L2,d=dII(),dm=Math.max(L2,isFinite(d)&&d>0?d*1.4:0.5),Df=x=>L2+n2/n1*L1+x*(n2/nf-1),T=L1+L2;
+  const vs=[Df(0),Df(dm),T];const y0=Math.max(0,Math.min(...vs)-0.4),y1=Math.max(...vs)+0.4;
+  const A=axes(c,B,[0,dm],[y0,y1],{xl:"板の厚さ d [m]",xit:false,yl:"観察者からの距離 [m]",yit:false,xt:[[0.5,"0.5"],[1,"1"],[1.5,"1.5"],[2,"2"],[2.5,"2.5"]].filter(t=>t[0]<dm),yt:[[T,"L₁+L₂"]]});
+  curve(c,A,[[0,T],[dm,T]],CL.acc,1.6,[6,5]);curve(c,A,[[0,Df(0)],[dm,Df(dm)]],CL.frc,2.4);if(d>0&&d<=dm)dot(c,A.X(d),A.Y(T),5.5,CL.fic,CL.bg,2);
+  ttl(c,"板の厚さと見かけの距離",B);legend(c,B,[["見かけ",CL.frc],["本物",CL.acc,[6,5]]])}
+ else{const n1=st.n1,n2=st.n2,L1=st.L1,L2=st.L2;
+  if(q==="II3"){const fA=r=>L2+x2par(n1,n2,L1,r),fB=r=>L2+x2par(n1,n2,L1,-r),pA=[],pB=[];for(let i=0;i<=150;i++){const r=0.2+2.8*i/150;const a=fA(r),b=fB(r);pA.push([r,a>0?a:NaN]);pB.push([r,b>0?b:NaN])}
+   const A=axes(c,B,[0.2,3],[0,8],{xl:"r [m]",xit:false,yl:"観察者からの距離 [m]",yit:false,xt:[[0.5,"0.5"],[1,"1"],[1.5,"1.5"],[2,"2"],[2.5,"2.5"]],yt:[[2,"2"],[4,"4"],[6,"6"]]});
+   curve(c,A,[[0.2,4],[3,4]],CL.mute,1.4,[6,5]);curve(c,A,pA,CL.acc,2.2);curve(c,A,pB,CL.frc,2.4);[fA(st.rr),fB(st.rr)].forEach((v,i)=>{if(v>0&&v<8)dot(c,A.X(st.rr),A.Y(v),5.5,i?CL.frc:CL.acc,CL.bg,2)});
+   ttl(c,n?"r と見かけの距離":"球面の半径 r と見かけの距離（灰の破線：4 m）",B);legend(c,B,[["(A)",CL.acc],["(B)",CL.frc]])}
+  else{const D0=L2+x2par(n1,n2,L1,-st.rr),T=L1+L2,pts=[];for(let i=0;i<=300;i++){const f=-30+60*i/300;if(Math.abs(f)<0.4){pts.push([f,NaN]);continue}const D=-1/(1/f-1/D0);pts.push([f,D>0&&D<9?D:NaN])}
+   const A=axes(c,B,[-30,30],[0,8],{xl:"f [m]",xit:false,yl:"観察者からの距離 [m]",yit:false,xt:[[-20,"−20"],[-10,"−10"],[10,"10"],[20,"20"]],yt:[[T,"本物"],[D0,D0.toFixed(1)]]});
+   curve(c,A,[[-30,T],[30,T]],CL.acc,1.4,[6,5]);curve(c,A,[[-30,D0],[30,D0]],CL.mute,1.4,[3,4]);curve(c,A,pts,CL.frc,2.4);const f=st.f;if(Math.abs(f)>=0.5){const D=-1/(1/f-1/D0);if(D>0&&D<8)dot(c,A.X(f),A.Y(D),5.5,CL.fr,CL.bg,2)}
+   ttl(c,n?"f と見かけの距離":"レンズの焦点距離 f と、最終的に見える位置",B);legend(c,B,[["レンズあり",CL.frc],["本物",CL.acc,[6,5]],["レンズなし",CL.mute,[3,4]]])}}
+ c.restore()}
+function drawAll(){if(st.q.startsWith("II"))drawII();else drawI();drawGr()}
+/* ---------- live equations ---------- */
+function eqs(){const q=st.q,R=String.raw,nw=cv.narrow,f3=v=>isFinite(v)?v.toFixed(3):"—",f2=v=>isFinite(v)?v.toFixed(2):"—";
+ const T1=TK("t1","acc",R`\theta_1`),T2=TK("t2","frc",R`\theta_2`),A1=TK("a1","acc",R`\alpha_1`),A2=TK("a2","frc",R`\alpha_2`),PH=TK("ph","grav",R`\phi`),Rr=TK("r","grav","r"),X1=TK("x1","acc","x_1"),X2=TK("x2","frc","x_2"),Hh=TK("h","fic","h");
+ if(q.startsWith("I")&&!q.startsWith("II")){const M=rayI(st.h),x2=x2par(st.n1,st.n2,st.x1,rsI()),ok=M&&!M.tir;
+  if(q==="I12"){return{title:"屈折の法則（微小角で sin β ≒ β）と三角形の外角",list:[
+   {t:R`n_1\sin`+T1+R`=n_2\sin`+T2,n:ok?`${f3(st.n1*Math.sin(M.th1))} = ${f3(st.n2*Math.sin(M.th2))}（θ₁ = ${NS(f3(M.th1),"acc")} rad，θ₂ = ${NS(f3(M.th2),"frc")} rad）`:"全反射"},
+   {t:R`\frac{`+T1+"}{"+T2+R`}\fallingdotseq\frac{n_2}{n_1}`,n:ok?`θ₁/θ₂ = ${f3(M.th1/M.th2)}，n₂/n₁ = ${f3(st.n2/st.n1)}`:""},
+   {t:T1+"="+A1+"+"+PH+(nw?R`,\;`:R`,\qquad `)+T2+"="+A2+"+"+PH,n:ok?`${NS(f3(M.th1),"acc")} = ${f3(M.a1)} + ${NS(f3(M.ph),"grav")}，${NS(f3(M.th2),"frc")} = ${f3(M.a2)} + ${f3(M.ph)}（rad）`:""}]}}
+  if(q==="I34"){const L=[];const e1={t:A1+R`\fallingdotseq\frac{`+Hh+"}{"+X1+"}",n:ok?`${f3(M.a1)} ≒ ${f3(st.h/st.x1)}`:""},e2={t:A2+R`\fallingdotseq\frac{`+Hh+"}{"+X2+"}",n:ok?`${f3(M.a2)} ≒ ${f3(st.h/x2)}`:""},e3={t:PH+R`\fallingdotseq\frac{`+Hh+"}{"+Rr+"}",n:ok?`${f3(M.ph)} ≒ ${f3(st.h/st.r)}`:""};
+   if(nw)L.push({t:e1.t+R`,\;\;`+e2.t+R`,\;\;`+e3.t,n:ok?`α₁ ${f3(M.a1)} ≒ ${f3(st.h/st.x1)}，α₂ ${f3(M.a2)} ≒ ${f3(st.h/x2)}，φ ${f3(M.ph)} ≒ ${f3(st.h/st.r)}`:""});else L.push({t:e1.t+R`,\qquad `+e2.t+R`,\qquad `+e3.t,n:ok?`α₁ = ${f3(M.a1)} ≒ ${f3(st.h/st.x1)}，α₂ = ${f3(M.a2)} ≒ ${f3(st.h/x2)}，φ = ${f3(M.ph)} ≒ ${f3(st.h/st.r)}（rad）`:""});
+   L.push({t:R`n_1\left(\frac1{`+Rr+R`}+\frac1{`+X1+R`}\right)=n_2\left(\frac1{`+Rr+R`}+\frac1{`+X2+R`}\right)`,n:`左辺 = ${f3(st.n1*(1/st.r+1/st.x1))} /cm → x₂ = ${NS(f2(x2)+" cm","frc")}（高さ h の光線では ${ok&&M.sA!=null?f2(-M.xA):"—"} cm）`});
+   return{title:"微小角の近似 tan β ≒ β で角度を長さで表し、h でわる",list:L}}
+  const caseA=st.x1>st.r;const th1=ok?(M.ph>M.a1?PH+"-"+A1:A1+"-"+PH):"",th2=ok?(M.ph>M.a2?PH+"-"+A2:A2+"-"+PH):"";
+  return{title:`右に凸：入射角・屈折角は φ と α の差（いまは図(${caseA?"A":"B"})）`,list:[
+   {t:T1+"="+th1+(nw?R`,\;`:R`,\qquad `)+T2+"="+th2,n:ok?`θ₁ = ${NS(f3(M.th1),"acc")}，θ₂ = ${NS(f3(M.th2),"frc")}，α₁ = ${f3(M.a1)}，α₂ = ${f3(M.a2)}，φ = ${f3(M.ph)}（rad）`:""},
+   {t:R`n_1\left(\frac1{`+Rr+R`}-\frac1{`+X1+R`}\right)=n_2\left(\frac1{`+Rr+R`}-\frac1{`+X2+R`}\right)`,n:`左辺 = ${f3(st.n1*(1/st.r-1/st.x1))} /cm → x₂ = ${NS(f2(x2)+" cm","frc")}（高さ h の光線では ${ok&&M.sA!=null?f2(-M.xA):"—"} cm）`}]}}
+ const n1=st.n1,n2=st.n2,L1=st.L1,L2=st.L2,Lk=TK("L1","acc","L_1"),Dk=TK("D","frc","D");
+ if(q==="II1"){const z=n2/n1*L1;return{title:"平らな境界：（式1）で 1/r → 0",list:[{t:R`\frac{n_1}{`+Lk+R`}=\frac{n_2}{`+TK("D","frc","x_2")+R`}\;\Rightarrow\;`+TK("D","frc","x_2")+R`=\frac{n_2}{n_1}`+Lk,n:`x₂ = ${NS(f2(z)+" m","frc")}（実際は ${f2(L1)} m）`},{t:Dk+R`=L_2+\frac{n_2}{n_1}`+Lk,n:`D = ${NS(f2(L2+z)+" m","frc")}`}]}}
+ if(q==="II2"){const d=dII(),Dd=TK("d","fic","d"),L3=st.nf/n1*L1;const ok=d>0&&isFinite(d);return{title:"平らな境界の式を2回：板の下面 → 板の上面",list:[
+  {t:R`L_3=\frac{n_f}{n_1}`+Lk+R`,\quad L_4=\frac{n_2}{n_f}(L_3+`+Dd+")",n:ok?`L₃ = ${f2(L3)} m，L₄ = ${f2(n2/st.nf*(L3+d))} m`:`L₃ = ${f2(L3)} m`},
+  ...(nw?[{t:R`L_4+(L_2-`+Dd+R`)=L_1+L_2`,n:""},{t:Dd+R`=\frac{n_f(n_1-n_2)}{n_1(n_2-n_f)}`+Lk,n:ok?`d = ${NS(f3(d)+" m","fic")}`:`d = ${f3(d)} m（負なので不可）`}]:[{t:R`L_4+(L_2-`+Dd+R`)=L_1+L_2\;\Rightarrow\;`+Dd+R`=\frac{n_f(n_1-n_2)}{n_1(n_2-n_f)}`+Lk,n:ok?`d = ${NS(f3(d)+" m","fic")}（観察者からの距離 ${f2(L1+L2)} m）`:`d = ${f3(d)} m（負なので不可）`}])]}}
+ if(q==="II3"){const zA=x2par(n1,n2,L1,st.rr),zB=x2par(n1,n2,L1,-st.rr);return{title:"（式1）：(A) は r、(B) は r → −r",list:[
+  {t:R`\text{(A)}\;\;n_1\left(\frac1{`+Rr+R`}+\frac1{`+Lk+R`}\right)=n_2\left(\frac1{`+Rr+R`}+\frac1{x_2}\right)`,n:`x₂ = ${f2(zA)} m → D = ${f2(L2+zA)} m`},
+  {t:R`\text{(B)}\;\;n_1\left(\frac1{`+Lk+R`}-\frac1{`+Rr+R`}\right)=n_2\left(\frac1{x_2}-\frac1{`+Rr+R`}\right)`,n:`x₂ = ${f2(zB)} m → D = ${NS(f2(L2+zB)+" m","frc")}`}]}}
+ const D0=L2+x2par(n1,n2,L1,-st.rr),f=st.f,ok=Math.abs(f)>=0.5,b=ok?1/(1/f-1/D0):NaN;return{title:"レンズの式（写像公式）：見かけの光源を物体とみなす",list:[
+  {t:R`\frac1a+\frac1b=\frac1{`+TK("f","fr","f")+"}",n:ok?`a = ${f2(D0)} m，f = ${NS(f2(f)+" m","fr")} → b = ${f2(b)} m（${b<0?"虚像：観察者から "+f2(-b)+" m":"実像：観察者の向こう側"}）`:"f = 0 は使えません"}]}}
+function note(){const q=st.q;if(q==="I12"||q==="I34")return"長さの単位は cm。h を小さくするほど、近似と正確な光線の差が小さくなります。";
+ if(q==="I5")return`x₁ を r（${st.r.toFixed(1)} cm）より大きくすると図(A)、小さくすると図(B) の配置になります。`;
+ if(q==="II2")return`d は「見かけの光源が本物と重なる」厚さを自動で計算しています。 <button class="goto" type="button" onclick="pre19('II2')">例の値にもどす</button>`;
+ if(q==="II3")return`問題の値：n₁ = 1.5，n₂ = 1，L₁ = 1 m，L₂ = 2 m。 <button class="goto" type="button" onclick="pre19('ans3')">問題の値にする</button>`;
+ if(q==="II4")return`<button class="goto" type="button" onclick="pre19('ans4')">答えのレンズ（f = −12 m）にする</button>`;
+ return"水（1.33）の中の光源を空気中から見る設定から始まります。"}
+function readout(){const q=st.q;
+ if(!q.startsWith("II")){const M=rayI(st.h),x2=x2par(st.n1,st.n2,st.x1,rsI()),ok=M&&!M.tir;const r=[];
+  if(q==="I12"){if(!ok)return[["光線","全反射"]];return[["入射角 θ₁",M.th1.toFixed(4)+" rad",deg(M.th1)],["屈折角 θ₂",M.th2.toFixed(4)+" rad",deg(M.th2)],["n₁ sin θ₁",(st.n1*Math.sin(M.th1)).toFixed(4),"= n₂ sin θ₂ = "+(st.n2*Math.sin(M.th2)).toFixed(4)],["θ₁/θ₂",(M.th1/M.th2).toFixed(4),"近似値 n₂/n₁ = "+(st.n2/st.n1).toFixed(4)],["α₁ + φ",(M.a1+M.ph).toFixed(4)+" rad","θ₁ と一致（外角）"]]}
+  r.push(["x₂（式1）",isFinite(x2)?x2.toFixed(2)+" cm":"∞",x2<0?"負：右側に実像":"正：光源側に見かけの光源"]);
+  if(ok&&M.sA!=null)r.push(["x₂（高さ h の光線の正確な値）",(-M.xA).toFixed(2)+" cm","ずれ "+(Math.abs(-M.xA-x2)/Math.abs(x2)*100).toFixed(1)+" %"]);
+  if(q==="I5")r.push(["配置",st.x1>st.r?"図(A)":"図(B)",st.x1>st.r?"光源は O の左":"光源は O の右"]);
+  r.push(["h/x₁（≒ α₁）",(st.h/st.x1).toFixed(3)+" rad"]);return r}
+ const P=panelsII(),L1=st.L1,L2=st.L2,R=[];
+ if(q==="II1")return[["見かけの深さ x₂",(st.n2/st.n1*L1).toFixed(3)+" m","実際の深さ "+L1.toFixed(2)+" m"],["観察者からの距離 D",P[1].D.toFixed(3)+" m","本物は "+(L1+L2).toFixed(2)+" m"],["深さの倍率 n₂/n₁",(st.n2/st.n1).toFixed(3)]];
+ if(q==="II2"){const d=dII();return[["板の厚さ d",d>0&&isFinite(d)?d.toFixed(3)+" m":"不可（"+(isFinite(d)?d.toFixed(2):"∞")+" m）","n₂ が n₁ と n_f の間のとき d > 0"],["板なしの距離",P[0].D.toFixed(3)+" m"],["板ありの距離",P[1].bad?"—":P[1].D.toFixed(3)+" m","本物 "+(L1+L2).toFixed(2)+" m"]].concat(d>L2?[["注意","d が L₂ より大きい","観察者が板の中に入る"]]:[])}
+ if(q==="II3"){const z2=4-L2,rs=(st.n1-st.n2)/(st.n2/z2-st.n1/L1);return[["(A) の距離",isFinite(P[0].D)?P[0].D.toFixed(3)+" m":"—"],["(B) の距離",isFinite(P[1].D)?P[1].D.toFixed(3)+" m":"—"],["4 m に見せる r（式1）",isFinite(rs)?rs.toFixed(3)+" m":"—",isFinite(rs)?(rs>0?"正 → (A) で "+rs.toFixed(2)+" m":"負 → (B) で "+(-rs).toFixed(2)+" m"):""]]}
+ const D0=P[1].D0,f=st.f;return[["レンズに入る光の見かけの光源 a",D0.toFixed(3)+" m"],["レンズ通過後に見える位置",Math.abs(f)>=0.5&&P[1].D>0?P[1].D.toFixed(3)+" m":"—","本物 "+(L1+L2).toFixed(2)+" m"],["本物に重ねる f",(1/(1/D0-1/(L1+L2))).toFixed(2)+" m","1/f = 1/a − 1/(L₁+L₂)"]]}
+
+initUI("I12");
+}
+</script>
+</body>
+</html>

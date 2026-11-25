@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>動く台車の上の単振動：ばね振り子と倒立振子を止める</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;transition:background-color .15s,box-shadow .15s}
+.tk.on{background:var(--soft);box-shadow:0 0 0 2px var(--soft)}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>動く台車の上の単振動：ばね振り子と倒立振子を止める（東京大学 2019年 第1問）</h1>
+<p class="lead">台車を強制的に動かすと、台車の上では物体に<b>慣性力</b>がはたらき、ばね振り子の<b>振動の中心</b>がずれます。加速度を切りかえるタイミングをうまく選ぶと、台車が止まったときに振動も止められます。後半は手のひらに棒を立てる遊びを<b>倒立振子</b>で考え、棒を倒さずに台車を止める加速度の変え方を求めます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="台車とその上のばね振り子、または倒立振子の図"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<canvas id="gr" role="img" aria-label="グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 台車の速度と距離</button>
+<button class="qb" data-q="I2">I(2) 振動が止まる動かし方</button>
+<button class="qb" data-q="I3">I(3) 振動を止める a₂</button>
+<button class="qb" data-q="II1">II(1) 棒に垂直な力 f</button>
+<button class="qb" data-q="II2">II(2) 倒立振子を止める</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。色は図と式で共通です：<span class="t-acc">台車の加速度・速度（青）</span>、<span class="t-frc">ばねの力・棒に垂直な力 f（赤）</span>、<span class="t-fic">慣性力（紫）</span>、<span class="t-grav">重力（緑）</span>、<span class="t-fr">振動の中心（オレンジ）</span>。</p>
+
+<details id="d-I1"><summary>I(1)　台車の速度と移動距離<span class="ans">答 速度 \(a_1t_1\)，移動距離 \(a_1t_1t_2\)</span></summary><div class="body">
+<h3>v–t グラフを描く</h3>
+<p>加速度が区間ごとに一定なので、台車の速度は直線をつないだグラフになります。加速区間の終わりの速度は</p>
+<p class="law">等加速度直線運動の式</p>
+$$v = \cacc{a_1}t_1$$
+<p>減速区間の長さは \((t_1+t_2)-t_2 = t_1\) で、加速区間と同じです。同じ大きさの加速度で同じ時間だけ減速するので、時刻 \(t_1+t_2\) でちょうど止まります。グラフは左右対称な台形です。</p>
+<p class="law">移動距離 ＝ v–t グラフの面積</p>
+$$x = \frac{(t_2-t_1)+(t_1+t_2)}{2}\times a_1t_1 = a_1t_1t_2$$
+<h3>発展：台車を動かした仕事はどこへ行くか</h3>
+<p>台車は最後に止まるので、台車を動かす外力がした仕事は、最後に物体に残る振動のエネルギー \(\frac12kA^2\)（\(A\) は残った振幅）に等しくなります。\(d = \dfrac{ma_1}{k}\) とおくと、\(t_1, t_2\) の選び方で \(A\) は 0 から \(4d\) まで変わり、仕事は最小 0、最大 \(\dfrac12k(4d)^2 = \dfrac{8m^2a_1^{\,2}}{k}\) です。最小になる例が I(2) です。</p>
+<div class="box"><b>式の立て方</b>：加速度が区間ごとに一定の運動は、まず v–t グラフを描きます。速度は「加速度 × 時間」の積み重ね（傾き）、移動距離はグラフの面積です。式を区間ごとに書くより、面積で一度に求める方が速く確実です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(t_1, t_2\) を変えると台形の形が変わり、塗った面積が \(a_1t_1t_2\) と一致します。下の y–t グラフを見ると、台車が止まったあとも物体の振動が残ることが多く、「いまの値」の「残った振動のエネルギー」が外力のした仕事です。\(t_1 = 0.5T\)、\(t_2\) を \(T\) の整数倍にすると 0 になります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　t₁ = T/2，t₂ = nT のときの物体<span class="ans">答 \(y = 0\)，相対速度 0</span></summary><div class="body">
+<h3>台車から見ると「中心がずれたばね振り子」</h3>
+<p>加速度 \(a\) の台車から見ると、物体にはばねの力 \(-ky\) に加えて慣性力 \(-ma\) がはたらきます。</p>
+<p class="law">運動方程式（台車から見た物体）</p>
+$$m\frac{d^2y}{dt^2} = \cfrc{-ky}\cfic{\,-\,ma} = -k\left(y - \cfr{\left(-\frac{ma}{k}\right)}\right)$$
+<p>右辺は「\(y = -\dfrac{ma}{k}\) からのずれに比例する復元力」なので、物体は周期 \(T = 2\pi\sqrt{m/k}\)、中心 \(\cfr{y_c = -\dfrac{ma}{k}}\) の単振動をします。\(a\) が変わると<b>中心だけが移り</b>、周期は変わりません。\(d = \dfrac{ma_1}{k}\) とおくと、中心は加速区間 \(-d\)、等速区間 0、減速区間 \(+d\) です。</p>
+<h3>区間ごとに端点をつなぐ</h3>
+<p>単振動では、速度 0 の点（端点）どうしは中心について対称で、端から端までちょうど半周期かかります。</p>
+<p>① 加速区間（長さ \(T/2\)）：\(y = 0\) で静止 → 端点。中心 \(-d\) の反対側の端 \(y = -2d\) に、半周期後の \(t = T/2\) でちょうど着きます（速度 0）。</p>
+<p>② 等速区間（長さ \(nT - \frac T2\)）：中心 0、振幅 \(2d\)。\(n-\frac12\) 周期後には反対側の端 \(y = +2d\) で速度 0 です。</p>
+<p>③ 減速区間（長さ \(T/2\)）：中心 \(+d\)。端 \(+2d\) から半周期で反対側の端 \(y = 0\) に着き、速度 0 です。</p>
+<p>その後は \(a = 0\)（中心 0）で、\(y = 0\) に静止したままです。よって <b>\(y = 0\)、相対速度 0</b> です。</p>
+<div class="box"><b>式の立て方</b>：加速する座標系では運動方程式に慣性力 \(-ma\) を加えます。「ばねの力 ＋ 一定の力」は中心がずれた単振動になります。区間ごとに中心・振幅・端点を求め、境目で位置と速度をつなぎます。境目がちょうど端点（速度 0）になるように時間が選ばれていると、計算がほとんどいりません。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：オレンジの破線が振動の中心です。区間が変わるたびに中心が跳び、物体はちょうど端で折り返します。y–t グラフでは、各区間の曲線が中心の線について上下対称になっています。\(n\) を変えても最後は止まります。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　y₀ から放して t = T で止める<span class="ans">答 \(a_2 = -\dfrac{ky_0}{4m}\)，\(y = -\dfrac12y_0\)</span></summary><div class="body">
+<h3>着眼点：t = 0, T/2, T の3つの時刻はすべて端点</h3>
+<p>\(t = 0\) で静かに放すので速度 0、\(t = T\) でも相対速度 0 です。各区間はちょうど半周期なので、\(t = T/2\) も端点になります。\(t = T/2\) の位置を \(y_1\) とします。</p>
+<p class="law">単振動の端点と中心の関係（中心は両端の中点）</p>
+$$\frac{y_0 + y_1}{2} = \cfr{-\frac{ma_2}{k}},\qquad \frac{y_1 + 0}{2} = \cfr{+\frac{ma_2}{k}}$$
+<p>2式を足すと \(y_0 + 2y_1 = 0\) なので</p>
+$$y_1 = -\frac12y_0,\qquad a_2 = \frac{k y_1}{2m} = -\frac{ky_0}{4m}$$
+<p>\(y_0 < 0\) なので \(a_2 > 0\) です。参考に、y–t グラフを式で書くと \(0<t<\frac T2\) で \(y = \frac{y_0}{4}\left(3\cos\frac{2\pi t}{T}+1\right)\)、\(\frac T2<t<T\) で \(y = \frac{y_0}{4}\left(\cos\frac{2\pi t}{T}-1\right)\) です。</p>
+<div class="box"><b>式の立て方</b>：「止まる」「放す」「折り返す」は速度 0、つまり単振動の端点です。端点が分かっている区間では「中心 ＝ 両端の中点」の1本で式が立ちます。三角関数で \(y(t)\) を書くより、端点と中心の位置関係で考える方が速く、間違いも減ります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：「a₂ を理論値の何倍にするか」を 1 からずらすと、\(t = T\) で \(y \neq 0\) になったり速度が残ったりして、振動が止まりません。グラフの3つの黒点（端点）と2本のオレンジの線（中心）で、中点の関係を確かめられます。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　質点にはたらく力の棒に垂直な成分<span class="ans">答 \(f = mg\theta - ma\)</span></summary><div class="body">
+<h3>台車から見て、棒に垂直な方向に分ける</h3>
+<p>台車から見ると、質点には重力 \(mg\)（下向き）と慣性力 \(ma\)（台車の加速度と逆向き）がはたらきます。棒が質点を押す（引く）力は棒に沿った向きなので、棒に垂直な成分を持ちません。</p>
+<p class="law">力の分解（θ が増える向きを正）</p>
+$$f = \cgrav{mg\sin\theta} - \cfic{ma\cos\theta} \;\approx\; mg\theta - ma$$
+<h3>着眼点：倒れないための加速度</h3>
+<p>\(f = 0\) となるのは \(a = g\theta\) のときです。棒が傾いている向きに、傾きに比例した加速度で手を動かすと、棒は傾いたまま倒れません。手のひらに棒を立てる遊びで「倒れる向きに手を動かす」のはこのためです。</p>
+<div class="box"><b>式の立て方</b>：棒や糸の先の質点は、運動を「棒に垂直（接線方向）」と「棒の方向」に分けます。棒の力は棒の方向だけなので、接線方向の運動方程式には重力と慣性力の成分だけが入ります。小さい角では \(\sin\theta \approx \theta\)、\(\cos\theta \approx 1\) とします。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：θ と a を変えると、赤い矢印 f の大きさと向きが変わります。下のグラフは θ を固定したときの f と a の関係で、\(a = g\theta\) で f が 0 になります。矢印の分解（点線）は見やすいように拡大しています。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　倒立振子を倒さずに台車を止める<span class="ans">答 ア②　イ①　ウ⑩　エ④　オ①　i \(\dfrac{\theta_0+\theta_1}{2}\pi\sqrt{g\ell}\)　ii \(\dfrac{\theta_1}{2}\pi\sqrt{g\ell}\)　iii \(-\dfrac12\)</span></summary><div class="body">
+<h3>θ(t) をグラフから読む（ア・イ）</h3>
+<p>\(0<t<\frac T2\) は \(\theta_0\) と \(\theta_1\) を両端とする単振動の半周期です。中心は両端の中点、振幅は両端の差の半分で、\(t = 0\) で最大なので cos 形です。</p>
+$$\theta = \frac{\theta_0-\theta_1}{2}\cos\sqrt{\frac g\ell}\,t + \cfr{\frac{\theta_0+\theta_1}{2}}$$
+<h3>この運動に必要な力（ウ）</h3>
+<p>質点の棒に垂直な方向の加速度は \(\ell\dfrac{d^2\theta}{dt^2}\) です（半径一定の円運動の接線加速度）。θ の式を2回微分すると \(\dfrac{d^2\theta}{dt^2} = -\dfrac g\ell\left(\theta - \dfrac{\theta_0+\theta_1}{2}\right)\) なので</p>
+<p class="law">運動方程式（棒に垂直な方向・台車から見る）</p>
+$$F = m\ell\frac{d^2\theta}{dt^2} = -mg\left(\theta - \frac{\theta_0+\theta_1}{2}\right)$$
+<h3>f = F から台車の加速度（エ・オ）</h3>
+<p>実際にはたらく力 \(f = mg\theta - ma\) が、必要な力 \(F\) と等しくなるように \(a\) を選びます。</p>
+$$\cgrav{mg\theta}-\cfic{ma} = -mg\left(\theta - \frac{\theta_0+\theta_1}{2}\right)\;\Longrightarrow\; \cacc{a} = \left\{(\theta_0-\theta_1)\cos\sqrt{\frac g\ell}\,t + \frac{\theta_0+\theta_1}{2}\right\}g$$
+<h3>台車の速度の変化（i・ii・iii）</h3>
+<p>第1項は単振動の加速度と同じ形です。単振動は端から端までの半周期で速度 0 → 0 なので、この項による速度の変化は 0 です。残るのは定数項だけで、\(g\cdot\frac T2 = \pi\sqrt{g\ell}\) を使って</p>
+<p class="law">速度の変化 ＝ a–t グラフの面積</p>
+$$v_1 = \frac{\theta_0+\theta_1}{2}\,g\cdot\frac T2 = \frac{\theta_0+\theta_1}{2}\pi\sqrt{g\ell}$$
+<p>後半も同じ考え方で、θ の中心は \(\frac{\theta_1}{2}\) なので \(v_2 = \dfrac{\theta_1}{2}\pi\sqrt{g\ell}\) です。台車ははじめと終わりで静止しているので</p>
+$$v_1 + v_2 = 0\;\Longrightarrow\;\theta_0 + 2\theta_1 = 0\;\Longrightarrow\;\theta_1 = -\frac12\theta_0$$
+<h3>着眼点</h3>
+<p>台車の加速度を時間平均すると「g × 振動の中心の角度」になります。台車を止めるには、前半と後半の中心の角度を打ち消し合わせればよい、ということです。はじめ前に傾いた棒を立て直すには、まず前へ加速して棒を反対側へ少し倒し、その後で減速して戻します。</p>
+<div class="box"><b>式の立て方</b>：「望みの運動をさせる力を求める」問題は ①望みの運動を式にする ②運動方程式から必要な力を逆算する ③実際の力の式と等しいとおく、の順です。選択肢から選ぶときは単位（次元）をそろえるだけでも候補が大きく減ります（角度は単位なし、\(F\) は力の単位）。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：「θ₁ / θ₀」を −0.5 以外にすると、θ は同じように 0 に戻りますが、台車が止まらずに走り続けます。右のグラフで \(v\) が \(t = T\) で 0 に戻るのは −0.5 のときだけです。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)))};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>式の色つきの項に触れると、図の対応する部分が強調されます</span></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"))}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+
+const st={q:"I1",m:1.0,k:40,a1:2.0,t1:0.5,t2:2.0,n:2,y0:-0.10,a2f:1,thS:6,aS:0.5,th0:8,r1:-0.5,l:1.0,spd:1};
+const SL=[
+ ["m","m","物体の質量","kg",0.2,3,0.1,1,"I"],
+ ["k","k","ばね定数","N/m",5,100,1,0,"I"],
+ ["a1","a₁","台車の加速度の大きさ","m/s²",0.5,4,0.1,1,"I1 I2"],
+ ["t1","t₁","加速が終わる時刻","T",0.1,2,0.05,2,"I1"],
+ ["t2","t₂","等速が終わる時刻","T",0.1,4,0.05,2,"I1"],
+ ["n","n","t₂ = nT の n","",1,3,1,0,"I2"],
+ ["y0","y₀","はじめの位置","m",-0.2,-0.02,0.01,2,"I3"],
+ ["a2f","","a₂ を理論値の何倍にするか","倍",0.5,1.5,0.05,2,"I3"],
+ ["thS","θ","棒の傾き","°",-15,15,0.5,1,"II1"],
+ ["aS","a","台車の加速度","m/s²",-3,3,0.05,2,"II1"],
+ ["th0","θ₀","はじめの傾き","°",2,15,0.5,1,"II2"],
+ ["r1","","θ₁ / θ₀","",-1,0,0.05,2,"II2"],
+ ["l","ℓ","棒の長さ","m",0.3,2,0.1,1,"II"],
+ ["spd","","再生速度","倍",0.25,3,0.05,2,"all"]];
+const G=9.8,ANIM=2.0;// animation seconds per period T
+const cv=mkCv($("#cv"),n=>part()==="II"?(n?[480,470]:[1000,400]):(n?[480,280]:[1000,290]));
+const gr=mkCv($("#gr"),n=>n?[480,420]:[1000,250]);
+const Tsp=()=>2*Math.PI*Math.sqrt(st.m/st.k),Tpn=()=>2*Math.PI*Math.sqrt(st.l/G),D2R=Math.PI/180;
+const a2th=()=>-st.k*st.y0/(4*st.m);
+function prof(){const q=st.q;// returns {a(tT), end (T units)}
+ if(q==="I1"){const t1=st.t1,t2=st.t2,a1=st.a1;return{a:t=>t<0?0:t<t1?a1:t<t2?0:t<t1+t2?-a1:0,end:t1+t2,cuts:[t1,t2,t1+t2]}}
+ if(q==="I2"){const t1=0.5,t2=st.n,a1=st.a1;return{a:t=>t<0?0:t<t1?a1:t<t2?0:t<t1+t2?-a1:0,end:t1+t2,cuts:[t1,t2,t1+t2]}}
+ const a2=a2th()*st.a2f;return{a:t=>t<0?0:t<0.5?a2:t<1?-a2:0,end:1,cuts:[0.5,1]}}
+/* pendulum (II2): prescribed theta */
+function th2(t){const t0=st.th0*D2R,t1=st.r1*t0,w=2*Math.PI;// t in units of T
+ if(t<=0)return[t0,0];if(t<0.5){const A=(t0-t1)/2,c=(t0+t1)/2;return[A*Math.cos(w*t)+c,-A*w*w*Math.cos(w*t)]}
+ if(t<1){const A=-t1/2,c=t1/2;return[A*Math.cos(w*t)+c,-A*w*w*Math.cos(w*t)]}return[0,0]}
+// theta'' in 1/T^2 units -> physical: divide by T^2 ; a = g th - l th''
+function vII(t){const t0=st.th0*D2R,t1=st.r1*t0,T=Tpn(),w=2*Math.PI/T,tt=Math.min(Math.max(t,0),1)*T,h=T/2;
+ if(tt<=h)return G*((t0-t1)*Math.sin(w*tt)/w+(t0+t1)/2*tt);
+ return G*(t0+t1)/2*h+G*(-t1*Math.sin(w*tt)/w+t1/2*(tt-h))}
+function aII(t){const[th,dd]=th2(t),T=Tpn();return G*th-st.l*dd/(T*T)}
+let S={};
+function restart(){const p=part();S={t:-0.35,y:0,vy:0,v:0,x:0,hist:[],done:0};
+ if(st.q==="I3")S.y=st.y0;
+ if(p==="II"){S.t=-0.3}}
+function onParam(k){if(k==="t1"&&st.t2<st.t1)st.t2=st.t1;if(k==="t2"&&st.t2<st.t1)st.t1=st.t2;if(k!=="thS"&&k!=="aS")restart()}
+function endT(){return part()==="II"?2:prof().end+1.5}
+function step(dt){const q=st.q,p=part();if(q==="II1")return;
+ const dT=dt/ANIM;// in units of T
+ if(S.t>endT()){S.done+=dt;if(S.done>1.6)restart();return}
+ if(p==="I"){const T=Tsp(),P=prof(),w2=st.k/st.m,cuts=[0,...P.cuts];let rem=dT;
+  while(rem>1e-12){let h=Math.min(rem,0.002);const nc=cuts.find(c=>c>S.t+1e-12&&c<S.t+h);if(nc!==undefined)h=nc-S.t;
+   const a=P.a(S.t+h/2),hs=h*T;if(S.t>=-1e-12){S.vy+=(-w2*S.y-a)*hs/2;S.y+=S.vy*hs;S.vy+=(-w2*S.y-a)*hs/2;S.x+=S.v*hs+a*hs*hs/2;S.v+=a*hs}S.t+=h;rem-=h}
+  S.hist.push([S.t,S.y,S.vy,P.a(S.t),S.v,S.x])}
+ else{const T=Tpn();S.t+=dT;const v=vII(S.t);S.x+=(S.v+v)/2*dT*T;S.v=v;
+  const[th]=th2(S.t);S.hist.push([S.t,th,aII(S.t),S.v,S.x])}
+ if(S.hist.length>4000)S.hist.shift()}
+/* ---------- drawing ---------- */
+function wheel(c,x,y,r){dot(c,x,y,r,CL.bg,CL.ink,2)}
+function ground(c,W,gy,xw,PX,cx){line(c,[[0,gy],[W,gy]],CL.ink,2);const sp=PX>=200?0.25:0.5;const x0=xw-(cx)/PX,x1=xw+(W-cx)/PX;
+ for(let X=Math.ceil(x0/sp)*sp;X<=x1;X+=sp){const sx=cx+(X-xw)*PX;line(c,[[sx,gy],[sx,gy+6]],CL.mute,1.2);if(Math.abs(X/(sp*2)-Math.round(X/(sp*2)))<1e-6)txt(c,(+X.toFixed(2))+" m",sx,gy+16,CL.mute,{s:11,al:"center"})}}
+function spring(c,x1,x2,y,col){const nC=10,L=x2-x1,lead=Math.min(14,L*0.15),a=lead,b=L-lead;line(c,[[x1,y],[x1+a,y]],col,2);c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.moveTo(x1+a,y);
+ for(let i=0;i<=nC*8;i++){const u=i/(nC*8),xx=x1+a+(b-a)*u,yy=y-10*Math.sin(u*nC*2*Math.PI);c.lineTo(xx,yy)}c.stroke();line(c,[[x1+b,y],[x2,y]],col,2)}
+function drawI(c,W,H,n){const q=st.q,P=prof(),a=S.t>=0?P.a(S.t):0;
+ const gy=H-30,PX=n?90:150,cx=W*(n?0.47:0.42),CW=n?340:460,Lc=cx-CW/2;
+ ground(c,W,gy,S.x,PX,cx);
+ // start line and goal
+ const sx0=cx+(0-S.x)*PX;if(sx0>-20&&sx0<W+20){line(c,[[sx0,gy-90],[sx0,gy]],alpha(CL.mute,0.6),1,[4,4]);txt(c,"出発点",sx0+4,gy-96,CL.mute,{s:11})}
+ if(q!=="I3"){const xe=st.a1*(q==="I1"?st.t1*st.t2:0.5*st.n)*Tsp()**2,sxe=cx+(xe-S.x)*PX;if(sxe>-20&&sxe<W+20){glow(c,"x",CL.acc);line(c,[[sxe,gy-90],[sxe,gy]],alpha(CL.acc,0.8),W_("x",1.2),[4,4]);noglow(c);txt(c,"停止位置",sxe+4,gy-96,CL.acc,{s:11})}}
+ const wy=gy-13;wheel(c,Lc+60,wy,13);wheel(c,Lc+CW-60,wy,13);
+ const yB=gy-26,yD=yB-22;rect(c,Lc,yD,CW,22,alpha(CL.mute,0.12),CL.ink,2);rect(c,Lc,yD-80,18,80,alpha(CL.mute,0.12),CL.ink,2);
+ // y axis
+ const ymax=q==="I3"?Math.abs(st.y0)*1.05:4*st.m*st.a1/st.k,PY=Math.min(2400,(CW*0.30)/ymax),X0=Lc+CW*0.58;
+ line(c,[[X0,yD-96],[X0,yD+2]],CL.mute,1.2,[5,4]);arrow(c,X0,yD-92,X0+46,yD-92,CL.ink,1.4);txt(c,"y",X0+50,yD-92,CL.ink,{s:15,it:1});txt(c,"0",X0,yD+12,CL.mute,{s:11,al:"center"});
+ // centre
+ const yc=-st.m*a/st.k,sxc=X0+yc*PY;glow(c,"c",CL.fr);line(c,[[sxc,yD-70],[sxc,yD]],CL.fr,W_("c",2),[6,4]);noglow(c);if(Math.abs(yc)>1e-9||HL("c"))txt(c,"振動の中心",sxc,yD-76,CL.fr,{s:12,al:"center",b:HL("c")});
+ // block
+ const bw=46,bh=40,bx=X0+S.y*PY;spring(c,Lc+18,bx-bw/2,yD-20,CL.ink);rect(c,bx-bw/2,yD-bh,bw,bh,alpha(CL.acc,0.12),CL.ink,2);txt(c,"m",bx,yD-bh/2,CL.ink,{s:15,it:1,al:"center"});txt(c,"k",(Lc+18+bx-bw/2)/2,yD-46,CL.ink,{s:15,it:1,al:"center"});
+ if(S.t<0&&q==="I3"){line(c,[[bx,yD-bh-16],[bx,yD-bh]],CL.ng,3);dot(c,bx,yD-bh-16,5,CL.ng);txt(c,"固定",bx+10,yD-bh-16,CL.ng,{s:12,b:1})}
+ // forces
+ const Fref=q==="I3"?st.k*Math.abs(st.y0):2*st.m*st.a1,FS=(n?55:70)/Fref;
+ const Fs=-st.k*S.y,Fi=-st.m*a,ya=yD-bh/2;
+ if(Math.abs(Fs)>Fref*0.01)karrow(c,"ky",bx,ya-8,bx+Fs*FS,ya-8,CL.frc,3);
+ if(Math.abs(Fi)>1e-9)karrow(c,"ma",bx,ya+8,bx+Fi*FS,ya+8,CL.fic,3);
+ if(Math.abs(Fs)>Fref*0.05)txt(c,"−ky",bx+Fs*FS+(Fs>0?6:-6),ya-18,CL.frc,{s:13,it:1,al:Fs>0?"left":"right"});
+ if(Math.abs(Fi)>1e-9)txt(c,"−ma",bx+Fi*FS+(Fi>0?6:-6),ya+20,CL.fic,{s:13,it:1,al:Fi>0?"left":"right"});
+ // cart acceleration
+ if(Math.abs(a)>1e-9){const ax=Lc+CW+12;karrow(c,"a",a>0?ax:ax+56,yD+8,a>0?ax+56:ax,yD+8,CL.acc,3.2);txt(c,a>0?"a":"−a",ax+28,yD-6,CL.acc,{s:14,it:1,al:"center"})}
+ const tl=S.t<0?(q==="I3"?"物体を y₀ に固定（t < 0）":"静止（t < 0）"):S.t<=P.end?(a>0?"加速区間":a<0?"減速区間":"等速区間"):"台車は停止";
+ txt(c,`${tl}　t = ${Math.max(0,S.t).toFixed(2)} T`,n?12:16,22,CL.ink,{s:13,b:1})}
+function drawII(c,W,H,n){const q=st.q,gy=H-30,Lp=n?250:220,PXm=Lp/st.l;
+ const th=q==="II1"?st.thS*D2R:th2(Math.max(0,S.t))[0],a=q==="II1"?st.aS:(S.t>=0&&S.t<1?aII(S.t):0),xw=q==="II1"?0:S.x;
+ let cx0=W*(n?0.42:0.38),cam=0;const sxr=cx0+xw*PXm;if(sxr>W-120)cam=sxr-(W-120);if(sxr<120)cam=sxr-120;const cx=cx0+xw*PXm-cam;
+ ground(c,W,gy,xw,PXm,cx);
+ const cw=n?120:130,ch=40,wy=gy-12;wheel(c,cx-cw/3,wy,12);wheel(c,cx+cw/3,wy,12);rect(c,cx-cw/2,gy-24-ch,cw,ch,alpha(CL.mute,0.12),CL.ink,2);
+ const ox=cx,oy=gy-24-ch;line(c,[[ox,oy+ch+30],[ox,oy-Lp-30]],alpha(CL.mute,0.6),1,[5,4]);
+ // trail
+ if(q==="II2"&&S.hist.length>1){c.globalAlpha=0.35;line(c,S.hist.map(e=>[cx0+e[4]*PXm-cam+Lp*Math.sin(e[1]),oy-Lp*Math.cos(e[1])]),CL.acc,1.5);c.globalAlpha=1}
+ const mx=ox+Lp*Math.sin(th),my=oy-Lp*Math.cos(th);line(c,[[ox,oy],[mx,my]],CL.ink,4);dot(c,ox,oy,6,CL.bg,CL.ink,2);dot(c,mx,my,13,alpha(CL.mute,0.5),CL.ink,2);txt(c,"m",mx-18,my-16,CL.ink,{s:15,it:1,al:"right"});txt(c,"O",ox-12,oy+12,CL.ink,{s:13,al:"right"});
+ // angle arc
+ if(Math.abs(th)>0.003){c.strokeStyle=CL.ink;c.lineWidth=1.3;c.beginPath();c.arc(ox,oy,70,-Math.PI/2,-Math.PI/2+th,th<0);c.stroke();txt(c,"θ",ox+80*Math.sin(th/2)+(th>0?6:-6),oy-80*Math.cos(th/2),CL.ink,{s:15,it:1,al:th>0?"left":"right"})}
+ // forces at mass
+ const MG=n?110:95,am=a/G*MG;karrow(c,"g",mx,my,mx,my+MG,CL.grav,3);txt(c,"mg",mx+8,my+MG-6,CL.grav,{s:14,it:1});
+ if(Math.abs(am)>1)karrow(c,"ma",mx,my,mx-am,my,CL.fic,3);if(Math.abs(am)>6)txt(c,"−ma",mx-am+(am>0?-6:6),my-14,CL.fic,{s:14,it:1,al:am>0?"right":"left"});
+ // perpendicular components (magnified)
+ const K=4,ex=Math.cos(th),ey=Math.sin(th);const gS=MG*Math.sin(th)*K,iS=-am*Math.cos(th)*K,f=gS+iS;
+ function comp(k,len,col,lab,o){if(Math.abs(len)<1)return;const sx=mx+ey*o,sy=my-ex*o;karrow(c,k,sx,sy,sx+ex*len,sy+ey*len,col,k==="f"?3.4:2);txt(c,lab,sx+ex*len+(len>0?8:-8),sy+ey*len,col,{s:13,it:k!=="gs"&&k!=="mc"?1:0,b:k==="f",al:len>0?"left":"right"})}
+ comp("f",f,CL.frc,"f",0);comp("gs",gS,CL.grav,"mg sinθ",26);comp("mc",iS,CL.fic,"−ma cosθ",48);
+ txt(c,"棒に垂直な成分は 4 倍に拡大",W-12,20,CL.mute,{s:12,al:"right"});
+ if(Math.abs(a)>0.01){karrow(c,"a",a>0?cx+cw/2+10:cx-cw/2-10,gy-50,a>0?cx+cw/2+10+Math.min(80,30+15*Math.abs(a)):cx-cw/2-10-Math.min(80,30+15*Math.abs(a)),gy-50,CL.acc,3.2);txt(c,"a",a>0?cx+cw/2+30:cx-cw/2-30,gy-64,CL.acc,{s:14,it:1,al:"center"})}
+ let cap;if(q==="II1")cap=Math.abs(f)<2?"f ≈ 0：a = gθ で棒は倒れも起き上がりもしない":f>0?"f > 0：棒はさらに傾く向きに動く":"f < 0：棒は起き上がる向きに動く";
+ else cap=S.t<0?"θ₀ だけ傾けて静止":S.t<0.5?"前半：中心 (θ₀+θ₁)/2 の単振動":S.t<1?"後半：中心 θ₁/2 の単振動":(Math.abs(S.v)<0.005?"t = T：θ = 0 で静止し、台車も止まった":"t = T：θ = 0 だが台車は止まらない（v ≠ 0）");
+ txt(c,cap+(q==="II2"?`　t = ${Math.max(0,S.t).toFixed(2)} T`:""),n?12:16,20,CL.ink,{s:13,b:1})}
+function drawMain(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;if(part()==="I")drawI(c,W,H,n);else drawII(c,W,H,n)}
+/* ---------- graphs ---------- */
+function curve(c,A,h,fx,fy,col,k,w=2.2,dash){glow(c,k,col);line(c,h.map(e=>[A.X(fx(e)),A.Y(fy(e))]),col,W_(k,w),dash);noglow(c)}
+function boxes(W,H,n){const B=n?[{x:56,y:30,w:W-86,h:(H-100)/2},{x:56,y:30+(H-100)/2+44,w:W-86,h:(H-100)/2}]:[{x:64,y:30,w:W*0.40-70,h:H-70},{x:W*0.46+40,y:30,w:W*0.54-80,h:H-70}];return B}
+function drawGr(){const c=begin(gr),W=gr.W,H=gr.H,n=gr.narrow,q=st.q,h=S.hist.filter(e=>e[0]>=0);const[B1,B2]=boxes(W,H,n);
+ if(part()==="I"){const P=prof(),T=Tsp(),tm=P.end+1.5,tl=[];for(let k=0;k<=Math.floor(tm*2);k++)tl.push([k/2,k%2?"":(k/2)+"T"]);
+  const ymax=q==="I3"?Math.abs(st.y0)*1.1:Math.max(2.2*st.m*st.a1/st.k,1e-6);
+  if(q==="I1"){const vm=st.a1*st.t1*T;const A=axes(c,B1,[0,tm],[0,vm*1.3],{xl:"t",yl:"v",yt:[[vm,"a₁t₁"]],xt:[[st.t1,"t₁"],[st.t2,"t₂"],[st.t1+st.t2,"t₁+t₂"]]});
+   if(h.length>1){glow(c,"x",CL.acc);c.fillStyle=alpha(CL.acc,HL("x")?0.4:0.2);c.beginPath();c.moveTo(A.X(0),A.Y(0));h.forEach(e=>c.lineTo(A.X(e[0]),A.Y(e[4])));c.lineTo(A.X(h[h.length-1][0]),A.Y(0));c.closePath();c.fill();noglow(c)}
+   line(c,[[A.X(0),A.Y(0)],[A.X(st.t1),A.Y(vm)],[A.X(st.t2),A.Y(vm)],[A.X(st.t1+st.t2),A.Y(0)],[A.X(tm),A.Y(0)]],alpha(CL.mute,0.5),1,[4,3]);
+   curve(c,A,h,e=>e[0],e=>e[4],CL.acc,"v",2.4);txt(c,"台車の v–t（面積 = 移動距離）",B1.x+24,B1.y-14,CL.ink,{s:13,b:1})}
+  else{const am=Math.abs(P.a(0.01))*1.4||1;const A=axes(c,B1,[0,tm],[-am,am],{xl:"t",yl:"a",y0:0,xt:tl.filter(e=>e[1])});curve(c,A,h,e=>e[0],e=>e[3],CL.acc,"a",2.4);txt(c,"台車の加速度 a",B1.x+24,B1.y-14,CL.ink,{s:13,b:1})}
+  const A2=axes(c,B2,[0,tm],[-ymax*1.05,ymax*1.05],{xl:"t",yl:"y",y0:0,xt:tl.filter(e=>e[1])});
+  // centre segments
+  const segs=[[0,...P.cuts]];const cuts=[0,...P.cuts,tm];for(let i=0;i+1<cuts.length;i++){const tm2=(cuts[i]+cuts[i+1])/2,yc=-st.m*P.a(tm2)/st.k;glow(c,"c",CL.fr);line(c,[[A2.X(cuts[i]),A2.Y(yc)],[A2.X(cuts[i+1]),A2.Y(yc)]],CL.fr,W_("c",1.6),[6,4]);noglow(c);if(i+1<cuts.length-1)line(c,[[A2.X(cuts[i+1]),A2.Y(-ymax)],[A2.X(cuts[i+1]),A2.Y(ymax)]],alpha(CL.mute,0.35),1,[2,4])}
+  curve(c,A2,h,e=>e[0],e=>e[1],CL.frc,"y",2.4);
+  if(q==="I3"){[[0,st.y0],[0.5,-st.y0/2],[1,0]].forEach(([t,y])=>dot(c,A2.X(t),A2.Y(y),4.5,CL.ink));txt(c,"y₀",A2.X(0)+8,A2.Y(st.y0),CL.ink,{s:12});txt(c,"y₁",A2.X(0.5)+8,A2.Y(-st.y0/2)-10,CL.ink,{s:12})}
+  if(h.length)dot(c,A2.X(h[h.length-1][0]),A2.Y(h[h.length-1][1]),5,CL.frc);
+  txt(c,"物体の y–t（オレンジ破線 = 振動の中心）",B2.x+24,B2.y-14,CL.ink,{s:13,b:1});return}
+ if(q==="II1"){const th=st.thS*D2R,m=1;const A=axes(c,{x:B1.x,y:B1.y+(n?24:0),w:n?B1.w:W-140,h:n?H-110:B1.h},[-3,3],[-4,4],{xl:"a [m/s²]",xit:false,yl:"f / m [m/s²]",yit:false,y0:0,x0:0,xt:[[-2,"−2"],[2,"2"]],yt:[[-2,"−2"],[2,"2"]]});
+  line(c,[[A.X(-3),A.Y(G*th+3)],[A.X(3),A.Y(G*th-3)]],CL.frc,2.2);const ae=G*th;if(Math.abs(ae)<3){dot(c,A.X(ae),A.Y(0),5,CL.fr);txt(c,"a = gθ（f = 0）",A.X(ae)+8,A.Y(0)+14,CL.fr,{s:12})}
+  dot(c,A.X(st.aS),A.Y(G*th-st.aS),6,CL.frc);txt(c,"θ を固定したときの f と a の関係（傾き −m）",A.X(-3),B1.y-14,CL.ink,{s:13,b:1});return}
+ const t0=st.th0*D2R,t1=st.r1*t0,T=Tpn();const A=axes(c,B1,[0,2],[-t0*1.15/D2R,t0*1.15/D2R],{xl:"t",yl:"θ",y0:0,xt:[[0.5,"T/2"],[1,"T"]],yt:[[st.th0,"θ₀"],[t1/D2R,"θ₁"]]});
+ glow(c,"c",CL.fr);line(c,[[A.X(0),A.Y((t0+t1)/2/D2R)],[A.X(0.5),A.Y((t0+t1)/2/D2R)]],CL.fr,W_("c",1.6),[6,4]);line(c,[[A.X(0.5),A.Y(t1/2/D2R)],[A.X(1),A.Y(t1/2/D2R)]],CL.fr,W_("c",1.6),[6,4]);noglow(c);
+ curve(c,A,h,e=>e[0],e=>e[1]/D2R,CL.ink,"th",2.4);txt(c,"倒立振子の θ–t［度］（オレンジ = 単振動の中心）",B1.x+24,B1.y-14,CL.ink,{s:13,b:1});
+ const vs=Math.PI*Math.sqrt(G*st.l)*t0*0.75,A2=axes(c,B2,[0,2],[-vs*1.2,vs*1.2],{xl:"t",yl:"v",y0:0,xt:[[0.5,"T/2"],[1,"T"]]});
+ const v1=(t0+t1)/2*Math.PI*Math.sqrt(G*st.l);line(c,[[A2.X(0.5),A2.Y(v1)],[A2.X(0.5),A2.Y(0)]],alpha(CL.mute,0.5),1,[3,3]);
+ curve(c,A2,h,e=>e[0],e=>e[3],CL.acc,"v",2.4);if(h.length){const e=h[h.length-1];dot(c,A2.X(e[0]),A2.Y(e[3]),5,CL.acc)}
+ txt(c,"v₁",A2.X(0.5)+6,A2.Y(v1)-10,CL.acc,{s:13,it:1});const v12=v1+t1/2*Math.PI*Math.sqrt(G*st.l);dot(c,A2.X(1),A2.Y(v12),4,CL.ink);txt(c,"v₁+v₂",A2.X(1)+6,A2.Y(v12)-12,CL.ink,{s:12});txt(c,"台車の v–t（傾き = a）",B2.x+24,B2.y-14,CL.ink,{s:13,b:1})}
+function drawAll(){drawMain();drawGr()}
+/* ---------- live equations ---------- */
+function eqs(){const q=st.q,R=String.raw;
+ if(part()==="I"){const P=prof(),a=S.t>=0?P.a(S.t):0,T=Tsp();
+  if(q==="I1"){const v=st.a1*st.t1*T,x=st.a1*st.t1*st.t2*T*T;return{title:"等加速度直線運動の式と v–t グラフの面積",list:[{t:TK("v","acc","v")+"="+TK("a","acc","a_1")+"t_1",n:`v = ${NS(v.toFixed(3),"acc")} m/s（いま ${NS(S.v.toFixed(3),"acc")} m/s）`},{t:TK("x","acc","x")+R`=\frac{(t_2-t_1)+(t_1+t_2)}{2}\,a_1t_1=a_1t_1t_2`,n:`a₁t₁t₂ = ${NS(x.toFixed(3),"acc")} m（いまの移動距離 ${NS(S.x.toFixed(3),"acc")} m）`}]}}
+  const fz=(v,d)=>(Math.abs(v)<0.5*10**-d?0:v).toFixed(d);const N=cv.narrow,em=R`m\frac{d^2y}{dt^2}=`+TK("ky","frc","-ky")+TK("ma","fic","-ma")+(N?"":R`=-k\Bigl(y-`+TK("c","fr",R`\bigl(-\tfrac{ma}{k}\bigr)`)+R`\Bigr)`);
+  const en=`${NS((-st.k*S.y).toFixed(3),"frc")} + (${NS((-st.m*a).toFixed(3),"fic")}) [N]　中心 ${NS((-st.m*a/st.k).toFixed(4),"fr")} m`;
+  if(q==="I2")return{title:"運動方程式（台車から見た物体）：中心がずれた単振動",list:[{t:em,n:en},{t:R`y_c=-\frac{ma_1}{k},\;0,\;+\frac{ma_1}{k}\quad(\text{加速・等速・減速})`,n:`d = ma₁/k = ${(st.m*st.a1/st.k).toFixed(4)} m，振幅 2d = ${(2*st.m*st.a1/st.k).toFixed(4)} m`}]};
+  const a2=a2th();return{title:"運動方程式（台車から見た物体）と「中心 ＝ 両端の中点」",list:[{t:em,n:en},{t:R`\frac{y_0+y_1}{2}=`+TK("c","fr",R`-\frac{ma_2}{k}`)+R`,\quad\frac{y_1+0}{2}=`+TK("c","fr",R`\frac{ma_2}{k}`)+(N?"":R`\;\Rightarrow\;a_2=-\frac{ky_0}{4m}`),n:`理論値 a₂ = ${NS(a2.toFixed(3),"acc")} m/s²（いまの設定 ${(a2*st.a2f).toFixed(3)} m/s²），y₁ = ${(-st.y0/2).toFixed(3)} m`}]}}
+ if(q==="II1"){const th=st.thS*D2R,f=G*Math.sin(th)-st.aS*Math.cos(th);return{title:"力の分解：棒に垂直な成分（台車から見る）",list:[{t:TK("f","frc","f")+"="+TK("gs","grav",R`mg\sin\theta`)+"-"+TK("mc","fic",R`ma\cos\theta`)+(cv.narrow?"":R`\;\approx\;mg\theta-ma`),n:`f/m = ${NS((G*Math.sin(th)).toFixed(3),"grav")} − ${NS((st.aS*Math.cos(th)).toFixed(3),"fic")} = ${NS(f.toFixed(3),"frc")} m/s²（近似 ${(G*th-st.aS).toFixed(3)}）`},{t:(cv.narrow?R`f\approx mg\theta-ma,\quad `:"")+R`f=0\iff a=g\theta`,n:`gθ = ${(G*th).toFixed(3)} m/s²`}]}}
+ const t0=st.th0*D2R,t1=st.r1*t0,sq=Math.PI*Math.sqrt(G*st.l),v1=(t0+t1)/2*sq,v2=t1/2*sq,a=S.t>=0&&S.t<1?aII(S.t):0,[th]=th2(Math.max(0,S.t));
+ return{title:"運動方程式（棒に垂直な方向）から台車の加速度を逆算",list:[{t:R`m\ell\ddot\theta=`+TK("g","grav",R`mg\theta`)+"-"+TK("ma","fic","ma")+R`\;\Longrightarrow\;`+TK("a","acc","a")+R`=g\theta-\ell\ddot\theta`,n:`θ = ${(th/D2R).toFixed(2)}°，a = ${NS(a.toFixed(3),"acc")} m/s²`},{t:TK("v","acc",R`v_1+v_2`)+R`=\frac{\theta_0+2\theta_1}{2}\pi\sqrt{g\ell}=0\;\Rightarrow\;\theta_1=-\frac12\theta_0`,n:`v₁ = ${NS(v1.toFixed(3),"acc")}，v₂ = ${NS(v2.toFixed(3),"acc")}，v₁+v₂ = ${NS((v1+v2).toFixed(3),"acc")} m/s`}]}}
+function note(){const p=part();return p==="I"?`周期 T = 2π√(m/k) = ${Tsp().toFixed(3)} s を ${ANIM} 秒で再生しています。`:st.q==="II1"?"台車から見た力の図です（静止画）。θ と a を動かしてください。":`周期 T = 2π√(ℓ/g) = ${Tpn().toFixed(3)} s を ${ANIM} 秒で再生しています（g = 9.8 m/s²）。`}
+function readout(){const q=st.q,r=[];
+ if(part()==="I"){const P=prof(),a=S.t>=0?P.a(S.t):0,T=Tsp(),w=2*Math.PI/T;
+  r.push(["周期 T",T.toFixed(3)+" s"],["台車の加速度 a",a.toFixed(3)+" m/s²"],["台車の速度 v",S.v.toFixed(3)+" m/s"],["台車の移動距離 x",S.x.toFixed(3)+" m"],["物体の位置 y",S.y.toFixed(4)+" m"],["台車に対する相対速度",S.vy.toFixed(4)+" m/s"],["振動の中心 −ma/k",(-st.m*a/st.k).toFixed(4)+" m"]);
+  if(S.t>P.end){const A=Math.hypot(S.y,S.vy/w);r.push(["残った振幅",A.toFixed(4)+" m"],["残った振動のエネルギー",(0.5*st.k*A*A).toFixed(4)+" J",q==="I1"?`最大 8m²a₁²/k = ${(8*st.m**2*st.a1**2/st.k).toFixed(3)} J，最小 0`:""])}
+  return r}
+ if(q==="II1"){const th=st.thS*D2R;return[["θ（ラジアン）",th.toFixed(4)],["f / m（厳密）",(G*Math.sin(th)-st.aS*Math.cos(th)).toFixed(3)+" m/s²"],["f / m（近似 gθ − a）",(G*th-st.aS).toFixed(3)+" m/s²"],["f = 0 になる a = gθ",(G*th).toFixed(3)+" m/s²"]]}
+ const t0=st.th0*D2R,t1=st.r1*t0,a=S.t>=0&&S.t<1?aII(S.t):0,[th]=th2(Math.max(0,S.t));
+ r.push(["周期 T",Tpn().toFixed(3)+" s"],["θ",(th/D2R).toFixed(2)+"°"],["θ₁",(t1/D2R).toFixed(2)+"°","問題の答え θ₁ = −θ₀/2 = "+(-st.th0/2).toFixed(2)+"°"],["台車の加速度 a",a.toFixed(3)+" m/s²"],["台車の速度 v",S.v.toFixed(3)+" m/s"],["台車の移動距離",S.x.toFixed(3)+" m"]);return r}
+initUI("I1");
+}
+</script>
+</body>
+</html>
