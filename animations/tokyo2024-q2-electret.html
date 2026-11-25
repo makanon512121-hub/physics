@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>エレクトレット発電</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>エレクトレット発電：動く電極と多層コンデンサー（東京大学 2024年 第2問）</h1>
+<p class="lead">誘電体の中に電荷を閉じこめた「エレクトレット」の上で、ばねにつるした電極を上下させると、回路に電流が流れて発電できます。<b>極板の電荷と電場・電位の関係</b>、<b>スイッチを開くと電荷一定・閉じると電位一定</b>、そして<b>力学的エネルギーが電気（ジュール熱）に変わる</b>流れを、電位のグラフとエネルギーの棒グラフで確かめましょう。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="ばねにつるされた上電極、誘電体に埋め込まれた金属板、下電極と、電位の高さ分布のグラフ"></canvas>
+<canvas id="gr" role="img" aria-label="上電極の電荷と高さの関係のグラフ、力またはエネルギーの棒グラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 金属板の電位</button>
+<button class="qb" data-q="I2">I(2) 上電極の電荷</button>
+<button class="qb" data-q="I3">I(3) つり合いの位置</button>
+<button class="qb" data-q="I4">I(4) 上電極の電位</button>
+<button class="qb" data-q="II1">II(1) 上がる高さ h₁</button>
+<button class="qb" data-q="II2">II(2) スイッチを閉じた発熱</button>
+<button class="qb" data-q="II3">II(3) おもりの質量</button>
+<button class="qb" data-q="II4">II(4) 1サイクルの発熱</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<div class="row" id="row_fit"><span>II の条件</span><label style="display:flex;gap:8px;align-items:center;min-height:44px"><input type="checkbox" id="fit" checked style="width:22px;height:22px;accent-color:var(--acc)">（エ）で上電極の電荷が <span class="v">Q</span>/10 になるように <span class="v">a</span> を決める</label></div>
+<p class="note">電極は 1 辺 <span class="v">L</span> = 20 cm の正方形、<span class="v">ε</span><sub>0</sub> = 8.85×10⁻¹² F/m。<span class="v">a</span> = <span class="v">ε</span><sub>0</sub><span class="v">d</span>/<span class="v">ε</span> は「誘電体 1 層（厚さ <span class="v">d</span>）が、真空なら何 mm 分にあたるか」を表します。誘電体の厚さは見やすさのため一定の幅で描いています。</p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。上電極の電荷を \(q\)、下電極の電荷を \(Q-q\)（2つは導線でつながり、合計 \(Q\) が保存）、金属板の電荷は \(-Q\) のままです。</p>
+
+<details id="d-I1"><summary>I(1)　金属板の電位<span class="ans">答 \(-\dfrac{Qd}{\varepsilon L^2}\)</span></summary><div class="body">
+<h3>平行な極板がつくる電場は「下にある電荷の合計」で決まる</h3>
+<p>広い平行板が何枚も重なっているとき、全体の電荷の合計が 0 なら外側の電場は 0。そして<b>ある隙間の電場は、それより下にある電荷の合計</b> \(q_{\text{下}}\) だけで</p>
+$$E = \frac{q_{\text{下}}}{\varepsilon L^2}\quad(\text{上向きを正})$$
+<p>と書けます（ガウスの法則）。いま下電極 \(+Q\)、金属板 \(-Q\)、上電極 0 なので</p>
+<ul>
+<li>下電極〜金属板：\(E = \dfrac{Q}{\varepsilon L^2}\)（上向き）</li>
+<li>金属板より上：下の電荷の合計 \(Q-Q=0\) → 電場 0</li>
+</ul>
+<p>電場の向きに進むと電位は下がるので、下電極（電位 0）から \(d\) 上の金属板は</p>
+$$V_{\text{金属板}} = 0 - Ed = -\frac{Qd}{\varepsilon L^2}$$
+<div class="box"><b>アニメーションで確かめよう</b>：右の電位グラフで、下電極から金属板までだけ電位が下がり、その上は平らです。上電極（電荷 0）は金属板と同じ電位になっています。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　スイッチを閉じた後の上電極の電荷<span class="ans">答 \(\dfrac Q2\)</span></summary><div class="body">
+<h3>スイッチを閉じる＝上電極と下電極が同じ電位</h3>
+<p>上電極の電荷を \(q\) とすると下電極は \(Q-q\)。I(1) と同じ考え方で</p>
+<ul>
+<li>下の誘電体（下電極〜金属板）：下の電荷 \(Q-q\) → 電位は \(\dfrac{(Q-q)d}{\varepsilon L^2}\) 下がる</li>
+<li>上の誘電体（金属板〜上電極）：下の電荷 \((Q-q)-Q = -q\) → 電位は \(\dfrac{qd}{\varepsilon L^2}\) 上がる</li>
+</ul>
+<p>上電極が \(z=0\)（真空のすき間なし）で、上下の電極が同じ電位になるには、下がる量と上がる量が等しく</p>
+$$\frac{(Q-q)d}{\varepsilon L^2} = \frac{qd}{\varepsilon L^2}\qquad\therefore\quad q = \frac Q2$$
+<p>金属板の \(-Q\) が、上下<b>同じ形のコンデンサー</b>に半分ずつ相手の電荷を引きよせた、とも見られます。</p>
+<h3>一般の高さ z では</h3>
+<p>真空のすき間 \(z\) でも電位が \(\dfrac{qz}{\varepsilon_0L^2}\) 上がるので、\(\dfrac{(Q-q)d}{\varepsilon} = \dfrac{qd}{\varepsilon} + \dfrac{qz}{\varepsilon_0}\) より</p>
+$$q = Q\cdot\frac{d/\varepsilon}{2d/\varepsilon + z/\varepsilon_0} = Q\cdot\frac{a}{2a+z}\qquad\left(a = \frac{\varepsilon_0 d}{\varepsilon}\right)$$
+<p>電極が離れるほど引きよせられる電荷は減ります。これが発電のしくみの核心です（下の q–z グラフの点線）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：スイッチを閉じると抵抗に電流が流れ、上電極の電荷が 0 から \(Q/2\) に増えます。電位グラフで上電極の電位が 0 になるまで電荷が移ります。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　スイッチを開いて静止する位置<span class="ans">答 \(z_0 = h_0 - \dfrac{Q^2}{8k\varepsilon_0L^2}\)</span></summary><div class="body">
+<h3>極板が受ける力は「自分以外がつくる電場」× 電荷</h3>
+<p>上電極のすぐ下の電場は \(E = \dfrac{q}{\varepsilon_0L^2}\)（下向き）。でもこれは上電極自身の電荷もつくった電場で、<b>自分の電場で自分は押されません</b>。自分以外がつくる電場はその半分なので、引力の大きさは</p>
+$$F = q\cdot\frac E2 = \frac{q^2}{2\varepsilon_0L^2}$$
+<p>スイッチを開くと \(q = Q/2\) のまま変わらないので \(F = \dfrac{Q^2}{8\varepsilon_0L^2}\)、<b>高さによらず一定</b>です。</p>
+<h3>ばね＋重力は「h₀ からのずれ」に比例</h3>
+<p>電荷がないときのつり合いが \(z = h_0\) なので、ばねの力と重力の合力は上向きに \(k(h_0-z)\)。つり合いは</p>
+$$k(h_0-z_0) = \frac{Q^2}{8\varepsilon_0L^2}\qquad\therefore\quad z_0 = h_0 - \frac{Q^2}{8k\varepsilon_0L^2}$$
+<div class="box"><b>アニメーションで確かめよう</b>：下の右のグラフで、上向きの力 \(k(h_0-z)\)（直線）と一定の静電気力が交わる高さが \(z_0\) です。外力で電極をゆっくり持ち上げ、交点で手を離すと止まったままになります。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>I(4)　上電極の電位<span class="ans">答 \(\dfrac{Q}{2\varepsilon_0L^2}\left(h_0 - \dfrac{Q^2}{8k\varepsilon_0L^2}\right)\)</span></summary><div class="body">
+<p>電荷 \(q = Q/2\) のまま、下から電位を足していきます。</p>
+$$V = \underbrace{-\frac{(Q/2)d}{\varepsilon L^2}}_{\text{下の誘電体}} + \underbrace{\frac{(Q/2)d}{\varepsilon L^2}}_{\text{上の誘電体}} + \underbrace{\frac{(Q/2)z_0}{\varepsilon_0L^2}}_{\text{真空のすき間}} = \frac{Qz_0}{2\varepsilon_0L^2}$$
+<p>誘電体の部分は打ち消し合い（\(z=0\) の電位は 0 のまま）、<b>すき間の電場 × すき間の長さ</b>だけが残ります。スイッチが開いているので、上電極は下電極と違う電位になれます。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：電位グラフで、\(z=0\) の電位が 0 のまま、すき間だけ電位が直線的に上がります。電極が上がるほど電位が高くなる＝電荷を押し出す力が強くなる、これが (II) で電流が流れる理由です。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　スイッチを開いて手を離したときの最高点<span class="ans">答 \(h_1 = 2h_0 - \dfrac{Q^2}{4k\varepsilon_0L^2}\)</span></summary><div class="body">
+<h3>一定の力＋ばね ＝ 中心がずれた単振動</h3>
+<p>スイッチを開くと電荷は \(Q/2\) のまま → 静電気力は一定。ばね＋一定の力は、<b>つり合いの位置 \(z_0\)（I(3)）を中心とする単振動</b>になります（ばねにおもりをつるしても単振動の周期が変わらないのと同じ）。</p>
+<p>\(z=0\) で静かに離すので、そこが振動の下の端。上の端はつり合いの位置について対称な \(2z_0\)：</p>
+$$h_1 = 2z_0 = 2h_0 - \frac{Q^2}{4k\varepsilon_0L^2}$$
+<div class="box"><b>アニメーションで確かめよう</b>：（ア）→（イ）→（ウ）で、電極が \(z_0\) を中心に上がり \(h_1\) で止まります。下の q–z グラフでは電荷一定なので水平に右へ進みます。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　h₁ でスイッチを閉じたときの発熱<span class="ans">答 \(\dfrac{Q^2h_1}{10\varepsilon_0L^2}\)</span></summary><div class="body">
+<h3>まず Q/10 になる条件から d/ε を求める</h3>
+<p>I(2) の一般式で \(z = h_1\)、\(q = Q/10\) とおくと</p>
+$$\frac{a}{2a+h_1} = \frac1{10}\qquad\therefore\quad a = \frac{\varepsilon_0 d}{\varepsilon} = \frac{h_1}{8}$$
+<h3>発熱＝静電エネルギーの減少</h3>
+<p>電極を固定してスイッチを閉じるとき、電池も外力の仕事もないので、抵抗の発熱はコンデンサーにたくわえられたエネルギーの減少分です。3つの層のエネルギーの和は</p>
+$$U(z,q) = \frac{(Q-q)^2}{2C_1} + \frac{q^2}{2C_1} + \frac{q^2}{2C_z},\qquad C_1 = \frac{\varepsilon L^2}{d},\ C_z = \frac{\varepsilon_0L^2}{z}$$
+<p>\(q: \dfrac Q2 \to \dfrac Q{10}\) での減少を、\(\dfrac{d}{\varepsilon} = \dfrac{h_1}{8\varepsilon_0}\) を使って計算すると</p>
+$$U\!\left(h_1,\tfrac Q2\right)-U\!\left(h_1,\tfrac Q{10}\right) = \frac{Q^2}{\varepsilon_0L^2}\left(\frac{6h_1}{25}-\frac{8}{25}\cdot\frac{h_1}{8}\right) = \frac{Q^2h_1}{10\varepsilon_0L^2}$$
+<p>電極が離れると「引きよせておける電荷」が減り（\(Q/2 \to Q/10\)）、余った電荷が抵抗を通って下電極へ戻る＝<b>電流が流れて発電</b>します。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：（エ）で抵抗を電流が下向きに流れ、発熱の棒が伸びます。q–z グラフでは点線（スイッチを閉じたときの電荷）まで真下に下がります。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　おもりの質量<span class="ans">答 \(M = \dfrac{3Q^2}{25\varepsilon_0L^2g}\)</span></summary><div class="body">
+<p>スイッチを開くと電荷は \(Q/10\) で一定、静電気力は \(\dfrac{(Q/10)^2}{2\varepsilon_0L^2} = \dfrac{Q^2}{200\varepsilon_0L^2}\) で一定。おもりの重力も一定なので、また<b>単振動</b>です。</p>
+<p>\(h_1\) で静かに離して最低点が \(0\) → 振動の中心は \(\dfrac{h_1}{2} = z_0\)。中心はつり合いの位置なので</p>
+$$Mg + \frac{Q^2}{200\varepsilon_0L^2} = k(h_0-z_0) = \frac{Q^2}{8\varepsilon_0L^2}\qquad\therefore\quad M = \frac{3Q^2}{25\varepsilon_0L^2g}$$
+<p>II(1) と同じ「端の2点の真ん中がつり合いの位置」という単振動の性質を使っています。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：（オ）→（カ）で、おもりをのせた電極が \(h_1/2\) を中心に下がり、\(z=0\) でちょうど止まります。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>II(4)　1サイクルの発熱<span class="ans">答 \(\dfrac{3Q^2h_1}{25\varepsilon_0L^2}\)</span></summary><div class="body">
+<h3>（キ）の発熱</h3>
+<p>\(z=0\) でスイッチを閉じ、\(q: \dfrac Q{10}\to\dfrac Q2\)。真空のすき間がないので</p>
+$$U\!\left(0,\tfrac Q{10}\right)-U\!\left(0,\tfrac Q2\right) = \frac{(9Q/10)^2+(Q/10)^2-2(Q/2)^2}{2C_1} = \frac{4Q^2d}{25\varepsilon L^2} = \frac{Q^2h_1}{50\varepsilon_0L^2}$$
+<h3>合計と、その意味</h3>
+$$\frac{Q^2h_1}{10\varepsilon_0L^2} + \frac{Q^2h_1}{50\varepsilon_0L^2} = \frac{3Q^2h_1}{25\varepsilon_0L^2}$$
+<p>これは II(3) の \(M\) を使うと、ちょうど <b>\(Mgh_1\)</b>。1 サイクルで電極・ばね・電荷はすべて元にもどり、変わったのは「おもりが \(h_1\) から 0 まで下がった」ことだけ。<b>おもりが失った位置エネルギーが、そのままジュール熱になった</b>のです。エレクトレット発電は、振動などの力学的エネルギーを電気エネルギーに変える装置だと分かります。</p>
+<p>こうした「1 サイクルで元にもどる」問題では、エネルギー保存を全体に使うと検算になります（\(a\) の値によらず、発熱の合計はいつも \(Mgh_1\)）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：q–z グラフでは長方形をひと回りします。エネルギーの棒グラフで、1サイクル後の発熱の合計が \(Mgh_1\)（点線）にぴったり一致します。「II の条件」のチェックを外して \(a\) を変えても一致します。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const E0=8.85e-12,LL=0.2,EL=E0*LL*LL,gg=9.8;
+const st={q:"I1",Q:0.38,k:10,h0:20,a:3.75,fit:true,spd:1};
+const SL=[
+ ["Q","Q","下電極の電荷","μC",0.1,0.5,0.01,2],
+ ["k","k","ばね定数","N/m",5,30,0.5,1],
+ ["h0","h₀","電荷がないときの高さ","mm",10,40,0.5,1],
+ ["a","a","誘電体1層の実効的な厚さ ε₀d/ε","mm",0.5,15,0.05,2],
+ ["spd","","再生速度","倍",0.25,2,0.05,2]];
+$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")restart();syncUI()})});
+$("#fit").addEventListener("change",e=>{st.fit=e.target.checked;restart();syncUI()});
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.startsWith("II")?"II":"I";
+/* ---- physics (SI) ---- */
+function P(){const Q=st.Q*1e-6,k=st.k,h0=st.h0/1000;const dl=Q*Q/(8*EL*k),z0=h0-dl,h1=2*z0;
+ let a=st.a/1000;if(st.fit&&h1>0)a=h1/8;const q1=h1>0?Q*a/(2*a+h1):Q/2;const Mg=(Q*Q/4-q1*q1)/(2*EL);
+ return{Q,k,h0,dl,z0,h1,a,q1,Mg,M:Mg/gg,ok:z0>0}}
+let C=P();
+const U=(z,q)=>(C.a*((C.Q-q)**2+q*q)+q*q*Math.max(z,0))/(2*EL);
+const qc=z=>C.Q*C.a/(2*C.a+z);
+const Fel=q=>q*q/(2*EL);
+function pot(q,z){const Q=C.Q,a=C.a;const Vm=-(Q-q)*a/EL,V0=Vm+q*a/EL,Vu=V0+q*z/EL;return{Vm,V0,Vu}}
+/* ---- phase machine ---- */
+const PH={
+ I1:[{k:"I1",d:99,lab:"はじめ：下電極 +Q、上電極は電荷 0 で z = h₀ につり合う（スイッチは開）"}],
+ I2:[{k:"hold0",d:0.8,lab:"はじめ：上電極は電荷 0、z = h₀"},{k:"down",d:1.4,lab:"上電極を z = 0 まで下ろして固定"},{k:"relaxI",d:2.6,lab:"スイッチを閉じる → 上電極に電荷が流れこむ"},{k:"hold",d:1.4,lab:"十分時間がたち、上電極の電荷は Q/2"}],
+ I3:[{k:"z0hold",d:0.8,lab:"z = 0、電荷 Q/2。スイッチを開く"},{k:"lift",d:2.8,lab:"外力で支えながら、ゆっくり上へ動かす"},{k:"release",d:2,lab:"z₀ で手を離すと、止まったまま"}],
+ II:[{k:"A",d:1.1,lab:"（ア）z = 0 でスイッチを閉じた状態：電荷 Q/2"},{k:"B",d:1.8,lab:"（イ）スイッチを開いて手を離す → 上昇"},{k:"Cc",d:0.8,lab:"（ウ）z = h₁ で止まったところで固定"},{k:"D",d:2.8,lab:"（エ）スイッチを閉じる → 電流が流れて発熱、電荷は Q/10 へ"},{k:"E0",d:0.9,lab:"（オ）おもりをのせてスイッチを開く"},{k:"E",d:1.8,lab:"（オ）手を離す → 下降"},{k:"F",d:0.8,lab:"（カ）z = 0 で止まったところで固定"},{k:"G",d:2.8,lab:"（キ）おもりを外してスイッチを閉じる → 電流が流れて発熱、電荷は Q/2 へ"}]};
+const startIdx={II1:0,II2:2,II3:4,II4:0};
+let S={};
+function seq(){const q=st.q;if(q==="I4")return PH.I3;return part()==="II"?PH.II:PH[q]}
+function restart(){C=P();const q=st.q;S={i:part()==="II"?startIdx[q]:0,tau:0,heat:0,path:[],cycles:0,wait:0};enter()}
+function enter(){const ph=seq()[S.i];S.tau=0;
+ if(ph.k==="I1"||ph.k==="hold0"){S.z=C.h0;S.qq=0;S.sw=false;S.M=false}
+ if(ph.k==="z0hold"){S.z=0;S.qq=C.Q/2;S.sw=false;S.M=false}
+ if(ph.k==="A"){S.z=0;S.qq=C.Q/2;S.sw=true;S.M=false}
+ if(ph.k==="Cc"&&S.qq===undefined){S.z=C.h1;S.qq=C.Q/2}
+ if(ph.k==="D"&&S.z===undefined){S.z=C.h1;S.qq=C.Q/2}
+ if(ph.k==="E0"&&(S.z===undefined||S.z<C.h1*0.99)){S.z=C.h1;S.qq=C.q1}
+ if(ph.k==="B"||ph.k==="E")S.Etot=mechE(S.z,S.qq,ph.k==="E");
+ ph.q0=S.qq;S.sw=["A","D","G","relaxI","hold"].includes(ph.k);
+ if(["Cc","D","E0"].includes(ph.k)&&S.z===undefined){}
+ if(ph.k==="E0"||ph.k==="E"||ph.k==="F")S.M=true;else if(part()==="II")S.M=false;
+ S.path.push([S.z,S.qq])}
+function mechE(z,q,withM){return 0.5*C.k*(C.h0-z)**2+U(z,q)+(withM?C.Mg*z:0)}
+function KE(){const ph=seq()[S.i];if(ph.k==="B"||ph.k==="E")return Math.max(0,S.Etot-mechE(S.z,S.qq,ph.k==="E"));return 0}
+function step(dt){const ph=seq()[S.i];if(!C.ok)return;S.tau+=dt;const f=Math.min(1,S.tau/ph.d),sm=(1-Math.cos(Math.PI*f))/2;
+ switch(ph.k){
+  case"down":S.z=C.h0*(1-sm);break;
+  case"relaxI":{const nq=C.Q/2*(1-Math.exp(-S.tau/0.45));S.qq=Math.min(C.Q/2,nq);if(f>=1)S.qq=C.Q/2;break}
+  case"lift":S.z=C.z0*sm;break;
+  case"B":S.z=C.z0-C.z0*Math.cos(Math.PI*f);break;
+  case"D":case"G":{const q0=ph.q0,qf=ph.k==="D"?qc(S.z):C.Q/2;const nq=f>=1?qf:qf+(q0-qf)*Math.exp(-S.tau/0.45);S.heat+=U(S.z,S.qq)-U(S.z,nq);S.qq=nq;break}
+  case"E":S.z=C.h1/2+C.h1/2*Math.cos(Math.PI*f);break}
+ if(ph.k==="E"&&f>=1)S.z=0;if(ph.k==="B"&&f>=1)S.z=C.h1;
+ const last=S.path[S.path.length-1];if(!last||Math.abs(last[0]-S.z)>C.h0/300||Math.abs(last[1]-S.qq)>C.Q/400)S.path.push([S.z,S.qq]);
+ if(S.tau>=ph.d){if(ph.d>=99)return;S.i++;if(S.i>=seq().length){if(part()==="II"){S.i=0;S.cycles++;if(S.cycles>=1){S.path=[];S.heat=0;S.cycles=0}}else{S.i=seq().length-1;S.tau=ph.d;S.wait=(S.wait||0)+dt;if(S.wait>1.5)restart();return}}enter()}}
+/* ---- ui ---- */
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+$("#play").onclick=()=>{playing=!playing;syncPlay()};
+$("#rst").onclick=()=>{restart();syncUI()};
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ if(st.fit&&C.h1>0)st.a=C.h1*1000/8;$("#s_a").disabled=st.fit;
+ SL.forEach(([k,,,u,,,,dp])=>{$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});readout()}
+const mm=z=>(z*1000).toFixed(2)+" mm",kv=v=>(v/1000).toFixed(2)+" kV",mJ=e=>(e*1000).toFixed(3)+" mJ",mN=f=>(f*1000).toFixed(1)+" mN",uc=q=>(q*1e6).toFixed(3)+" μC";
+function readout(){const r=[],q=st.q;if(!C.ok){$("#read").innerHTML='<div><span class="ng">静電気力が強すぎて、上電極が誘電体にくっついてしまいます（z₀ ≦ 0）。Q を小さくするか k や h₀ を大きくしてください。</span></div>';return}
+ const p=pot(S.qq,S.z);r.push(["上電極の高さ z",mm(S.z)],["上電極の電荷 q",uc(S.qq)+"（"+(S.qq/C.Q).toFixed(3)+" Q）"],["スイッチ",S.sw?"閉":"開"]);
+ if(q==="I1")r.push(["金属板の電位（式）−Qd/(εL²)",kv(-C.Q*C.a/EL)],["金属板の電位（グラフ）",kv(p.Vm)]);
+ if(q==="I2")r.push(["上電極の電位",kv(p.Vu)],["閉じた後の電荷（式）Q/2",uc(C.Q/2)]);
+ if(q==="I3"||q==="I4"){r.push(["上向きの力 k(h₀−z)",mN(C.k*(C.h0-S.z))],["静電気力 q²/(2ε₀L²)",mN(Fel(S.qq))],["z₀ = h₀ − Q²/(8kε₀L²)",mm(C.z0)]);if(q==="I4")r.push(["上電極の電位",kv(p.Vu)],["式 Qz₀/(2ε₀L²)",kv(C.Q*C.z0/(2*EL))])}
+ if(part()==="II"){r.push(["h₁ = 2z₀",mm(C.h1)],["a = ε₀d/ε",mm(C.a)+(st.fit?"（= h₁/8）":"")],["（エ）での電荷 q₁",(C.q1/C.Q).toFixed(3)+" Q"]);
+  if(q==="II2")r.push(["（エ）の発熱（式）Q²h₁/(10ε₀L²)",st.fit?mJ(C.Q*C.Q*C.h1/(10*EL)):"—（条件を外しています）"],["（エ）の発熱（一般）",mJ(U(C.h1,C.Q/2)-U(C.h1,C.q1))]);
+  if(q==="II3")r.push(["M（式）",(C.M*1000).toFixed(2)+" g"]);
+  r.push(["発熱の累計",mJ(S.heat)]);if(q==="II4")r.push(["Mgh₁",mJ(C.Mg*C.h1)]);}
+ $("#read").innerHTML=r.map(([x,y])=>`<div><span>${x}</span><b>${y}</b></div>`).join("")}
+/* ---- drawing ---- */
+const cv=$("#cv"),ctx=cv.getContext("2d"),gr=$("#gr"),gx=gr.getContext("2d");
+let W=1000,H=420,K=1,GW=1000,GH=300,GK=1,narrow=false,CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function resize(){const w=cv.parentElement.clientWidth;narrow=w<680;W=narrow?640:1000;H=narrow?460:420;GW=W;GH=narrow?620:300;
+ const dp=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*dp);cv.height=Math.round(w*H/W*dp);cv.style.height=(w*H/W)+"px";K=cv.width/W;
+ gr.width=cv.width;gr.height=Math.round(w*GH/GW*dp);gr.style.height=(w*GH/GW)+"px";gr.style.width="100%";gr.style.display="block";GK=gr.width/GW;colors()}
+addEventListener("resize",resize);matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function signs(c,x1,x2,y,n,ch,col){n=Math.round(n);if(n<=0)return;for(let i=0;i<n;i++){const x=x1+(x2-x1)*(i+0.5)/n;txt(c,ch,x,y,col,{s:15,b:1,al:"center"})}}
+let flowT=0;
+function draw(){const want=(cv.parentElement.clientWidth<680);if(want!==narrow||Math.abs(cv.width/K-W)>1)resize();
+ const c=ctx;c.setTransform(K,0,0,K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,W,H);
+ if(!C.ok){txt(c,"z₀ ≦ 0：上電極が誘電体にくっついてしまう設定です",W/2,H/2,CL.ng,{s:16,b:1,al:"center"});drawGraph();return}
+ const ph=seq()[S.i];
+ const dpx=26,FB=H-46,ZTOP=70,zmax=Math.max(C.h0,C.h1)*1.12,zs=(FB-2*dpx-ZTOP-50)/zmax,Z=z=>FB-2*dpx-z*zs;// z>=0 in m; dielectric drawn fixed
+ const devW=narrow?380:560,x1=narrow?60:90,x2=x1+(narrow?220:330);
+ // axis
+ line(c,[[x1-34,FB+14],[x1-34,ZTOP-30]],CL.mute,1.4);arrow(c,x1-34,ZTOP-20,x1-34,ZTOP-34,CL.mute,1.4);txt(c,"z",x1-24,ZTOP-30,CL.ink,{it:1,s:16});
+ [[0,"0"],[C.h0,"h₀"]].concat(part()==="II"||st.q==="I3"||st.q==="I4"?[[C.z0,"z₀"]]:[]).concat(part()==="II"?[[C.h1,"h₁"]]:[]).forEach(([z,l])=>{line(c,[[x1-38,Z(z)],[x1-30,Z(z)]],CL.mute,1.4);line(c,[[x1-30,Z(z)],[x2,Z(z)]],CL.line,1,[3,4]);txt(c,l,x1-42,Z(z),CL.ink,{it:1,s:14,al:"right"})});
+ txt(c,"−d",x1-42,FB-dpx,CL.ink,{it:1,s:13,al:"right"});txt(c,"−2d",x1-42,FB,CL.ink,{it:1,s:13,al:"right"});
+ // floor & dielectric
+ c.fillStyle=CL.panel;c.fillRect(0,FB+4,devW,H-FB-4);
+ c.fillStyle=CL.soft;c.fillRect(x1,FB-2*dpx,x2-x1,2*dpx);c.strokeStyle=CL.mute;c.lineWidth=1;c.strokeRect(x1,FB-2*dpx,x2-x1,2*dpx);
+ txt(c,"誘電体 ε",x1+6,FB-2*dpx+9,CL.mute,{s:11});
+ // lower electrode
+ c.fillStyle=CL.ink;c.fillRect(x1,FB-2,x2-x1,5);signs(c,x1,x2,FB+14,(C.Q-S.qq)/C.Q*10,"+",CL.frc);txt(c,"下電極",x1-6,FB+30,CL.mute,{s:12});
+ // metal plate
+ c.fillStyle=CL.mute;c.fillRect(x1+4,FB-dpx-2,x2-x1-8,4);signs(c,x1+70,x2-4,FB-dpx-12,9,"−",CL.acc);txt(c,"金属板 −Q",x1+6,FB-dpx+11,CL.mute,{s:11});
+ // upper electrode & spring
+ const yu=Z(S.z),ceil=ZTOP-26;line(c,[[x1+40,ceil],[x2-40,ceil]],CL.ink,3);for(let i=0;i<8;i++)line(c,[[x1+44+i*((x2-x1-88)/8),ceil],[x1+34+i*((x2-x1-88)/8),ceil-8]],CL.ink,1.2);
+ const xm=(x1+x2)/2,sp=[[xm,ceil]],n=14;for(let i=1;i<n;i++)sp.push([xm+(i%2?12:-12),ceil+(yu-8-ceil)*i/n]);sp.push([xm,yu-8]);sp.push([xm,yu]);line(c,sp,CL.fic,1.8);
+ c.fillStyle=CL.ink;c.fillRect(x1,yu-4,x2-x1,5);signs(c,x1,x2,yu+11,S.qq/C.Q*10,"+",CL.frc);txt(c,"上電極",x1-6,yu-14,CL.mute,{s:12,al:"right"});
+ if(S.M){const mw=60,mh=Math.max(14,Math.min(30,C.M*1000*3));c.fillStyle=CL.fr;c.fillRect(xm-mw/2+50,yu-4-mh,mw,mh);txt(c,"おもり",xm+50,yu-4-mh/2,CL.bg,{s:12,b:1,al:"center"})}
+ // circuit
+ const xr=x2+(narrow?70:110),yR1=Math.min(yu,FB-2*dpx-30)-60,yR2=yR1+56,ySw=FB-26;
+ line(c,[[x2,yu],[x2+20,yu],[xr,yR1-20],[xr,yR1]],CL.ink,2);c.strokeStyle=CL.ink;c.lineWidth=2;c.fillStyle=CL.bg;c.fillRect(xr-9,yR1,18,yR2-yR1);c.strokeRect(xr-9,yR1,18,yR2-yR1);txt(c,"抵抗",xr+14,(yR1+yR2)/2,CL.ink,{s:13});
+ line(c,[[xr,yR2],[xr,ySw-16]],CL.ink,2);c.beginPath();c.arc(xr,ySw-16,3,0,7);c.fill();
+ if(S.sw)line(c,[[xr,ySw-16],[xr,ySw+6]],CL.ink,2.4);else line(c,[[xr,ySw-16],[xr+16,ySw+4]],CL.ink,2.4);
+ c.beginPath();c.arc(xr,ySw+6,3,0,7);c.fill();line(c,[[xr,ySw+6],[xr,FB],[x2,FB]],CL.ink,2);txt(c,"スイッチ"+(S.sw?"（閉）":"（開）"),xr-12,ySw-4,CL.ink,{s:13,al:"right"});
+ // current animation
+ if(ph.k==="D"||ph.k==="G"||ph.k==="relaxI"){const I=Math.abs(U(S.z,S.qq)-U(S.z,S.qq*0.999+0.001*(ph.k==="D"?qc(S.z):C.Q/2)));const dirUp=ph.k!=="D";// positive charge flows lower->upper when q increases
+  const strength=Math.exp(-S.tau/0.45);if(strength>0.04){const path=[[x2,FB],[xr,FB],[xr,yR2],[xr,yR1],[xr,yR1-20],[x2+20,yu]];const segs=[];let tot=0;for(let i=1;i<path.length;i++){const l=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1]);segs.push(l);tot+=l}
+   for(let k=0;k<10;k++){let d=((k/10+flowT*0.6)%1)*tot;if(!dirUp)d=tot-d;let i=0;while(i<segs.length-1&&d>segs[i]){d-=segs[i];i++}const A=path[i],B=path[i+1],f=d/segs[i];c.beginPath();c.arc(A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f,4,0,7);c.fillStyle=CL.frc;c.globalAlpha=Math.min(1,strength*1.5);c.fill();c.globalAlpha=1}
+   arrow(c,xr-22,dirUp?yR2:yR1,xr-22,dirUp?yR1:yR2,CL.frc,2.5);txt(c,"電流",xr-30,(yR1+yR2)/2,CL.frc,{s:12,b:1,al:"right"})}}
+ // forces on the upper electrode
+ if(S.z>0||st.q==="I3"||st.q==="I4"||part()==="II"){const fs=55/(C.k*C.dl);const Fup=C.k*(C.h0-S.z),Fe=Fel(S.qq);const xa=x1+30;
+  if(Math.abs(Fup)>1e-6){const y0=Fup>0?yu-6:yu+4;arrow(c,xa,y0,xa,y0-Fup*fs,CL.grav,3);txt(c,Fup>0?"ばね＋重力 k(h₀−z)":"ばね＋重力（下向き）",xa+6,y0-Fup*fs+(Fup>0?4:-4),CL.grav,{s:12})}
+  if(Fe>1e-6)arrow(c,xa+60,yu+2,xa+60,yu+2+Fe*fs,CL.fic,3);if(Fe>1e-6)txt(c,"静電気力",xa+66,yu+12+Fe*fs,CL.fic,{s:12});
+  if(ph.k==="lift"||ph.k==="z0hold"){const Fx=Fe-Fup;if(Math.abs(Fx)>1e-6){const y0=Fx>0?yu-6:yu+4;arrow(c,x2-40,y0,x2-40,y0-Fx*fs,CL.acc,3);txt(c,"外力",x2-34,y0-Fx*fs+(Fx>0?-6:8),CL.acc,{s:12,b:1})}}
+  if(S.M){const mf=C.Mg*fs;arrow(c,xm+50,yu-4,xm+50,yu-4+mf,CL.fr,3)}}
+ // potential panel
+ const Px=narrow?430:devW+60,Pw=narrow?W-Px-24:W-Px-40;
+ const p=pot(S.qq,S.z),Vmin=Math.min(0,-C.Q*C.a/EL)*1.1,Vmax=Math.max(C.Q*C.h1/(2*EL)*1.1+1,C.Q*C.z0/(2*EL)*1.2,Math.abs(Vmin)*0.4),VX=v=>Px+Pw*(v-Vmin)/(Vmax-Vmin);
+ txt(c,"電位 V（下電極 = 0）",Px,ZTOP-30,CL.ink,{s:13});line(c,[[VX(0),ZTOP-14],[VX(0),FB+6]],CL.mute,1.2);txt(c,"0",VX(0),FB+18,CL.mute,{s:12,al:"center"});line(c,[[Px,FB+6],[Px+Pw,FB+6]],CL.mute,1.2);txt(c,"V",Px+Pw+8,FB+6,CL.ink,{it:1,s:15});
+ const pts=[[VX(0),FB],[VX(p.Vm),FB-dpx],[VX(p.V0),FB-2*dpx],[VX(p.Vu),yu],[VX(p.Vu),ZTOP-10]];line(c,pts,CL.acc,3);
+ [[p.Vm,FB-dpx,"金属板"],[p.Vu,yu,"上電極"]].forEach(([v,y,l])=>{c.beginPath();c.arc(VX(v),y,4,0,7);c.fillStyle=CL.acc;c.fill();txt(c,l+" "+(v/1000).toFixed(1)+" kV",VX(v)+(v<0?-8:8),y-12,CL.acc,{s:12,al:v<0?"right":"left"})});
+ [FB-dpx,FB-2*dpx].forEach(y=>line(c,[[Px,y],[Px+Pw,y]],CL.line,1,[2,4]));
+ // labels
+ txt(c,ph.lab,16,20,CL.ink,{s:narrow?13:15,b:1});
+ drawGraph()}
+function drawGraph(){const c=gx;c.setTransform(GK,0,0,GK,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,GW,GH);if(!C.ok)return;
+ const G=narrow?{x:60,y:36,w:GW-100,h:220}:{x:64,y:36,w:420,h:220},R=narrow?{x:60,y:340,w:GW-100,h:220}:{x:570,y:36,w:390,h:220};
+ // q-z diagram
+ const zm=Math.max(C.h0,C.h1)*1.1,X=z=>G.x+G.w*z/zm,Y=q=>G.y+G.h-G.h*q/(0.6*C.Q);
+ line(c,[[G.x,G.y],[G.x,G.y+G.h],[G.x+G.w,G.y+G.h]],CL.mute,1.2);txt(c,"z",G.x+G.w+8,G.y+G.h,CL.ink,{it:1,s:16});txt(c,"上電極の電荷 q と高さ z",G.x+8,G.y-18,CL.ink,{s:13});
+ [[0.5,"Q/2"],[C.q1/C.Q,part()==="II"?(st.fit?"Q/10":"q₁"):null]].forEach(([f,l])=>{if(!l)return;line(c,[[G.x,Y(f*C.Q)],[G.x+G.w,Y(f*C.Q)]],CL.line,1,[4,4]);txt(c,l,G.x-6,Y(f*C.Q),CL.mute,{s:12,al:"right"})});
+ [[C.h0,"h₀"],[C.h1,part()==="II"?"h₁":null],[C.z0,"z₀"]].forEach(([z,l])=>{if(!l)return;line(c,[[X(z),G.y+G.h-4],[X(z),G.y+G.h+4]],CL.ink,1.4);txt(c,l,X(z),G.y+G.h+16,CL.ink,{it:1,s:13,al:"center"})});
+ const cq=[];for(let i=0;i<=80;i++){const z=zm*i/80;cq.push([X(z),Y(qc(z))])}line(c,cq,CL.frc,1.4,[5,4]);txt(c,"点線：スイッチを閉じたときの電荷 Qa/(2a+z)",G.x+G.w-4,G.y+6,CL.frc,{s:12,al:"right"});
+ if(S.path.length>1)line(c,S.path.map(p=>[X(p[0]),Y(p[1])]),CL.ink,2.6);c.beginPath();c.arc(X(S.z),Y(S.qq),5,0,7);c.fillStyle=CL.acc;c.fill();
+ if(part()==="II"){const pl=[["ア",0,C.Q/2,6,-14],["ウ",C.h1,C.Q/2,10,-12],["エ",C.h1,C.q1,10,12],["カ",0,C.q1,6,14]];pl.forEach(([l,z,q,dx,dy])=>txt(c,"（"+l+"）",X(z)+dx,Y(q)+dy,CL.mute,{s:12,al:dx<0?"right":"left"}))}
+ // right panel
+ if(part()==="I"){// force vs z
+  const Fm=Math.max(C.k*C.h0,Fel(C.Q/2))*1.1,XF=z=>R.x+R.w*z/zm,YF=f=>R.y+R.h-R.h*f/Fm;
+  line(c,[[R.x,R.y],[R.x,R.y+R.h],[R.x+R.w,R.y+R.h]],CL.mute,1.2);txt(c,"z",R.x+R.w+8,R.y+R.h,CL.ink,{it:1,s:16});txt(c,"上電極にはたらく力の大きさ [mN]",R.x+8,R.y-18,CL.ink,{s:13});
+  line(c,[[XF(0),YF(C.k*C.h0)],[XF(C.h0),YF(0)]],CL.grav,2.4);txt(c,"上向き k(h₀−z)",XF(0)+6,YF(C.k*C.h0)-10,CL.grav,{s:12});
+  const Fe=Fel(S.qq);line(c,[[XF(0),YF(Fe)],[XF(zm),YF(Fe)]],CL.fic,2.4);txt(c,"下向き 静電気力 q²/(2ε₀L²)",XF(zm)-4,YF(Fe)-10,CL.fic,{s:12,al:"right"});
+  if(S.qq>0){c.beginPath();c.arc(XF(C.z0),YF(C.k*(C.h0-C.z0)),5,0,7);c.fillStyle=CL.ink;c.fill();if(Math.abs(S.qq-C.Q/2)<1e-12)txt(c,"z₀（つり合い）",XF(C.z0)+8,YF(C.k*(C.h0-C.z0))+14,CL.ink,{s:12})}
+  line(c,[[XF(S.z),R.y],[XF(S.z),R.y+R.h]],CL.acc,1.4,[3,3]);txt(c,"いまの z",XF(S.z)+4,R.y+8,CL.acc,{s:12});
+  [[C.h0,"h₀"],[C.z0,"z₀"]].forEach(([z,l])=>txt(c,l,XF(z),R.y+R.h+16,CL.ink,{it:1,s:13,al:"center"}))}
+ else{const ke=KE(),es=0.5*C.k*(C.h0-S.z)**2,ue=U(S.z,S.qq),wm=S.M?C.Mg*S.z:0;
+  const bars=[["ばね＋重力 ½k(h₀−z)²",es,CL.grav],["静電エネルギー",ue,CL.fic],["運動エネルギー",ke,CL.ink],["おもりの位置エネルギー Mgz",wm,CL.fr],["発熱（累計）",S.heat,CL.frc]];
+  const mx=Math.max(U(0,C.q1),U(C.h1,C.Q/2),0.5*C.k*C.h0**2,C.Mg*C.h1)*1.15;txt(c,"エネルギー [mJ]",R.x,R.y-18,CL.ink,{s:13});
+  const bw=R.w-90;bars.forEach(([l,v,col],i)=>{const y=R.y+i*44;txt(c,l,R.x,y+6,CL.ink,{s:12});c.fillStyle=col;c.fillRect(R.x,y+16,bw*Math.max(0,v)/mx,14);txt(c,(v*1000).toFixed(3),R.x+bw*Math.max(0,v)/mx+6,y+23,CL.ink,{s:12})});
+  const yh=R.y+4*44+16,xh=R.x+bw*C.Mg*C.h1/mx;line(c,[[xh,yh-8],[xh,yh+22]],CL.ink,1.6,[3,3]);txt(c,"Mgh₁",xh,yh+32,CL.ink,{s:12,al:"center"})}}
+let lastT=performance.now(),acc=0;
+function frame(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;if(playing){const n=4;for(let i=0;i<n;i++)step(dt*st.spd/n);flowT+=dt*st.spd;acc+=dt;if(acc>0.15){acc=0;readout()}}draw();requestAnimationFrame(frame)}
+resize();setQ("I1",true);requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

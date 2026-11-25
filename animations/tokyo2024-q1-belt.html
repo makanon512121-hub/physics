@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>ベルトコンベアと摩擦</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>傾いたベルトコンベア上の物体と摩擦（東京大学 2024年 第1問）</h1>
+<p class="lead">傾いたベルトコンベアの上で物体がすべったり、ベルトに乗って運ばれたりします。カギは<b>「摩擦力の向きは、ベルトに対する相対速度で決まる」</b>こと。後半はばねでつないだ2物体を<b>重心の運動＋相対運動（単振動）</b>に分けて考えます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="傾いたベルトコンベアの上を物体が運動する様子と、物体にはたらく力の矢印"></canvas>
+<canvas id="gr" role="img" aria-label="物体の速度と時刻のグラフ、摩擦力と時刻のグラフ" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 最高点</button>
+<button class="qb" data-q="I2">I(2) 戻ってきた速度</button>
+<button class="qb" data-q="II1">II(1) 動くベルトに置く</button>
+<button class="qb" data-q="II2">II(2) 下向きに打ち出す</button>
+<button class="qb" data-q="III1">III(1)(2) ばねと2物体のつり合い</button>
+<button class="qb" data-q="III3">III(3)(4) B に速度 V</button>
+<button class="qb" data-q="III5">III(5) A がベルトに乗った後</button>
+<button class="qb" data-q="III6">III(6) A がすべらない条件</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote">重力加速度 <span class="v">g</span> = 9.8 m/s²。物体の大きさは見やすさのため実際より大きく描いています。</p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。斜面に沿って上向きを正とし、垂直抗力は \(N = mg\cos\theta\) です。</p>
+
+<details id="d-I1"><summary>I(1)　最高点の x 座標<span class="ans">答 \(x_1 = \dfrac{v_0^{\,2}}{2g(\sin\theta_1 + \mu'\cos\theta_1)}\)</span></summary><div class="body">
+<h3>まず「摩擦力の向き」を決める</h3>
+<p>動摩擦力は<b>接している面に対する相対速度と逆向き</b>にはたらきます。ベルトは止まっているので、上りの間は物体の速度そのものが上向き → 摩擦力は<b>下向き</b>。重力の斜面成分 \(mg\sin\theta_1\) も下向きなので、どちらも減速させます。</p>
+$$ma = -mg\sin\theta_1 - \mu' mg\cos\theta_1 \qquad\therefore\quad a = -g(\sin\theta_1+\mu'\cos\theta_1)$$
+<h3>等加速度運動の公式（または仕事とエネルギー）</h3>
+<p>\(v^2 - v_0^{\,2} = 2ax\) で \(v = 0\) とおけば</p>
+$$x_1 = \frac{v_0^{\,2}}{2g(\sin\theta_1+\mu'\cos\theta_1)}$$
+<p>「運動エネルギーの変化＝した仕事の和」で考えても同じ式です：\(0-\dfrac12mv_0^{\,2} = -(mg\sin\theta_1 + \mu'mg\cos\theta_1)\,x_1\)。<b>一定の力なら、どちらの方法でも1行で解けます。</b></p>
+<div class="box"><b>アニメーションで確かめよう</b>：v–t グラフは直線（傾き＝加速度）。\(\mu'\) を大きくすると傾きが急になり、最高点が下がります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　x = 0 に戻ったときの速度<span class="ans">答 \(v_1 = -v_0\sqrt{\dfrac{\sin\theta_1-\mu'\cos\theta_1}{\sin\theta_1+\mu'\cos\theta_1}}\)</span></summary><div class="body">
+<h3>下りでは摩擦力の向きが逆になる</h3>
+<p>最高点で向きが変わると相対速度も下向きになり、摩擦力は<b>上向き</b>に変わります。下りの加速度の大きさは</p>
+$$|a'| = g(\sin\theta_1 - \mu'\cos\theta_1)$$
+<p>上りと下りで同じ距離 \(x_1\) を進むので、\(v_1^{\,2} = 2|a'|x_1\)、\(v_0^{\,2} = 2|a|x_1\) の比をとって</p>
+$$\frac{v_1^{\,2}}{v_0^{\,2}} = \frac{\sin\theta_1-\mu'\cos\theta_1}{\sin\theta_1+\mu'\cos\theta_1} \qquad\therefore\quad v_1 = -v_0\sqrt{\frac{\sin\theta_1-\mu'\cos\theta_1}{\sin\theta_1+\mu'\cos\theta_1}}$$
+<p>（下向きなので負）。エネルギーで見れば、往復で摩擦力がした仕事 \(-2\mu'mg\cos\theta_1\cdot x_1\) の分だけ運動エネルギーが減っています。</p>
+<h3>そもそも戻ってくる条件</h3>
+<p>最高点で一瞬止まったとき、静止摩擦力で支えきれなければすべり出します：\(mg\sin\theta_1 > \mu mg\cos\theta_1\)、つまり \(\tan\theta_1 > \mu\)。この問題は戻ってくると書いてあるので、この条件が成り立っています。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：v–t グラフが最高点で<b>折れ曲がり</b>、下りは傾きがゆるくなります。\(\mu\) を \(\tan\theta_1\) より大きくすると最高点で止まったままになります。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　動いているベルトに置いた物体の速度<span class="ans">答 \(v = g(\mu'\cos\theta_2-\sin\theta_2)\,t\ \ \left(t < \dfrac{V}{g(\mu'\cos\theta_2-\sin\theta_2)}\right),\quad v = V\ \ (\text{それ以降})\)</span></summary><div class="body">
+<h3>ベルトから見ると物体は「下へすべっている」</h3>
+<p>物体の速度 0、ベルトの速度 \(V\)（上向き）なので、ベルトに対する物体の相対速度は \(0 - V < 0\)（下向き）。摩擦力はその逆、<b>上向き</b>です。物体自身は止まっていても、摩擦力の向きは決まります。</p>
+$$ma = \mu'mg\cos\theta_2 - mg\sin\theta_2 \qquad\therefore\quad a = g(\mu'\cos\theta_2-\sin\theta_2)$$
+<p>物体が上り始めるので \(\mu'\cos\theta_2 > \sin\theta_2\) です。速度は \(v = at\) で増え、<b>ベルトと同じ \(V\) になった瞬間</b>に相対速度が 0 になります。</p>
+<h3>追いついた後は静止摩擦力</h3>
+<p>相対速度 0 のまま一緒に動くには、静止摩擦力が \(mg\sin\theta_2\) を支えればよく、\(\mu \ge \mu' > \tan\theta_2\) なので大丈夫。以後は速度 \(V\) の等速運動です。</p>
+$$v = \begin{cases} g(\mu'\cos\theta_2-\sin\theta_2)\,t & \left(0\le t<\dfrac{V}{g(\mu'\cos\theta_2-\sin\theta_2)}\right)\\[2mm] V & \left(t \ge \dfrac{V}{g(\mu'\cos\theta_2-\sin\theta_2)}\right)\end{cases}$$
+<div class="box"><b>アニメーションで確かめよう</b>：摩擦力のグラフで、すべっている間は大きさ \(\mu'N\)（動摩擦）、追いついた後は \(mg\sin\theta_2\)（静止摩擦、\(\mu N\) 以下）に切りかわります。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　下向きに打ち出したときの戻りの速度<span class="ans">答 \(v_0\)（上向き）</span></summary><div class="body">
+<h3>摩擦力はずっと上向き</h3>
+<p>物体が下っているときも上っているときも、速度は \(V\) より小さいので<b>相対速度はずっと下向き</b> → 摩擦力はずっと上向きで大きさ \(\mu'mg\cos\theta_2\)。I(2) と違い、<b>物体の向きが変わっても摩擦力の向きは変わりません</b>。</p>
+<p>力が一定 → 加速度 \(a = g(\mu'\cos\theta_2-\sin\theta_2)\) の等加速度運動。これは「鉛直に投げ上げた物体」と同じ形で、行きと帰りが対称になります。</p>
+$$v^2 - (-v_0)^2 = 2a\cdot 0 \qquad\therefore\quad v = v_0$$
+<p>\(v_0 < V\) なので、\(x = 0\) に戻るまでにベルトの速さに達することはありません（もし \(v_0 > V\) なら途中で \(V\) に追いつき、戻ったときの速さは \(V\) になります）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：v–t グラフは 1 本の直線です。\(v_0\) を \(V\) より大きくすると、直線が \(V\) で頭打ちになるのが見られます。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>III(1)(2)　つり合いの d₀ と μ′<span class="ans">答 \(d_0 = \dfrac{mg\sin\theta_3}{k},\quad \mu' = 2\tan\theta_3\)</span></summary><div class="body">
+<h3>(1) B だけを見る</h3>
+<p>B とベルトの間には摩擦がないので、B にはたらく斜面方向の力は重力の成分とばねの力だけ。B が静止し続けるには</p>
+$$kd_0 = mg\sin\theta_3 \qquad\therefore\quad d_0 = \frac{mg\sin\theta_3}{k}$$
+<h3>(2) A と B をまとめて見る</h3>
+<p>ベルトは動いていて A は静止しているので、A はベルトに対して下へすべっています → A には<b>上向きの動摩擦力</b> \(\mu'mg\cos\theta_3\)。ばねの力は A と B の間の<b>内力</b>なので、全体で見ると打ち消し合います。全体のつり合いは</p>
+$$\mu'mg\cos\theta_3 = 2mg\sin\theta_3 \qquad\therefore\quad \mu' = 2\tan\theta_3$$
+<p>「内力を消したいときは全体を1つの物体として見る」は、連結物体の基本テクニックです。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：物体は止まっていて、ベルトの模様だけが流れています。A の摩擦力（上向き）が、2物体分の重力の成分とつり合っています。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III3"><summary>III(3)(4)　重心の速度と B の速度、時刻 t₁<span class="ans">答 \(v_G = \dfrac V2,\quad v_B = \dfrac V2\left(1+\cos\sqrt{\dfrac{2k}{m}}\,t\right),\quad t_1 = \pi\sqrt{\dfrac{m}{2k}}\)</span></summary><div class="body">
+<h3>(3) 外力の和が 0 なら重心は等速</h3>
+<p>\(0<t<t_1\) では A はまだベルトより遅いので、A の摩擦力は (2) と同じ上向き \(\mu'mg\cos\theta_3 = 2mg\sin\theta_3\)。全体の外力は</p>
+$$2mg\sin\theta_3\ (\text{摩擦}) - 2mg\sin\theta_3\ (\text{重力}) = 0$$
+<p>なので重心 G は等速運動。\(t = 0\) で \(v_A = 0,\ v_B = V\) だから</p>
+$$v_G = \frac{mv_A + mv_B}{2m} = \frac V2$$
+<h3>(4) 重心から見ると単振動</h3>
+<p>A、B それぞれの運動方程式を立て、ばねの伸びを \(s\)（\(s = d_0\) がつり合い）とすると、引き算で</p>
+$$m\frac{d^2(x_B - x_A)}{dt^2} = -2k\,(\text{つり合いからのずれ})$$
+<p>となり、相対運動は角振動数 \(\omega_1 = \sqrt{\dfrac{2k}{m}}\) の単振動です（質量 \(m\) の物体が重心とのあいだの「半分の長さのばね」＝ばね定数 \(2k\) につながれていると考えてもよい）。</p>
+<p>重心から見ると、B は \(t=0\) につり合いの位置で速度 \(V - \dfrac V2 = \dfrac V2\) をもつので</p>
+$$v_B - v_G = \frac V2\cos\omega_1 t \qquad\therefore\quad v_B = \frac V2\left(1+\cos\sqrt{\frac{2k}{m}}\,t\right)$$
+<p>同様に \(v_A = \dfrac V2(1-\cos\omega_1 t)\)。A がはじめて \(V\) になるのは \(\cos\omega_1 t = -1\)、つまり半周期後：</p>
+$$t_1 = \frac{\pi}{\omega_1} = \pi\sqrt{\frac{m}{2k}}$$
+<p><b>2物体の問題 ＝ 重心の運動 ＋ 相対運動</b>。外力が一定なら重心は簡単に分かり、ばねでつながれた相対運動は単振動になります。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：v–t グラフで \(v_A\) と \(v_B\) が \(v_G = V/2\)（点線）について<b>上下対称</b>に振動します。\(k\) を大きくすると \(t_1\) が短くなります。</div>
+<button class="goto" data-q="III3">この状況にする</button>
+</div></details>
+
+<details id="d-III5"><summary>III(5)　t ≧ t₁ での B の速度<span class="ans">答 \(v_B = V\left\{1-\cos\left(\sqrt{\dfrac km}\,t - \dfrac{\pi}{\sqrt2}\right)\right\}\)</span></summary><div class="body">
+<h3>A はベルトに乗って等速 V</h3>
+<p>\(t_1\) で A はベルトに追いつき、以後は静止摩擦力で一緒に動きます（条件は (6)）。A は<b>速度 \(V\) で動く「壁」</b>になったと考えられます。</p>
+<h3>A から見た B は、ばね定数 k の単振動</h3>
+<p>等速で動く A から見ても慣性力ははたらかないので、B は片方が固定されたばね（ばね定数 \(k\)）につながれた単振動をします：\(\omega_2 = \sqrt{\dfrac km}\)。</p>
+<p>\(t = t_1\) では、相対運動がちょうど半周期進んでいるので<b>ばねはつり合いの長さ</b>、B の速度は \(v_B = 0\)、A から見た B の速度は \(0 - V = -V\)。よって</p>
+$$v_B - V = -V\cos\omega_2(t-t_1)$$
+<p>\(\omega_2 t_1 = \sqrt{\dfrac km}\cdot\pi\sqrt{\dfrac m{2k}} = \dfrac{\pi}{\sqrt2}\) なので</p>
+$$v_B = V\left\{1-\cos\left(\sqrt{\frac km}\,t-\frac{\pi}{\sqrt2}\right)\right\}$$
+<p>前半（\(\omega_1=\sqrt{2k/m}\)）と後半（\(\omega_2=\sqrt{k/m}\)）で振動の速さが変わるのは、<b>相手が動けるか（重心まわり）、固定されているか</b>の違いです。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：\(t_1\) 以降、\(v_A\) は \(V\) の直線、\(v_B\) は 0 と \(2V\) の間を振動します。振動の周期が前半より長くなっていることに注目。</div>
+<button class="goto" data-q="III5">この状況にする</button>
+</div></details>
+
+<details id="d-III6"><summary>III(6)　A がすべらない μ の条件<span class="ans">答 \(\mu > 2\tan\theta_3 + \dfrac{V}{g\cos\theta_3}\sqrt{\dfrac km}\)</span></summary><div class="body">
+<h3>必要な静止摩擦力が最大になる瞬間</h3>
+<p>A は等速なので、A にはたらく力はつり合っています。ばねの伸びを \(s\) とすると、必要な静止摩擦力（上向き）は</p>
+$$f = mg\sin\theta_3 + ks$$
+<p>ばねが最も伸びたときに \(f\) が最大。(5) の単振動の振幅は \(A = \dfrac{V}{\omega_2} = V\sqrt{\dfrac mk}\) なので \(s_{\max} = d_0 + A\)。</p>
+$$f_{\max} = mg\sin\theta_3 + k d_0 + kV\sqrt{\frac mk} = 2mg\sin\theta_3 + V\sqrt{mk}$$
+<h3>最大摩擦力をこえない</h3>
+$$f_{\max} < \mu mg\cos\theta_3 \qquad\therefore\quad \mu > 2\tan\theta_3 + \frac{V}{g\cos\theta_3}\sqrt{\frac km}$$
+<p>「すべらない条件」は、<b>必要な静止摩擦力が最も大きくなる瞬間</b>を探して \(\mu N\) と比べるのが定石です。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：右のグラフの摩擦力が、点線の \(\mu N\) に届かなければ A はベルトに乗ったまま。\(\mu\) を条件より小さくすると、A がベルトに対してすべり出します。</div>
+<button class="goto" data-q="III6">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const g=9.8,D=Math.PI/180,L0S=0.12;
+const st={q:"I1",th1:35,th2:15,th3:15,mu:0.5,mup:0.4,v0:3,V:1.5,v02:1.0,m:1,k:40,V3:0.5,mu3:1.0,spd:0.5};
+const SL=[
+ ["th1","θ₁","ベルトの傾き","°",10,60,1,0,"I"],
+ ["th2","θ₂","ベルトの傾き","°",5,40,1,0,"II"],
+ ["th3","θ₃","ベルトの傾き","°",5,30,1,0,"III"],
+ ["mu","μ","静止摩擦係数","",0,1,0.01,2,"I II"],
+ ["mup","μ′","動摩擦係数","",0,1,0.01,2,"I II"],
+ ["v0","v₀","打ち出す速さ","m/s",0.5,5,0.1,1,"I"],
+ ["V","V","ベルトの速さ","m/s",0.5,3,0.1,1,"II"],
+ ["v02","v₀","下向きの初速の大きさ","m/s",0.2,3,0.1,1,"II2"],
+ ["m","m","A・B の質量","kg",0.5,3,0.1,1,"III"],
+ ["k","k","ばね定数","N/m",10,100,1,0,"III"],
+ ["V3","V","ベルトの速さ","m/s",0.1,1.5,0.05,2,"III"],
+ ["mu3","μ","A の静止摩擦係数","",0.3,2,0.01,2,"III"],
+ ["spd","","再生速度","倍",0.1,1,0.05,2,"all"]];
+$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k==="mup"&&st.mup>st.mu)st.mu=st.mup;if(k==="mu"&&st.mu<st.mup)st.mup=st.mu;if(k!=="spd")restart();syncUI()})});
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.startsWith("III")?"III":st.q.startsWith("II")?"II":"I";
+const showSL=k=>{const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)};
+/* ---- simulation (precomputed) ---- */
+let TR=[],S={t:0,wait:0},TH={};
+function blk(v,Vb,Fo,N,ms,mk,stuck,m){
+ // returns {a,f,stuck}
+ const rel=v-Vb;
+ if(stuck||Math.abs(rel)<1e-12){const fr=-Fo;if(Math.abs(fr)<=ms*N+1e-9)return{a:0,f:fr,stuck:true};const f=-mk*N*Math.sign(Fo);return{a:(Fo+f)/m,f,stuck:false}}
+ const f=-mk*N*Math.sign(rel);return{a:(Fo+f)/m,f,stuck:false}}
+function simulate(){TR=[];const q=st.q,P=part(),h=1e-4;let t=0,rec=0;const out=(o)=>TR.push(o);
+ if(P!=="III"){const th=(P==="I"?st.th1:st.th2)*D,Vb=P==="I"?0:st.V,N=g*Math.cos(th);
+  let x=0,v=P==="I"?st.v0:(q==="II2"?-st.v02:0),stuck=false,done=false,tEnd=8,up=false,tStop=null;
+  while(t<=tEnd){const r=blk(v,Vb,-g*Math.sin(th),N,st.mu,st.mup,stuck,1);
+   if(rec<=t+1e-12){out({t,x,v,f:r.f,vb:Vb,stuck:r.stuck});rec+=1/240}
+   stuck=r.stuck;let vn=stuck?Vb:v+r.a*h;
+   if(!stuck&&Math.abs(v-Vb)>1e-12&&Math.sign(vn-Vb)!==Math.sign(v-Vb)){vn=Vb;stuck=true}
+   x+=(v+vn)/2*h;v=vn;t+=h;
+   if(P==="I"){if(v>0)up=true;if(up&&x<=0){out({t,x:0,v,f:r.f,vb:0,stuck});break}if(stuck&&Vb===0&&tStop===null)tStop=t;if(tStop!==null&&t>tStop+1.2)break}
+   else{if(stuck&&tStop===null)tStop=t;const lim=tStop!==null?Math.max(tStop+1.5,2.2):6;if(t>lim)break;if(q==="II1"&&!stuck&&v<0&&t>2.5)break}}
+ }else{const th=st.th3*D,m=st.m,k=st.k,Vb=st.V3,N=m*g*Math.cos(th),mup=2*Math.tan(th),d0=m*g*Math.sin(th)/k;
+  let xB=0,vB=q==="III1"?0:Vb,xA=L0S+d0,vA=0,stuck=false;const w1=Math.sqrt(2*k/m),w2=Math.sqrt(k/m),t1=Math.PI/w1,tEnd=q==="III1"?2.5:t1+2*2*Math.PI/w2+0.2;
+  while(t<=tEnd){const s=xA-xB-L0S,FoA=-m*g*Math.sin(th)-k*s,FB=-m*g*Math.sin(th)+k*s;const r=blk(vA,Vb,FoA,N,st.mu3,mup,stuck,m);
+   if(rec<=t+1e-12){out({t,xA,xB,vA,vB,f:r.f,s,stuck:r.stuck,vb:Vb});rec+=1/240}
+   stuck=r.stuck;let vAn=stuck?Vb:vA+r.a*h;if(!stuck&&Math.abs(vA-Vb)>1e-12&&Math.sign(vAn-Vb)!==Math.sign(vA-Vb)){vAn=Vb;stuck=true}
+   const vBn=vB+FB/m*h;xA+=(vA+vAn)/2*h;xB+=(vB+vBn)/2*h;vA=vAn;vB=vBn;t+=h}}
+ S.t=0;S.wait=0;theory()}
+function theory(){const P=part();TH={};
+ if(P==="I"){const th=st.th1*D,s=Math.sin(th),c=Math.cos(th);TH.a1=g*(s+st.mup*c);TH.x1=st.v0**2/(2*TH.a1);TH.back=s>st.mu*c;TH.v1=-st.v0*Math.sqrt(Math.max(0,(s-st.mup*c)/(s+st.mup*c)))}
+ if(P==="II"){const th=st.th2*D;TH.a=g*(st.mup*Math.cos(th)-Math.sin(th));TH.tV=st.V/TH.a;TH.up=TH.a>0}
+ if(P==="III"){const th=st.th3*D,m=st.m,k=st.k;TH.d0=m*g*Math.sin(th)/k;TH.mup=2*Math.tan(th);TH.w1=Math.sqrt(2*k/m);TH.w2=Math.sqrt(k/m);TH.t1=Math.PI/TH.w1;TH.A=st.V3/TH.w2;TH.muc=2*Math.tan(th)+st.V3/(g*Math.cos(th))*Math.sqrt(k/m)}}
+function restart(){simulate()}
+function cur(){if(!TR.length)return null;const i=Math.min(TR.length-1,Math.floor(S.t*240));return TR[i]}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+$("#play").onclick=()=>{playing=!playing;syncPlay()};
+$("#rst").onclick=()=>{restart();syncUI()};
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=part()==="III"?`<span class="v">g</span> = 9.8 m/s²。III では問題の (2) にあわせて動摩擦係数を <span class="v">μ′</span> = 2tan<span class="v">θ</span>₃ = ${(2*Math.tan(st.th3*D)).toFixed(3)} に自動で設定しています。ばねの自然長は ${L0S*100} cm、カメラは重心を追いかけます。`:`重力加速度 <span class="v">g</span> = 9.8 m/s²。物体の大きさは見やすさのため実際より大きく描いています。<span class="v">μ′</span> ≦ <span class="v">μ</span> になるように自動で調整します。`;
+ readout()}
+const f2=(x,d=2)=>(Math.abs(x)<5e-10?0:x).toFixed(d);
+function readout(){const c=cur(),P=part(),q=st.q,r=[];if(!c)return;
+ if(P==="I"){const th=st.th1*D;r.push(["時刻 t",f2(c.t)+" s"],["位置 x",f2(c.x)+" m"],["速度 v",f2(c.v)+" m/s"],["摩擦力（上向き正、m = 1 kg として）",f2(c.f)+" N"]);
+  r.push(["x₁ = v₀²/{2g(sinθ₁+μ′cosθ₁)}",f2(TH.x1,3)+" m"]);
+  if(q==="I2")r.push(["v₁（式）",TH.back?f2(TH.v1,3)+" m/s":"戻らない"],["tanθ₁ と μ",f2(Math.tan(th),3)+" / "+f2(st.mu,2)+(TH.back?"（tanθ₁ > μ → 戻る）":"（tanθ₁ ≦ μ → 止まる）")])}
+ if(P==="II"){r.push(["時刻 t",f2(c.t)+" s"],["位置 x",f2(c.x)+" m"],["速度 v",f2(c.v)+" m/s"],["相対速度 v − V",f2(c.v-st.V)+" m/s"],["加速度 g(μ′cosθ₂−sinθ₂)",f2(TH.a,3)+" m/s²"]);
+  if(q==="II1")r.push(["V に追いつく時刻 V/a",TH.up?f2(TH.tV,3)+" s":"上れない（μ′ ≦ tanθ₂）"]);
+  if(q==="II2")r.push(["戻ったときの速さ（予想）",st.v02<st.V?f2(st.v02,2)+" m/s（= v₀）":f2(st.V,2)+" m/s（v₀ > V なので V）"])}
+ if(P==="III"){const vG=(c.vA+c.vB)/2;r.push(["時刻 t",f2(c.t)+" s"],["v<sub>A</sub> / v<sub>B</sub>",f2(c.vA)+" / "+f2(c.vB)+" m/s"],["重心の速度 v<sub>G</sub>",f2(vG)+" m/s"],["ばねの伸び s",f2(c.s*100,1)+" cm"]);
+  if(q==="III1")r.push(["d₀ = mg sinθ₃ / k",f2(TH.d0*100,2)+" cm"],["μ′ = 2tanθ₃",f2(TH.mup,3)]);
+  if(q==="III3")r.push(["v<sub>G</sub>（式）= V/2",f2(st.V3/2)+" m/s"],["t₁ = π√(m/2k)",f2(TH.t1,3)+" s"]);
+  if(q==="III5")r.push(["ω₂ = √(k/m)",f2(TH.w2,2)+" rad/s"],["v<sub>B</sub> の最大 = 2V",f2(2*st.V3)+" m/s"]);
+  if(q==="III6"){r.push(["A の摩擦力 f",f2(c.f)+" N"],["最大摩擦力 μmg cosθ₃",f2(st.mu3*st.m*g*Math.cos(st.th3*D))+" N"],["f の最大（式）2mg sinθ₃+V√(mk)",f2(2*st.m*g*Math.sin(st.th3*D)+st.V3*Math.sqrt(st.m*st.k))+" N"],["条件 μ >",f2(TH.muc,3)]);const ok=st.mu3>TH.muc;r.push(["判定",ok?'<span class="ok">すべらない</span>':'<span class="ng">t₁ の後にすべる</span>'])}}
+ $("#read").innerHTML=r.map(([x,y])=>`<div><span>${x}</span><b>${y}</b></div>`).join("")}
+/* ---- drawing ---- */
+const cv=$("#cv"),ctx=cv.getContext("2d"),gr=$("#gr"),gx=gr.getContext("2d");
+let W=1000,H=380,K=1,GW=1000,GH=300,GK=1,narrow=false,CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function resize(){const w=cv.parentElement.clientWidth;narrow=w<680;W=narrow?640:1000;H=narrow?400:380;GW=W;GH=narrow?600:300;
+ const dp=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*dp);cv.height=Math.round(w*H/W*dp);cv.style.height=(w*H/W)+"px";K=cv.width/W;
+ gr.width=cv.width;gr.height=Math.round(w*GH/GW*dp);gr.style.height=(w*GH/GW)+"px";gr.style.width="100%";gr.style.display="block";GK=gr.width/GW;colors()}
+addEventListener("resize",resize);matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function draw(){const want=(cv.parentElement.clientWidth<680);if(want!==narrow||Math.abs(cv.width/K-W)>1)resize();
+ const c=ctx;c.setTransform(K,0,0,K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,W,H);const P=part(),cu=cur();if(!cu)return;
+ const thd=P==="I"?st.th1:P==="II"?st.th2:st.th3,th=thd*D,cs=Math.cos(th),sn=Math.sin(th);
+ // view range along the slope
+ let sLo,sHi,follow=false;
+ if(P==="III"){follow=true;const sG=(cu.xA+cu.xB)/2;sLo=sG-0.32;sHi=sG+0.32}
+ else{let mn=0,mx=0;TR.forEach(p=>{mn=Math.min(mn,p.x);mx=Math.max(mx,p.x)});const sp=Math.max(mx-mn,0.3);sLo=mn-sp*0.18;sHi=mx+sp*0.22}
+ const span=sHi-sLo,FY=H-40,mL=narrow?60:80,mR=narrow?40:60,mT=70;
+ const sc=Math.min((W-mL-mR)/(span*cs),(FY-mT-20)/(span*sn+1e-9));
+ const wid=span*sc*cs,hei=span*sc*sn,ox=mL+((W-mL-mR)-wid)/2,oy=follow?FY-20:FY-48;
+ const PX=(s,hh=0)=>[ox+(s-sLo)*sc*cs-hh*sn,oy-(s-sLo)*sc*sn-hh*cs];
+ // floor
+ c.fillStyle=CL.panel;c.fillRect(0,FY,W,H-FY);line(c,[[0,FY],[W,FY]],CL.road,2);
+ // belt band
+ const b0=PX(sLo),b1=PX(sHi),bt=12;
+ c.fillStyle=CL.panel;c.strokeStyle=CL.mute;c.lineWidth=2;c.beginPath();c.moveTo(...b0);c.lineTo(...b1);const q1=PX(sHi,-bt),q0=PX(sLo,-bt);c.lineTo(...q1);c.lineTo(...q0);c.closePath();c.fill();c.stroke();
+ // belt stripes (moving)
+ const Vb=cu.vb||0,spc=span/14,off=((Vb*cu.t)%spc+spc)%spc;
+ for(let s=Math.floor(sLo/spc)*spc+off;s<sHi;s+=spc){if(s<sLo)continue;const a=PX(s,0),b=PX(s,-bt);line(c,[a,b],CL.road,2)}
+ if(!follow){[[sLo,b0],[sHi,b1]].forEach(([s])=>{const p=PX(s,-bt/2);c.beginPath();c.arc(p[0],p[1],bt*0.9,0,7);c.fillStyle=CL.bg;c.fill();c.strokeStyle=CL.ink;c.lineWidth=2;c.stroke()});
+  const top=PX(sHi,-bt);c.fillStyle=CL.mute;c.fillRect(top[0]-5,top[1]+6,10,FY-top[1]-6);
+  // angle mark
+  const g0=[b0[0]-(FY-b0[1]-bt)/Math.tan(th||1e-6),FY];
+  if(g0[0]>4){line(c,[g0,b0],CL.road,1.2,[4,4]);c.strokeStyle=CL.ink;c.lineWidth=1.5;c.beginPath();c.arc(g0[0],g0[1],40,-th,0);c.stroke();txt(c,"θ"+(P==="I"?"₁":"₂"),g0[0]+48,g0[1]-12,CL.ink,{it:1,s:17})}
+  else txt(c,"θ"+(P==="I"?"₁":"₂")+" = "+thd+"°",W-mR-10,FY+20,CL.ink,{s:15,al:"right"})}
+ else txt(c,"θ₃ = "+thd+"°",W-mR-10,FY+20,CL.ink,{s:15,al:"right"});
+ // belt velocity arrow
+ if(Vb>0){const a=PX(sLo+span*0.5,-bt-18),b=PX(sLo+span*0.66,-bt-18);arrow(c,...a,...b,CL.acc,3);const m2=PX(sLo+span*0.58,-bt-36);txt(c,"ベルト V",m2[0],m2[1],CL.acc,{s:13,al:"center"})}
+ else if(!follow){const m2=PX(sLo+span*0.6,-bt-26);txt(c,"ベルトは静止",m2[0],m2[1],CL.mute,{s:13,al:"center"})}
+ // x=0 mark
+ if(!follow||(0>sLo&&0<sHi)){if(0>sLo&&0<sHi){const a=PX(0,4),b=PX(0,-bt-4);line(c,[a,b],CL.ink,2);const tl=PX(0,-bt-8);txt(c,"x = 0",tl[0]+8,tl[1]+12,CL.ink,{s:13})}}
+ const BS=narrow?34:40;
+ function box(s,label,col){const p=[PX(s-BS/2/sc,0),PX(s+BS/2/sc,0),PX(s+BS/2/sc,BS*0.8),PX(s-BS/2/sc,BS*0.8)];c.beginPath();p.forEach((q,i)=>i?c.lineTo(...q):c.moveTo(...q));c.closePath();c.fillStyle=col;c.fill();c.strokeStyle=CL.ink;c.lineWidth=2;c.stroke();const m=PX(s,BS*0.4);txt(c,label,m[0],m[1],CL.bg,{s:15,b:1,al:"center"});return m}
+ const FS=narrow?70:90;// px per mg
+ if(P!=="III"){const m=PX(cu.x,BS*0.4);
+  // forces
+  const N=Math.cos(th);arrow(c,m[0],m[1],m[0],m[1]+FS,CL.grav,3);txt(c,"mg",m[0]+8,m[1]+FS-6,CL.grav,{it:1,s:16});
+  const nb=PX(cu.x,BS*0.8);arrow(c,nb[0],nb[1],nb[0]-sn*FS*N,nb[1]-cs*FS*N,CL.mute,2.5);
+  const fl=cu.f/g*FS;const fb=PX(cu.x+Math.sign(fl)*BS/2/sc,0);if(Math.abs(fl)>2){arrow(c,fb[0],fb[1]+2,fb[0]+cs*fl,fb[1]-sn*fl+2,CL.fr,4);txt(c,cu.stuck?"静止摩擦力":"動摩擦力",fb[0]+cs*fl+(fl>0?8:-8),fb[1]-sn*fl+18,CL.fr,{s:13,b:1,al:fl>0?"left":"right"})}
+  // velocity
+  if(Math.abs(cu.v)>0.02){const L=Math.max(-110,Math.min(110,cu.v*(160/Math.max(st.v0,st.V,1))));const a=PX(cu.x,BS*0.8+20);arrow(c,a[0],a[1],a[0]+cs*L,a[1]-sn*L,CL.ink,2.5);txt(c,"v",a[0]+cs*L/2-sn*14,a[1]-sn*L/2-cs*14,CL.ink,{it:1,s:16,al:"center"})}
+  box(cu.x,"A",CL.ink);
+  // marks
+  if(P==="I"){const t=PX(TH.x1,-bt-6),tt=PX(TH.x1,BS+34);line(c,[t,tt],CL.acc,1.2,[4,4]);txt(c,"x₁",tt[0],tt[1]-10,CL.acc,{it:1,s:16,al:"center"})}
+ }else{
+  // spring between B (lower) and A (upper)
+  const hB=BS*0.4,a1=PX(cu.xB+BS/2/sc,hB),a2=PX(cu.xA-BS/2/sc,hB);const n=12,pts=[a1];for(let i=1;i<n;i++){const f=i/n,x=a1[0]+(a2[0]-a1[0])*f,y=a1[1]+(a2[1]-a1[1])*f,o=(i%2?1:-1)*9;pts.push([x-o*sn,y-o*cs])}pts.push(a2);line(c,pts,CL.fic,2.2);
+  const mA=box(cu.xA,"A",CL.ink),mB=box(cu.xB,"B",CL.acc);
+  const mg=st.m*g,fs=FS*1.6/mg,sinF=st.m*g*Math.sin(th);
+  // spring forces
+  const Fs=st.k*cu.s;const pA=PX(cu.xA,BS*0.4),pB=PX(cu.xB,BS*0.4);
+  arrow(c,pA[0],pA[1]-0,pA[0]-cs*Fs*fs,pA[1]+sn*Fs*fs,CL.fic,3);arrow(c,pB[0],pB[1],pB[0]+cs*Fs*fs,pB[1]-sn*Fs*fs,CL.fic,3);
+  // gravity components
+  const gA=PX(cu.xA,BS*0.8+10),gB=PX(cu.xB,BS*0.8+10);[gA,gB].forEach(p=>arrow(c,p[0],p[1],p[0]-cs*sinF*fs,p[1]+sn*sinF*fs,CL.grav,2.5));
+  const gl=PX(cu.xB,BS*0.8+26);txt(c,"mg sinθ₃",gl[0],gl[1],CL.grav,{s:12,al:"center"});
+  // friction on A
+  const fl=cu.f*fs,fA=PX(cu.xA+Math.sign(fl)*BS/2/sc,0);if(Math.abs(fl)>2){arrow(c,fA[0],fA[1]+3,fA[0]+cs*fl,fA[1]-sn*fl+3,CL.fr,4);txt(c,cu.stuck?"静止摩擦力":"動摩擦力",fA[0]+cs*fl+8,fA[1]-sn*fl+20,CL.fr,{s:13,b:1})}
+  txt(c,"ばねの力",(pA[0]+pB[0])/2,(pA[1]+pB[1])/2-38,CL.fic,{s:12,al:"center"});
+  txt(c,"摩擦なし",mB[0]-30,mB[1]+46,CL.mute,{s:12,al:"center"});
+  // G mark
+  const G=PX((cu.xA+cu.xB)/2,BS*0.4);c.beginPath();c.arc(G[0],G[1],5,0,7);c.fillStyle=CL.frc;c.fill();txt(c,"G",G[0],G[1]-14,CL.frc,{s:13,b:1,al:"center"});
+ }
+ const tl=P==="III"&&cu.t>=TH.t1&&st.q!=="III1"?"t ≧ t₁（A はベルトと一緒）":P==="III"&&st.q!=="III1"?"0 < t < t₁（A はベルトに対してすべる）":"";
+ txt(c,`t = ${cu.t.toFixed(2)} s`,16,22,CL.ink,{s:15,b:1});if(tl)txt(c,tl,16,46,CL.mute,{s:13});
+ if(P==="I"&&!TH.back&&cu.stuck)txt(c,"tanθ₁ ≦ μ なので最高点で止まったまま",16,46,CL.frc,{s:13,b:1});
+ if(P==="II"&&!TH.up)txt(c,"μ′ ≦ tanθ₂ なので物体は上れない",16,46,CL.frc,{s:13,b:1});
+ drawGraph(cu)}
+function drawGraph(cu){const c=gx;c.setTransform(GK,0,0,GK,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,GW,GH);const P=part(),q=st.q;
+ const G=narrow?{x:56,y:34,w:GW-90,h:220}:{x:60,y:34,w:430,h:220},R=narrow?{x:56,y:330,w:GW-90,h:220}:{x:570,y:34,w:390,h:220};
+ const tE=TR[TR.length-1].t,hs=TR.filter(p=>p.t<=cu.t+1e-9);const X=t=>G.x+G.w*t/tE;
+ let vmin=0,vmax=0;TR.forEach(p=>{const a=P==="III"?[p.vA,p.vB]:[p.v];a.forEach(v=>{vmin=Math.min(vmin,v);vmax=Math.max(vmax,v)})});if(P==="II")vmax=Math.max(vmax,st.V);const pad=(vmax-vmin)*0.12+0.05;vmin-=pad;vmax+=pad;
+ const Y=v=>G.y+G.h*(vmax-v)/(vmax-vmin);
+ line(c,[[G.x,G.y],[G.x,G.y+G.h]],CL.mute,1.2);line(c,[[G.x,Y(0)],[G.x+G.w,Y(0)]],CL.mute,1.2);txt(c,"t",G.x+G.w+8,Y(0),CL.ink,{it:1,s:16});
+ txt(c,P==="III"?"速度（上向き正）":"物体の速度 v（上向き正）",G.x+8,G.y-16,CL.ink,{s:13});
+ const hl=(v,l,col)=>{line(c,[[G.x,Y(v)],[G.x+G.w,Y(v)]],col||CL.line,1,[4,4]);txt(c,l,G.x-6,Y(v),col||CL.mute,{s:12,al:"right"})};
+ if(P==="I"){hl(st.v0,"v₀");if(TH.back)hl(TH.v1,"v₁",CL.acc)}
+ if(P==="II"){hl(st.V,"V",CL.acc);if(q==="II2"){hl(-st.v02,"−v₀");if(st.v02<st.V)hl(st.v02,"v₀")}}
+ if(P==="III"){hl(st.V3,"V",CL.acc);hl(st.V3/2,"V/2");if(q!=="III1"){hl(2*st.V3,"2V");const t1=TH.t1;line(c,[[X(t1),G.y],[X(t1),G.y+G.h]],CL.mute,1,[3,4]);txt(c,"t₁",X(t1)+4,G.y+G.h-8,CL.ink,{it:1,s:14})}}
+ if(P!=="III")line(c,hs.map(p=>[X(p.t),Y(p.v)]),CL.ink,2.6);
+ else{line(c,hs.map(p=>[X(p.t),Y(p.vB)]),CL.acc,2.4);line(c,hs.map(p=>[X(p.t),Y(p.vA)]),CL.ink,2.6);line(c,hs.filter(p=>q==="III1"||p.t<=TH.t1).map(p=>[X(p.t),Y((p.vA+p.vB)/2)]),CL.frc,2,[6,4]);
+  txt(c,"― A",G.x+G.w-150,G.y-16,CL.ink,{s:13,b:1});txt(c,"― B",G.x+G.w-100,G.y-16,CL.acc,{s:13,b:1});txt(c,"‐‐ 重心 G",G.x+G.w-40,G.y-16,CL.frc,{s:13,b:1})}
+ // friction panel
+ const m=P==="III"?st.m:1,th=(P==="I"?st.th1:P==="II"?st.th2:st.th3)*D,N=m*g*Math.cos(th),mus=P==="III"?st.mu3:st.mu,muk=P==="III"?2*Math.tan(th):st.mup;
+ const fm=Math.max(mus*N,muk*N,...TR.map(p=>Math.abs(p.f)))*1.15,YF=f=>R.y+R.h/2-(R.h/2)*f/fm,XF=t=>R.x+R.w*t/tE;
+ line(c,[[R.x,R.y],[R.x,R.y+R.h]],CL.mute,1.2);line(c,[[R.x,YF(0)],[R.x+R.w,YF(0)]],CL.mute,1.2);txt(c,"t",R.x+R.w+8,YF(0),CL.ink,{it:1,s:16});
+ txt(c,(P==="III"?"A にはたらく":"")+"摩擦力 f（上向き正）"+(P==="III"?" [N]":"［N］（m = 1 kg として）"),R.x+8,R.y-16,CL.ink,{s:13});
+ [[mus*N,"μN"],[-mus*N,"−μN"]].forEach(([f,l])=>{line(c,[[R.x,YF(f)],[R.x+R.w,YF(f)]],CL.frc,1,[5,4]);txt(c,l,R.x-6,YF(f),CL.frc,{s:12,al:"right"})});
+ [[muk*N,"μ′N"],[-muk*N,"−μ′N"]].forEach(([f,l])=>{line(c,[[R.x,YF(f)],[R.x+R.w,YF(f)]],CL.line,1,[2,3]);txt(c,l,R.x+R.w+4,YF(f),CL.mute,{s:12})});
+ line(c,hs.map(p=>[XF(p.t),YF(p.f)]),CL.fr,2.6);
+ if(P==="III"&&q==="III6"){const fmx=2*st.m*g*Math.sin(th)+st.V3*Math.sqrt(st.m*st.k);line(c,[[XF(TH.t1),YF(fmx)],[R.x+R.w,YF(fmx)]],CL.fic,1.4,[3,3]);txt(c,"f の最大",R.x+R.w-4,YF(fmx)-10,CL.fic,{s:12,al:"right"})}
+ txt(c,"赤の点線（±μN）をこえると静止摩擦では止められない",R.x+4,R.y+R.h+18,CL.mute,{s:12})}
+let lastT=performance.now(),acc=0;
+function frame(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;if(playing&&TR.length){const tE=TR[TR.length-1].t;if(S.t<tE)S.t=Math.min(tE,S.t+dt*st.spd);else{S.wait+=dt;if(S.wait>1.8){S.t=0;S.wait=0}}acc+=dt;if(acc>0.15){acc=0;readout()}}draw();requestAnimationFrame(frame)}
+resize();setQ("I1",true);requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

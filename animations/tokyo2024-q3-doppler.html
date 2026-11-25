@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>ドップラー効果とうなり</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E6%B3%A2%E5%8B%95">← 物理のHPに戻る</a></div>
+<h1>ドップラー効果とうなりで距離と速さを測る（東京大学 2024年 第3問）</h1>
+<p class="lead">動く音源の波面が詰まる様子と、反射音とのうなりを、<b>波面のアニメーション</b>と<b>x–t 図（時空図）</b>で確かめます。後半は振動数が時間とともに変わる音を使い、うなりから反射板までの<b>距離</b>と<b>速さ</b>を測る方法（レーダーと同じ原理）を調べます。</p>
+<p class="src">問題文は <a href="https://www.u-tokyo.ac.jp/ja/admissions/undergraduate/e01_04.html" target="_blank" rel="noopener">東京大学の公式ページ（試験問題の公表）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="x軸上を進む音の波面と、音源・反射板・観測者の位置"></canvas>
+<canvas id="gr" role="img" aria-label="x–t図または振動数–時刻のグラフと、うなりの波形" style="border-top:1px solid var(--line)"></canvas>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">I(1) 波が P に届く時刻</button>
+<button class="qb" data-q="I2">I(2) P での周期</button>
+<button class="qb" data-q="I3">I(3) 音源と一緒に聞く</button>
+<button class="qb" data-q="I4">I(4) 点 Q で聞く</button>
+<button class="qb" data-q="II1">II(1) 距離 L₀ を測る</button>
+<button class="qb" data-q="II2">II(2) 近づく反射板（A）</button>
+<button class="qb" data-q="II3">II(3) 近づく反射板（B）</button>
+<button class="qb" data-q="II4">II(4)(5) A と B で速さを測る</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。音速は \(V\)、音の速さは<b>音源や反射板の動きに関係なく空気に対して \(V\)</b> です。</p>
+
+<details id="d-I1"><summary>I(1)　時刻 t₁ に出た音が P に届く時刻<span class="ans">答 \(\left(2-\dfrac{v_s}{V}\right)\dfrac LV\)</span></summary><div class="body">
+<p>\(t=0\) に原点で出た音が P に届く時刻は \(t_1 = \dfrac LV\)。その瞬間、音源は \(x = v_st_1\) にいて、そこで出た音が残り \(L - v_st_1\) を速さ \(V\) で進みます。</p>
+$$t_1 + \frac{L-v_st_1}{V} = \frac LV + \frac LV - \frac{v_s}{V}\cdot\frac LV = \left(2-\frac{v_s}{V}\right)\frac LV$$
+<h3>一般化：出た時刻 → 届く時刻の対応</h3>
+<p>時刻 \(t_e\) に出た音が P に届く時刻は</p>
+$$t_{\text{着}} = t_e + \frac{L - v_st_e}{V} = \frac LV + \left(1-\frac{v_s}{V}\right)t_e$$
+<p>この1本の式から、ドップラー効果の公式がすぐに出てきます（次の (2)）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：下の x–t 図で、音の波面は傾きが一定の直線（速さ \(V\)）、音源は傾きのゆるい直線です。赤い波面（\(t=0\) に出た音）と青い波面（\(t_1\) に出た音）が P に届く時刻の差が \(\left(1-\dfrac{v_s}{V}\right)t_1\) に縮んでいます。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>I(2)　点 P で位相が 2π 変化する時間<span class="ans">答 \(\dfrac{V-v_s}{V}\cdot\dfrac1{f_0}\)</span></summary><div class="body">
+<p>音源は 1 周期 \(\dfrac1{f_0}\) ごとに波の山を出します。(1) の式で \(t_e\) が \(\dfrac1{f_0}\) 増えると、届く時刻は \(\left(1-\dfrac{v_s}{V}\right)\dfrac1{f_0}\) 増えるので、P での周期は</p>
+$$T_P = \frac{V-v_s}{V}\cdot\frac1{f_0}\qquad\left(f_P = \frac{V}{V-v_s}f_0\right)$$
+<p>次の山を出すまでに音源が \(\dfrac{v_s}{f_0}\) だけ前に進むので、<b>波長が \(\dfrac{V-v_s}{f_0}\) に縮む</b>と考えても同じです。公式を覚えるより「出た時刻と届く時刻の対応」を作れば、どんな状況でもドップラー効果が計算できます。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：音源の前（右）では波面の間隔が詰まり、後ろ（左）では広がります。\(v_s\) を大きくすると差がはっきりします。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>I(3)　音源と一緒に動く観測者が聞くうなり<span class="ans">答 \(\dfrac{2v_s}{V-v_s}f_0\)</span></summary><div class="body">
+<h3>反射板＝「受けた音をそのまま出し直す音源」</h3>
+<p>静止した反射板は、受けた振動数 \(f_P = \dfrac{V}{V-v_s}f_0\) の音をそのまま送り返します。観測者はその反射音に速さ \(v_s\) で<b>近づいて</b>いるので、1 秒間に出会う波の数が増えて</p>
+$$f_{\text{反}} = \frac{V+v_s}{V}f_P = \frac{V+v_s}{V-v_s}f_0$$
+<p>一方、直接音は音源と観測者が一緒に動いているので（相対的に止まっている）\(f_0\) のまま。うなりの振動数は振動数の差です：</p>
+$$\left|\frac{V+v_s}{V-v_s}f_0 - f_0\right| = \frac{2v_s}{V-v_s}f_0$$
+<p>「反射した音とのうなりで自分の速さが分かる」——これはスピード測定器（ドップラーレーダー）の原理です。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：上段が直接音、下段が反射音の波面です。右下の波形は観測者が聞く音（2つの音の和）で、大きさがゆっくりふくらんだりしぼんだりする周期が、うなりの周期です。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>I(4)　点 Q で聞くうなりが始まる時刻と振動数<span class="ans">答 時刻 \(\dfrac{L}{2v_s}\)、振動数 \(\dfrac{2v_sV}{V^2-v_s^{\,2}}f_0\)</span></summary><div class="body">
+<h3>音源が Q を通りすぎるまでは、うなりがない</h3>
+<p>音源が Q の手前にいる間、Q に届く直接音は<b>近づく音源</b>からの音で \(\dfrac{V}{V-v_s}f_0\)。反射音は反射板が受けた \(\dfrac{V}{V-v_s}f_0\) がそのまま届きます（反射板も Q も静止）。<b>2つの振動数が等しいので、うなりは聞こえません。</b></p>
+<h3>通りすぎると、直接音が下がる</h3>
+<p>音源が Q を通りすぎる時刻 \(\dfrac{L/2}{v_s} = \dfrac{L}{2v_s}\) から、直接音は<b>遠ざかる音源</b>からの音 \(\dfrac{V}{V+v_s}f_0\) に変わり、うなりが始まります：</p>
+$$\frac{V}{V-v_s}f_0 - \frac{V}{V+v_s}f_0 = \frac{2v_sV}{V^2-v_s^{\,2}}f_0$$
+<p>（音源が原点を通るときに反射音がすでに届いている、という条件は「反射音はずっと前から Q に来ている」ことを保証するためのものです。）</p>
+<div class="box"><b>アニメーションで確かめよう</b>：音源が Q を通りすぎる前は、右下の波形の大きさが一定（うなりなし）。通りすぎた瞬間から大きさがふくらんだりしぼんだりし始めます。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>II(1)　うなりから距離 L₀ を求める<span class="ans">答 \(L_0 = \dfrac{f_hVT}{2f_1}\)</span></summary><div class="body">
+<h3>反射音は「少し前の音」</h3>
+<p>反射板が静止していれば、いま原点に届いた反射音は、往復の時間 \(\dfrac{2L_0}{V}\) だけ前に出た音です。振動数は一定の割合 \(\dfrac{f_1}{T}\) で下がり続けているので、直接音（いまの音）と反射音（少し前の音）には差ができます：</p>
+$$f_h = \frac{f_1}{T}\cdot\frac{2L_0}{V}\qquad\therefore\quad L_0 = \frac{f_hVT}{2f_1}$$
+<p><b>振動数の変化の傾き × 遅れの時間 ＝ 振動数の差</b>。遅れの時間は距離に比例するので、うなりの振動数から距離が分かります（FMCW レーダーという実際の距離計の原理）。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：下の振動数–時刻のグラフで、反射音の線（点線）は直接音の線を右に \(\dfrac{2L_0}{V}\) ずらしたもの。縦の差がうなりの振動数 \(f_h\) です。\(L_0\) を大きくすると差が広がります。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>II(2)　近づく反射板と (A) の音<span class="ans">答 \(\dfrac{4v_r}{V-v_r}f_1 + \dfrac{2L_A}{VT}f_1\)</span></summary><div class="body">
+<h3>近づく反射板で振動数は 2 回上がる</h3>
+<p>反射板は (i) 音に向かって動く<b>観測者</b>として \(\dfrac{V+v_r}{V}\) 倍で受け、(ii) 近づく<b>音源</b>として \(\dfrac{V}{V-v_r}\) 倍で出し直します。合わせて</p>
+$$f_{\text{反}} = \frac{V+v_r}{V-v_r}f_A(0) = \frac{V+v_r}{V-v_r}\cdot 2f_1$$
+<h3>遅れの効果と合わせる</h3>
+<p>反射した位置が \(L_A\) なので、往復で \(t_{A0} = \dfrac{2L_A}{V}\)。この間に直接音は \(f_A(t_{A0}) = 2f_1 - \dfrac{f_1}{T}\cdot\dfrac{2L_A}{V}\) まで下がっています。差をとると</p>
+$$f_{\text{反}} - f_A(t_{A0}) = \underbrace{\frac{4v_r}{V-v_r}f_1}_{\text{ドップラー効果}} + \underbrace{\frac{2L_A}{VT}f_1}_{\text{遅れ（距離）}}$$
+<p>(A) では、反射音が「上がる（ドップラー）」と直接音が「下がる（遅れ）」が<b>同じ向きに差を広げます</b>。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：振動数–時刻のグラフで、反射音の点線は直接音の線を右にずらすだけでなく、上にも持ち上がっています。\(v_r\) を 0 にすると (1) と同じになります。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>II(3)　近づく反射板と (B) の音<span class="ans">答 \(\dfrac{2L_B}{VT}f_1 - \dfrac{2v_r}{V-v_r}\left(1+\dfrac{t_s}{T}\right)f_1\)</span></summary><div class="body">
+<p>考え方は (2) と同じです。\(t_s\) に出た音 \((1+\tfrac{t_s}{T})f_1\) は、反射で \(\dfrac{V+v_r}{V-v_r}\) 倍に。届く時刻 \(t_B = t_s + \dfrac{2L_B}{V}\) には、直接音は \(\left(1+\dfrac{t_s}{T}+\dfrac{2L_B}{VT}\right)f_1\) まで<b>上がって</b>います。</p>
+$$f_B(t_B) - f_{\text{反}} = \frac{2L_B}{VT}f_1 - \frac{2v_r}{V-v_r}\left(1+\frac{t_s}{T}\right)f_1$$
+<p>(B) では遅れの効果で直接音が上がり、ドップラー効果で反射音も上がるので、<b>2つの効果が打ち消し合います</b>。\(v_r < \dfrac{L_0}{4T}\) という条件は、遅れの効果の方が大きい（差が正）ことを保証しています。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：(B) のグラフでは、反射音の点線が右にずれて下がる分を、ドップラー効果が少し持ち上げて差を縮めています。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>II(4)(5)　うなりの差 Δfₕ から速さを求める<span class="ans">答 \(\Delta f_h = \dfrac{6v_r}{V-v_r}f_1\)、\(v_r = 9.4\times10^{-1}\ \text{m/s}\)</span></summary><div class="body">
+<h3>同時に出した A と B は、同じ道すじで戻ってくる</h3>
+<p>同じ時刻 \(t'\) に出た A と B の音は、同じ位置 \(L'\) で反射し、同じ時刻に戻ります。(2)(3) の式で \(t_s = t'\)、\(L_A = L_B = L'\) とすると（A は \(f_A(t') = (2-\tfrac{t'}{T})f_1\)）</p>
+$$f_h^{A} = \frac{2L'}{VT}f_1 + \frac{2v_r}{V-v_r}\left(2-\frac{t'}{T}\right)f_1,\qquad f_h^{B} = \frac{2L'}{VT}f_1 - \frac{2v_r}{V-v_r}\left(1+\frac{t'}{T}\right)f_1$$
+$$\Delta f_h = f_h^A - f_h^B = \frac{2v_r}{V-v_r}\cdot 3f_1 = \frac{6v_r}{V-v_r}f_1$$
+<p><b>距離の効果（\(\tfrac{2L'}{VT}f_1\)）は差をとると消え、速さの効果だけが残ります。</b>下がる音と上がる音を組み合わせると、距離と速さを分けて測れる——実際の自動車用レーダーでも使われる工夫です（和をとれば距離が分かります）。</p>
+<h3>(5) 数値を入れる</h3>
+$$v_r = \frac{V\Delta f_h}{6f_1 + \Delta f_h} = \frac{340\times 500}{1.8\times10^5 + 500}\ \text{m/s} \approx 9.4\times10^{-1}\ \text{m/s}$$
+<p>\(\Delta f_h \ll 6f_1\) なので \(v_r \approx \dfrac{V\Delta f_h}{6f_1}\) と近似してもほぼ同じ値です。</p>
+<div class="box"><b>アニメーションで確かめよう</b>：右下のグラフで、\(f_h^A\) と \(f_h^B\) は時間とともに変わりますが、<b>その差はずっと一定</b>です。\(v_r\) を変えると差だけが変わり、\(L_0\) を変えても差は変わりません。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const V=340;
+const st={q:"I1",vs:40,L:20,f0:340,L0:10,vr:0.94,T:0.6,spd:1};
+const F1=3.0e4;
+const SL=[
+ ["vs","vₛ","音源の速さ","m/s",5,150,1,0,"I"],
+ ["L","L","OP の距離","m",10,40,1,0,"I"],
+ ["f0","f₀","音源の振動数","Hz",150,800,10,0,"I"],
+ ["L0","L₀","はじめの反射板の位置","m",3,20,0.5,1,"II"],
+ ["vr","vᵣ","反射板の速さ","m/s",0,4,0.01,2,"II2 II3 II4"],
+ ["T","T","振動数を変える時間","s",0.2,1,0.05,2,"II"],
+ ["spd","","再生速度（スロー）","倍",0.25,2,0.05,2,"all"]];
+$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")restart();syncUI()})});
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.startsWith("II")?"II":"I";
+const showSL=k=>{const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)};
+const vrr=()=>st.q==="II1"?0:st.vr;
+let S={t:0,wait:0};
+/* time ranges */
+function range(){const q=st.q;if(part()==="I"){const L=st.L,vs=st.vs,t1=L/V;
+  if(q==="I1"||q==="I2")return[-0.15*L/V,(2-vs/V)*t1+0.35*L/V];
+  if(q==="I3")return[-0.05*L/vs,L/vs*0.6];
+  return[-0.05*L/vs,Math.min(L/vs*0.95,L/(2*vs)*1.7)]}
+ return[0,st.T+2*st.L0/V*1.05]}
+function rate(){return part()==="I"?(st.q==="I1"||st.q==="I2"?st.L/V/2.6:(st.L/V)/2.2)*st.spd:(st.T/7)*st.spd}
+function restart(){const r=range();S={t:r[0],wait:0}}
+/* ---- part II helpers ---- */
+const fA=t=>(2-t/st.T)*F1,fB=t=>(1+t/st.T)*F1;
+function tauOf(t){const vr=vrr(),L0=st.L0;return((t-L0/V)*(V+vr)/(1-vr/V)-L0)/V}
+function arrive(tau){const vr=vrr(),L0=st.L0,tr=(L0+V*tau)/(V+vr);return{t:tr+(L0-vr*tr)/V,x:L0-vr*tr,tr}}
+const Dop=()=>(V+vrr())/(V-vrr());
+function fh(t,kind){const tau=tauOf(t);if(tau<0||tau>st.T||t>st.T)return null;const f=kind==="A"?fA:fB;return Math.abs(f(t)-Dop()*f(tau))}
+/* ---- ui ---- */
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+$("#play").onclick=()=>{playing=!playing;syncPlay()};
+$("#rst").onclick=()=>{restart();syncUI()};
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=part()==="I"?`音速 <span class="v">V</span> = 340 m/s。音は一瞬で進むので、とてもゆっくり再生しています（波面は 1 周期ごとに 1 本）。`:`<span class="v">f</span><sub>1</sub> = 3.0×10⁴ Hz、<span class="v">V</span> = 340 m/s。波の色は振動数を表します（青 = <span class="v">f</span><sub>1</sub>、赤 = 2<span class="v">f</span><sub>1</sub>）。(5) の条件 <span class="v">v</span><sub>r</sub> &lt; <span class="v">L</span><sub>0</sub>/(4<span class="v">T</span>) = ${(st.L0/(4*st.T)).toFixed(2)} m/s。`;
+ readout()}
+const hz=f=>f==null?"—":(Math.abs(f)>=1000?f.toFixed(0):f.toFixed(1))+" Hz";
+function obsI(){const q=st.q,t=S.t,vs=st.vs,L=st.L,f0=st.f0;
+ if(q==="I3")return{d:f0,r:(V+vs)/(V-vs)*f0};
+ if(q==="I4"){const passed=vs*t>L/2;return{d:passed?V/(V+vs)*f0:V/(V-vs)*f0,r:V/(V-vs)*f0}}
+ return null}
+function readout(){const r=[],q=st.q,t=S.t;
+ if(part()==="I"){const vs=st.vs,L=st.L,f0=st.f0;r.push(["時刻 t",(t*1000).toFixed(1)+" ms"],["音源の位置",(vs*t).toFixed(2)+" m"]);
+  if(q==="I1")r.push(["t₁ = L/V",(L/V*1000).toFixed(2)+" ms"],["t₁ に出た音が P に届く時刻 (2−vₛ/V)L/V",((2-vs/V)*L/V*1000).toFixed(2)+" ms"]);
+  if(q==="I2")r.push(["P での周期 (V−vₛ)/(Vf₀)",(((V-vs)/(V*f0))*1000).toFixed(3)+" ms"],["音源の周期 1/f₀",(1000/f0).toFixed(3)+" ms"],["P での振動数",hz(V/(V-vs)*f0)]);
+  if(q==="I3"||q==="I4"){const o=obsI();r.push(["直接音の振動数",hz(o.d)],["反射音の振動数",hz(o.r)],["うなりの振動数",hz(Math.abs(o.r-o.d))]);
+   if(q==="I3")r.push(["式 2vₛ f₀/(V−vₛ)",hz(2*vs*f0/(V-vs))]);else r.push(["うなりが始まる時刻 L/(2vₛ)",(L/(2*vs)*1000).toFixed(1)+" ms"],["式 2vₛVf₀/(V²−vₛ²)",hz(2*vs*V*f0/(V*V-vs*vs))])}}
+ else{const vr=vrr(),L0=st.L0,T=st.T;r.push(["時刻 t",(t*1000).toFixed(1)+" ms"],["反射板の位置",(L0-vr*t).toFixed(3)+" m"]);
+  const hA=fh(t,"A"),hB=fh(t,"B");
+  if(q==="II1")r.push(["うなり fₕ（測定）",hz(hA)],["L₀ = fₕVT/(2f₁)",hA==null?"—":(hA*V*T/(2*F1)).toFixed(3)+" m"]);
+  if(q==="II2"){const LA=arrive(0).x;r.push(["L<sub>A</sub>（t=0 の音が反射した位置）",LA.toFixed(3)+" m"],["t<sub>A0</sub> = 2L<sub>A</sub>/V",(2*LA/V*1000).toFixed(2)+" ms"],["fₕ（式）4vᵣ f₁/(V−vᵣ)+2L<sub>A</sub> f₁/(VT)",hz(4*vr*F1/(V-vr)+2*LA*F1/(V*T))],["いまの fₕ（測定）",hz(hA)])}
+  if(q==="II3"){const tau=tauOf(t);if(tau>=0&&tau<=T&&t<=T){const LB=arrive(tau).x;r.push(["t<sub>s</sub>（いま届いた反射音が出た時刻）",(tau*1000).toFixed(1)+" ms"],["L<sub>B</sub>",LB.toFixed(3)+" m"],["fₕ（式）",hz(2*LB*F1/(V*T)-2*vr/(V-vr)*(1+tau/T)*F1)])}r.push(["いまの fₕ（測定）",hz(hB)])}
+  if(q==="II4"){r.push(["fₕᴬ",hz(hA)],["fₕᴮ",hz(hB)],["Δfₕ（測定）",hA==null?"—":hz(hA-hB)],["Δfₕ（式）6vᵣ f₁/(V−vᵣ)",hz(6*vr*F1/(V-vr))]);if(hA!=null){const D=hA-hB;r.push(["Δfₕ から vᵣ = VΔ/(6f₁+Δ)",(V*D/(6*F1+D)).toFixed(3)+" m/s"])}}}
+ $("#read").innerHTML=r.map(([x,y])=>`<div><span>${x}</span><b>${y}</b></div>`).join("")}
+/* ---- drawing ---- */
+const cv=$("#cv"),ctx=cv.getContext("2d"),gr=$("#gr"),gx=gr.getContext("2d");
+let W=1000,H=300,K=1,GW=1000,GH=320,GK=1,narrow=false,CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function resize(){const w=cv.parentElement.clientWidth;narrow=w<680;W=narrow?640:1000;H=narrow?340:300;GW=W;GH=narrow?640:320;
+ const dp=Math.min(devicePixelRatio||1,2);cv.width=Math.round(w*dp);cv.height=Math.round(w*H/W*dp);cv.style.height=(w*H/W)+"px";K=cv.width/W;
+ gr.width=cv.width;gr.height=Math.round(w*GH/GW*dp);gr.style.height=(w*GH/GW)+"px";gr.style.width="100%";gr.style.display="block";GK=gr.width/GW;colors()}
+addEventListener("resize",resize);matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+function txt(c2,t,x,y,c,o={}){c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function speaker(c,x,y,dir=1){c.fillStyle=CL.ink;c.fillRect(x-7,y-7,10,14);c.beginPath();c.moveTo(x+3*dir,y-7);c.lineTo(x+13*dir,y-14);c.lineTo(x+13*dir,y+14);c.lineTo(x+3*dir,y+7);c.closePath();c.fill();c.beginPath();c.moveTo(x-3,y+7);c.lineTo(x-3,y+22);c.lineWidth=3;c.strokeStyle=CL.ink;c.stroke()}
+function ear(c,x,y,col){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle=col;c.fill();c.fillStyle=CL.bg;c.beginPath();c.arc(x,y,3.5,0,7);c.fill()}
+const fcol=f=>{const u=Math.max(0,Math.min(1,(f/F1-1)));return `hsl(${220-220*u},75%,52%)`};
+function draw(){const want=(cv.parentElement.clientWidth<680);if(want!==narrow||Math.abs(cv.width/K-W)>1)resize();
+ const c=ctx;c.setTransform(K,0,0,K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,W,H);
+ if(part()==="I")drawI(c);else drawII(c);
+ drawGraph()}
+function viewI(){const L=st.L;return{x0:-0.3*L,x1:1.1*L}}
+function drawI(c){const q=st.q,t=S.t,L=st.L,vs=st.vs,f0=st.f0,refl=q==="I3"||q==="I4";
+ const vw=viewI(),mL=30,mR=30,X=x=>mL+(W-mL-mR)*(x-vw.x0)/(vw.x1-vw.x0),AY=H*0.55,lane=46;
+ // axis
+ line(c,[[mL-10,AY],[W-mR+6,AY]],CL.mute,1.4);arrow(c,W-mR,AY,W-mR+14,AY,CL.mute,1.4);txt(c,"x",W-mR+4,AY-14,CL.ink,{it:1,s:16});
+ txt(c,"直接音",mL,AY-lane-14,CL.acc,{s:13,b:1});if(refl)txt(c,"反射音",mL,AY+lane+14,CL.frc,{s:13,b:1});
+ // fronts
+ const xs=vs*t,nmax=Math.floor(t*f0),nmin=Math.ceil((t-2.6*L/V-(refl?2*L/V:0))*f0);
+ for(let n=nmin;n<=nmax;n++){const te=n/f0,xe=vs*te,dt=t-te,R=xe+V*dt,Lf=xe-V*dt;
+  const hi=(q==="I1"&&(n===0||n===Math.round(L/V*f0)));const col=hi?(n===0?CL.frc:CL.acc):CL.ink;
+  if(R>=vw.x0&&R<=vw.x1&&(!refl||R<=L))line(c,[[X(R),AY-lane],[X(R),AY-4]],col,hi?3.5:1.4);
+  if(Lf>=vw.x0&&Lf<=vw.x1)line(c,[[X(Lf),AY-lane],[X(Lf),AY-4]],CL.ink,1.4);
+  if(refl&&R>L&&xe<L){const xr=2*L-R;if(xr>=vw.x0)line(c,[[X(xr),AY+4],[X(xr),AY+lane]],CL.frc,1.4)}}
+ if(q==="I1"){const t1=L/V;txt(c,"赤：t = 0 に出た波面　青：t = t₁ に出た波面",W-mR,22,CL.ink,{s:13,al:"right"});
+  if(t>=t1){c.beginPath();c.arc(X(vs*t1),AY,5,0,7);c.fillStyle=CL.acc;c.fill();txt(c,"t₁ の音源の位置",X(vs*t1),AY+18,CL.acc,{s:12,al:"center"})}}
+ // marks
+ [[0,"O"],[L,"P"]].concat(q==="I4"?[[L/2,"Q"]]:[]).forEach(([x,l])=>{line(c,[[X(x),AY-5],[X(x),AY+5]],CL.ink,2);txt(c,l,X(x),AY+(refl&&l!=="O"?lane+28:20),CL.ink,{s:14,b:1,al:"center"})});
+ if(refl){c.fillStyle=CL.mute;c.fillRect(X(L)-2,AY-lane-14,7,2*lane+28);txt(c,"反射板",X(L),AY-lane-26,CL.mute,{s:12,al:"center"})}
+ else{c.beginPath();c.arc(X(L),AY,6,0,7);c.fillStyle=CL.ink;c.fill()}
+ // source
+ const sx=X(xs);speaker(c,sx,AY-lane-34,1);arrow(c,sx-4,AY-lane-62,sx+40,AY-lane-62,CL.ink,2.5);txt(c,"vₛ",sx+46,AY-lane-62,CL.ink,{it:1,s:14});line(c,[[sx,AY-lane-12],[sx,AY+lane]],CL.ink,1,[2,3]);
+ if(q==="I3"){ear(c,sx+2,AY+lane+18,CL.fic);txt(c,"観測者（音源と一緒）",sx+16,AY+lane+18,CL.fic,{s:12})}
+ if(q==="I4"){ear(c,X(L/2),AY+lane+48,CL.fic);txt(c,"観測者",X(L/2)+14,AY+lane+48,CL.fic,{s:12});if(xs>L/2)txt(c,"音源が Q を通過 → うなり開始",W-mR,22,CL.frc,{s:13,b:1,al:"right"});else txt(c,"音源が Q を通過するまで、うなりなし",W-mR,22,CL.ink,{s:13,al:"right"})}
+ txt(c,`t = ${(t*1000).toFixed(1)} ms`,16,22,CL.ink,{s:15,b:1})}
+function drawII(c){const q=st.q,t=S.t,L0=st.L0,vr=vrr(),T=st.T;
+ const x0=-0.06*L0,x1=1.08*L0,mL=36,mR=36,X=x=>mL+(W-mL-mR)*(x-x0)/(x1-x0);
+ const kinds=q==="II4"?["A","B"]:q==="II3"?["B"]:["A"],ln=kinds.length,laneH=narrow?(ln>1?34:48):(ln>1?30:44),top=56;
+ const xr=L0-vr*t;
+ kinds.forEach((kd,i)=>{const f=kd==="A"?fA:fB,y0=top+i*(2*laneH+26);
+
+  // direct lane: emitted at tau=t-x/V
+  const N=220;for(let k=0;k<N;k++){const xa=k/N*xr,xb=(k+1)/N*xr,xm=(xa+xb)/2,tau=t-xm/V;if(tau<0||tau>T)continue;c.fillStyle=fcol(f(tau));c.fillRect(X(xa),y0,X(xb)-X(xa)+0.6,laneH-2)}
+  // reflected lane
+  for(let k=0;k<N;k++){const xa=k/N*xr,xb=(k+1)/N*xr,xm=(xa+xb)/2;const tr=(V*t-L0+xm)/(V-vr);const tau=tr*(1+vr/V)-L0/V;if(tau<0||tau>T||tr>t)continue;c.fillStyle=fcol(Dop()*f(tau));c.fillRect(X(xa),y0+laneH+2,X(xb)-X(xa)+0.6,laneH-2)}
+  [[`(${kd}) 直接音 →`,y0+laneH/2],[`(${kd}) 反射音 ←`,y0+laneH*1.5+2]].forEach(([l,y])=>{c.font="700 12px "+JF;c.lineWidth=3;c.strokeStyle="rgba(0,0,0,.55)";c.textAlign="left";c.textBaseline="middle";c.strokeText(l,X(0)+8,y);c.fillStyle="#fff";c.fillText(l,X(0)+8,y)});
+  arrow(c,X(xr)-70,y0+laneH/2,X(xr)-40,y0+laneH/2,CL.bg,2);arrow(c,X(xr)-40,y0+laneH*1.5+2,X(xr)-70,y0+laneH*1.5+2,CL.bg,2)});
+ const yb=top-14,ye=top+ln*(2*laneH+26)-20;
+ c.fillStyle=CL.mute;c.fillRect(X(xr),yb,7,ye-yb);txt(c,"反射板",X(xr)+3,yb-10,CL.mute,{s:12,al:"center"});if(vr>0){arrow(c,X(xr)+44,yb-10,X(xr)+20,yb-10,CL.ink,2.4);txt(c,"vᵣ",X(xr)+48,yb-10,CL.ink,{it:1,s:14})}
+ speaker(c,X(0)-14,(yb+ye)/2,1);ear(c,X(0)-14,ye+16,CL.fic);txt(c,"音源のすぐ近くで観測",X(0)+4,ye+16,CL.fic,{s:12});
+ const AY=H-26;line(c,[[mL,AY],[W-mR,AY]],CL.mute,1.2);[[0,"O"],[L0,"L₀"]].forEach(([x,l])=>{line(c,[[X(x),AY-5],[X(x),AY+5]],CL.ink,1.6);txt(c,l,X(x),AY+14,CL.ink,{s:13,al:"center"})});
+ // color legend
+ const lg=W/2-60,ly=H-62;txt(c,"波の色＝振動数",lg-24,ly+5,CL.mute,{s:12,al:"right"});for(let i=0;i<=40;i++){c.fillStyle=fcol(F1*(1+i/40));c.fillRect(lg+i*3.2,ly,3.4,10)}txt(c,"f₁",lg-4,ly+5,CL.ink,{s:12,al:"right"});txt(c,"2f₁",lg+134,ly+5,CL.ink,{s:12});
+ txt(c,`t = ${(t*1000).toFixed(1)} ms`+(t>T?"（音は止まった）":""),16,22,CL.ink,{s:15,b:1})}
+function drawGraph(){const c=gx;c.setTransform(GK,0,0,GK,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,GW,GH);
+ const G=narrow?{x:60,y:34,w:GW-96,h:240}:{x:64,y:34,w:440,h:240},R=narrow?{x:60,y:350,w:GW-96,h:240}:{x:580,y:34,w:380,h:240};
+ if(part()==="I")graphI(c,G,R);else graphII(c,G,R)}
+function beat(c,R,fa,fb,title,note){txt(c,title,R.x,R.y-16,CL.ink,{s:13});const fm=Math.max(fa,fb),fd=Math.abs(fa-fb);
+ const span=fd>fm*0.002?Math.min(3/fd,40/fm):12/fm;const N=900,mid=R.y+R.h/2,amp=R.h*0.22;line(c,[[R.x,mid],[R.x+R.w,mid]],CL.line,1);
+ const pts=[];for(let i=0;i<=N;i++){const tt=span*i/N;pts.push([R.x+R.w*i/N,mid-amp*(Math.sin(2*Math.PI*fa*tt)+Math.sin(2*Math.PI*fb*tt))])}line(c,pts,CL.acc,1.1);
+ const env=[],env2=[];for(let i=0;i<=200;i++){const tt=span*i/200,e=2*amp*Math.abs(Math.cos(Math.PI*fd*tt));env.push([R.x+R.w*i/200,mid-e]);env2.push([R.x+R.w*i/200,mid+e])}line(c,env,CL.frc,1.6,[4,3]);line(c,env2,CL.frc,1.6,[4,3]);
+ txt(c,note,R.x,R.y+R.h+14,CL.mute,{s:12});txt(c,`横軸の幅 ${(span*1000).toFixed(span<0.01?2:1)} ms`,R.x+R.w,R.y+R.h+14,CL.mute,{s:12,al:"right"})}
+function graphI(c,G,R){const q=st.q,t=S.t,L=st.L,vs=st.vs,f0=st.f0,refl=q==="I3"||q==="I4";let[tA,tB]=range();if(refl){tA=Math.max(t,range()[0]+2.4*L/V)-2.4*L/V;tB=tA+2.5*L/V}
+ const vw=viewI(),X=x=>G.x+G.w*(x-vw.x0)/(vw.x1-vw.x0),Y=tt=>G.y+G.h-G.h*(tt-tA)/(tB-tA);
+ line(c,[[G.x,G.y+G.h],[G.x+G.w,G.y+G.h]],CL.mute,1.2);line(c,[[X(0),G.y+G.h],[X(0),G.y-4]],CL.mute,1.2);txt(c,"x",G.x+G.w+8,G.y+G.h,CL.ink,{it:1,s:16});txt(c,"t",X(0)-12,G.y,CL.ink,{it:1,s:16});
+ txt(c,refl?"x–t 図（直近の時間だけを表示）":"x–t 図（上へ行くほど後の時刻）",G.x+G.w,G.y-16,CL.ink,{s:13,al:"right"});
+ const tc=Math.min(t,tB);
+ // fronts every m-th
+ const m=Math.max(1,Math.ceil((tB-tA)*f0/22));const n0=Math.ceil((tA-2.5*L/V)*f0/m)*m;
+ c.save();c.beginPath();c.rect(G.x,G.y,G.w,G.h);c.clip();
+ for(let n=n0;n/f0<=tc;n+=m){const te=n/f0,xe=vs*te;// right
+  let tEndR=tc,tHit=te+(L-xe)/V;if(refl&&xe<L&&tHit<tc){line(c,[[X(xe),Y(te)],[X(L),Y(tHit)]],CL.ink,0.9);line(c,[[X(L),Y(tHit)],[X(L-V*(tc-tHit)),Y(tc)]],CL.frc,0.9)}else line(c,[[X(xe),Y(te)],[X(xe+V*(tc-te)),Y(tc)]],CL.ink,0.9);
+  line(c,[[X(xe),Y(te)],[X(xe-V*(tc-te)),Y(tc)]],CL.line,0.9)}
+ if(q==="I1"){const t1=L/V;[[0,CL.frc],[t1,CL.acc]].forEach(([te,col])=>{if(te>tc)return;const xe=vs*te,ta=te+(L-xe)/V;line(c,[[X(xe),Y(te)],[X(xe+V*(Math.min(tc,ta)-te)),Y(Math.min(tc,ta))]],col,3);if(tc>=ta){line(c,[[X(L),Y(ta)],[G.x+G.w,Y(ta)]],col,1,[3,3])}})}
+ c.restore();
+ line(c,[[X(vs*Math.max(tA,range()[0])),Y(Math.max(tA,range()[0]))],[X(vs*tc),Y(tc)]],CL.ink,3);txt(c,"音源",X(vs*tc)+6,Y(tc)+12,CL.ink,{s:12});
+ line(c,[[X(L),G.y],[X(L),G.y+G.h]],refl?CL.mute:CL.line,refl?3:1.2,refl?[]:[4,4]);txt(c,refl?"反射板 P":"P",X(L),G.y+G.h+14,CL.ink,{s:12,al:"center"});txt(c,"O",X(0),G.y+G.h+14,CL.ink,{s:12,al:"center"});
+ if(q==="I4"){line(c,[[X(L/2),G.y],[X(L/2),G.y+G.h]],CL.fic,1.6,[5,4]);txt(c,"Q",X(L/2),G.y+G.h+14,CL.fic,{s:12,al:"center"});const tq=L/(2*vs);if(tq<=tB){line(c,[[G.x,Y(tq)],[G.x+G.w,Y(tq)]],CL.frc,1,[3,3]);txt(c,"音源が Q を通過",G.x+4,Y(tq)-8,CL.frc,{s:12})}}
+ line(c,[[G.x,Y(tc)],[G.x+G.w,Y(tc)]],CL.acc,1,[2,4]);
+ if(q==="I1"||q==="I2"){// waveform at P
+  txt(c,"点 P での音の波形（t₁ の前後）",R.x,R.y-16,CL.ink,{s:13});const mid=R.y+R.h/2,amp=R.h*0.3,tw0=L/V,tw=8/f0;line(c,[[R.x,mid],[R.x+R.w,mid]],CL.line,1);
+  const pts=[];for(let i=0;i<=600;i++){const tt=tw0+tw*i/600;const te=(tt-L/V)/(1-vs/V);pts.push([R.x+R.w*i/600,mid-amp*Math.sin(2*Math.PI*f0*te)])}line(c,pts,CL.acc,2);
+  const ref=[];for(let i=0;i<=600;i++){const tt=tw*i/600;ref.push([R.x+R.w*i/600,mid+amp*1.6-amp*0.5*Math.sin(2*Math.PI*f0*tt)])}
+  txt(c,"青：P で聞く音（周期 "+(((V-vs)/(V*f0))*1000).toFixed(2)+" ms）",R.x,R.y+R.h+14,CL.acc,{s:12});
+  const per=(V-vs)/(V*f0),pw=R.w*per/tw;arrow(c,R.x+4,R.y+20,R.x+4+pw,R.y+20,CL.frc,1.6);txt(c,"1 周期",R.x+8+pw,R.y+20,CL.frc,{s:12});
+  const per0=1/f0,pw0=R.w*per0/tw;arrow(c,R.x+4,R.y+R.h-12,R.x+4+pw0,R.y+R.h-12,CL.mute,1.6);txt(c,"音源の周期 1/f₀",R.x+8+pw0,R.y+R.h-12,CL.mute,{s:12})}
+ else{const o=obsI(),fd=Math.abs(o.r-o.d);beat(c,R,o.d,o.r,"観測者が聞く音（直接音＋反射音）",fd<1e-6?"振動数が等しい → うなりなし":`うなり ${fd.toFixed(1)} Hz（点線が大きさの変化）`)}}
+function graphII(c,G,R){const q=st.q,t=S.t,T=st.T,[tA,tB]=range(),kinds=q==="II4"?["A","B"]:q==="II3"?["B"]:["A"];
+ const fmin=0.85*F1,fmax=2.15*F1*Dop(),X=tt=>G.x+G.w*(tt-tA)/(tB-tA),Y=f=>G.y+G.h-G.h*(f-fmin)/(fmax-fmin);
+ line(c,[[G.x,G.y],[G.x,G.y+G.h],[G.x+G.w,G.y+G.h]],CL.mute,1.2);txt(c,"t",G.x+G.w+8,G.y+G.h,CL.ink,{it:1,s:16});txt(c,"振動数–時刻（実線：直接音　点線：反射音）",G.x+8,G.y-16,CL.ink,{s:13});
+ [[F1,"f₁"],[2*F1,"2f₁"]].forEach(([f,l])=>{line(c,[[G.x,Y(f)],[G.x+G.w,Y(f)]],CL.line,1,[4,4]);txt(c,l,G.x-6,Y(f),CL.mute,{s:12,al:"right"})});
+ txt(c,"T",X(T),G.y+G.h+14,CL.ink,{it:1,s:13,al:"center"});line(c,[[X(T),G.y+G.h-4],[X(T),G.y+G.h+4]],CL.ink,1.4);
+ const tc=Math.min(t,tB);
+ kinds.forEach(kd=>{const f=kd==="A"?fA:fB,col=kd==="A"?CL.frc:CL.acc;
+  line(c,[[X(0),Y(f(0))],[X(Math.min(tc,T)),Y(f(Math.min(tc,T)))]],col,2.6);
+  const pts=[];for(let i=0;i<=200;i++){const tau=T*i/200,a=arrive(tau);if(a.t>tc)break;pts.push([X(a.t),Y(Dop()*f(tau))])}if(pts.length>1)line(c,pts,col,2.2,[6,4]);
+  txt(c,"("+kd+")",X(0)+6,Y(f(0))+(kd==="A"?-12:12),col,{s:13,b:1});
+  const h=fh(tc,kd);if(h!=null){const tau=tauOf(tc);arrow(c,X(tc),Y(f(tc)),X(tc),Y(Dop()*f(tau)),CL.ink,2);txt(c,"fₕ"+(kinds.length>1?(kd==="A"?"ᴬ":"ᴮ"):""),X(tc)+6,(Y(f(tc))+Y(Dop()*f(tau)))/2,CL.ink,{it:1,s:13})}});
+ line(c,[[X(tc),G.y],[X(tc),G.y+G.h]],CL.mute,1,[2,4]);
+ if(q!=="II4"){const kd=kinds[0],f=kd==="A"?fA:fB,tau=tauOf(tc);if(tau>=0&&tau<=T&&tc<=T)beat(c,R,f(tc),Dop()*f(tau),"原点で聞く音（直接音＋反射音）",`うなり fₕ = ${fh(tc,kd).toFixed(0)} Hz`);else{txt(c,"原点で聞く音（直接音＋反射音）",R.x,R.y-16,CL.ink,{s:13});txt(c,tc<T?"反射音がまだ戻ってきていない":"音は止まった",R.x+R.w/2,R.y+R.h/2,CL.mute,{s:14,al:"center"})}}
+ else{const XR=tt=>R.x+R.w*(tt-tA)/(tB-tA);const hs=[];const t0=arrive(0).t;let mx=0;for(let i=0;i<=200;i++){const tt=t0+(T-t0)*i/200;const a=fh(tt,"A"),b=fh(tt,"B");if(a!=null){mx=Math.max(mx,a,b)}}mx=mx*1.15||1;
+  const YR=f=>R.y+R.h-R.h*f/mx;line(c,[[R.x,R.y],[R.x,R.y+R.h],[R.x+R.w,R.y+R.h]],CL.mute,1.2);txt(c,"うなりの振動数 [Hz]",R.x+8,R.y-16,CL.ink,{s:13});txt(c,"t",R.x+R.w+8,R.y+R.h,CL.ink,{it:1,s:16});
+  ["A","B"].forEach(kd=>{const pts=[];for(let i=0;i<=200;i++){const tt=t0+(Math.min(tc,T)-t0)*i/200;if(tt<t0)break;const h=fh(tt,kd);if(h!=null)pts.push([XR(tt),YR(h)])}if(pts.length>1)line(c,pts,kd==="A"?CL.frc:CL.acc,2.6);
+   if(pts.length)txt(c,"fₕ"+(kd==="A"?"ᴬ":"ᴮ"),pts[pts.length-1][0]+6,pts[pts.length-1][1],kd==="A"?CL.frc:CL.acc,{it:1,s:13})});
+  const a=fh(tc,"A"),b=fh(tc,"B");if(a!=null){arrow(c,XR(tc),YR(b),XR(tc),YR(a),CL.ink,2);txt(c,"Δfₕ = "+(a-b).toFixed(1)+" Hz（一定）",XR(tc)-6,(YR(a)+YR(b))/2,CL.ink,{s:12,al:"right"})}
+  [0,1000,2000,3000,4000,5000,6000].forEach(f=>{if(f<mx){line(c,[[R.x-4,YR(f)],[R.x,YR(f)]],CL.mute,1);txt(c,f,R.x-6,YR(f),CL.mute,{s:11,al:"right"})}})}}
+let lastT=performance.now(),acc=0;
+function frame(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;if(playing){const[ta,tb]=range();if(S.t<tb)S.t=Math.min(tb,S.t+dt*rate());else{S.wait+=dt;if(S.wait>1.8)restart()}acc+=dt;if(acc>0.15){acc=0;readout()}}draw();requestAnimationFrame(frame)}
+resize();setQ("I1",true);requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>
