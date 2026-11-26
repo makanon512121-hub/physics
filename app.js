@@ -947,8 +947,6 @@ function diaryCalHtml() {
   list.forEach((d) => { count[d.date] = (count[d.date] || 0) + 1; });
   const { y, m, sel } = diaryCal;
   const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate(), today = todayIso();
-  const prefix = isoOf(y, m, 1).slice(0, 8);
-  const inMonth = list.filter((d) => d.date.startsWith(prefix)).length;
   const week = en() ? ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] : [..."日月火水木金土"];
   let cells = week.map((w, i) => `<span class="cal-wd${i === 0 ? " sun" : i === 6 ? " sat" : ""}">${w}</span>`).join("");
   for (let i = 0; i < first; i++) cells += `<span></span>`;
@@ -965,8 +963,6 @@ function diaryCalHtml() {
       <button type="button" class="cal-nav" data-cal-move="1" aria-label="${L("次の月", "Next month")}">›</button>
     </div>
     <div class="cal-grid">${cells}</div>
-    <p class="cal-foot">${inMonth ? L(`この月の日記：${inMonth}件`, `${inMonth} entr${inMonth > 1 ? "ies" : "y"} this month`) : L("この月の日記はありません", "No entries this month")}<br>
-      <span>${L("印のある日を押すと、その日の日記が見られます。", "Tap a marked day to see its entries.")}</span></p>
     ${y !== new Date().getFullYear() || m !== new Date().getMonth() ? `<button type="button" class="cal-today" data-cal-today>${L("今月にもどる", "Back to this month")}</button>` : ""}`;
 }
 function renderDiary(scroll) {

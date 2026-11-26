@@ -423,9 +423,7 @@ button.cal-day::after { content: ""; position: absolute; bottom: 4px; left: 50%;
 button.cal-day:hover { border-color: var(--accent); }
 button.cal-day.sel { background: var(--accent); color: #fff; }
 button.cal-day.sel::after { background: #fff; }
-.cal-foot { margin: 10px 0 0; font-size: .82rem; color: var(--text); }
-.cal-foot span { color: var(--sub); font-size: .78rem; }
-.cal-today { margin-top: 8px; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.cal-today { margin-top: 10px; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
 .cal-today:hover { text-decoration: underline; }
 @media (max-width: 860px) {
   .diary-layout { grid-template-columns: 1fr; }
