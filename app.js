@@ -45,6 +45,7 @@ const ENTRY_ICONS = {
   exams: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M14 4v6h6M8 13h8M8 17h5"/></svg>`,
   anime: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z" fill="currentColor"/></svg>`,
   ask: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 10a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 16.5h.01"/></svg>`,
+  diary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 13h3M8 17h6"/></svg>`,
 };
 const PLAY = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13L14 8z"/></svg>`;
 
@@ -308,6 +309,12 @@ function homePage() {
         <h2>${L(...NAV_TEXT.ask)}</h2>
         <p>${L("わからないところを気軽に質問してください。", "Feel free to ask about anything you don't understand.")}</p>
         <span class="more">${L("質問する", "Ask a question")} →</span>
+      </a>
+      <a class="entry" href="#diary">
+        <span class="entry-icon">${ENTRY_ICONS.diary}</span>
+        <h2>${L(...NAV_TEXT.diary)}</h2>
+        <p>${L("日々のできごとや、サイトづくりのメモ。カレンダーから日付で探せます。", "Everyday notes and notes on building this site. Find entries by date on the calendar.")}</p>
+        <span class="more">${(diaryEntries() || []).length ? L(`${diaryEntries().length}件`, `${diaryEntries().length} entries`) : L("読む", "Read")} →</span>
       </a>
     </div>
   </div>
