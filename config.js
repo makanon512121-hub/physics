@@ -6,8 +6,9 @@ const CONFIG = {
   siteTitle: "物理のHP",
 
   // トップページの大きな見出しと説明
-  heroTitle: "動きで分かる物理。\n過去問で確かめる物理。",
-  heroText: "力学から原子まで、アニメーションと大学入試の過去問研究をまとめています。わからないところは質問箱からどうぞ。",
+  // 見出しの中で *（半角アスタリスク）ではさんだところが、青むらさきの色になります。\n で改行
+  heroTitle: "物理で*遊ぶ*。",
+  heroText: "大学入試問題と物理シミュレーション",
 
   // ↓↓↓ Googleスプレッドシートを「ウェブに公開（CSV）」したURL ↓↓↓
   sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQc0YLa2m16LuWB4iHzAj3BDn2nthRvx7Bm7GwQcZsVfzEyHlWSDk2GLQsEhIqsmI9VdMXOMPoX6B70/pub?gid=1816583427&single=true&output=csv",
@@ -75,7 +76,7 @@ const CONFIG = {
 
   // ↓↓↓ 英語表示（右上の「EN」ボタン）のときに使う文字 ↓↓↓
   siteTitleEn: "Physics HP",
-  heroTitleEn: "See physics in motion.\nTest it with past exams.",
-  heroTextEn: "From mechanics to atomic physics: animations and studies of university entrance exam problems. If anything is unclear, ask in the Q&A box.",
+  heroTitleEn: "*Play* with physics.",
+  heroTextEn: "University entrance exam problems and physics simulations",
   footerTextEn: "© Physics HP",
 };

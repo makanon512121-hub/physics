@@ -277,9 +277,10 @@ function homePage() {
   // 新着：更新日時があれば新しい順、なければシートの下の行から
   const latest = [...data.items].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0) || b.order - a.order).slice(0, 6);
   const unis = new Set(exams.map((i) => i.university).filter(Boolean));
-  const heroTitle = en()
-    ? esc(CONFIG.heroTitleEn || CONFIG.heroTitle).replace(/(physics)/i, '<span class="grad">$1</span>')
-    : esc(CONFIG.heroTitle).replace(/(物理)/, '<span class="grad">$1</span>');
+  // *…* ではさんだところに色をつける（なければ最初の「物理」/ physics）
+  const grad = (t, word) => t.includes("*") ? t.replace(/\*([^*]+)\*/g, '<span class="grad">$1</span>').replace(/\*/g, "")
+    : t.replace(word, '<span class="grad">$&</span>');
+  const heroTitle = en() ? grad(esc(CONFIG.heroTitleEn || CONFIG.heroTitle), /physics/i) : grad(esc(CONFIG.heroTitle), /物理/);
   return `
   <section class="hero">
     <div class="wrap">
