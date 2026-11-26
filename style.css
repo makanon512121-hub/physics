@@ -319,6 +319,29 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
   flex: none; font-size: .7rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; color: #fff;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
 }
+button.today-label { border: 0; font-family: inherit; line-height: inherit; cursor: pointer; }
+button.today-label:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* これまでの一言（隠し要素） */
+.word-log { position: fixed; inset: 0; z-index: 210; display: flex; align-items: flex-start; justify-content: center; padding: 6vh 16px 16px; }
+.word-log[hidden] { display: none; }
+.word-log-bg { position: absolute; inset: 0; background: rgba(5, 8, 18, .6); backdrop-filter: blur(3px); }
+.word-log-box { position: relative; width: 100%; max-width: 560px; max-height: 86vh; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-hover); overflow: hidden; animation: wl-in .2s ease-out; }
+@keyframes wl-in { from { transform: translateY(12px); opacity: 0; } }
+.word-log-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.word-log-head h2 { margin: 0; font-size: 1.05rem; }
+.word-log-x { width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--bg); color: var(--text); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.word-log-x:hover { color: var(--accent); }
+.word-log-list { overflow-y: auto; }
+.word-log-list > .status, .word-log-list > .empty { padding: 20px 18px; margin: 0; }
+.word-post { display: flex; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.word-post:last-child { border-bottom: 0; }
+.word-ava { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+.word-main { min-width: 0; flex: 1; }
+.word-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; font-size: .85rem; color: var(--sub); }
+.word-meta b { color: var(--text); }
+.word-now { font-size: .68rem; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 8px; }
+.word-main p { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
 .hero p.today-word + .eyebrow { display: block; }
 .admin-box { max-width: 560px; }
 .admin-btns { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -363,6 +386,15 @@ a.log-link:hover, button.log-link:hover { transform: translateY(-2px); border-co
 .diary-imgs.one .diary-img img { height: auto; max-height: 560px; object-fit: contain; }
 .diary-img:hover img { transform: scale(1.03); }
 .diary-imgs.one .diary-img:hover img { transform: none; }
+.diary-foot { margin-top: 12px; display: flex; }
+.diary-like { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 9px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--sub); font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; transition: color .15s, border-color .15s; }
+.diary-like svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.diary-like:hover { color: #e0245e; border-color: #f4a5c0; }
+.diary-like.on { color: #e0245e; border-color: #f4a5c0; background: color-mix(in srgb, #e0245e 8%, transparent); }
+.diary-like.on svg { fill: currentColor; }
+.diary-like.pop svg { animation: like-pop .35s ease-out; }
+@keyframes like-pop { 40% { transform: scale(1.35); } }
+.diary-like span:empty { display: none; }
 .diary-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 14px; font-weight: 700; }
 
 /* カレンダー */
