@@ -47,7 +47,6 @@ const ENTRY_ICONS = {
   ask: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 10a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 16.5h.01"/></svg>`,
   diary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4M8 13h3M8 17h6"/></svg>`,
 };
-const HEART = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.4C1.5 7.8 3.6 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3.4 0 5.5 3.3 4.3 6.6-1.8 4.8-9.3 9.4-9.3 9.4z"/></svg>`;
 const PLAY = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13L14 8z"/></svg>`;
 
 const data = { items: [], loaded: false, error: false, commitTime: null, changelog: [] };
@@ -57,7 +56,6 @@ const WORD_KEY = "physics-hp-word";
 const DIARY_KEY = "physics-hp-diary";
 const ADMIN_KEY = "physics-hp-admin";
 const MAX_IMGS = 10;
-const LIKE_KEY = "physics-hp-likes"; // この端末でいいねした日記のID
 const SEEN_KEY = "physics-hp-diary-seen"; // この端末で最後に見た日記の更新時刻
 const GLOW_HOURS = 6; // 日記を更新してから何時間「日記」を光らせるか
 const diaryCal = { y: new Date().getFullYear(), m: new Date().getMonth(), sel: "" }; // 日記のカレンダー（表示中の月・選んだ日）
@@ -890,7 +888,6 @@ function diaryEntryHtml(d) {
       ${body ? `<div class="diary-body">${diaryText(body)}</div>` : ""}
       ${imgs.length ? `<div class="diary-imgs${imgs.length === 1 ? " one" : ""}">${imgs.map((id, i) =>
         `<button class="diary-img" type="button" data-photo="${i}" aria-label="${L("画像を大きく見る", "View larger")}">${photoImg(id, imgs.length === 1 ? 1600 : 800)}</button>`).join("")}</div>` : ""}
-      ${likeBtnHtml(d)}
     </article>`;
 }
 function diaryListHtml() {
@@ -906,37 +903,6 @@ function diaryListHtml() {
       <div class="diary-list">${day.length ? day.map(diaryEntryHtml).join("") : `<p class="empty">${L("この日の日記はありません。", "No entries on this day.")}</p>`}</div>`;
   }
   return `<div class="diary-list">${list.map(diaryEntryHtml).join("")}</div>`;
-}
-
-// いいね：押すと +1、もう一度押すと取り消し。押したかどうかはこの端末に覚えておく
-function likedSet() {
-  try { return new Set(JSON.parse(localStorage.getItem(LIKE_KEY) || "[]")); } catch (e) { return new Set(); }
-}
-function likeBtnHtml(d) {
-  const on = likedSet().has(d.id), n = d.likes || 0;
-  return `<div class="diary-foot"><button type="button" class="diary-like${on ? " on" : ""}" data-like="${esc(d.id)}" aria-pressed="${on}"
-    aria-label="${on ? L("いいねを取り消す", "Unlike") : L("いいね", "Like")}">${HEART}<span>${n || ""}</span></button></div>`;
-}
-async function toggleLike(btn) {
-  if (btn.dataset.busy) return;
-  const id = btn.dataset.like, entry = (diaryEntries() || []).find((d) => d.id === id);
-  if (!entry) return;
-  const liked = likedSet(), on = !liked.has(id), before = entry.likes || 0;
-  const apply = (n, state) => {
-    entry.likes = n;
-    if (state) liked.add(id); else liked.delete(id);
-    try { localStorage.setItem(LIKE_KEY, JSON.stringify([...liked])); } catch (e) {}
-    document.querySelectorAll(`[data-like="${id}"]`).forEach((b) => { b.outerHTML = likeBtnHtml(entry).replace(/^<div class="diary-foot">|<\/div>$/g, ""); });
-  };
-  apply(Math.max(0, before + (on ? 1 : -1)), on); // 先に見た目を変える
-  const b2 = document.querySelector(`[data-like="${id}"]`);
-  if (b2 && on) b2.classList.add("pop");
-  if (b2) b2.dataset.busy = "1";
-  let r;
-  try { r = await adminCall({ _action: "diaryLike", _id: id, _delta: on ? "1" : "-1" }); } catch (e) { r = { ok: false }; }
-  if (r.ok && typeof r.likes === "number") apply(r.likes, on);
-  else apply(before, !on); // 届かなかったら元にもどす
-  setDiary(data.diary || diaryEntries());
 }
 
 // カレンダー：日記のある日に印。押すとその日の日記だけを表示（diaryCal はファイルの最初のほうにあります）
@@ -980,9 +946,8 @@ function diaryPage() {
 }
 // カレンダーと画像のクリック（日記ページ）
 document.addEventListener("click", (e) => {
-  const t = e.target.closest("[data-day],[data-cal-move],[data-cal-today],[data-cal-all],[data-photo],[data-like]");
+  const t = e.target.closest("[data-day],[data-cal-move],[data-cal-today],[data-cal-all],[data-photo]");
   if (!t || !t.closest("#view")) return;
-  if (t.dataset.like) return toggleLike(t);
   if (t.dataset.photo != null) {
     const entry = (diaryEntries() || []).find((d) => `diary-${d.id}` === t.closest(".diary-entry").id);
     if (entry) openPhotos(diaryImages(entry), +t.dataset.photo);
