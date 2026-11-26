@@ -68,6 +68,14 @@ a { color: inherit; }
 }
 .nav-links a:hover { color: #fff; }
 .nav-links a.active { color: #fff; background: rgba(255,255,255,.12); }
+/* 日記が更新されたとき（6時間・見るまで）光らせる */
+.nav-links a.glow { position: relative; color: #fff; background: linear-gradient(135deg, rgba(79,124,255,.45), rgba(155,92,255,.45)); animation: glow-nav 1.8s ease-in-out infinite; }
+.nav-links a.glow::after { content: ""; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: #ff5c8a; box-shadow: 0 0 6px #ff5c8a; }
+@keyframes glow-nav { 50% { box-shadow: 0 0 14px 2px rgba(155,92,255,.75); text-shadow: 0 0 8px rgba(255,255,255,.9); } }
+.entry.glow { border-color: var(--accent2); animation: glow-card 1.8s ease-in-out infinite; }
+.entry.glow h2::after { content: "NEW"; margin-left: 8px; padding: 1px 8px; border-radius: 999px; vertical-align: 3px; font-size: .65rem; font-weight: 800; letter-spacing: .05em; color: #fff; background: linear-gradient(135deg, #ff5c8a, var(--accent2)); }
+@keyframes glow-card { 0%, 100% { box-shadow: 0 0 0 1px var(--accent2), 0 0 12px rgba(155,92,255,.35); } 50% { box-shadow: 0 0 0 1px var(--accent2), 0 0 28px 4px rgba(155,92,255,.6); } }
+@media (prefers-reduced-motion: reduce) { .nav-links a.glow, .entry.glow { animation: none; box-shadow: 0 0 16px rgba(155,92,255,.6); } }
 @media (max-width: 600px) {
   .nav-links { gap: 0; }
   .nav-links a { padding: 6px 7px; font-size: .78rem; }

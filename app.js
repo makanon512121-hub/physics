@@ -58,6 +58,8 @@ const DIARY_KEY = "physics-hp-diary";
 const ADMIN_KEY = "physics-hp-admin";
 const MAX_IMGS = 10;
 const LIKE_KEY = "physics-hp-likes"; // この端末でいいねした日記のID
+const SEEN_KEY = "physics-hp-diary-seen"; // この端末で最後に見た日記の更新時刻
+const GLOW_HOURS = 6; // 日記を更新してから何時間「日記」を光らせるか
 const diaryCal = { y: new Date().getFullYear(), m: new Date().getMonth(), sel: "" }; // 日記のカレンダー（表示中の月・選んだ日）
 
 // ---------- 言語（日本語 / English） ----------
@@ -255,6 +257,7 @@ function route() {
     location.hash = y ? `#exams/${encodeURIComponent(u)}/${encodeURIComponent(y)}` : u ? `#exams/${encodeURIComponent(u)}` : "#exams";
   });
   showLastUpdated();
+  applyDiaryGlow();
   if (!route.first) route.first = true; else window.scrollTo({ top: 0 });
 }
 
@@ -328,6 +331,21 @@ function homePage() {
   </section>`;
 }
 
+// 日記が更新されてから6時間は、メニューとトップの「日記」を光らせる（日記ページを一度見たら消える）
+function applyDiaryGlow() {
+  const t = data.diaryUpdated || 0;
+  let seen = 0;
+  try { seen = +localStorage.getItem(SEEN_KEY) || 0; } catch (e) {}
+  if (t && location.hash.slice(1).split("/")[0] === "diary" && seen < t) {
+    seen = t;
+    try { localStorage.setItem(SEEN_KEY, String(t)); } catch (e) {}
+  }
+  const left = t + GLOW_HOURS * 3600e3 - Date.now(), on = !!t && left > 0 && seen < t;
+  document.querySelectorAll('[data-nav="diary"], .entry[href="#diary"]').forEach((el) => el.classList.toggle("glow", on));
+  clearTimeout(applyDiaryGlow.timer);
+  if (on) applyDiaryGlow.timer = setTimeout(applyDiaryGlow, Math.min(left + 1000, 2 ** 31 - 1));
+}
+
 // 今日の一言：管理ページで書いたもの（Apps Script に保存）→ なければ config.js の todayWord
 function currentWord() {
   let w = data.todayWord;
@@ -341,6 +359,7 @@ async function loadTodayWord() {
   try {
     // gate.js がもう読みに行っていれば、それを使い回す
     const j = (window.SITE_INFO && await window.SITE_INFO) || await (await fetch(url, { cache: "no-store" })).json();
+    if (j && j.diaryUpdated) { data.diaryUpdated = +j.diaryUpdated; applyDiaryGlow(); }
     if (!j || typeof j.word !== "string") return; // まだ一度も書いていない → config.js のまま
     setTodayWord({ word: j.word, wordEn: j.wordEn || "" });
   } catch (e) { /* 読めなければ config.js のまま */ }
