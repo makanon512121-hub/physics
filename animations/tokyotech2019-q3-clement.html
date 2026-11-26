@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>断熱膨張で比熱比を測る：クレマン・デゾルムの実験</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E7%86%B1%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>断熱膨張で比熱比を測る：クレマン・デゾルムの実験（東京科学大学（旧 東京工業大学） 2019年 第3問）</h1>
+<p class="lead">少し加圧した容器のコックを一瞬開けて空気を逃がし（断熱膨張）、閉じてから温度が戻るのを待つと、圧力が少しだけ上がります。差圧計の2つの読み <span class="v">h</span>₁、<span class="v">h</span>₂ だけで比熱比 γ が求まるしくみを、容器に残る空気だけに注目した「見えない仕切り」と P–V 図で確かめます。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="容器・コック・差圧計・温度表示器と中の分子の動き、P–V 図、差圧と温度のグラフ"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">⒜ モル数 n₁，n₂</button>
+<button class="qb" data-q="I2">⒝ 圧力 P₂</button>
+<button class="qb" data-q="I3">⒞ 断熱変化の式</button>
+<button class="qb" data-q="I4">⒟ 比熱比 γ</button>
+<button class="qb" data-q="I5">⒠ 2原子分子の γ</button>
+<button class="qb" data-q="I6">⒡ 温度差 T₀ − T₁</button>
+<button class="qb" data-q="I7">⒢ 流入する熱量</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-acc">容器に残る空気（青い分子）</span>、灰色の分子は外へ出ていく空気、<span class="t-frc">断熱変化（赤）</span>、<span class="t-grav">等温線（緑）</span>、<span class="t-fr">定積変化・流入する熱（オレンジ）</span>。</p>
+
+<details id="d-I1"><summary>⒜　状態 A，B でのモル数 n₁，n₂<span class="ans">答 \(n_1=\dfrac{P_1V_1}{RT_0},\ \ n_2=\dfrac{P_0V_1}{RT_1}\)</span></summary><div class="body">
+<p>どちらの状態も、容器の体積 \(V_1\) いっぱいに空気が入っています。A は圧力 \(P_1\)・温度 \(T_0\)、B は圧力 \(P_0\)・温度 \(T_1\) です。</p>
+<p class="law">理想気体の状態方程式（A と B）</p>
+$$P_1V_1=\cacc{n_1}RT_0,\qquad P_0V_1=\cacc{n_2}RT_1$$
+$$\cacc{n_1}=\frac{P_1V_1}{RT_0},\qquad\cacc{n_2}=\frac{P_0V_1}{RT_1}$$
+<p>コック C₂ を開けている間に空気が出ていくので \(n_2\lt n_1\) です。</p>
+<div class="box"><b>式の立て方</b>：状態方程式は「ある瞬間に容器の中にある気体」について、その瞬間の \(P,\ V,\ T\) で立てます。出入りがある問題では、どの瞬間のどの気体かを決めてから書きます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：はじめ（A）の分子は青と灰色を合わせた数、コックを閉じた後（B）は青だけです。「いまの値」で \(n_2/n_1\) を確かめられます。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>⒝　状態 C の圧力 P₂<span class="ans">答 \(P_2=\dfrac{n_2}{n_1}P_1\)</span></summary><div class="body">
+<p>B から C の間はコックが閉じているので、モル数は \(n_2\) のまま、体積も \(V_1\) のままで、温度だけ \(T_0\) に戻ります。</p>
+<p class="law">理想気体の状態方程式（C）</p>
+$$\cacc{P_2}V_1=n_2RT_0$$
+<p>A の式 \(P_1V_1=n_1RT_0\) と割り算すると、\(V_1\) も \(RT_0\) も消えます。</p>
+$$\cacc{P_2}=\frac{n_2}{n_1}P_1$$
+<div class="box"><b>式の立て方</b>：同じ体積・同じ温度の2つの状態は、圧力がモル数に比例します。共通な量が多い2つの状態を選んで比をとると、式が短くなります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：C で止まります。容器の大きさも温度も A と同じなので、圧力の比は分子の数の比（青 ÷ 全部）に等しくなっています。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>⒞　P₁(n₂/n₁)<sup>γ</sup> = P₀ を示す<span class="ans">答 容器に残る n₂ の部分だけに断熱変化の式を使う</span></summary><div class="body">
+<p>\(PV^\gamma=\text{一定}\) は、決まった量の気体が断熱変化するときの式です。容器から出ていく空気があるので、容器全体には使えません。そこで、最後まで容器に残る \(n_2\) モルの部分だけに注目します。</p>
+<p>状態 A でこの部分が占める体積を \(V_\mathrm A\) とします。A では容器内の圧力も温度も一様なので、体積はモル数に比例します。</p>
+<p class="law">状態方程式（同じ P₁，T₀ ならモル数に比例）</p>
+$$\cacc{V_\mathrm A}=\frac{n_2}{n_1}V_1$$
+<p>この部分は、圧力 \(P_1\)・体積 \(V_\mathrm A\) から、圧力 \(P_0\)・体積 \(V_1\) まで断熱膨張します。</p>
+<p class="law">ポアソンの法則（断熱変化）</p>
+$$P_1\Bigl(\frac{n_2}{n_1}V_1\Bigr)^\gamma=P_0V_1^{\,\gamma}\qquad\therefore\ P_1\Bigl(\frac{n_2}{n_1}\Bigr)^\gamma=P_0$$
+<h3>着眼点：見えない仕切りを考える</h3>
+<p>残る空気と出ていく空気の間に、熱を通さない軽い仕切りがあると考えます。仕切りの外側の空気がコックから押し出される間に、内側の \(n_2\) モルは仕切りを押して広がり、容器全体を満たします。出ていく空気は、このピストンの役目をしているだけです。</p>
+<div class="box"><b>式の立て方</b>：気体が出入りする断熱変化では、(1) 最後まで残る気体を決め、(2) その気体が最初に占めていた体積を求め、(3) その気体だけに \(PV^\gamma=\text{一定}\) を使います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：A では青い分子が下の \(V_\mathrm A\) の部分に、灰色の分子が上の部分にいます。C₂ を開くと灰色の分子が外へ出て、点線の仕切りが上がり、青い部分が容器いっぱいに広がります。P–V 図では赤い断熱曲線に沿って A → B と進みます。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>⒟　h₁，h₂ で表した比熱比 γ<span class="ans">答 \(\gamma=\dfrac{h_1}{h_1-h_2}\)</span></summary><div class="body">
+<p>⒝ の \(\dfrac{n_2}{n_1}=\dfrac{P_2}{P_1}\) を ⒞ に入れて、モル数を消します。</p>
+$$\frac{P_1}{P_0}\Bigl(\frac{P_2}{P_1}\Bigr)^\gamma=1$$
+<p>\(P_1=P_0+h_1,\ P_2=P_0+h_2\) を入れ、両辺の対数をとります。</p>
+<p class="law">対数をとる</p>
+$$\log\Bigl(1+\frac{h_1}{P_0}\Bigr)+\gamma\log\frac{1+h_2/P_0}{1+h_1/P_0}=0$$
+<p class="law">近似式（\(\frac{1+x}{1+y}\fallingdotseq1+x-y\)，\(\log(1+x)\fallingdotseq x\)）</p>
+$$\frac{h_1}{P_0}+\gamma\Bigl(\frac{h_2}{P_0}-\frac{h_1}{P_0}\Bigr)=0\qquad\therefore\ \gamma=\frac{h_1}{h_1-h_2}$$
+<p>対数を使わずに \(\bigl(\frac{P_0+h_2}{P_0+h_1}\bigr)^\gamma\fallingdotseq1+\gamma\bigl(\frac{h_2}{P_0}-\frac{h_1}{P_0}\bigr)\) と近似しても同じ結果になります。</p>
+<h3>着眼点：P–V 図の傾きの比として読む</h3>
+<p>A と C はどちらも温度 \(T_0\) なので、\(n_2\) モルの空気について見ると、同じ等温線の上にあります（\(P_1V_\mathrm A=P_2V_1\)）。A から体積が \(V_1\) まで増える間に、断熱曲線では圧力が \(h_1\) 下がり、等温線では \(h_1-h_2\) 下がります。断熱曲線の傾きは等温線の傾きの \(\gamma\) 倍なので、その比が \(\gamma\) です。断熱変化で下がった温度が、定積変化で同じだけ上がって元に戻る、と言いかえることもできます。</p>
+<div class="box"><b>式の立て方</b>：小さな量の近似では、まず式を「1 + 小さい量」の形にそろえ、小さい量の1次の項だけを残します。最後に答えが \(P_0\) によらない形になるのが目安です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：「いまの値」に、正確な \(\gamma\) と、測った \(h_1,\ h_2\) から近似式で出した値が並びます。\(h_1/P_0\) を小さくするほど2つが一致し、大きくするとずれます。P–V 図の赤（断熱）と緑（等温）の傾きの違いも見比べましょう。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-I5"><summary>⒠　2原子分子の空気で得られるべき γ<span class="ans">答 \(\gamma=\dfrac75=1.4\)</span></summary><div class="body">
+<p class="law">マイヤーの関係</p>
+$$C_P=C_V+R=\frac52R+R=\frac72R$$
+<p class="law">比熱比の定義</p>
+$$\gamma=\frac{C_P}{C_V}=\frac{\frac72R}{\frac52R}=\frac75$$
+<p>単原子分子（\(C_V=\frac32R\)）なら \(\gamma=\frac53\) です。一般に、分子が自由に動ける向き（自由度）が \(f\) なら \(C_V=\frac f2R\)、\(\gamma=\frac{f+2}{f}\) で、自由度が大きいほど \(\gamma\) は 1 に近づきます。</p>
+<div class="box"><b>式の立て方</b>：\(C_P\) は \(C_V\) より、定圧で膨張するときに外にする仕事のぶん（1 モルあたり \(R\)）だけ大きくなります。\(C_V\) がわかれば \(C_P\) と \(\gamma\) はすぐ求まります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：設定の「分子の自由度」を 3（単原子）、5（2原子）、6（多原子）と変えると、同じ \(h_1\) でも \(h_2\) が変わります。\(\gamma\) が大きいほど断熱膨張での温度の下がり方が大きく、\(h_2\) も大きくなります。</div>
+<button class="goto" data-q="I5">この状況にする</button>
+</div></details>
+
+<details id="d-I6"><summary>⒡　温度差 T₀ − T₁<span class="ans">答 \(T_0-T_1=\dfrac{h_2}{P_0+h_2}T_0\)</span></summary><div class="body">
+<p>B から C は、モル数 \(n_2\)・体積 \(V_1\) が変わらない定積変化です。</p>
+<p class="law">ボイル・シャルルの法則（B と C）</p>
+$$\frac{P_0V_1}{\cfrc{T_1}}=\frac{P_2V_1}{T_0}\qquad\therefore\ \cfrc{T_1}=\frac{P_0}{P_0+h_2}T_0$$
+$$T_0-\cfrc{T_1}=\Bigl(1-\frac{P_0}{P_0+h_2}\Bigr)T_0\nobreak=\frac{h_2}{P_0+h_2}T_0$$
+<p>温度センサーで \(T_1\) を直接読めなくても、温度が戻った後の差圧 \(h_2\) から、断熱膨張でどれだけ冷えたかがわかります。</p>
+<div class="box"><b>式の立て方</b>：同じ量の気体の2つの状態は、ボイル・シャルルの法則 \(\frac{PV}{T}=\text{一定}\) で結びます。体積が同じなら圧力は絶対温度に比例します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：B で止まります。温度表示器が \(T_0\) より低い \(T_1\) を示し、分子の動きも少し遅くなっています。その後、壁から熱が入って温度と圧力が一緒に上がります。</div>
+<button class="goto" data-q="I6">この状況にする</button>
+</div></details>
+
+<details id="d-I7"><summary>⒢　B から C の間に流入する熱量<span class="ans">答 \(Q=\dfrac52h_2V_1\)</span></summary><div class="body">
+<p>体積が変わらないので、気体は仕事をしません。流入した熱はすべて内部エネルギーの増加になります。</p>
+<p class="law">定積変化の熱量（熱力学第1法則で W = 0）</p>
+$$\cfr{Q}=n_2C_V(T_0-T_1)\nobreak=n_2\cdot\frac52R\cdot\frac{h_2}{P_0+h_2}T_0$$
+<p class="law">状態方程式（C：\(P_2V_1=n_2RT_0\)）</p>
+$$n_2RT_0=(P_0+h_2)V_1\qquad\therefore\ \cfr{Q}=\frac52h_2V_1$$
+<h3>補足：定積変化の熱は「圧力の増え方 × 体積」</h3>
+<p>一般に、体積 \(V\) のまま圧力が \(\Delta P\) 増える定積変化では \(Q=\dfrac{C_V}{R}V\,\Delta P\) です。状態方程式 \(PV=nRT\) より \(nR\,\Delta T=V\,\Delta P\) となるからです。モル数や温度を経由しなくても、差圧計の読み \(h_2\) と容器の体積だけで熱量が決まります。</p>
+<div class="box"><b>式の立て方</b>：熱量は (1) どの変化か（定積・定圧・断熱）を確かめ、(2) 定積なら \(nC_V\Delta T\)、(3) \(nR\Delta T\) を状態方程式で \(P\)・\(V\) の量に書きかえる、の順に進めます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：オレンジの矢印が壁から入る熱です。「いまの値」の熱量が、差圧の増加とともに増えて \(\frac52h_2V_1\) に達します（容器の体積 \(V_1=10\) L として J で表示）。</div>
+<button class="goto" data-q="I7">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const st={q:"I1",h1:0.2,f:5,spd:1};
+const SL=[
+ ["h1","h₁/P₀","はじめの差圧（大気圧に対する比）","",0.02,0.5,0.01,2,"all"],
+ ["f","f","分子の自由度（単原子 3，2原子 5）","",3,7,1,0,"all"],
+ ["spd","","再生速度","倍",0.2,3,0.05,2,"all"]];
+const NAMES={n1:"状態 A のモル数 n₁",n2:"残る空気のモル数 n₂",P2:"状態 C の圧力 P₂",VA:"残る空気が A で占める体積 V_A",ad:"断熱変化（A → B）",iso:"等温線 T₀（A と C を通る）",T1:"状態 B の温度 T₁",Q:"流入する熱量 Q",h1:"差圧 h₁",h2:"差圧 h₂",g:"比熱比 γ"};
+const QDEF={I1:{spd:1},I2:{spd:1},I3:{spd:1},I4:{spd:1,h1:0.05},I5:{spd:1,f:5},I6:{spd:1},I7:{spd:1}};
+const cv=mkCv($("#cv"),n=>n?[480,1080]:[1000,600]);
+const P0=1.013e5,T0=300,V1=0.01,Rg=8.31;let lastQ="",S={},R={};
+const TA=1.4,TE=3.4,TB=4.4,TH=4.9,TC=10.5,TEND=12;
+function calc(){const g=(st.f+2)/st.f,P1=1+st.h1,r=Math.pow(1/P1,1/g),P2=r*P1,h2=P2-1,T1=T0/P2,ga=st.h1/(st.h1-h2);return{g,P1,r,P2,h2,T1,ga,Q:st.f/2*h2*P0*V1,n1:P1*P0*V1/(Rg*T0)}}
+/* ---------- state over time ---------- */
+const ease=u=>u<=0?0:u>=1?1:0.5-0.5*Math.cos(PI*u);const PI=Math.PI;
+function state(t){const K=R.K,g=K.g;let P,T,frac,ph,open=false,heat=0;
+ if(t<TA){P=K.P1;T=T0;frac=K.r;ph="A"}
+ else if(t<TE){const u=ease((t-TA)/(TE-TA));P=K.P1+(1-K.P1)*u;T=T0*Math.pow(P/K.P1,(g-1)/g);frac=K.r*Math.pow(K.P1/P,1/g);ph="AB";open=true}
+ else if(t<TH){P=1;T=K.T1;frac=1;ph="B"}
+ else{const u=1-Math.exp(-(t-TH)/1.1);T=K.T1+(T0-K.T1)*u;P=T/K.T1;frac=1;ph=t<TC?"BC":"C";heat=u}
+ return{P,T,frac,ph,open,heat,Qin:st.f/2*(P-1)*P0*V1*(ph==="BC"||ph==="C"?1:0)}}
+function restart(){if(st.q!==lastQ){const D=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in D)if(P[k]!==D[k])st[k]=D[k];lastQ=st.q}
+ R={K:calc()};const N=84,nb=Math.round(R.K.r*N);R.mol=[];let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+ for(let i=0;i<N;i++){const blue=i<nb,a=rnd()*2*PI;R.mol.push({blue,u:rnd(),v:blue?rnd():rnd(),vx:Math.cos(a),vy:Math.sin(a),out:false,gone:false})}
+ S={t:0,hold:0,paused:false,done:{}}}
+function onParam(k){restart()}
+function stops(){const q=st.q;return q==="I1"||q==="I3"||q==="I6"?[TB]:q==="I2"||q==="I4"||q==="I5"||q==="I7"?[TC+0.6]:[]}
+function step(dt){for(const sa of stops()){if(!S.done[sa]&&S.t<sa&&S.t+dt>=sa){S.t=sa;S.paused=true;S.hold=0;S.done[sa]=1;return}}
+ if(S.paused){S.hold+=dt;moveMol(dt*0.6);if(S.hold<2.6)return;S.paused=false}
+ if(S.t>=TEND){S.hold+=dt;if(S.hold>1)restart();return}const t0=S.t;S.t=Math.min(TEND,S.t+dt);moveMol(dt)}
+function moveMol(dt){const s=state(S.t),sp=0.33*Math.sqrt(s.T/T0),fr=s.frac;
+ R.mol.forEach(m=>{if(m.gone)return;
+  if(m.blue){m.u+=m.vx*sp*dt;m.v+=m.vy*sp*dt*1.2;if(m.u<0){m.u=-m.u;m.vx*=-1}if(m.u>1){m.u=2-m.u;m.vx*=-1}const lo=1-fr;if(m.v<lo){m.v=lo+(lo-m.v)*0.2;m.vy=Math.abs(m.vy)}if(m.v>1){m.v=2-m.v;m.vy*=-1}}
+  else{const lo=1-R.K.r*1;if(s.open||S.t>=TE){m.out=true}
+   if(m.out){const tx=0.3,ty=-0.06;const dx=tx-m.u,dy=ty-m.v,L=Math.hypot(dx,dy)||1;m.u+=dx/L*0.9*dt;m.v+=dy/L*0.9*dt;if(m.v<-0.05)m.gone=true}
+   else{m.u+=m.vx*sp*dt;m.v+=m.vy*sp*dt*1.2;if(m.u<0){m.u=-m.u;m.vx*=-1}if(m.u>1){m.u=2-m.u;m.vx*=-1}const hi=1-fr;if(m.v<0){m.v=-m.v;m.vy*=-1}if(m.v>hi){m.v=hi-(m.v-hi)*0.2;m.vy=-Math.abs(m.vy)}}}})}
+/* ---------- apparatus ---------- */
+function drawApp(c,B){const n=cv.narrow,s=state(S.t),K=R.K,x0=B.x+(n?60:70),x1=B.x+B.w-(n?60:80),y0=B.y+(n?190:180),y1=B.y+B.h-(n?40:50),W=x1-x0,H=y1-y0,q=st.q;
+ // walls (insulating)
+ rect(c,x0-10,y0-10,W+20,H+20,alpha(CL.mute,0.25),CL.ink,1.5);rect(c,x0,y0,W,H,CL.bg,CL.ink,1.2);
+ txt(c,"容積 V₁",x1-8,y1-14,CL.mute,{s:13,al:"right"});txt(c,"大気 P₀，T₀",B.x+B.w-6,B.y+16,CL.mute,{s:13,al:"right"});
+ // partition (virtual)
+ const yp=y0+H*(1-s.frac);if(s.frac<0.999){glow(c,"VA",CL.acc);line(c,[[x0,yp],[x1,yp]],CL.acc,W_("VA",1.8),[6,4]);noglow(c);ktag(c,"VA","見えない仕切り（下が残る空気 V_A）",x0+6,yp+12,CL.acc,{s:11})}
+ if(HL("VA")||HL("n2")){c.fillStyle=alpha(CL.acc,0.08);c.fillRect(x0,yp,W,y1-yp)}
+ // molecules
+ R.mol.forEach(m=>{if(m.gone)return;const X=x0+6+(W-12)*m.u,Y=y0+6+(H-12)*m.v;dot(c,X,Y,3.6,m.blue?(HL(["n2","n1"])?CL.frc:CL.acc):alpha(CL.mute,0.85))});
+ // heat arrows
+ if(s.ph==="BC"&&s.heat<0.97){const a=(1-s.heat);glow(c,"Q",CL.fr);for(let i=0;i<4;i++){const yy=y0+H*(0.2+0.2*i);arrow(c,x0-40,yy,x0-4,yy,alpha(CL.fr,0.35+0.6*a),W_("Q",2.4));arrow(c,x1+40,yy,x1+4,yy,alpha(CL.fr,0.35+0.6*a),W_("Q",2.4))}noglow(c);ktag(c,"Q","熱 Q",x0-36,y0+H*0.12,CL.fr,{s:12})}
+ // pipes and cocks
+ const cxD=x0+W*0.14,cx2=x0+W*0.3+ (n?0:0),cx1=x0+W*0.55,top=y0-10;
+ line(c,[[cx2,top],[cx2,top-50]],CL.ink,2);line(c,[[cx1,top],[cx1,top-50],[x1+20,top-50],[x1+20,top-70]],CL.ink,2);
+ const cock=(x,y,open,lab)=>{dot(c,x,y,11,CL.bg,CL.ink,1.8);line(c,open?[[x,y-9],[x,y+9]]:[[x-9,y],[x+9,y]],open?CL.ok:CL.ink,3);txt(c,lab,x+15,y-12,CL.ink,{s:13,b:1})};
+ cock(cx2,top-28,s.open,"C₂");cock(cx1,top-28,false,"C₁");
+ if(s.open){for(let i=0;i<8;i++){const yy=top-50-((S.t*70+i*9)%44);dot(c,cx2+Math.sin(i*2.1+S.t*9)*6,yy,2.4,alpha(CL.mute,0.8))}txt(c,"シュッ",cx2+14,top-70,CL.ink,{s:12})}
+ // bulb F
+ c.beginPath();c.ellipse(x1+20,top-98,16,26,0,0,7);c.fillStyle=alpha(CL.mute,0.35);c.fill();c.strokeStyle=CL.ink;c.lineWidth=1.5;c.stroke();txt(c,"F",x1+42,top-98,CL.ink,{s:13,b:1});
+ // gauge D
+ line(c,[[cxD,top],[cxD,top-34]],CL.ink,2);const gx=cxD,gy=top-62,gr=26,hv=(s.P-1),ang=-PI/2-PI*0.7+Math.min(1,Math.max(0,hv/(K.P1-1)))*PI*1.4;
+ dot(c,gx,gy,gr,CL.bg,CL.ink,1.8);for(let i=0;i<=6;i++){const a=-PI/2-PI*0.7+i/6*PI*1.4;line(c,[[gx+Math.cos(a)*gr*0.78,gy+Math.sin(a)*gr*0.78],[gx+Math.cos(a)*gr*0.95,gy+Math.sin(a)*gr*0.95]],CL.mute,1)}
+ glow(c,["h1","h2"],CL.acc);line(c,[[gx,gy],[gx+Math.cos(ang)*gr*0.85,gy+Math.sin(ang)*gr*0.85]],CL.frc,W_(["h1","h2"],2.2));noglow(c);dot(c,gx,gy,3,CL.ink);txt(c,"D",gx-gr-6,gy-gr+4,CL.ink,{s:13,b:1,al:"right"});
+ txt(c,"h = "+(hv*P0/1000).toFixed(2)+" kPa",gx-gr-6,gy+8,CL.ink,{s:12,al:"right"});
+ // thermometer T
+ const tx=x1-110,ty=y1+(n?18:22);rect(c,tx,ty-11,104,22,CL.panel,CL.ink,1.2);glow(c,"T1",CL.frc);txt(c,"T = "+s.T.toFixed(1)+" K",tx+52,ty,s.T<T0-0.05?CL.frc:CL.ink,{s:13,b:1,al:"center"});noglow(c);line(c,[[tx,ty],[x0+W*0.75,y0+H*0.7]],alpha(CL.mute,0.7),1);dot(c,x0+W*0.75,y0+H*0.7,3,CL.ink);txt(c,"S",x0+W*0.75+6,y0+H*0.7-8,CL.mute,{s:11});
+ const lab={A:"状態 A（P₁，T₀）",AB:"C₂ を開いた：断熱膨張",B:"状態 B（P₀，T₁）：C₂ を閉じた",BC:"熱が入って温度が戻る（定積）",C:"状態 C（P₂，T₀）"}[s.ph];txt(c,lab,B.x+4,B.y+16,CL.ink,{s:14,b:1});
+ if(S.paused)txt(c,"一時停止中",B.x+4,B.y+38,CL.frc,{s:12,b:1})}
+/* ---------- graphs ---------- */
+function drawPV(c,B){const K=R.K,g=K.g,s=state(S.t),VA=K.r,vx=[VA-(1-VA)*0.25,1+(1-VA)*0.25],py=[1-(K.P1-1)*0.08,K.P1+(K.P1-1)*0.12];
+ const ax=axes(c,B,vx,py,{xl:"V/V₁",xit:false,yl:"P/P₀",yit:false,x0:vx[0],y0:py[0],xt:[[VA,"V_A"],[1,"V₁"]],yt:[[1,"P₀"],[K.P1,"P₁"],[K.P2,"P₂"]]});
+ const N=80,ad=[],iso=[];for(let i=0;i<=N;i++){const V=vx[0]+(vx[1]-vx[0])*i/N;ad.push([ax.X(V),ax.Y(K.P1*Math.pow(VA/V,g))]);iso.push([ax.X(V),ax.Y(K.P1*VA/V)])}
+ c.save();c.beginPath();c.rect(B.x,B.y,B.w,B.h);c.clip();glow(c,"iso",CL.grav);line(c,iso,alpha(CL.grav,0.85),W_("iso",1.6),[6,4]);noglow(c);glow(c,"ad",CL.frc);line(c,ad,alpha(CL.frc,0.55),W_("ad",1.4),[2,3]);noglow(c);c.restore();
+ // path traced
+ const pts=[];const t=S.t;for(let i=0;i<=120;i++){const tt=t*i/120,ss=state(tt);pts.push([ax.X(ss.ph==="A"?VA:ss.frac*1),ax.Y(ss.P)])}
+ line(c,pts.slice(0),CL.ink,2.2);
+ [[VA,K.P1,"A",CL.ink],[1,1,"B",CL.frc],[1,K.P2,"C",CL.fr]].forEach(([V,P,l,col])=>{dot(c,ax.X(V),ax.Y(P),4,col);txt(c,l,ax.X(V)+(l==="A"?-10:8),ax.Y(P)-10,col,{s:13,b:1,al:l==="A"?"right":"left"})});
+ dot(c,ax.X(s.ph==="A"?VA:s.frac),ax.Y(s.P),6,CL.acc,CL.bg,2);
+ ktag(c,"ad","断熱曲線",ax.X(VA+(1-VA)*0.5)-4,ax.Y(K.P1*Math.pow(VA/(VA+(1-VA)*0.5),g))-12,CL.frc,{s:11,al:"right"});
+ ktag(c,"iso","等温 T₀",ax.X(vx[1])-4,ax.Y(K.P1*VA/vx[1])-12,CL.grav,{s:11,al:"right"});
+ txt(c,"P–V 図（容器に残る n₂ モルの空気）",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+function drawTime(c,B1,B2){const K=R.K,tt=S.t;const a1=axes(c,B1,[0,TEND],[0,(K.P1-1)*1.12],{xl:"t",yt:[[K.P1-1,"h₁"],[K.h2,"h₂"]]});
+ const N=200,ph=[],pt=[];for(let i=0;i<=N;i++){const t=tt*i/N,s=state(t);ph.push([a1.X(t),a1.Y(s.P-1)])}
+ line(c,[[B1.x,a1.Y(K.h2)],[B1.x+B1.w,a1.Y(K.h2)]],alpha(CL.acc,0.5),1,[3,3]);glow(c,["h1","h2"],CL.acc);line(c,ph,CL.acc,W_(["h1","h2"],2));noglow(c);txt(c,"差圧計の読み h = P − P₀",B1.x-46,B1.y-20,CL.ink,{s:12,b:1});
+ const a2=axes(c,B2,[0,TEND],[K.T1-(T0-K.T1)*0.15,T0+(T0-K.T1)*0.25],{xl:"t",x0:0,y0:K.T1-(T0-K.T1)*0.15,yt:[[T0,"T₀"],[K.T1,"T₁"]]});
+ for(let i=0;i<=N;i++){const t=tt*i/N,s=state(t);pt.push([a2.X(t),a2.Y(s.T)])}glow(c,"T1",CL.frc);line(c,pt,CL.frc,W_("T1",2));noglow(c);txt(c,"容器内の温度 T",B2.x-46,B2.y-20,CL.ink,{s:12,b:1});
+ [[TA,"C₂ 開"],[TE,"閉"]].forEach(([t,l])=>{[a1,a2].forEach((a,i)=>line(c,[[a.X(t),(i?B2:B1).y],[a.X(t),(i?B2:B1).y+(i?B2:B1).h]],alpha(CL.mute,0.4),1,[2,3]))});txt(c,"C₂ 開→閉",a1.X(TA)+3,B1.y+4,CL.mute,{s:11})}
+function drawAll(){const c=begin(cv),W=cv.W,n=cv.narrow;
+ const BA=n?{x:0,y:0,w:W,h:520}:{x:10,y:0,w:470,h:600},G1=n?{x:70,y:570,w:W-110,h:200}:{x:570,y:44,w:W-610,h:250},G2=n?{x:70,y:840,w:W-110,h:80}:{x:570,y:372,w:W-610,h:76},G3=n?{x:70,y:975,w:W-110,h:80}:{x:570,y:506,w:W-610,h:76};
+ drawApp(c,BA);drawPV(c,G1);drawTime(c,G2,G3)}
+/* ---------- live equations ---------- */
+function eqs0(){const q=st.q,r=String.raw,K=R.K,s=state(S.t),f=(x,k=3)=>x.toFixed(k);
+ const n1=TK("n1","acc","n_1"),n2=TK("n2","acc","n_2"),P2=TK("P2","fr","P_2"),T1=TK("T1","frc","T_1"),h1=TK("h1","acc","h_1"),h2=TK("h2","acc","h_2"),g=TK("g","ink",r`\gamma`);
+ if(q==="I1")return{title:"理想気体の状態方程式（A と B）",list:[{t:r`P_1V_1=`+n1+r`RT_0,\quad P_0V_1=`+n2+"R"+T1,n:""},{t:n1+r`=\frac{P_1V_1}{RT_0},\quad `+n2+r`=\frac{P_0V_1}{R`+T1+"}",n:`n₂/n₁ = ${NS(f(K.r,4),"acc")}（V₁ = 10 L で n₁ = ${f(K.n1,4)} mol）`}]};
+ if(q==="I2")return{title:"状態方程式（A と C：同じ V₁，T₀）",list:[{t:P2+r`V_1=`+n2+r`RT_0,\quad P_1V_1=`+n1+r`RT_0\ \Rightarrow\ `+P2+r`=\frac{n_2}{n_1}P_1`,n:`P₂ = ${NS(f(K.P2,4),"fr")} P₀ = ${f(K.r,4)} × ${f(K.P1,3)} P₀`}]};
+ if(q==="I3")return{title:"残る n₂ モルだけにポアソンの法則",list:[{t:TK("VA","acc",r`V_\mathrm A`)+r`=\frac{n_2}{n_1}V_1,\quad P_1`+TK("VA","acc",r`V_\mathrm A`)+r`^{\gamma}=P_0V_1^{\,\gamma}`,n:`V_A = ${NS(f(K.r,4),"acc")} V₁`},{t:TK("ad","frc",r`P_1\Bigl(\frac{n_2}{n_1}\Bigr)^\gamma=P_0`),n:`${f(K.P1,3)} × ${f(K.r,4)}^${f(K.g,3)} = ${f(K.P1*Math.pow(K.r,K.g),4)}`}]};
+ if(q==="I4")return{title:"対数をとって1次の近似",list:[{t:r`\frac{h_1}{P_0}+\gamma\Bigl(\frac{h_2}{P_0}-\frac{h_1}{P_0}\Bigr)=0\ \Rightarrow\ `+g+r`=\frac{`+h1+"}{"+h1+"-"+h2+"}",n:`h₁ = ${f(st.h1,3)}P₀，h₂ = ${f(K.h2,4)}P₀ → 近似 ${NS(f(K.ga,3),"ink")}（正確な γ = ${f(K.g,3)}，ずれ ${f((K.ga/K.g-1)*100,1)} %）`}]};
+ if(q==="I5")return{title:"マイヤーの関係と比熱比",list:[{t:r`C_P=C_V+R=\frac{f+2}{2}R,\quad `+g+r`=\frac{C_P}{C_V}=\frac{f+2}{f}`,n:`f = ${st.f} → γ = ${NS(f(K.g,3),"ink")}${st.f===5?"（2原子分子：7/5）":st.f===3?"（単原子分子：5/3）":""}`}]};
+ if(q==="I6")return{title:"ボイル・シャルルの法則（B → C，定積）",list:[{t:r`\frac{P_0V_1}{`+T1+r`}=\frac{(P_0+h_2)V_1}{T_0}\ \Rightarrow\ T_0-`+T1+r`=\frac{h_2}{P_0+h_2}T_0`,n:`T₁ = ${NS(f(K.T1,2),"frc")} K，T₀ − T₁ = ${f(T0-K.T1,2)} K`}]};
+ return{title:"定積変化の熱量（W = 0）",list:[{t:TK("Q","fr","Q")+r`=n_2C_V(T_0-T_1)=\frac52n_2RT_0\cdot\frac{h_2}{P_0+h_2}=\frac52h_2V_1`,n:`いま流入した熱 ${NS(f(s.Qin,1),"fr")} J（最終値 (f/2)h₂V₁ = ${f(K.Q,1)} J）`}]}}
+function eqs(){const E=eqs0();if(cv.narrow)E.list.forEach(e=>{e.t=e.t.replace(/\\ \\Rightarrow\\ |,\\quad |=\\frac52n_2RT_0/g,m=>m.startsWith("=")?"\\\\"+m:"\\\\"+(m.includes("Rightarrow")?"\\Rightarrow ":""))});return E}
+function note(){return`大気 P₀ = 1013 hPa、T₀ = 300 K、容器 V₁ = 10 L の数値例です。見やすさのため h₁ を大きめにしています。h₁/P₀ を小さくするほど ⒟ の近似が正確になります。`}
+function readout(){const K=R.K,s=state(S.t),f=(x,k=3)=>x.toFixed(k);return[["容器内の圧力 P",f(s.P*P0/100,1)+" hPa（h = "+f((s.P-1)*P0/100,1)+" hPa）"],["容器内の温度 T",f(s.T,2)+" K"],["n₂/n₁（残る割合）",f(K.r,4)],["h₂（状態 C の差圧）",f(K.h2*P0/100,1)+" hPa"],["T₁（状態 B の温度）",f(K.T1,2)+" K"],["正確な γ ／ h₁/(h₁−h₂)",f(K.g,3)+" ／ "+f(K.ga,3)],["B → C で流入する熱 Q",f(s.Qin,1)+" J（5/2 h₂V₁ なら "+f(2.5*K.h2*P0*V1,1)+" J）"]]}
+initUI("I1");
+}
+</script>
+</body>
+</html>

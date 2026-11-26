@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>極板間引力とばねのつり合い・スイッチの開閉と RC 回路</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>極板間引力とばねのつり合い・スイッチの開閉と RC 回路（東京科学大学（旧 東京工業大学） 2019年 第2問）</h1>
+<p class="lead">前半は、ばねでつながれた平行板コンデンサーの極板 P₂ にはたらく静電気力・ばねの力・重力のつり合いです。P₂ を動かすのに必要な手の力 <span class="v">F</span> を位置 <span class="v">x</span> のグラフにし、つり合いの位置が2つあること、手を放すとどちらへ動くかを確かめます。後半は、スイッチを順に開閉する RC 回路で、ジュール熱・静電エネルギー・電流の時間変化を電流の流れとグラフで追います。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="ばねでつながった極板と力の矢印、手の力のグラフ／RC 回路と電流のグラフ"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">⒜ 静電気力 F<sub>E</sub></button>
+<button class="qb" data-q="I2">⒝ つり合い</button>
+<button class="qb" data-q="I3">⒞ 手の力 F</button>
+<button class="qb" data-q="I4">⒟ もう1つの位置 x₁</button>
+<button class="qb" data-q="I5">⒠ F のグラフ</button>
+<button class="qb" data-q="I6">⒡ 手を放すと</button>
+<button class="qb" data-q="II1">⒢ R₁ のジュール熱</button>
+<button class="qb" data-q="II2">⒣ 静電エネルギー</button>
+<button class="qb" data-q="II3">⒤ 電流 I の変化</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。前半は鉛直上向きを正とします。図の色：<span class="t-frc">静電気力（赤）</span>、<span class="t-fr">ばねの力（オレンジ）</span>、<span class="t-grav">重力（緑）</span>、<span class="t-fic">手の力 F（紫）</span>、<span class="t-acc">電流 I・コンデンサー（青）</span>。</p>
+
+<details id="d-I1"><summary>⒜　P₂ にはたらく静電気力 F<sub>E</sub><span class="ans">答 \(F_\mathrm E=-\dfrac{\varepsilon_0SV^2}{2x_0^{\,2}}\)</span></summary><div class="body">
+<p>極板の間隔 \(x_0\) のコンデンサーの電気容量は \(C_0=\dfrac{\varepsilon_0S}{x_0}\) です。電池の電圧 \(V\) がかかるので、P₂ には正、P₁ には負の電気量がたまります。</p>
+<p class="law">コンデンサーの電気量（Q = CV）</p>
+$$Q_2=\frac{\varepsilon_0SV}{x_0},\qquad Q_1=-\frac{\varepsilon_0SV}{x_0}$$
+<p>P₁ だけがつくる電場は、極板の両側に向かって \(\dfrac{|Q_1|}{2\varepsilon_0S}\) の大きさで出入りします。P₂ の位置では P₁ に向かう向き（下向き）です。</p>
+<p class="law">P₁ がつくる電場（実際の極板間の電場の半分）</p>
+$$E_1=\frac{Q_1}{2\varepsilon_0S}=-\frac{V}{2x_0}$$
+<p class="law">静電気力（電気量 × 電場）</p>
+$$\cfrc{F_\mathrm E}=Q_2E_1=-\frac{\varepsilon_0SV^2}{2x_0^{\,2}}$$
+<p>負なので下向き、つまり P₂ は P₁ に引きつけられます。</p>
+<h3>着眼点：なぜ「半分」の電場を使うのか</h3>
+<p>極板間の電場 \(\frac V{x_0}\) は、P₁ がつくる電場と P₂ がつくる電場の重ね合わせです（間では強め合い、外では打ち消し合う）。P₂ 自身がつくる電場は P₂ を押したり引いたりしないので、相手の P₁ がつくる半分だけを使います。全体の電場 \(\frac V{x_0}\) をそのままかけると2倍の間違いになります。</p>
+<div class="box"><b>式の立て方</b>：極板にはたらく力は「自分の電気量 × 相手がつくる電場」で求めます。相手の極板1枚がつくる電場は \(\dfrac{\sigma}{2\varepsilon_0}\)（\(\sigma\) は面密度）です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：P₁ のまわりの細い矢印が P₁ だけの電場、点線が P₂ だけの電場です。極板の間では同じ向きに重なり、外側では逆向きで打ち消し合っています。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>⒝　P₂ にはたらく力のつり合い<span class="ans">答 \(-\dfrac{\varepsilon_0SV^2}{2x_0^{\,2}}-k(x_0-L)-mg=0\)</span></summary><div class="body">
+<p>P₂ には、静電気力 \(F_\mathrm E\)、ばねの力、重力の3つがはたらきます。ばねの長さは \(x_0\) なので、自然長からの伸びは \(x_0-L\) です。ばねの力は伸びと逆向きなので \(-k(x_0-L)\) です。</p>
+<p class="law">力のつり合い（上向きを正）</p>
+$$\cfrc{-\frac{\varepsilon_0SV^2}{2x_0^{\,2}}}\cfr{-k(x_0-L)}\cgrav{-mg}=0$$
+<p>静電気力も重力も下向きなので、ばねは縮んでいて（\(x_0\lt L\)）、上向きに押し上げています。</p>
+<div class="box"><b>式の立て方</b>：ばねの力は、伸び縮みの向きを考えずに「\(-k\times\)（いまの長さ − 自然長）」と符号つきで書くと、縮んでいる場合も自動で正しい向きになります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：上向きのオレンジの矢印（ばね）の長さが、下向きの赤（静電気力）と緑（重力）の合計に等しくなっています。右下の棒グラフでも合計が 0 です。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>⒞　P₂ を x で静止させる手の力 F<span class="ans">答 (ア) \(k-\dfrac{\varepsilon_0SV^2(x+x_0)}{2x_0^{\,2}x^2}\)</span></summary><div class="body">
+<p>電池はつながったままなので、間隔が \(x\) になると電気量は \(\frac{\varepsilon_0SV}{x}\) に変わり、静電気力は \(-\dfrac{\varepsilon_0SV^2}{2x^2}\) になります。</p>
+<p class="law">力のつり合い（位置 x，手の力 F を加える）</p>
+$$\cfic{F}-\frac{\varepsilon_0SV^2}{2x^2}-k(x-L)-mg=0$$
+<p>⒝ の式を引くと、わからない \(L\) と \(mg\) が消えます。</p>
+$$\cfic{F}=k(x-x_0)+\frac{\varepsilon_0SV^2}{2}\Bigl(\frac1{x^2}-\frac1{x_0^{\,2}}\Bigr)$$
+<p>\(\dfrac1{x^2}-\dfrac1{x_0^{\,2}}=-\dfrac{(x-x_0)(x+x_0)}{x^2x_0^{\,2}}\) なので、\((x-x_0)\) でくくれます。</p>
+$$\cfic{F}=(x-x_0)\Bigl\{k-\frac{\varepsilon_0SV^2(x+x_0)}{2x_0^{\,2}x^2}\Bigr\}$$
+<div class="box"><b>式の立て方</b>：同じ物体の2つの状態でつり合いの式を立て、引き算して「共通で変わらない力」（ここでは \(mg\) と \(kL\)）を消します。\(x=x_0\) で \(F=0\) になるはずなので、\((x-x_0)\) でくくれることが検算になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：P₂ をゆっくり上下させています。紫の矢印（手の力）の向きと長さが、右上のグラフの点の高さ（\(F\) の値）と対応しています。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>⒟　F = 0 となるもう1つの位置 x₁<span class="ans">答 (イ) \(\dfrac{\varepsilon_0SV^2}{4kx_0^{\,2}}\)　(ウ) \(1+\dfrac{8kx_0^{\,3}}{\varepsilon_0SV^2}\)</span></summary><div class="body">
+<p>⒞ の { } の中が 0 になる位置を探します。両辺に \(2x_0^{\,2}x^2\) をかけて整理すると、2次方程式になります。</p>
+<p class="law">F = 0 の条件（{ } の中 = 0）</p>
+$$2kx_0^{\,2}x^2-\varepsilon_0SV^2x-\varepsilon_0SV^2x_0=0$$
+<p class="law">解の公式（x > 0 の解）</p>
+$$\cfic{x_1}=\frac{\varepsilon_0SV^2}{4kx_0^{\,2}}\Bigl(1+\sqrt{1+\frac{8kx_0^{\,3}}{\varepsilon_0SV^2}}\Bigr)$$
+<p>定数項が負なので2つの解は異符号で、正の解は1つだけです。</p>
+<h3>補足：x₁ &lt; x₀ となる条件</h3>
+<p>静電気力の強さを \(a=\dfrac{\varepsilon_0SV^2}{2kx_0^{\,3}}\) とおくと \(\dfrac{x_1}{x_0}=\dfrac a2\bigl(1+\sqrt{1+\frac4a}\bigr)\) で、\(x_1\lt x_0\) となるのは \(a\lt \frac12\) のときです。設定のスライダーはこの \(a\) です。</p>
+<div class="box"><b>式の立て方</b>：分数を含む式が 0 になる条件は、分母を払って多項式にしてから考えます。答えの形 \(\square\times(1+\sqrt{\square})\) に合わせて、解の公式の分子分母を整理します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：グラフの \(F=0\) の点が2つ（\(x_1\) と \(x_0\)）あります。\(a\) を大きくすると \(x_1\) が \(x_0\) に近づき、\(a=0.5\) で重なります。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-I5"><summary>⒠　F のグラフの形<span class="ans">答 ⑦</span></summary><div class="body">
+<p>\(F=(x-x_0)\times\dfrac{g(x)}{2x_0^{\,2}x^2}\)、\(g(x)=2kx_0^{\,2}x^2-\varepsilon_0SV^2x-\varepsilon_0SV^2x_0\) と書くと、\(g(x)\) は \(x_1\) より左で負、右で正です。符号を表にすると</p>
+<p class="law">符号の表</p>
+$$\begin{array}{c|ccc}&0\lt x\lt x_1&x_1\lt x\lt x_0&x_0\lt x\\\hline x-x_0&-&-&+\\g(x)&-&+&+\\F&+&-&+\end{array}$$
+<p>さらに、\(x\to0\) では静電気力が \(\frac1{x^2}\) で大きくなるので \(F\to+\infty\)、\(x\) が大きいと静電気力が効かなくなり \(F\) は直線 \(k(x-x_0)\) に近づきます。この4つの特徴をすべて満たすのは ⑦ です。</p>
+<div class="box"><b>式の立て方</b>：グラフを選ぶ問題では、(1) 0 になる点、(2) 区間ごとの符号、(3) 端（\(x\to0\)、\(x\to\infty\)）でのふるまい、の3つを調べれば形が決まります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右上のグラフで、点線の直線が \(x\) の大きいところでの近づき先です。\(x_1\) と \(x_0\) の間だけ \(F\) が負（グラフが横軸の下）になっています。</div>
+<button class="goto" data-q="I5">この状況にする</button>
+</div></details>
+
+<details id="d-I6"><summary>⒡　x₁ &lt; x &lt; x₀ で手を放した直後のふるまい<span class="ans">答 ①（x₀ に向かって動き始める）</span></summary><div class="body">
+<p>この範囲では、止めておくのに必要な手の力が \(F\lt 0\)、つまり下向きです。手を放すと、残りの3つの力の合力は \(-F>0\)（上向き）になります。</p>
+<p class="law">手を放した直後の運動方程式</p>
+$$m\,a=-\cfic{F}>0$$
+<p>P₂ は上向き、つまり \(x_0\) に向かって動き始めます。</p>
+<h3>着眼点：x₀ は安定、x₁ は不安定</h3>
+<p>\(x_0\) より少し上では \(F>0\)（手で上に支える必要がある）なので、放すと下に戻されます。少し下では上に戻されます。どちらにずれても戻されるので \(x_0\) は安定なつり合いです。逆に \(x_1\) のまわりでは、ずれた向きにさらに押されるので不安定です。\(x_1\) より下で放すと、静電気力に負けて P₁ に引き寄せられてしまいます。</p>
+<div class="box"><b>式の立て方</b>：「つり合いに必要な外力 \(F\)」がわかれば、外力を取り去ったときの合力は \(-F\) です。\(F\) のグラフが右上がりに横軸を横切る点が安定なつり合いの位置です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：設定の「手を放す位置」を変えてみましょう。\(x_1\) と \(x_0\) の間や \(x_0\) の少し上で放すと \(x_0\) のまわりで振動し、\(x_1\) より下で放すと P₁ に引き寄せられます。\(x_0\) よりずっと上で放すと、勢いがつきすぎて \(x_1\) を越え、やはり引き寄せられます。</div>
+<button class="goto" data-q="I6">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>⒢　操作1で R₁ に発生するジュール熱<span class="ans">答 \(\dfrac12CV^2\)</span></summary><div class="body">
+<p>S₂ が開いているので、電流は「電池 → R₁ → C」の道だけを流れ、十分に時間がたつと C の電圧は \(V\)、電気量は \(Q=CV\) になります。</p>
+<p class="law">電池がした仕事（電気量 × 起電力）</p>
+$$W=QV=CV^2$$
+<p class="law">静電エネルギー</p>
+$$U_0=\frac12CV^2$$
+<p class="law">エネルギー保存則（電池の仕事 ＝ 静電エネルギー ＋ ジュール熱）</p>
+$$\cfr{J_1}=W-U_0=\frac12CV^2$$
+<p>電池がした仕事のちょうど半分が熱になります。\(R_1\) の値によらず、\(R_1\) が小さいと大きな電流が短い時間流れ、大きいと小さな電流が長く流れて、熱の合計は同じです。</p>
+<div class="box"><b>式の立て方</b>：抵抗の熱は \(\int RI^2\,dt\) を計算せず、「電池の仕事 − 静電エネルギーの増加」で求めます。電池の仕事は「通した電気量 × 起電力」です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右下の棒グラフで、電池の仕事（灰）が C の静電エネルギー（青）と R₁ の熱（オレンジ）に半分ずつ分かれていきます。\(R_1\) を変えても最後の高さは変わりません。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>⒣　操作2の後のコンデンサーの静電エネルギー<span class="ans">答 \(\dfrac12C\Bigl(\dfrac{R_2}{R_1+R_2}V\Bigr)^2\)</span></summary><div class="body">
+<p>十分に時間がたつと C には電流が流れず、電流は R₁ と R₂ を直列に流れます。C は R₂ と並列なので、C の電圧は R₂ の電圧に等しくなります。</p>
+<p class="law">キルヒホッフの第2法則（電池 → R₁ → R₂）</p>
+$$V=(R_1+R_2)I\qquad\therefore\ I=\frac{V}{R_1+R_2}$$
+<p class="law">並列の電圧と静電エネルギー</p>
+$$V_\mathrm C=R_2I=\frac{R_2}{R_1+R_2}V,\qquad\cacc{U}=\frac12CV_\mathrm C^{\,2}=\frac12C\Bigl(\frac{R_2}{R_1+R_2}V\Bigr)^2$$
+<div class="box"><b>式の立て方</b>：「十分に時間がたった後」のコンデンサーは電流 0 の断線として扱い、残った抵抗だけの回路で電流と電圧を求めます。コンデンサーの電圧は、並列につながった部分の電圧と同じです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：S₂ を閉じると C の電圧（青い線）が \(V\) から \(\frac{R_2}{R_1+R_2}V\)（点線）まで下がります。\(R_2\) を小さくすると下がり方が大きくなります。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>⒤　操作1〜4での R₂ の電流 I の変化と最大値<span class="ans">答 ⑧，最大値 \(\dfrac{V}{R_2}\)</span></summary><div class="body">
+<p>どの操作でも、切りかえた瞬間のコンデンサーの電圧は直前の値のままです（電気量は瞬間的には変われないため）。これを使って、各操作の直後と十分に時間がたった後を調べます。</p>
+<p class="law">操作1（S₂ 開）</p>
+<p>R₂ には電流が流れず \(I=0\)。C は \(V\) まで充電されます。</p>
+<p class="law">操作2（S₂ を閉じる）</p>
+$$\text{直後：}\ \cacc{I}=\frac{V}{R_2},\qquad\text{十分後：}\ \cacc{I}=\frac{V}{R_1+R_2}$$
+<p>閉じた瞬間、R₂ には C の電圧 \(V\) がかかるので大きな電流が流れ、C が放電して減っていきます。</p>
+<p class="law">操作3（S₁ を開く）</p>
+$$\text{直後：}\ \cacc{I}=\frac{V_\mathrm C}{R_2}=\frac{V}{R_1+R_2},\qquad\text{十分後：}\ \cacc{I}=0$$
+<p>C だけが R₂ を通して放電します。電流の向きは同じ（正）で、連続的に 0 まで減ります。</p>
+<p class="law">操作4（S₁ を閉じる）</p>
+$$\text{直後：}\ \cacc{I}=0,\qquad\text{十分後：}\ \cacc{I}=\frac{V}{R_1+R_2}$$
+<p>C の電圧は 0 なので、並列の R₂ の電圧も 0 から始まり、C の充電とともに増えます。</p>
+<p>「0 → 跳び上がって減る → なめらかに 0 へ → なめらかに増える」の形は ⑧ で、最大値は操作2の直後の \(\dfrac V{R_2}\) です。</p>
+<div class="box"><b>式の立て方</b>：スイッチの切りかえでは、(1) 直後はコンデンサーを「直前と同じ電圧の電池」、(2) 十分後は「断線」として扱い、それぞれキルヒホッフの法則を立てます。電流が跳ぶのは抵抗の電圧が跳ぶところだけです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右上のグラフに \(I\) が描かれます。操作2の直後だけ電流が跳び上がり、操作3と4では跳ばずになめらかに変化します。\(R_1\)、\(R_2\) を変えると高さと減り方（時定数）が変わっても、形は ⑧ のままです。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const st={q:"I1",a:0.25,xr:0.75,V:10,r1:1,r2:2,spd:1};
+const SL=[
+ ["a","a","静電気力の強さ ε₀SV²/(2kx₀³)","",0.05,0.45,0.01,2,"I"],
+ ["xr","x/x₀","手を放す位置","",0.1,1.8,0.01,2,"I6"],
+ ["V","V","電池の電圧","V",2,20,1,0,"II"],
+ ["r1","R₁","抵抗 R₁","kΩ",0.5,4,0.1,1,"II"],
+ ["r2","R₂","抵抗 R₂","kΩ",0.5,4,0.1,1,"II"],
+ ["spd","","再生速度","倍",0.2,3,0.05,2,"all"]];
+const NAMES={FE:"静電気力 F_E（下向き）",Fs:"ばねの力",mg:"重力 mg",F:"手の力 F",x:"P₂ の位置 x",x0:"つり合いの位置 x₀",x1:"もう1つの位置 x₁",E1:"P₁ がつくる電場",Q2:"P₂ の電気量",asym:"近づく直線 F = k(x − x₀)",I:"R₂ の電流 I",VC:"コンデンサーの電圧 V_C",W:"電池がした仕事",J1:"R₁ のジュール熱",U:"静電エネルギー"};
+const QDEF={I1:{spd:1},I2:{spd:1},I3:{spd:1},I4:{spd:1},I5:{spd:1},I6:{spd:1,xr:0.75},II1:{spd:1},II2:{spd:1},II3:{spd:1}};
+const cv=mkCv($("#cv"),n=>n?[480,1040]:[1000,600]);
+const MG=0.3,Cc=1e-3;let lastQ="",S={},R={};
+const fF=x=>(x-1)*(1-st.a*(x+1)/(x*x));// hand force / (k x0), x in units of x0
+const x1f=()=>st.a/2*(1+Math.sqrt(1+4/st.a));
+const Lnat=()=>1+MG+st.a;
+const isB=()=>part()==="II";
+/* ---------- simulation ---------- */
+function simulate(){const q=st.q;
+ if(q==="I6"){const h=[];let x=st.xr,v=0,t=0,dt=0.004,hold=1.0,stuck=false;h.push({t:0,x,v});
+  const acc=x=>-fF(x);while(t<26){if(t>=hold){const k1=acc(x),k2=acc(x+v*dt/2),k3=acc(x+(v+k1*dt/2)*dt/2),k4=acc(x+(v+k2*dt/2)*dt);const nx=x+dt*(v+dt*(k1+k2+k3)/6);v+=dt*(k1+2*k2+2*k3+k4)/6;x=nx;if(x<0.06){x=0.06;v=0;stuck=true}}
+   t+=dt;if(Math.round(t/dt)%5===0)h.push({t,x,v});if(stuck&&t>hold+0.5)break}
+  return{mode:"rel",h,hold,tEnd:h[h.length-1].t,stuck}}
+ if(isB()){const R1=st.r1*1e3,R2=st.r2*1e3,V=st.V,Lseg=6*Math.max(R1,R2,R1*R2/(R1+R2))*Cc,nseg=q==="II1"?1:q==="II2"?2:4,dt=Lseg/3000,h=[];
+  let VC=0,t=0,W=0,J1=0,J2=0;for(let sgi=0;sgi<nseg;sgi++){const s1=sgi!==2,s2=sgi>=1;const g=(s1?1/R1:0)+(s2?1/R2:0),Vth=g?(s1?V/R1:0)/g:0,tau=g?Cc/g:1e9,ex=Math.exp(-dt/tau);for(let i=0;i<3000;i++){const I1=s1?(V-VC)/R1:0,I=s2?VC/R2:0;if(i%10===0)h.push({t,VC,I1,I,W,J1,J2,s1,s2,sg:sgi});const VN=Vth+(VC-Vth)*ex,Vm=(VC+VN)/2,I1m=s1?(V-Vm)/R1:0,Im=s2?Vm/R2:0;W+=V*I1m*dt;J1+=I1m*I1m*R1*dt;J2+=Im*Im*R2*dt;VC=VN;t+=dt}}
+  const I1=(V-VC)/R1;h.push({t,VC,I1:nseg!==3?I1:0,I:nseg>1?VC/R2:0,W,J1,J2,s1:true,s2:nseg>1,sg:nseg-1});
+  return{mode:"rc",h,Lseg,nseg,tEnd:t}}
+ return{mode:q==="I1"||q==="I2"?"static":"sweep",tEnd:q==="I1"||q==="I2"?4:12}}
+function restart(){if(st.q!==lastQ){const D=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in D)if(P[k]!==D[k])st[k]=D[k];lastQ=st.q}
+ R=simulate();S={t:0,hold:0}}
+function onParam(k){restart()}
+function step(dt){const rate=R.mode==="rc"?R.Lseg/3.2:R.mode==="rel"?2.2:1;if(S.t>=R.tEnd){S.hold+=dt;if(S.hold>(R.mode==="static"?0:1.6)){if(R.mode==="static"){S.t=0;return}restart()}return}S.t=Math.min(R.tEnd,S.t+dt*rate)}
+function curA(){if(R.mode==="sweep"){const u=S.t/R.tEnd,x=1.15+0.95*Math.cos(2*PI*u)*-1;return{x:Math.max(0.12,1.15-0.97*Math.cos(2*PI*u)),hand:true}}
+ if(R.mode==="rel"){const h=R.h;let i=Math.min(h.length-1,Math.floor(S.t/(h[1].t||0.02)));while(i>0&&h[i].t>S.t)i--;while(i<h.length-1&&h[i+1].t<=S.t)i++;return{x:h[i].x,hand:S.t<R.hold,v:h[i].v}}
+ return{x:1,hand:false}}
+const PI=Math.PI;
+function curB(){const h=R.h,dtp=h[1].t-h[0].t;let i=Math.min(h.length-1,Math.max(0,Math.round(S.t/dtp)));while(i>0&&h[i].t>S.t)i--;while(i<h.length-1&&h[i+1].t<=S.t)i++;return h[i]}
+/* ---------- part A drawing ---------- */
+function drawPlates(c,B){const n=cv.narrow,p=curA(),x=p.x,a=st.a,sc=n?150:170,xc=B.x+(n?200:228),hw=n?110:120,y1=B.y+B.h-(n?70:80),Y=v=>y1-v*sc,y2=Y(x),q=st.q;
+ // ground / P1
+ rect(c,xc-hw,y1,2*hw,8,alpha(CL.mute,0.5),CL.ink,1.5);for(let xx=xc-hw;xx<xc+hw;xx+=10)line(c,[[xx,y1+8],[xx-6,y1+16]],CL.mute,1);txt(c,"P₁（固定）",xc-hw-6,y1+4,CL.ink,{s:13,al:"right"});
+ // axis
+ const ax=xc-hw-(n?36:70);arrow(c,ax,y1,ax,Y(2.15),CL.mute,1.2);txt(c,"x",ax+8,Y(2.15),CL.mute,{it:1,s:15});txt(c,"0",ax-8,y1,CL.mute,{s:12,al:"right"});
+ [[1,"x₀","x0",CL.ok],[x1f(),"x₁","x1",CL.ng],[Lnat(),"L","",CL.mute]].forEach(([v,l,k,col])=>{if(v>2.1)return;glow(c,k,col);line(c,[[ax-5,Y(v)],[ax+5,Y(v)]],col,W_(k,1.5));line(c,[[ax,Y(v)],[xc-hw,Y(v)]],alpha(col,0.35),W_(k,1),[3,4]);noglow(c);ktag(c,k,l,ax-8,Y(v),col,{s:12,al:"right"})});
+ // spring zigzag
+ const sx=xc,ny=14,pts=[];for(let i=0;i<=ny;i++){const yy=y1-(y1-y2-6)*i/ny;pts.push([sx+(i===0||i===ny?0:(i%2?14:-14)),yy])}glow(c,"Fs",CL.fr);line(c,pts,CL.fr,W_("Fs",1.6));noglow(c);
+ // field lines
+ const nf=Math.min(9,Math.round(4/x));for(let i=0;i<nf;i++){const xx=xc-hw+20+(2*hw-40)*(i+0.5)/nf;if(Math.abs(xx-sx)<20)continue;arrow(c,xx,y2+12,xx,y1-4,alpha(CL.acc,0.35),1.2)}
+ // P1 half field (I1)
+ if(q==="I1"){glow(c,"E1",CL.frc);for(let i=0;i<3;i++){const xx=xc+hw+18+i*16;arrow(c,xx,y1-60,xx,y1-8,alpha(CL.frc,HL("E1")?1:0.6),1.4);arrow(c,xx,y1+60,xx,y1+14,alpha(CL.frc,HL("E1")?1:0.6),1.4)}noglow(c);
+  for(let i=0;i<3;i++){const xx=xc-hw-18-i*16-(n?0:0);arrow(c,xx,y2-6,xx,y2-56,alpha(CL.acc,0.55),1.2,[3,3]);arrow(c,xx,y2+6,xx,y2+56,alpha(CL.acc,0.55),1.2,[3,3])}
+  txt(c,"P₁ だけの電場",xc+hw+10,y1-72,CL.frc,{s:11});txt(c,"P₂ だけの電場",xc-hw-6,y2-66,CL.acc,{s:11,al:"right"})}
+ // P2 plate
+ glow(c,"x",CL.acc);rect(c,xc-hw,y2-8,2*hw,8,alpha(CL.acc,0.35),CL.ink,W_("x",1.5));noglow(c);txt(c,"P₂",xc+hw+8,y2-10,CL.ink,{s:13,b:1});
+ const nq=Math.min(11,Math.round(5/x));for(let i=0;i<nq;i++){const xx=xc-hw+10+(2*hw-20)*(i+0.5)/nq;txt(c,"+",xx,y2+5,CL.frc,{s:12,al:"center",b:1});txt(c,"−",xx,y1-5,CL.acc,{s:12,al:"center",b:1})}
+ // wires to battery
+ const bx=xc+hw+(n?84:82),my=(y1+Y(1))/2;line(c,[[xc+hw,y2-4],[bx-20,y2-4]],CL.mute,1.3);line(c,[[bx-20,y2-4],[bx,y2-4],[bx,my-40]],CL.mute,1.3);line(c,[[bx,my+20],[bx,y1+4],[xc+hw,y1+4]],CL.mute,1.3);
+ line(c,[[bx-12,my-40],[bx+12,my-40]],CL.ink,2);line(c,[[bx-7,my-32],[bx+7,my-32]],CL.ink,4);line(c,[[bx,my-32],[bx,my-14]],CL.mute,1.3);rect(c,bx-6,my-14,12,30,CL.bg,CL.ink,1.5);txt(c,"V",bx+16,my-36,CL.ink,{it:1,s:14});txt(c,"抵抗",bx+12,my+2,CL.mute,{s:11});
+ // forces on P2
+ const fs=n?80:95,FE=-a/(x*x),Fs=Lnat()-x,F=fF(x),y0=y2-4;
+ const fa=(xx,v,col,k,lab)=>{if(Math.abs(v)*fs<3)return;const L=Math.max(-2.6,Math.min(2.6,v))*fs;karrow(c,k,xx,y0,xx,y0-L,col,2.8);ktag(c,k,lab,xx+(k==="F"?10:-6),y0-L+(L>0?-8:10),col,{s:12,al:k==="F"?"left":"right"})};
+ fa(xc-hw+30,FE,CL.frc,"FE","F_E");fa(xc-hw+75,-MG,CL.grav,"mg","mg");fa(sx+38,Fs,CL.fr,"Fs","ばね");if(p.hand)fa(xc+hw-26,F,CL.fic,"F","手の力 F");
+ if(p.hand&&R.mode!=="static"){txt(c,"✋",xc+hw-26,y2-(F>0?-26:24),CL.fic,{s:18,al:"center"})}
+ if(R.mode==="rel"){const m=S.t<R.hold?"手で支えている（放す前）":R.stuck?"P₁ に引き寄せられた（x₁ より下からは戻れない）":"手を放した";txt(c,m,B.x+4,B.y+12,R.stuck?CL.ng:CL.ink,{s:13,b:1})}
+ if(R.mode==="static")txt(c,q==="I1"?"x = x₀ で静止（スイッチは閉じている）":"手を放してもつり合っている",B.x+4,B.y+12,CL.ink,{s:13,b:1})}
+function fmin(){let m=0;for(let i=1;i<200;i++){const x=x1f()+(1-x1f())*i/200;m=Math.min(m,fF(x))}return m}
+function drawFgraph(c,B){const p=curA(),xm=2.2,yl=Math.min(-0.04,1.9*fmin()),ym=-3.2*yl,ax=axes(c,B,[0,xm],[yl,ym],{y0:0,xl:"x/x₀",xit:false,yl:"F/(kx₀)",yit:false,xt:[[2,"2x₀"]]});
+ const pts=[];for(let i=0;i<=300;i++){const x=0.05+(xm-0.05)*i/300,y=fF(x);if(y<ym*3)pts.push([ax.X(x),ax.Y(Math.min(y,ym*1.3))])}
+ c.save();c.beginPath();c.rect(B.x,B.y-4,B.w+8,B.h+8);c.clip();
+ glow(c,"asym",CL.mute);line(c,[[ax.X(0),ax.Y(-1)],[ax.X(xm),ax.Y(xm-1)]],alpha(CL.mute,0.8),W_("asym",1.3),[6,4]);noglow(c);
+ glow(c,"F",CL.fic);line(c,pts,CL.fic,W_("F",2.4));noglow(c);c.restore();
+ {const xa=Math.min(1+ym*0.85,xm-0.05);ktag(c,"asym","F → k(x − x₀)",ax.X(xa)+8,ax.Y(xa-1),CL.mute,{s:11})}
+ const x1=x1f();[[x1,"x₁","x1",CL.ng],[1,"x₀","x0",CL.ok]].forEach(([v,l,k,col])=>{glow(c,k,col);dot(c,ax.X(v),ax.Y(0),HL(k)?7:5,col,CL.bg,2);noglow(c);ktag(c,k,l,ax.X(v),ax.Y(0)-14,col,{s:12,al:"center"})});
+ if(st.q!=="I1"&&st.q!=="I2"||true){const y=fF(p.x);if(y<ym*1.05&&y>yl*1.05)dot(c,ax.X(p.x),ax.Y(y),6,CL.fic,CL.bg,2)}
+ if(st.q==="I5"){[[x1/2,"F > 0"],[(x1+1)/2,"F < 0"],[1.5,"F > 0"]].forEach(([v,l],i)=>txt(c,l,ax.X(v),ax.Y(i===1?-yl*0.5:yl*0.6),i===1?CL.ng:CL.ok,{s:12,b:1,al:"center"}))}
+ txt(c,"P₂ を止めておくのに必要な手の力 F",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+function drawBars(c,B){const p=curA(),x=p.x,a=st.a,items=[["静電気力",-a/(x*x),CL.frc,"FE"],["重力",-MG,CL.grav,"mg"],["ばね",Lnat()-x,CL.fr,"Fs"],["手の力",p.hand?fF(x):0,CL.fic,"F"]];const sum=items.reduce((s,i)=>s+i[1],0);items.push(["合計",sum,CL.mute,""]);
+ const ym=1.6,y0=B.y+B.h/2,sc=B.h/2/ym,nb=items.length,bw=Math.min(50,B.w/nb*0.5);line(c,[[B.x,y0],[B.x+B.w,y0]],CL.mute,1.2);
+ items.forEach(([l,v,col,k],i)=>{const cx=B.x+B.w*(i+0.5)/nb,hh=Math.max(-ym,Math.min(ym,v))*sc;glow(c,k,col);rect(c,cx-bw/2,Math.min(y0,y0-hh),bw,Math.abs(hh),alpha(col,0.55),col,W_(k,1.2));noglow(c);txt(c,l,cx,B.y+B.h+12,CL.ink,{s:11,al:"center"});txt(c,NZ(v.toFixed(2)),cx,hh>=0?y0-hh-9:y0-hh+10,CL.ink,{s:11,al:"center"})});
+ txt(c,"P₂ にはたらく力（上向き正，単位 kx₀）",B.x-46,B.y-14,CL.ink,{s:12,b:1})}
+function drawXt(c,B){const h=R.h,ax=axes(c,B,[0,R.tEnd],[0,2.2],{xl:"t",yl:"x/x₀",yit:false,yt:[[1,"x₀"],[x1f(),"x₁"]]});
+ line(c,[[B.x,ax.Y(1)],[B.x+B.w,ax.Y(1)]],alpha(CL.ok,0.6),1,[4,3]);line(c,[[B.x,ax.Y(x1f())],[B.x+B.w,ax.Y(x1f())]],alpha(CL.ng,0.6),1,[4,3]);
+ const vis=h.filter(e=>e.t<=S.t);glow(c,"x",CL.acc);line(c,vis.map(e=>[ax.X(e.t),ax.Y(e.x)]),CL.acc,W_("x",2.2));noglow(c);
+ line(c,[[ax.X(R.hold),B.y],[ax.X(R.hold),B.y+B.h]],alpha(CL.mute,0.6),1,[3,3]);txt(c,"放す",ax.X(R.hold)+4,B.y+6,CL.mute,{s:11});
+ txt(c,"P₂ の位置の時間変化",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+/* ---------- part B drawing ---------- */
+function drawCircuit(c,B){const e=curB(),V=st.V,n=cv.narrow,s=Math.min(B.w/440,B.h/360),ox=B.x+(B.w-420*s)/2,oy=B.y+10,P=(x,y)=>[ox+x*s,oy+y*s],L=(pts,col=CL.ink,w=1.8)=>line(c,pts.map(p=>P(...p)),col,w);
+ const yt=40,yb=330,xb=50,xn=230,xc=360;
+ L([[xb,yb],[xb,230]]);L([[xb,200],[xb,150]]);L([[xb,110],[xb,yt],[110,yt]]);L([[190,yt],[xc,yt],[xc,170]]);L([[xc,190],[xc,yb],[xb,yb]]);L([[xn,yt],[xn,100]]);L([[xn,135],[xn,170]]);L([[xn,250],[xn,yb]]);
+ [[xn,yt],[xn,yb]].forEach(p=>{const q=P(...p);dot(c,q[0],q[1],3.2,CL.ink)});
+ // battery
+ const b1=P(xb-18,200),b2=P(xb+18,200),b3=P(xb-10,214),b4=P(xb+10,214);line(c,[b1,b2],CL.ink,2);line(c,[b3,b4],CL.ink,4);L([[xb,214],[xb,230]]);txt(c,"V",P(xb-26,207)[0],P(0,207)[1],CL.ink,{s:15,it:1,al:"right"});
+ // switches (vertical)
+ const vsw=(x,y1,y2,closed,lab)=>{const a=P(x,y1),b=P(x,y2);dot(c,a[0],a[1],3.5,CL.bg,CL.ink,1.5);dot(c,b[0],b[1],3.5,CL.bg,CL.ink,1.5);line(c,[b,closed?a:[b[0]-18*s,a[1]+6*s]],closed?CL.ink:CL.mute,2.2);txt(c,lab,a[0]-12,(a[1]+b[1])/2,CL.ink,{s:13,al:"right"})};
+ vsw(xb,110,150,e.s1,"S₁");vsw(xn,100,135,e.s2,"S₂");
+ // R1 horizontal
+ const r1a=P(110,yt-10),r1b=P(190,yt+10);rect(c,r1a[0],r1a[1],r1b[0]-r1a[0],r1b[1]-r1a[1],CL.bg,CL.ink,1.8);txt(c,`R₁ (${st.r1.toFixed(1)} kΩ)`,(r1a[0]+r1b[0])/2,r1a[1]-12,CL.ink,{s:12,al:"center"});
+ const r2a=P(xn-10,170),r2b=P(xn+10,250);glow(c,"I",CL.acc);rect(c,r2a[0],r2a[1],r2b[0]-r2a[0],r2b[1]-r2a[1],CL.bg,CL.ink,W_("I",1.8));noglow(c);txt(c,`R₂`,r2a[0]-8,(r2a[1]+r2b[1])/2-8,CL.ink,{s:13,al:"right"});txt(c,`(${st.r2.toFixed(1)} kΩ)`,r2a[0]-8,(r2a[1]+r2b[1])/2+10,CL.ink,{s:11,al:"right"});
+ arrow(c,P(xn+24,190)[0],P(0,190)[1],P(xn+24,232)[0],P(0,232)[1],CL.acc,1.6);txt(c,"I",P(xn+32,211)[0],P(0,211)[1],CL.acc,{s:14,it:1});
+ // capacitor
+ glow(c,"VC",CL.acc);line(c,[P(xc-26,170),P(xc+26,170)],CL.acc,W_("VC",3));line(c,[P(xc-26,190),P(xc+26,190)],CL.acc,W_("VC",3));noglow(c);txt(c,"C",P(xc+34,180)[0],P(0,180)[1],CL.ink,{s:14,it:1});
+ const nq=Math.round(Math.min(5,e.VC/V*5));for(let i=0;i<nq;i++){const xx=xc-18+i*9;txt(c,"+",P(xx,160)[0],P(0,160)[1],CL.frc,{s:11,al:"center"});txt(c,"−",P(xx,201)[0],P(0,201)[1],CL.acc,{s:11,al:"center"})}
+ ktag(c,"VC",`V_C = ${e.VC.toFixed(2)} V`,P(xc-30,140)[0],P(0,140)[1],CL.acc,{s:12,al:"right"});
+ // current dots
+ const flow=(pts,I,k)=>{if(Math.abs(I)<1e-7)return;const Iref=V/(Math.min(st.r1,st.r2)*1e3),sp=70*I/Iref,ps=pts.map(p=>P(...p));let tot=0;const seg=[];for(let i=0;i<ps.length-1;i++){const l=Math.hypot(ps[i+1][0]-ps[i][0],ps[i+1][1]-ps[i][1]);seg.push(l);tot+=l}
+  const gap=16,off=((S.t/R.Lseg*9*sp)%gap+gap)%gap;c.fillStyle=HL(k)?CL.frc:CL.fr;for(let d=off;d<tot;d+=gap){let r=d,i=0;while(i<seg.length&&r>seg[i]){r-=seg[i];i++}if(i>=seg.length)break;const a=ps[i],b=ps[i+1],u=r/seg[i];c.beginPath();c.arc(a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,HL(k)?4:3,0,7);c.fill()}};
+ flow([[xb,yb],[xb,yt],[xn,yt]],e.I1,"J1");flow([[xn,yt],[xn,yb]],e.I,"I");const Ic=e.I1-e.I;if(Ic>0)flow([[xn,yt],[xc,yt],[xc,170]],Ic,"VC");else flow([[xc,170],[xc,yt],[xn,yt]],-Ic,"VC");
+ const ops=["操作1：S₁ を閉じた","操作2：S₂ を閉じた","操作3：S₁ を開いた","操作4：S₁ を閉じた"];txt(c,ops[e.sg],B.x+4,B.y+B.h-6,CL.ink,{s:13,b:1})}
+function drawIt(c,B){const h=R.h,V=st.V,R1=st.r1*1e3,R2=st.r2*1e3,Im=V/R2*1000,tE=R.tEnd,showVC=st.q==="II2";
+ const ym=showVC?V*1.1:Im*1.12,ax=axes(c,B,[0,tE],[0,ym],{xl:"t",xt:[[R.Lseg,"t₁"],[2*R.Lseg,"t₂"],[3*R.Lseg,"t₃"]].filter(v=>v[0]<tE-1e-9),yl:showVC?"V_C [V]":"I [mA]",yit:false,yt:showVC?[[V,"V"],[V*R2/(R1+R2),"R₂V/(R₁+R₂)"]]:[[Im,"V/R₂"],[V/(R1+R2)*1000,"V/(R₁+R₂)"]]});
+ for(let k=1;k<R.nseg;k++)line(c,[[ax.X(k*R.Lseg),B.y],[ax.X(k*R.Lseg),B.y+B.h]],alpha(CL.mute,0.5),1,[3,3]);
+ const lv=showVC?V*R2/(R1+R2):V/(R1+R2)*1000;line(c,[[B.x,ax.Y(lv)],[B.x+B.w,ax.Y(lv)]],alpha(CL.mute,0.5),1,[2,3]);
+ const vis=h.filter(e=>e.t<=S.t);if(showVC){glow(c,"VC",CL.acc);line(c,vis.map(e=>[ax.X(e.t),ax.Y(e.VC)]),CL.acc,W_("VC",2.2));noglow(c)}else{glow(c,"I",CL.acc);line(c,vis.map(e=>[ax.X(e.t),ax.Y(e.I*1000)]),CL.acc,W_("I",2.2));noglow(c);if(st.q==="II1"){line(c,vis.map(e=>[ax.X(e.t),ax.Y(e.I1*1000)]),alpha(CL.fr,0.8),1.6,[4,3])}}
+ txt(c,showVC?"コンデンサーの電圧 V_C の時間変化":st.q==="II1"?"R₂ の電流 I（青，0 のまま）と R₁ の電流（オレンジ点線）":"R₂ の電流 I の時間変化（矢印の向きが正）",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+function drawEnB(c,B){const e=curB(),V=st.V,C=Cc,u=C*V*V,U=0.5*C*e.VC*e.VC;const items=st.q==="II1"?[["電池の仕事",e.W,CL.mute,"W"],["C の静電エネルギー",U,CL.acc,"U"],["R₁ の熱",e.J1,CL.fr,"J1"]]:[["C の静電エネルギー",U,CL.acc,"U"],["R₁ の熱",e.J1,CL.fr,"J1"],["R₂ の熱",e.J2,CL.fic,""]];
+ const mx=Math.max(u,...items.map(i=>i[1]))*1.15,nb=items.length,bw=Math.min(60,B.w/nb*0.45),ln=v=>B.y+B.h-B.h*v/mx;
+ line(c,[[B.x,ln(u/2)],[B.x+B.w,ln(u/2)]],alpha(CL.mute,0.6),1,[4,4]);txt(c,"CV²/2",B.x+2,ln(u/2)-9,CL.mute,{s:11});line(c,[[B.x,ln(u)],[B.x+B.w,ln(u)]],alpha(CL.mute,0.4),1,[2,4]);txt(c,"CV²",B.x+2,ln(u)-9,CL.mute,{s:11});
+ if(st.q==="II2"){const R1=st.r1,R2=st.r2,ua=0.5*C*(V*R2/(R1+R2))**2;line(c,[[B.x,ln(ua)],[B.x+B.w,ln(ua)]],alpha(CL.acc,0.6),1,[2,3]);txt(c,"答え ½C(R₂V/(R₁+R₂))²",B.x+B.w-2,ln(ua)-9,CL.acc,{s:11,al:"right"})}
+ items.forEach(([l,v,col,k],i)=>{const cx=B.x+B.w*(i+0.5)/nb,hh=B.h*v/mx;glow(c,k,col);rect(c,cx-bw/2,B.y+B.h-hh,bw,hh,alpha(col,0.55),col,W_(k,1.2));noglow(c);txt(c,l,cx,B.y+B.h+13,CL.ink,{s:11,al:"center"});txt(c,(v/u).toFixed(3),cx,B.y+B.h-hh-9,CL.ink,{s:11,al:"center"})});
+ line(c,[[B.x,B.y+B.h],[B.x+B.w,B.y+B.h]],CL.mute,1.2);txt(c,"エネルギー（単位 CV²）",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+function drawAll(){const c=begin(cv),W=cv.W,n=cv.narrow,q=st.q;
+ if(!isB()){const BP=n?{x:0,y:20,w:W,h:470}:{x:10,y:20,w:470,h:560},G1=n?{x:60,y:560,w:W-100,h:220}:{x:560,y:52,w:W-600,h:240},G2=n?{x:60,y:840,w:W-100,h:160}:{x:560,y:370,w:W-600,h:190};
+  drawPlates(c,BP);drawFgraph(c,G1);if(R.mode==="rel")drawXt(c,G2);else drawBars(c,G2)}
+ else{const BC=n?{x:0,y:10,w:W,h:430}:{x:10,y:40,w:480,h:520},G1=n?{x:60,y:510,w:W-100,h:220}:{x:570,y:52,w:W-610,h:230},G2=n?{x:60,y:810,w:W-100,h:180}:{x:570,y:360,w:W-610,h:200};
+  drawCircuit(c,BC);drawIt(c,G1);if(q==="II3")drawIt2(c,G2);else drawEnB(c,G2)}}
+function drawIt2(c,B){const h=R.h,V=st.V,ax=axes(c,B,[0,R.tEnd],[0,V*1.1],{xl:"t",yl:"V_C [V]",yit:false,yt:[[V,"V"]],xt:[[R.Lseg,"t₁"],[2*R.Lseg,"t₂"],[3*R.Lseg,"t₃"]]});
+ const vis=h.filter(e=>e.t<=S.t);glow(c,"VC",CL.acc);line(c,vis.map(e=>[ax.X(e.t),ax.Y(e.VC)]),CL.acc,W_("VC",2),[5,3]);noglow(c);txt(c,"コンデンサーの電圧 V_C（I = V_C / R₂）",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+/* ---------- live equations ---------- */
+function eqs0(){const q=st.q,r=String.raw,f=(x,k=3)=>x.toFixed(k),a=st.a;
+ const FE=TK("FE","frc",r`F_\mathrm E`),Fh=TK("F","fic","F"),Fs=TK("Fs","fr",r`k(x_0-L)`),mg=TK("mg","grav","mg");
+ if(!isB()){const p=curA(),x=p.x,x1=x1f();
+ if(q==="I1")return{title:"Q = CV と P₁ がつくる電場（半分）",list:[{t:TK("Q2","frc",r`Q_2`)+r`=\frac{\varepsilon_0S}{x_0}V,\quad `+TK("E1","frc",r`E_1`)+r`=\frac{Q_1}{2\varepsilon_0S}=-\frac{V}{2x_0}`,n:""},{t:FE+r`=Q_2E_1=-\frac{\varepsilon_0SV^2}{2x_0^{\,2}}`,n:`F_E = ${NS(f(-a,3),"frc")} kx₀（a = ε₀SV²/(2kx₀³) = ${f(a,2)}）`}]};
+ if(q==="I2")return{title:"力のつり合い（上向き正）",list:[{t:TK("FE","frc",r`-\frac{\varepsilon_0SV^2}{2x_0^{\,2}}`)+"-"+Fs+"-"+mg+"=0",n:`${NS(f(-a,2),"frc")} + ${NS(f(Lnat()-1,2),"fr")} − ${NS(f(MG,2),"grav")} = 0（単位 kx₀）`}]};
+ const xx=TK("x","acc","x");
+ if(q==="I3")return{title:"位置 x でのつり合い − x₀ でのつり合い",list:[{t:Fh+r`-\frac{\varepsilon_0SV^2}{2`+xx+r`^2}-k(`+xx+r`-L)-mg=0`,n:""},{t:Fh+"=("+xx+r`-x_0)\Bigl\{k-\frac{\varepsilon_0SV^2(`+xx+r`+x_0)}{2x_0^{\,2}`+xx+r`^2}\Bigr\}`,n:`x = ${f(x,2)}x₀ → F = ${NS(f(fF(x),3),"fic")} kx₀`}]};
+ if(q==="I4")return{title:"F = 0（{ } の中 = 0）→ 2次方程式",list:[{t:r`2kx_0^{\,2}x^2-\varepsilon_0SV^2x-\varepsilon_0SV^2x_0=0`,n:""},{t:TK("x1","ng",r`x_1`)+r`=\frac{\varepsilon_0SV^2}{4kx_0^{\,2}}\Bigl(1+\sqrt{1+\frac{8kx_0^{\,3}}{\varepsilon_0SV^2}}\Bigr)`,n:`x₁ = ${NS(f(x1,3),"ng")} x₀（a = ${f(a,2)}，x₁ < x₀ は a < 0.5）`}]};
+ if(q==="I5")return{title:"符号と端のふるまいで形を決める",list:[{t:r`x\to0:\ `+Fh+r`\to+\infty,\quad x\to\infty:\ `+Fh+r`\to`+TK("asym","mute",r`k(x-x_0)`),n:""},{t:r`0<x<x_1:\ F>0,\quad x_1<x<x_0:\ F<0,\quad x_0<x:\ F>0`,n:`いま x = ${f(x,2)}x₀：F = ${NS(f(fF(x),3),"fic")} kx₀ → 答え ⑦`}]};
+ const xr=st.xr,Fr=fF(xr);return{title:"手を放すと合力は −F",list:[{t:r`ma=-`+Fh+r`\ \Rightarrow\ `+(Fr<0?r`a>0\ (\text{上向き：}x_0\text{ へ})`:Fr>0?r`a<0\ (\text{下向き})`:r`a=0`),n:`放す位置 ${f(xr,2)}x₀：F = ${NS(f(Fr,3),"fic")} kx₀ → ${R.stuck?(xr<x1?'<span class="ng">x₁ より下：P₁ に引き寄せられる</span>':'<span class="ng">勢いがつきすぎて x₁ を越え、P₁ に引き寄せられる</span>'):xr<1?'<span class="ok">x₀ へ向かって動き、x₀ のまわりで振動</span>':'下向き（x₀ の向き）に動き、x₀ のまわりで振動'}`}]}}
+ const e=curB(),V=st.V,R1=st.r1,R2=st.r2,I=TK("I","acc","I");
+ if(q==="II1")return{title:"エネルギー保存則（電池の仕事 = 静電エネルギー + ジュール熱）",list:[{t:TK("W","mute","W")+r`=QV=CV^2,\quad `+TK("U","acc",r`U_0`)+r`=\frac12CV^2`,n:""},{t:TK("J1","fr",r`J_1`)+r`=W-U_0=\frac12CV^2`,n:`いま：熱 ${NS(f(e.J1/(Cc*V*V),3),"fr")} CV²（0.5 に近づく）`}]};
+ if(q==="II2")return{title:"十分後：C は断線、R₁ と R₂ の直列",list:[{t:TK("VC","acc",r`V_\mathrm C`)+r`=\frac{R_2}{R_1+R_2}V,\quad `+TK("U","acc","U")+r`=\frac12C\Bigl(\frac{R_2}{R_1+R_2}V\Bigr)^2`,n:`V_C = ${NS(f(e.VC,3),"acc")} V（答え ${f(V*R2/(R1+R2),3)} V）`}]};
+ return{title:"切りかえ直後は「C の電圧が同じ」",list:[{t:r`\text{操作2直後：}`+I+r`=\frac{V}{R_2},\quad \text{操作3直後：}`+I+r`=\frac{V}{R_1+R_2},\quad \text{操作4直後：}`+I+"=0",n:`いま I = ${NS(f(e.I*1000,3),"acc")} mA（最大 V/R₂ = ${f(V/R2,3)} mA）`}]}}
+function eqs(){const E=eqs0();if(cv.narrow)E.list.forEach(e=>{e.t=e.t.replace(/\\ \\Rightarrow\\ |\\qquad |,\\quad /g,m=>"\\\\"+(m.includes("Rightarrow")?"\\Rightarrow ":""))});return E}
+function note(){return isB()?`C = 1 mF。各操作の間は「十分に時間がたつ」ように、時定数の6倍の時間をとっています。`:`前半は長さを x₀、力を kx₀ を単位にしています（重力 mg = 0.3kx₀ とした例）。a < 0.5 のとき x₁ < x₀ になります。`}
+function readout(){const f=(x,k=3)=>x.toFixed(k);if(!isB()){const p=curA(),x=p.x,a=st.a,r=[["P₂ の位置 x",f(x)+" x₀"],["静電気力 F_E",f(-a/(x*x))+" kx₀"],["ばねの力",f(Lnat()-x)+" kx₀"],["重力",f(-MG)+" kx₀"],["手の力 F",p.hand?f(fF(x))+" kx₀":"0（手を放している）"],["x₁ の位置",f(x1f())+" x₀"]];return r}
+ const e=curB(),V=st.V,R1=st.r1,R2=st.r2;return[["時刻 t",f(e.t,2)+" s"],["R₂ の電流 I",f(e.I*1000)+" mA"],["R₁ の電流",f(e.I1*1000)+" mA"],["C の電圧 V_C",f(e.VC)+" V"],["C の静電エネルギー",f(0.5*Cc*e.VC*e.VC*1000)+" mJ"],["R₁ のジュール熱",f(e.J1*1000)+" mJ（CV²/2 = "+f(0.5*Cc*V*V*1000)+"）"],["V/R₂ ／ V/(R₁+R₂)",f(V/R2)+" ／ "+f(V/(R1+R2))+" mA"]]}
+initUI("I1");
+}
+</script>
+</body>
+</html>

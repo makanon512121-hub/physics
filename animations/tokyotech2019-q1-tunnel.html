@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>地球を貫くトンネル：万有引力による単振動・衝突・摩擦</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>地球を貫くトンネル：万有引力による単振動・衝突・摩擦（東京科学大学（旧 東京工業大学） 2019年 第1問）</h1>
+<p class="lead">地球の2点 A・B を結ぶまっすぐなトンネルの中を、小物体が万有引力だけで行き来します。地球の内部では「自分より内側の球の質量」だけが引力に効くので、引力は中心からの距離に比例し、トンネル方向の成分は単振動の復元力になります。後半は中央に置いたもう1つの物体との衝突、トンネルの底との摩擦がある場合を、位置のグラフ・位相図・力のグラフで確かめます。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="地球の断面とトンネルの中を動く小物体、位置と力のグラフ"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">⒜ 万有引力と x 成分</button>
+<button class="qb" data-q="I2">⒝ A → B の時間</button>
+<button class="qb" data-q="I3">⒞ 衝突直前の v<sub>P</sub></button>
+<button class="qb" data-q="I4">⒟ 衝突直後の速度</button>
+<button class="qb" data-q="I5">⒠ 折り返す位置</button>
+<button class="qb" data-q="I6">⒡ 2回目の衝突</button>
+<button class="qb" data-q="II1">⒢ 垂直抗力 N</button>
+<button class="qb" data-q="II2">⒣ 摩擦係数 μ′ と μ</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。A から B の向きを <span class="v">x</span> の正、トンネルの中点を原点 O とします。式を短くするため \(k=\dfrac{4\pi\rho Gm}{3}\) とおきます。図の色：<span class="t-acc">小物体 P（青）</span>、<span class="t-fic">小物体 Q（紫）</span>、<span class="t-grav">万有引力（緑）</span>、<span class="t-frc">垂直抗力（赤）</span>、<span class="t-fr">摩擦力（オレンジ）</span>。</p>
+
+<details id="d-I1"><summary>⒜　位置 x での万有引力の大きさと x 成分<span class="ans">答 大きさ \(\dfrac{4\pi\rho Gm}{3}\sqrt{x^2+d^2}\)，x 成分 \(-\dfrac{4\pi\rho Gm}{3}x\)</span></summary><div class="body">
+<p>地球の中心 O′ から P までの距離を \(r\) とすると、三平方の定理より \(r=\sqrt{x^2+d^2}\) です。問題文のとおり、P を引くのは「半径 \(r\) の球の部分」だけで、その外側の殻からの引力は打ち消し合います。</p>
+<p class="law">半径 r の球の質量（密度 × 体積）</p>
+$$M(r)=\rho\cdot\frac43\pi r^3$$
+<p class="law">万有引力の法則（質量 M(r) が中心 O′ に集まったとみなす）</p>
+$$\cgrav{F}=G\frac{mM(r)}{r^2}=\frac{4\pi\rho Gm}{3}\,r\nobreak=\frac{4\pi\rho Gm}{3}\sqrt{x^2+d^2}$$
+<p>引力は O′ の向きです。O′ から P へのベクトルは \((x,\,d)\) の向きなので、x 成分は大きさに \(-\dfrac{x}{r}\) をかけたものです。</p>
+<p class="law">力の分解（x 成分）</p>
+$$\cacc{F_x}=-F\cdot\frac{x}{r}=-\frac{4\pi\rho Gm}{3}\,x=-kx$$
+<h3>着眼点：引力は「中心からの距離に比例」</h3>
+<p>地表の外では引力は \(1/r^2\) で弱まりますが、地球の内部では、効く質量が \(r^3\) に比例して減るため、引力は \(r\) に比例します。中心ではちょうど 0 です。外側の殻の引力が打ち消し合うことは、電場のガウスの法則（球対称な電荷の内側では外側の殻の電荷が効かない）と同じしくみです。</p>
+<div class="box"><b>式の立て方</b>：(1) 効く質量 \(M(r)\) を密度 × 体積で求め、(2) 万有引力の法則で大きさを出し、(3) 図の直角三角形の辺の比で x 成分に分けます。分けるときは「向き」を符号で表すのを忘れずに。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：緑の破線の円が「効く球」です。P が中心に近づくほど円が小さくなり、緑の矢印（引力）も短くなります。右下のグラフでは、大きさ（緑）は曲線ですが、x 成分（青）はまっすぐな直線です。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>⒝　A で放してから B に着くまでの時間<span class="ans">答 \(\dfrac12\sqrt{\dfrac{3\pi}{\rho G}}\)</span></summary><div class="body">
+<p>トンネルに垂直な方向は壁が支えるので、動きに関係するのは x 成分だけです。加速度を \(a\) とします。</p>
+<p class="law">運動方程式（x 方向）</p>
+$$m\,\cacc{a}=-\frac{4\pi\rho Gm}{3}\,x$$
+<p>加速度が変位に比例して逆向きなので、O を中心とする単振動です。\(a=-\omega^2x\) と比べて</p>
+$$\omega=\sqrt{\frac{4\pi\rho G}{3}},\qquad T_0=\frac{2\pi}{\omega}=\sqrt{\frac{3\pi}{\rho G}}$$
+<p>A から B までは振動の半周期なので、かかる時間は</p>
+$$T=\frac{T_0}{2}=\frac12\sqrt{\frac{3\pi}{\rho G}}$$
+<h3>着眼点：トンネルの位置によらない</h3>
+<p>答えに \(d\) も \(R\) も入っていません。地球のどの2点をトンネルで結んでも、A → B の時間は同じです。地球の平均密度 \(\rho\fallingdotseq5.5\ \mathrm{g/cm^3}\) を入れると約 42 分になります。トンネルが長いと振幅が大きいぶん速くなり、ちょうど打ち消し合います。</p>
+<div class="box"><b>式の立て方</b>：単振動の問題では、運動方程式を \(ma=-(\text{定数})\times x\) の形に整理し、\(\omega=\sqrt{\text{定数}/m}\) を読み取ります。片道は半周期、中心までは 1/4 周期です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：うすく描いた別のトンネルの点も同時に放しています。長さの違うトンネルでも、すべての点が同時に反対側に着きます。\(\rho\) を変えると時間が変わり、\(d/R\) を変えても変わりません。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>⒞　1回目の衝突直前の P の速度 v<sub>P</sub><span class="ans">答 \(v_\mathrm P=2\sqrt{\dfrac{\pi\rho G(R^2-d^2)}{3}}\)</span></summary><div class="body">
+<p>A は地表の点なので、O′ からの距離は \(R\) です。よって OA の長さ（振幅）は \(A=\sqrt{R^2-d^2}\) です。x 方向の力 \(-kx\) は、ばね定数 \(k\) のばねと同じ形なので、位置エネルギー \(\frac12kx^2\) を使えます。</p>
+<p class="law">力学的エネルギー保存則（A と O）</p>
+$$\frac12m\,\cacc{v_\mathrm P}^2=\frac12k\,A^2$$
+$$v_\mathrm P=A\sqrt{\frac km}=A\,\omega\nobreak=2\sqrt{\frac{\pi\rho G(R^2-d^2)}{3}}$$
+<p>Q はまだ止まっていて、P は右向き（＋）に進んでいるので、速度は正です。</p>
+<div class="box"><b>式の立て方</b>：単振動の中心での速さは「振幅 × 角振動数」\(v=A\omega\) で、エネルギー保存から出しても同じです。どちらでも求められるようにしておくと検算になります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：P が O に着く直前で止まります。右下の位相図（横軸 \(x\)、縦軸 \(v/\omega\)）では、P の点が半径 \(A\) の円をえがいて、てっぺん \(v/\omega=A\) に来ています。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>⒟　1回目の衝突直後の P と Q の速度<span class="ans">答 \(v_\mathrm P'=\dfrac{1-e}{2}v_\mathrm P,\ \ v_\mathrm Q'=\dfrac{1+e}{2}v_\mathrm P\)</span></summary><div class="body">
+<p>衝突は一瞬なので、その間に万有引力がする力積は無視できます（しかも O では x 成分が 0）。</p>
+<p class="law">運動量保存則</p>
+$$m\,v_\mathrm P+m\cdot0=m\,\cacc{v_\mathrm P'}+m\,\cfic{v_\mathrm Q'}$$
+<p class="law">反発係数の式（離れる速さ ＝ e × 近づく速さ）</p>
+$$\cfic{v_\mathrm Q'}-\cacc{v_\mathrm P'}=e\,(v_\mathrm P-0)$$
+<p>2式を足したり引いたりして</p>
+$$\cacc{v_\mathrm P'}=\frac{1-e}{2}v_\mathrm P,\qquad\cfic{v_\mathrm Q'}=\frac{1+e}{2}v_\mathrm P$$
+<p>\(0\lt e\lt 1\) なので、どちらも正（右向き）です。また \(\dfrac{1+e}2\lt 1\) より \(v_\mathrm Q'\lt v_\mathrm P\) なので、Q が B を越えて地表の外へ飛び出すことはありません。</p>
+<div class="box"><b>式の立て方</b>：衝突では (1) 運動量保存、(2) 反発係数の式、の2本を立てます。反発係数は「衝突後の相対速度 ＝ −e × 衝突前の相対速度」で、引く順番（Q − P）を両辺でそろえると符号を間違えません。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：衝突の直後で止まり、うすい矢印（直前）と濃い矢印（直後）が並びます。\(e\) を 1 にすると P が止まって Q が \(v_\mathrm P\) で進み（速度の入れかえ）、0 にすると2つが \(\frac12v_\mathrm P\) で一緒に進みます。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-I5"><summary>⒠　P と Q が折り返す位置 X<sub>P</sub>，X<sub>Q</sub><span class="ans">答 \(X_\mathrm P=\dfrac{(1-e)\sqrt{R^2-d^2}}{2},\ \ X_\mathrm Q=\dfrac{(1+e)\sqrt{R^2-d^2}}{2}\)</span></summary><div class="body">
+<p>Q も P と同じ質量で、同じ万有引力 \(-kx\) を受けるので、衝突後はどちらも O を中心とする同じ角振動数 \(\omega\) の単振動をします。O での速さが振幅を決めます。</p>
+<p class="law">力学的エネルギー保存則（O と折り返し点）</p>
+$$\frac12m\,v_\mathrm P'^2=\frac12k\,\cacc{X_\mathrm P}^2,\qquad\frac12m\,v_\mathrm Q'^2=\frac12k\,\cfic{X_\mathrm Q}^2$$
+<p>⒞ の \(\frac12mv_\mathrm P^2=\frac12kA^2\) と比べると、折り返し点は速さの比で縮みます。</p>
+$$\cacc{X_\mathrm P}=\frac{v_\mathrm P'}{v_\mathrm P}A=\frac{(1-e)\sqrt{R^2-d^2}}{2},\qquad\cfic{X_\mathrm Q}=\frac{(1+e)\sqrt{R^2-d^2}}{2}$$
+<div class="box"><b>式の立て方</b>：「\(v_\mathrm P\) などを使ってはいけない」とあるので、速度の比 \(\frac{1\mp e}{2}\) を経由して \(A=\sqrt{R^2-d^2}\) で表します。単振動では「中心の速さ ∝ 振幅」なので、比だけで済みます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：折り返す瞬間で止まり、トンネル上に \(X_\mathrm P\)、\(X_\mathrm Q\) の目印が出ます。2つの和はちょうど \(A\)（OB の長さ）です。位相図では、P と Q が半径 \(X_\mathrm P\)、\(X_\mathrm Q\) の円に乗りかえています。</div>
+<button class="goto" data-q="I5">この状況にする</button>
+</div></details>
+
+<details id="d-I6"><summary>⒡　2回目の衝突の位置と、そこまでの時間<span class="ans">答 \(x=0\)（原点 O），⒝ の答の 1 倍</span></summary><div class="body">
+<p>1回目の衝突の時刻から測った時間を \(t'\) とします。P と Q は O を同時に出発し、同じ \(\omega\) で単振動するので</p>
+<p class="law">単振動の式（O から出発）</p>
+$$\cacc{x_\mathrm P}=X_\mathrm P\sin\omega t',\qquad\cfic{x_\mathrm Q}=X_\mathrm Q\sin\omega t'$$
+<p>振幅は違っても、\(\sin\omega t'=0\) となる時刻はそろっています。\(\omega t'=\pi\) で2つとも O に戻り、そこで初めて同じ位置になります（それまでは \(x_\mathrm Q>x_\mathrm P\)）。</p>
+$$x=0,\qquad\Delta t=\frac{\pi}{\omega}=\frac{T_0}{2}=T$$
+<p>つまり ⒝ の答えの 1 倍です。このとき2つは左向きに進んでいて、速い Q が遅い P に後ろから追いつく形で衝突します。</p>
+<h3>補足：衝突をくり返すと</h3>
+<p>衝突はいつも O で、半周期 \(T\) ごとに起こります。衝突のたびに相対速度は \(e\) 倍になり、運動量の和は変わらないので、2つの速度は平均の \(\frac12v_\mathrm P\) に近づき、最後は一体となって振幅 \(\frac A2\) の単振動になります。失われる力学的エネルギーは全体の半分です。</p>
+<div class="box"><b>式の立て方</b>：同じ周期の単振動が2つあるときは、まず「中心を通る時刻」が共通かどうかを見ます。振幅の違いは位置の大小に効くだけで、時刻は角振動数だけで決まります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：左上の x–t グラフで、青（P）と紫（Q）の山の高さは違っても、0 を横切る時刻がそろっています。2回目の衝突の直前で止まったあと、そのまま衝突をくり返して1つの円（振幅 \(A/2\)）に近づく様子を位相図で見られます。</div>
+<button class="goto" data-q="I6">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>⒢　垂直抗力の大きさ N<span class="ans">答 \(N=\dfrac{4\pi\rho Gmd}{3}\)</span></summary><div class="body">
+<p>P はトンネルの底に沿って動くので、底に垂直な方向（OO′ の方向）には動きません。その方向の力はつり合っています。万有引力の、底に垂直な成分は大きさに \(\dfrac dr\) をかけたものです。</p>
+<p class="law">力のつり合い（トンネルに垂直な方向）</p>
+$$\cfrc{N}=F\cdot\frac{d}{r}\nobreak=k\sqrt{x^2+d^2}\cdot\frac{d}{\sqrt{x^2+d^2}}\nobreak=\frac{4\pi\rho Gmd}{3}$$
+<p>\(x\) によらず一定です。引力の大きさ \(F\) は O から離れるほど大きくなりますが、そのぶん向きが寝て、垂直成分は変わりません。</p>
+<div class="box"><b>式の立て方</b>：動かない方向で「力のつり合い」、動く方向で「運動方程式」を立てます。垂直抗力は運動方向に垂直なつり合いから決まり、動摩擦力はその \(\mu'\) 倍です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：赤い矢印（垂直抗力）は P がどこにいても同じ長さです。右下のグラフで、緑（引力の大きさ）は端ほど大きいのに、赤（\(N\)）は水平な直線です。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>⒣　動摩擦係数 μ′ と、静止摩擦係数 μ の条件<span class="ans">答 \(\mu'=\dfrac{\sqrt{R^2-d^2}}{4d}\)，\(\dfrac{\sqrt{R^2-d^2}}{2d}\le\mu\lt \dfrac{\sqrt{R^2-d^2}}{d}\)</span></summary><div class="body">
+<p>A（\(x=-A\)）で静かに放し、\(x=\frac A2\) で止まりました。動いている間の動摩擦力は \(\mu'N=\mu'kd\) で一定、向きは運動と逆（左向き）です。</p>
+<p class="law">エネルギーと仕事の関係（A → 止まった点）</p>
+$$\frac12k\Bigl(\frac A2\Bigr)^2-\frac12kA^2=\cfr{-\mu'kd}\Bigl(\frac A2+A\Bigr)$$
+<p>左辺は「位置エネルギーの変化」（運動エネルギーは両端とも 0）、右辺は摩擦力がした仕事です。左辺を \(\frac12k\bigl(\frac A2+A\bigr)\bigl(\frac A2-A\bigr)\) と因数分解すると、\(\frac A2+A\) が両辺で約分できて</p>
+$$\frac12\Bigl(-\frac A2\Bigr)=-\mu'd\qquad\therefore\ \mu'=\frac{A}{4d}=\frac{\sqrt{R^2-d^2}}{4d}$$
+<p>次に静止摩擦係数です。最大摩擦力は \(\mu N=\mu kd\) です。A では動き出したので、引力の x 成分の大きさ \(kA\) が最大摩擦力を上回っています。\(x=\frac A2\) では止まり続けたので、\(k\frac A2\) が最大摩擦力以下です。</p>
+<p class="law">静止摩擦力の条件（動き出す／動き出さない）</p>
+$$k\cdot\frac A2\le\mu\,kd\lt k\cdot A\qquad\therefore\ \frac{\sqrt{R^2-d^2}}{2d}\le\mu\lt \frac{\sqrt{R^2-d^2}}{d}$$
+<h3>着眼点：摩擦は「振動の中心」をずらす</h3>
+<p>右向きに動いている間の運動方程式は \(ma=-kx-\mu'kd=-k(x+\mu'd)\) です。これは中心が \(x=-\mu'd\) にずれた単振動なので、P は中心をはさんで対称な位置で止まります。\(-A\) と \(\frac A2\) の真ん中が \(-\frac A4\) なので、\(\mu'd=\frac A4\) と、エネルギーの式を使わずに同じ答えが出ます。</p>
+<div class="box"><b>式の立て方</b>：動摩擦力が一定のときは「運動エネルギーの変化 ＝ 保存力以外の力の仕事」が速く、\(x^2-A^2=(x+A)(x-A)\) の因数分解で計算が軽くなります。止まり続けるかどうかは、そこで「動かそうとする力 ≤ 最大摩擦力」かで判断します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：x–t グラフに、ずれた振動の中心（破線）が出ます。右下の力のグラフで、灰色の帯（最大摩擦力の範囲）の内側に止まった点が入っていれば止まり続けます。\(\mu\) を下限より小さくすると折り返して戻り、上限以上にすると A から動き出しません。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const st={q:"I1",d:0.5,rho:5.5,e:0.4,mu1:0.43,mu:0.65,spd:1};
+const SL=[
+ ["d","d/R","トンネルと地球の中心の距離","",0.1,0.95,0.01,2,"all"],
+ ["rho","ρ","地球の密度","g/cm³",1,15,0.1,1,"I1 I2 I3"],
+ ["e","e","反発係数","",0,1,0.05,2,"I3 I4 I5 I6"],
+ ["mu1","μ′","動摩擦係数","",0,3,0.01,2,"II"],
+ ["mu","μ","静止摩擦係数","",0,6,0.01,2,"II"],
+ ["spd","","再生速度","倍",0.2,3,0.05,2,"all"]];
+const NAMES={F:"万有引力の大きさ F",Fx:"万有引力の x 成分 F_x",r:"中心からの距離 r（効く球の半径）",x:"P の位置 x",a:"P の加速度",T:"A → B の時間 T",vP:"衝突直前の P の速度 v_P",A:"振幅 A = OA",vPp:"衝突直後の P の速度 v_P′",vQp:"衝突直後の Q の速度 v_Q′",XP:"P が折り返す位置 X_P",XQ:"Q が折り返す位置 X_Q",xP:"P の位置",xQ:"Q の位置",N:"垂直抗力 N",fr:"動摩擦力 μ′N",mu:"最大摩擦力 μN",c:"ずれた振動の中心"};
+const QDEF={I1:{spd:1},I2:{spd:1},I3:{spd:1},I4:{spd:1},I5:{spd:1},I6:{spd:1},II1:{spd:1},II2:{spd:1}};
+const cv=mkCv($("#cv"),n=>n?[480,1080]:[1000,600]);
+const G=6.674e-11,RE=6.37e6,PI=Math.PI;
+let lastQ="",S={},R={};
+const Am=()=>Math.sqrt(1-st.d*st.d);
+const omg=()=>Math.sqrt(4*PI*st.rho*1000*G/3);
+const tmin=tau=>tau/omg()/60;
+const isCol=()=>/^I[3-6]$/.test(st.q),isFr=()=>part()==="II";
+function setMuAns(){const A=Am(),d=st.d;st.mu1=Math.min(3,+(A/(4*d)).toFixed(2));st.mu=Math.min(6,+(0.75*A/d).toFixed(2))}
+/* ---------- motion ---------- */
+function simulate(){const A=Am(),d=st.d,e=st.e;
+ if(isCol()){const cols=[];let u=[A,0],tc=PI/2;// velocities just before at O (P,Q) in units R·ω
+  for(let n=0;n<8;n++){const [v1,v2]=u,a1=((1-e)*v1+(1+e)*v2)/2,a2=((1+e)*v1+(1-e)*v2)/2;cols.push({t:tc,b:[v1,v2],a:[a1,a2]});u=[-a1,-a2];tc+=PI}
+  return{mode:"col",cols,tEnd:PI/2+6*PI}}
+ if(isFr()){const segs=[];let x0=-A,t0=0,stuck=false;
+  for(let n=0;n<14;n++){if(Math.abs(x0)<=st.mu*d+1e-12){stuck=true;break}
+   const s=x0<0?1:-1,c=-s*st.mu1*d;if((x0-c)*s>=0){stuck=true;break}
+   segs.push({t0,x0,c,s});x0=2*c-x0;t0+=PI}
+  return{mode:"fr",segs,xEnd:x0,tStop:t0,startStuck:segs.length===0,tEnd:Math.max(t0,PI)+PI*0.6}}
+ return{mode:"free",tEnd:2*PI}}
+function pos(t){const A=Am();
+ if(R.mode==="free")return{xP:-A*Math.cos(t),vP:A*Math.sin(t)};
+ if(R.mode==="col"){const c=R.cols;if(t<c[0].t)return{xP:-A*Math.cos(t),vP:A*Math.sin(t),xQ:0,vQ:0,n:0};
+  let i=0;while(i<c.length-1&&t>=c[i+1].t)i++;const tt=t-c[i].t,[a1,a2]=c[i].a;return{xP:a1*Math.sin(tt),vP:a1*Math.cos(tt),xQ:a2*Math.sin(tt),vQ:a2*Math.cos(tt),n:i+1}}
+ const g=R.segs;let i=-1;for(let k=0;k<g.length;k++)if(t>=g[k].t0)i=k;
+ if(i<0||t>=R.tStop)return{xP:g.length?R.xEnd:-A,vP:0,stuck:true,c:null};
+ const s=g[i],tt=t-s.t0;return{xP:s.c+(s.x0-s.c)*Math.cos(tt),vP:-(s.x0-s.c)*Math.sin(tt),stuck:false,c:s.c,s:s.s}}
+function restart(){if(st.q!==lastQ){const D=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in D)if(P[k]!==D[k])st[k]=D[k];if(isFr()&&!/^II/.test(lastQ))setMuAns();lastQ=st.q}
+ R=simulate();S={t:0,hold:0,paused:false,done:{}}}
+function onParam(k){if(k==="d"&&isFr())setMuAns();restart()}
+function stops(){const q=st.q;return q==="I2"?[PI]:q==="I3"?[PI/2-1e-4]:q==="I4"?[PI/2+1e-4]:q==="I5"?[PI]:q==="I6"?[3*PI/2-1e-4]:[]}
+function step(dt){const ds=dt*1.05;for(const sa of stops()){if(!S.done[sa]&&S.t<sa&&S.t+ds>=sa){S.t=sa;S.paused=true;S.hold=0;S.done[sa]=1;return}}
+ if(S.paused){S.hold+=dt;if(S.hold<2.6)return;S.paused=false;S.hold=0}
+ if(S.t>=R.tEnd){S.hold+=dt;if(S.hold>1.4)restart();return}S.t=Math.min(R.tEnd,S.t+ds)}
+/* ---------- earth drawing ---------- */
+function geo(){const n=cv.narrow;return n?{cx:236,cy:252,Rp:188}:{cx:250,cy:318,Rp:228}}
+function box(c,x,y,col,lab,k){const s=15;glow(c,k,col);rect(c,x-s/2,y-s,s,s,alpha(col,0.75),col,W_(k,1.5));noglow(c);txt(c,lab,x,y-s-10,col,{s:13,b:1,al:"center"})}
+function drawEarth(c){const g=geo(),{cx,cy,Rp}=g,d=st.d,A=Am(),q=st.q,X=x=>cx+x*Rp,yt=cy-d*Rp,SC=0.62*Rp,p=pos(S.t);
+ dot(c,cx,cy,Rp,alpha(CL.road,0.13),CL.mute,1.6);txt(c,"地球（密度 ρ）",cx-Rp*0.55,cy+Rp*0.62,CL.mute,{s:13});
+ // ghost tunnels for I2
+ if(q==="I2")[0.2,0.5,0.8].filter(dd=>Math.abs(dd-d)>0.08).forEach(dd=>{const a=Math.sqrt(1-dd*dd),y=cy-dd*Rp;line(c,[[X(-a),y],[X(a),y]],alpha(CL.acc,0.25),6);const xg=-a*Math.cos(Math.min(S.t,PI*2));dot(c,X(xg),y,5,alpha(CL.acc,0.45))});
+ // effective sphere
+ const xs=p.xP,r=Math.hypot(xs,d);if(q==="I1"||q==="II1"||q==="I2"){glow(c,"r",CL.grav);dot(c,cx,cy,r*Rp,alpha(CL.grav,0.10));c.setLineDash([5,4]);dot(c,cx,cy,r*Rp,null,CL.grav,W_("r",1.3));c.setLineDash([]);noglow(c)}
+ // tunnel
+ rect(c,X(-A),yt-9,2*A*Rp,9,CL.bg);line(c,[[X(-A),yt-9],[X(A),yt-9]],CL.mute,1.2);line(c,[[X(-A),yt],[X(A),yt]],CL.ink,isFr()?3:1.6);
+ if(isFr()){for(let xx=X(-A)+4;xx<X(A);xx+=9)line(c,[[xx,yt+1],[xx-5,yt+6]],CL.mute,1);txt(c,"底面（摩擦あり）",X(-A)+4,yt+16,CL.mute,{s:11})}
+ // axis + labels
+ if(!cv.narrow)arrow(c,X(A)+26,yt,X(A)+58,yt,alpha(CL.mute,0.8),1.2);if(!cv.narrow)txt(c,"x",X(A)+62,yt,CL.mute,{it:1,s:14});
+ dot(c,X(-A),yt,4,CL.ink);dot(c,X(A),yt,4,CL.ink);txt(c,"A",X(-A)-8,yt-14,CL.ink,{s:15,b:1,al:"right"});txt(c,"B",X(A)+8,yt-14,CL.ink,{s:15,b:1});
+ dot(c,cx,yt,3,CL.ink);txt(c,"O",cx-6,yt+14,CL.ink,{s:14,al:"right"});dot(c,cx,cy,4,CL.ink);txt(c,"O′",cx+8,cy+12,CL.ink,{s:14});
+ line(c,[[cx,yt],[cx,cy]],alpha(CL.mute,0.8),1.2,[4,3]);txt(c,"d",cx-8,(yt+cy)/2,CL.mute,{it:1,s:15,al:"right"});
+ line(c,[[cx,cy],[X(A),yt]],alpha(CL.mute,0.6),1,[4,3]);txt(c,"R",cx+(X(A)-cx)*0.6+8,cy+(yt-cy)*0.6+10,CL.mute,{it:1,s:15});
+ glow(c,"A",CL.ink);if(HL("A")){line(c,[[cx,yt+22],[X(A),yt+22]],CL.ink,2.4)}noglow(c);
+ // turning marks
+ if(R.mode==="col"&&(q==="I5"||q==="I6")){const c1=R.cols[0].a,xp=c1[0],xq=c1[1];[[xp,"X_P",CL.acc,"XP"],[xq,"X_Q",CL.fic,"XQ"]].forEach(([v,l,col,k],i)=>{line(c,[[X(v),yt-36-i*16],[X(v),yt+4]],alpha(col,0.8),W_(k,1.5),[3,3]);ktag(c,k,l,X(v),yt-44-i*16,col,{s:12,it:1,al:"center"})})}
+ if(R.mode==="fr"&&q==="II2"){const x2=A/2;line(c,[[X(x2),yt-40],[X(x2),yt+22]],alpha(CL.acc,0.7),1.2,[3,3]);txt(c,"√(R²−d²)/2",X(x2)+4,yt+30,CL.acc,{s:11});if(p.c!=null){const cc=p.c;glow(c,"c",CL.fr);line(c,[[X(cc),yt-22],[X(cc),yt+4]],CL.fr,W_("c",2),[2,2]);noglow(c);ktag(c,"c","中心",X(cc),yt+24,CL.fr,{s:11,al:"center"})}}
+ // bodies
+ const py=yt-1;
+ if(R.mode==="col"){const xq=p.xQ,xp=p.xP;box(c,X(xq)+7.5,py,CL.fic,"Q",["xQ","vQp","XQ"]);box(c,X(xp)-7.5,py,CL.acc,"P",["xP","vPp","XP","vP","x"]);
+  const sv=0.55*Rp/Math.max(A,0.3),vy=py-30;
+  if(q==="I4"&&S.paused){const b=R.cols[0].b;arrow(c,X(0),vy-14,X(0)+b[0]*sv,vy-14,alpha(CL.acc,0.35),3);txt(c,"直前 v_P",X(0)+b[0]*sv+6,vy-14,alpha(CL.acc,0.6),{s:11})}
+  [[xp,p.vP,CL.acc,"vPp",-7.5,"v_P"],[xq,p.vQ,CL.fic,"vQp",7.5,"v_Q"]].forEach(([x,v,col,k,o,l],i)=>{if(Math.abs(v)*sv>3){karrow(c,q==="I3"&&k==="vPp"?"vP":k,X(x)+o,vy+(i?16:0),X(x)+o+v*sv,vy+(i?16:0),col,2.6);txt(c,l,X(x)+o+v*sv+(v>0?6:-6),vy+(i?16:0),col,{s:11,al:v>0?"left":"right"})}})}
+ else{box(c,X(xs),py,CL.acc,"P",["x","xP"]);
+  const px=X(xs),pyc=py-7;
+  if(q==="I1"||q==="I2"||q==="II1"||isFr()){
+   karrow(c,"F",px,pyc,px-xs*SC,pyc+d*SC,CL.grav,2.6);ktag(c,"F","F",px-xs*SC+(xs>0?-8:8),pyc+d*SC+10,CL.grav,{it:1,s:14,al:xs>0?"right":"left"});
+   if(Math.abs(xs)*SC>4){karrow(c,"Fx",px,pyc+(isFr()?0:0),px-xs*SC,pyc,CL.acc,2.6);ktag(c,"Fx","F_x",px-xs*SC/2,yt+16,CL.acc,{it:1,s:13,al:"center"})}
+   line(c,[[px-xs*SC,pyc],[px-xs*SC,pyc+d*SC]],alpha(CL.mute,0.7),1,[3,3])}
+  if(isFr()){const N=d*SC;karrow(c,"N",px+2,py-16,px+2,py-16-N,CL.frc,2.6);ktag(c,"N","N",px+10,py-16-N*0.8,CL.frc,{it:1,s:14});
+   let f=0,lab="";if(!p.stuck){f=-p.s*st.mu1*d;lab="μ′N"}else{f=xs;lab="静止摩擦力"}if(Math.abs(f)*SC>3){karrow(c,p.stuck?"mu":"fr",px,py+4,px+f*SC,py+4,CL.fr,2.6);ktag(c,p.stuck?"mu":"fr",lab,px+f*SC+(f>0?8:-8),py+16,CL.fr,{s:12,al:f>0?"left":"right"})}}
+ }
+ if(S.paused){const m=st.q==="I2"?"B に到着（片道 T）":st.q==="I3"?"衝突の直前":st.q==="I4"?"衝突の直後":st.q==="I5"?"P と Q が同時に折り返す":"2回目の衝突の直前";txt(c,m+"で一時停止中",cv.narrow?8:12,cv.narrow?18:22,CL.frc,{s:13,b:1})}
+ if(R.mode==="fr"&&R.startStuck)txt(c,"μ が大きすぎて A から動き出さない",cv.narrow?8:12,cv.narrow?18:22,CL.ng,{s:13,b:1});
+ else if(R.mode==="fr"&&S.t>=R.tStop)txt(c,(Math.abs(R.xEnd-A/2)<0.012?"x = √(R²−d²)/2 で止まり続ける":"x = "+(R.xEnd).toFixed(2)+"R で止まり続ける"),cv.narrow?8:12,cv.narrow?18:22,CL.ok,{s:13,b:1})}
+/* ---------- graphs ---------- */
+function gX(B){return{x:B.x,y:B.y,w:B.w,h:B.h}}
+function drawXT(c,B){const A=Am(),T=R.tEnd,ax=axes(c,B,[0,T],[-1.08,1.08],{y0:0,xl:"t",yl:"x/R",yit:false,xt:[[PI,"T"],[2*PI,"2T"],...(T>3*PI?[[3*PI,"3T"],[4*PI,"4T"],[5*PI,"5T"],[6*PI,"6T"]]:[])],yt:[[A,"B"],[-A,"A"]]});
+ [[A],[-A]].forEach(([v])=>line(c,[[B.x,ax.Y(v)],[B.x+B.w,ax.Y(v)]],alpha(CL.mute,0.4),1,[2,3]));
+ const N=260,tc=Math.min(S.t,T),pts=[],qts=[];for(let i=0;i<=N;i++){const t=tc*i/N,p=pos(t);pts.push([ax.X(t),ax.Y(p.xP)]);if(p.xQ!=null)qts.push([ax.X(t),ax.Y(p.xQ)])}
+ if(qts.length){glow(c,"xQ",CL.fic);line(c,qts,CL.fic,W_("xQ",2));noglow(c)}glow(c,["x","xP"],CL.acc);line(c,pts,CL.acc,W_(["x","xP"],2.2));noglow(c);
+ if(R.mode==="fr"){R.segs.forEach(s=>{const t1=Math.min(s.t0+PI,tc);if(t1>s.t0){glow(c,"c",CL.fr);line(c,[[ax.X(s.t0),ax.Y(s.c)],[ax.X(t1),ax.Y(s.c)]],CL.fr,W_("c",1.5),[5,3]);noglow(c)}})}
+ if(q6())line(c,[[ax.X(PI/2),B.y],[ax.X(PI/2),B.y+B.h]],alpha(CL.mute,0.5),1,[3,3]);
+ txt(c,"位置の時間変化（t の目盛りは ⒝ の時間 T 単位）",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+const q6=()=>R.mode==="col";
+function drawF(c,B){const A=Am(),d=st.d,p=pos(S.t),q=st.q,ax=axes(c,B,[-1.05,1.05],[-1.1,1.1],{y0:0,x0:0,xl:"x/R",xit:false,yl:"力 / mg",yit:false,xt:[[-A,"A"],[A,"B"]]});
+ const xs=[];for(let i=0;i<=80;i++){const x=-A+2*A*i/80;xs.push(x)}
+ if(q==="II2"){const m=st.mu*d,m1=st.mu1*d;c.fillStyle=alpha(CL.mute,0.16);c.fillRect(B.x,ax.Y(Math.min(m,1.1)),B.w,ax.Y(-Math.min(m,1.1))-ax.Y(Math.min(m,1.1)));glow(c,"mu",CL.mute);[m,-m].forEach(v=>{if(Math.abs(v)<=1.1)line(c,[[B.x,ax.Y(v)],[B.x+B.w,ax.Y(v)]],CL.mute,W_("mu",1.2),[4,3])});noglow(c);
+  ktag(c,"mu","最大摩擦力 ±μN",B.x+4,ax.Y(Math.min(m,1.05))-10,CL.mute,{s:11});
+  glow(c,"fr",CL.fr);[m1,-m1].forEach(v=>{if(Math.abs(v)<=1.1)line(c,[[B.x,ax.Y(v)],[B.x+B.w,ax.Y(v)]],CL.fr,W_("fr",1.3),[2,2])});noglow(c);ktag(c,"fr","動摩擦力 μ′N",B.x+B.w-4,ax.Y(Math.min(m1,1.05))-10,CL.fr,{s:11,al:"right"})}
+ glow(c,"Fx",CL.acc);line(c,xs.map(x=>[ax.X(x),ax.Y(-x)]),CL.acc,W_("Fx",2.2));noglow(c);ktag(c,"Fx","F_x = −kx",ax.X(A*0.45)+8,ax.Y(-A*0.45)-14,CL.acc,{s:12,it:0});
+ if(q!=="II2"){glow(c,"F",CL.grav);line(c,xs.map(x=>[ax.X(x),ax.Y(Math.hypot(x,d))]),CL.grav,W_("F",2));noglow(c);ktag(c,"F","|F| = k√(x²+d²)",ax.X(0)+6,ax.Y(Math.hypot(A*0.5,d))-16,CL.grav,{s:12})}
+ if(q==="II1"){glow(c,"N",CL.frc);line(c,[[ax.X(-A),ax.Y(d)],[ax.X(A),ax.Y(d)]],CL.frc,W_("N",2.2),[6,3]);noglow(c);ktag(c,"N","N = kd（一定）",ax.X(A)-4,ax.Y(d)+14,CL.frc,{s:12,al:"right"})}
+ dot(c,ax.X(p.xP),ax.Y(-p.xP),6,CL.acc,CL.bg,2);if(q!=="II2")dot(c,ax.X(p.xP),ax.Y(Math.hypot(p.xP,d)),5,CL.grav,CL.bg,2);
+ txt(c,q==="II2"?"力のグラフ（帯の中なら止まれる）":"力のグラフ（単位 mg：地表の重力）",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+function drawPhase(c,B){const A=Am(),p=pos(S.t),v=view(B,[-1.12,1.12],[-1.12,1.12]);
+ line(c,[[v.X(-1.12),v.Y(0)],[v.X(1.12),v.Y(0)]],CL.mute,1.1);line(c,[[v.X(0),v.Y(-1.12)],[v.X(0),v.Y(1.12)]],CL.mute,1.1);txt(c,"x/R",v.X(1.12)+4,v.Y(0)-12,CL.ink,{s:13,al:"right"});txt(c,"v/(Rω)",v.X(0)+6,v.Y(1.1),CL.ink,{s:13});
+ const circ=(r,col,k,dash)=>{glow(c,k,col);c.beginPath();c.arc(v.X(0),v.Y(0),Math.abs(r)*v.s,0,7);c.strokeStyle=col;c.lineWidth=W_(k,1.2);c.setLineDash(dash||[]);c.stroke();c.setLineDash([]);noglow(c)};
+ circ(A,alpha(CL.mute,0.6),"A",[4,3]);const c1=R.cols[0].a;if(st.q==="I5"||st.q==="I6"){circ(c1[0],alpha(CL.acc,0.6),"XP",[3,3]);circ(c1[1],alpha(CL.fic,0.6),"XQ",[3,3])}if(st.q==="I6")circ(A/2,alpha(CL.ok,0.6),"",[1,3]);
+ const N=300,tc=S.t,P=[],Q=[];for(let i=0;i<=N;i++){const t=tc*i/N,s=pos(t);P.push([v.X(s.xP),v.Y(s.vP)]);Q.push([v.X(s.xQ),v.Y(s.vQ)])}
+ line(c,Q,alpha(CL.fic,0.8),1.6);line(c,P,alpha(CL.acc,0.85),1.8);dot(c,v.X(p.xQ),v.Y(p.vQ),HL(["vQp","xQ","XQ"])?8:6,CL.fic,CL.bg,2);dot(c,v.X(p.xP),v.Y(p.vP),HL(["vP","vPp","xP","XP"])?8:6,CL.acc,CL.bg,2);
+ txt(c,"位相図：単振動は円、衝突で縦に跳ぶ",B.x-46,B.y-24,CL.ink,{s:12,b:1})}
+function drawAll(){const c=begin(cv),W=cv.W,n=cv.narrow,q=st.q;
+ const G1=n?{x:60,y:540,w:W-100,h:190}:{x:560,y:52,w:W-600,h:200},G2=n?{x:60,y:820,w:W-100,h:230}:{x:560,y:338,w:W-600,h:228};
+ drawEarth(c);drawXT(c,G1);if(R.mode==="col")drawPhase(c,G2);else drawF(c,G2)}
+/* ---------- live equations ---------- */
+function eqs0(){const q=st.q,r=String.raw,p=pos(S.t),A=Am(),d=st.d,f=(x,k=3)=>x.toFixed(k),N=cv.narrow,om=omg(),Tm=PI/om/60,vs=A*om*RE/1000;
+ const F=TK("F","grav","F"),Fx=TK("Fx","acc","F_x"),rr=TK("r","ink","r"),x=TK("x","acc","x");
+ if(q==="I1")return{title:"万有引力の法則（半径 r の球だけが効く）と x 成分",list:[{t:F+r`=G\frac{m}{`+rr+r`^2}\cdot\frac43\pi`+rr+r`^3\rho=\frac{4\pi\rho Gm}{3}`+rr+r`,\quad `+rr+r`=\sqrt{`+x+r`^2+d^2}`,n:`r = ${f(Math.hypot(p.xP,d),3)}R → F = ${NS(f(Math.hypot(p.xP,d),3),"grav")} mg（地表の重力の r/R 倍）`},{t:Fx+r`=-F\cdot\frac{`+x+"}{"+rr+r`}=-\frac{4\pi\rho Gm}{3}\,`+x,n:`x = ${f(p.xP,3)}R → F_x = ${NS(f(-p.xP,3),"acc")} mg`}]};
+ if(q==="I2")return{title:"運動方程式 → 単振動（片道は半周期）",list:[{t:r`m`+TK("a","acc","a")+r`=-\frac{4\pi\rho Gm}{3}`+x+r`\ \Rightarrow\ \omega=\sqrt{\frac{4\pi\rho G}{3}}`,n:`ω = ${f(om*1000,4)}×10<sup>−3</sup> /s`},{t:TK("T","ink","T")+r`=\frac{\pi}{\omega}=\frac12\sqrt{\frac{3\pi}{\rho G}}`,n:`T = ${NS(f(Tm,1),"ink")} 分（d によらない）`}]};
+ const vP=TK("vP","acc",r`v_\mathrm P`),vPp=TK("vPp","acc",r`v_\mathrm P'`),vQp=TK("vQp","fic",r`v_\mathrm Q'`),AA=TK("A","ink","A");
+ if(q==="I3")return{title:"力学的エネルギー保存則（A → O）",list:[{t:r`\frac12m`+vP+r`^2=\frac12k`+AA+r`^2,\quad `+AA+r`=\sqrt{R^2-d^2}`,n:""},{t:vP+r`=`+AA+r`\omega=2\sqrt{\frac{\pi\rho G(R^2-d^2)}{3}}`,n:`v_P = ${NS(f(vs,2),"acc")} km/s（R = 6370 km のとき）`}]};
+ const e=st.e,a1=(1-e)/2,a2=(1+e)/2;
+ if(q==="I4")return{title:"運動量保存則 ＋ 反発係数の式",list:[{t:r`m v_\mathrm P=m`+vPp+"+m"+vQp+r`,\quad `+vQp+"-"+vPp+r`=e\,v_\mathrm P`,n:""},{t:vPp+r`=\frac{1-e}{2}v_\mathrm P,\quad `+vQp+r`=\frac{1+e}{2}v_\mathrm P`,n:`e = ${f(e,2)}：v_P′ = ${NS(f(a1,3),"acc")} v_P，v_Q′ = ${NS(f(a2,3),"fic")} v_P`}]};
+ const XP=TK("XP","acc",r`X_\mathrm P`),XQ=TK("XQ","fic",r`X_\mathrm Q`);
+ if(q==="I5")return{title:"力学的エネルギー保存則（O → 折り返し点）",list:[{t:r`\frac12mv_\mathrm P'^2=\frac12k`+XP+r`^2\ \Rightarrow\ `+XP+r`=\frac{1-e}{2}\sqrt{R^2-d^2}`,n:`X_P = ${NS(f(a1*A,3),"acc")} R`},{t:XQ+r`=\frac{1+e}{2}\sqrt{R^2-d^2}`,n:`X_Q = ${NS(f(a2*A,3),"fic")} R（X_P + X_Q = OB = ${f(A,3)}R）`}]};
+ if(q==="I6"){const tt=Math.max(0,S.t-PI/2);return{title:"同じ ω の単振動：O を通る時刻がそろう",list:[{t:TK("xP","acc",r`x_\mathrm P`)+r`=X_\mathrm P\sin\omega t',\quad `+TK("xQ","fic",r`x_\mathrm Q`)+r`=X_\mathrm Q\sin\omega t'`,n:`ωt′ = ${f(tt,2)}（π = 3.14 で2つとも O）`},{t:r`\omega t'=\pi\ \Rightarrow\ x=0,\quad\Delta t=\frac{\pi}{\omega}=T\ (1\text{ 倍})`,n:`衝突 ${p.n} 回目のあと：P ${NS(f(p.xP,3),"acc")}R，Q ${NS(f(p.xQ,3),"fic")}R`}]}}
+ const NN=TK("N","frc","N");
+ if(q==="II1")return{title:"力のつり合い（トンネルに垂直な方向）",list:[{t:NN+r`=`+F+r`\cdot\frac{d}{r}=k\sqrt{x^2+d^2}\cdot\frac{d}{\sqrt{x^2+d^2}}\ \Rightarrow\ N=\frac{4\pi\rho Gmd}{3}`,n:`N = ${NS(f(d,3),"frc")} mg（x = ${f(p.xP,2)}R でも同じ），|F| = ${f(Math.hypot(p.xP,d),3)} mg`}]};
+ const fr=TK("fr","fr",r`\mu' N`);
+ return{title:"エネルギーと仕事の関係 ＋ 静止摩擦の条件",list:[{t:r`\frac12k\Bigl(\frac A2\Bigr)^2-\frac12kA^2=-`+fr+r`\Bigl(\frac A2+A\Bigr)\ \Rightarrow\ \mu'=\frac{A}{4d}`,n:`答えの μ′ = ${f(A/(4*d),3)}（いまの設定 ${NS(f(st.mu1,2),"fr")}）`},{t:r`k\frac A2\le `+TK("mu","mute",r`\mu N`)+r`<kA\ \Rightarrow\ \frac{A}{2d}\le\mu<\frac{A}{d}`,n:`${f(A/(2*d),3)} ≦ μ < ${f(A/d,3)}（いまの設定 μ = ${f(st.mu,2)} → ${st.mu>=A/(2*d)-1e-9&&st.mu<A/d?'<span class="ok">条件を満たす</span>':'<span class="ng">条件の外</span>'}）`}]}}
+function eqs(){const E=eqs0();if(cv.narrow)E.list.forEach(e=>{e.t=e.t.replace(/\\ \\Rightarrow\\ |\\quad\\Rightarrow\\quad |\\qquad |,\\quad /g,m=>"\\\\"+(m.includes("Rightarrow")?"\\Rightarrow ":""))});return E}
+function note(){return`地球の半径 R = 6370 km として実際の時間・速さも表示します。⒜〜⒡ は摩擦なし、⒢⒣ は底面に摩擦あり（d を変えると μ′、μ は答えの値に合わせ直されます）。`}
+function readout(){const p=pos(S.t),A=Am(),d=st.d,f=(x,k=3)=>x.toFixed(k),om=omg(),r=[["時刻 t",f(tmin(S.t),1)+" 分（T = "+f(PI/om/60,1)+" 分）"],["P の位置 x",f(p.xP)+" R"],["P の速度",f(p.vP*om*RE/1000,2)+" km/s"]];
+ if(R.mode==="col")r.push(["Q の位置／速度",f(p.xQ)+" R ／ "+f(p.vQ*om*RE/1000,2)+" km/s"],["衝突の回数",p.n+" 回"],["振幅 A = OA",f(A)+" R（"+f(A*RE/1000,0)+" km）"]);
+ else if(R.mode==="fr")r.push(["垂直抗力 N",f(d)+" mg"],["答えの μ′ ／ μ の範囲",f(A/(4*d))+" ／ "+f(A/(2*d),2)+" ≦ μ < "+f(A/d,2)],["状態",R.startStuck?"動き出さない":S.t>=R.tStop?"止まり続けている":"すべっている"]);
+ else r.push(["万有引力の大きさ F",f(Math.hypot(p.xP,d))+" mg"],["x 成分 F_x",f(-p.xP)+" mg"],["トンネルの長さ AB",f(2*A*RE/1000,0)+" km"]);
+ return r}
+initUI("I1");
+}
+</script>
+</body>
+</html>
