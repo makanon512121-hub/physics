@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>ダイオードとコンデンサーの回路：動作点・充電・電荷の再分配</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>ダイオードとコンデンサーの回路：動作点・充電・電荷の再分配（名古屋大学 2019年 第3問）</h1>
+<p class="lead">折れ線の特性をもつダイオードを含む回路で、電圧と電流を「回路の式（負荷直線）」と「素子の特性」の交点として求めます。後半は直列コンデンサーの充電、スイッチを切りかえた後の電荷の再分配と、抵抗で失われるエネルギーを、電流の流れ・I–V グラフ・電圧のグラフ・エネルギーの棒グラフで確かめます。</p>
+<p class="src">問題文は <a href="https://www.nagoya-u.ac.jp/admissions/exam/data/answer/index.html" target="_blank" rel="noopener">名古屋大学の公式ページ（試験問題・解答例等）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="ダイオードとコンデンサーの回路図と電流の流れ、ダイオードの I–V グラフ、電圧のグラフ"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">⑴ V<sub>D</sub> と I<sub>D</sub></button>
+<button class="qb" data-q="II1">⑵ 抵抗値 X</button>
+<button class="qb" data-q="III1">⑶ (ア)(イ) 電荷と電圧</button>
+<button class="qb" data-q="III2">⑶ (ウ) R₂ の電流</button>
+<button class="qb" data-q="III3">⑶ (エ)(オ) 合成容量とエネルギー</button>
+<button class="qb" data-q="III4">⑶ (カ) C₃ の電圧</button>
+<button class="qb" data-q="III5">⑶ (キ) R₃ の消費エネルギー</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-frc">ダイオード（赤）</span>、<span class="t-acc">C₁（青）</span>、<span class="t-fic">C₂（紫）</span>、<span class="t-grav">C₃（緑）</span>、<span class="t-fr">電流（オレンジの点の流れ）</span>。</p>
+
+<details id="d-I1"><summary>⑴　S₁ を閉じたときの V<sub>D</sub> と I<sub>D</sub><span class="ans">答 \(V_\mathrm D=\dfrac34V,\ \ I_\mathrm D=\dfrac{V}{4R}\)</span></summary><div class="body">
+<p>S₂ が開いているので、電流は「電池 → R₁ → D → 電池」の1本の道だけを流れます。</p>
+<p class="law">キルヒホッフの第2法則（電池 → R₁ → D の閉回路）</p>
+$$V=R\,\cfr{I_\mathrm D}+\cfrc{V_\mathrm D}$$
+<p class="law">ダイオードの特性（式①，ON の区間 \(V_\mathrm D>\frac V2\) と仮定）</p>
+$$I_\mathrm D=\frac{2V_\mathrm D-V}{2R}$$
+<p>①を代入すると \(V=V_\mathrm D-\dfrac V2+V_\mathrm D\) なので \(V_\mathrm D=\dfrac34V\)、\(I_\mathrm D=\dfrac{V}{4R}\) です。\(\frac34V>\frac12V\) なので、ON と仮定したことと合っています。</p>
+<h3>着眼点：グラフの交点（動作点）として読む</h3>
+<p>回路の式を \(I_\mathrm D=\dfrac{V-V_\mathrm D}{R}\) と書くと、I–V グラフ上の右下がりの直線（負荷直線）になります。ダイオードの特性の折れ線との交点が、実際の電圧と電流です。</p>
+<div class="box"><b>式の立て方</b>：非直線の素子があるときは、(1) 素子以外の部分でキルヒホッフの法則を書き、(2) 素子の特性と連立します。特性が場合分けされているときは、どちらかの区間を仮定して解き、最後に仮定が正しいか確かめます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：左下の I–V グラフで、オレンジの負荷直線と赤い特性の交点（●）が \(V_\mathrm D=\frac34V\) にあります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>⑵　S₂ を閉じた瞬間に I<sub>D</sub> = 0 となる抵抗値 X<span class="ans">答 \(X=R\)</span></summary><div class="body">
+<p>閉じた瞬間、C₁ と C₂ には電荷がないので電圧も 0 です。つまりその瞬間だけ、コンデンサーは導線と同じはたらきをし、R₂ の右端の電位は 0 になります。</p>
+<p>\(I_\mathrm D=0\)（ダイオードが OFF）なら、電流は R₁ と R₂ を直列に流れ、D の電圧は R₂ の電圧と同じです。</p>
+<p class="law">抵抗の直列接続（電圧は抵抗値に比例して分かれる）</p>
+$$\cfrc{V_\mathrm D}=\frac{R_2}{R+R_2}V$$
+<p class="law">ダイオードが OFF の条件</p>
+$$\frac{R_2}{R+R_2}V\le\frac V2\qquad\therefore\ R_2\le R$$
+<p>よって \(X=R\) です。</p>
+<h3>着眼点：負荷直線が下がる</h3>
+<p>R₂ を並列につなぐと、D から見た回路は「起電力 \(\dfrac{R_2}{R+R_2}V\)、内部抵抗 \(\dfrac{RR_2}{R+R_2}\) の電池」と同じになります。R₂ が小さいほど負荷直線の切片が左に下がり、\(V_\mathrm D=\frac V2\) を下回ると交点が \(I_\mathrm D=0\) の水平部分に移ります。</p>
+<div class="box"><b>式の立て方</b>：スイッチを入れた「瞬間」のコンデンサーは、直前と同じ電荷（ここでは 0）をもつ電池として扱います。電荷 0 なら導線、十分時間がたった後は電流 0 の断線として扱います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：設定の \(R_2/R\) を 1 より小さくすると、S₂ を閉じた瞬間に D の電流（赤い線）が 0 に落ちます。コンデンサーが充電されて電圧が上がると、やがて D に再び電流が流れ始めます。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>⑶ (ア)(イ)　時刻 t₁ の C₁ の電荷と C₂ の電圧<span class="ans">答 (ア) \(\dfrac15CV\)　(イ) \(\dfrac1{10}V\)</span></summary><div class="body">
+<p class="law">コンデンサーの電荷（\(Q=CV\)）</p>
+$$\cacc{Q_1}=C\cdot\frac V5=\frac15CV$$
+<p>C₁ の下の極板と C₂ の上の極板をつなぐ導線は、どこにもつながっていない孤立した部分です。はじめ電荷 0 なので、ずっと合計 0 のままです。よって C₂ の上の極板には \(+Q_1\) があり、C₂ の電荷も \(Q_1\) です。</p>
+<p class="law">電気量保存（孤立した部分）と \(V=Q/C\)</p>
+$$\cfic{V_2}=\frac{Q_1}{2C}=\frac1{10}V$$
+<div class="box"><b>式の立て方</b>：直列のコンデンサーは「間の孤立部分の電気量 ＝ 一定」から電荷が等しくなります。電圧は電荷 ÷ 電気容量なので、容量の大きい C₂ の電圧は C₁ の半分です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：S₂ を閉じると C₁ と C₂ の極板に同じ数の ＋・− が増えていきます。右下のグラフで、青（C₁）がいつも紫（C₂）の2倍の電圧になっています。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>⑶ (ウ)　時刻 t₁ に R₂ を流れる電流<span class="ans">答 \(\dfrac{9V}{50R}\)</span></summary><div class="body">
+<p>R₂ の電流を \(I\) とします。分かれ道（D の上の点）でキルヒホッフの第1法則を使うと、R₁ を流れる電流は \(I_\mathrm D+I\) です。</p>
+<p class="law">キルヒホッフの第2法則（D → R₂ → C₁ → C₂ の閉回路）</p>
+$$\cfrc{V_\mathrm D}=2R\,\cfr{I}+\frac V5+\frac V{10}$$
+<p class="law">キルヒホッフの第2法則（電池 → R₁ → D の閉回路）</p>
+$$V=R(I_\mathrm D+\cfr{I})+\cfrc{V_\mathrm D}$$
+<p>①より \(RI_\mathrm D=V_\mathrm D-\dfrac V2\) なので、2つ目の式は \(2V_\mathrm D+RI=\dfrac32V\) になります。1つ目の \(V_\mathrm D=2RI+\dfrac3{10}V\) を入れて</p>
+$$5RI=\frac32V-\frac35V=\frac9{10}V\qquad\therefore\ I=\frac{9V}{50R}$$
+<p>このとき \(V_\mathrm D=\dfrac{33}{50}V>\dfrac V2\) なので、ダイオードは ON のままです。</p>
+<div class="box"><b>式の立て方</b>：未知数（\(I,\ I_\mathrm D,\ V_\mathrm D\)）の数だけ式を集めます。第1法則で電流の文字を減らし、第2法則は「独立な閉回路の数」だけ書きます。コンデンサーは、そのときの電圧をもつ電池と考えます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(t_1\) で一度止まります。I–V グラフでは、負荷直線（C₁・C₂ の電圧 \(\frac3{10}V\) が入った形）と特性の交点が \(V_\mathrm D=\frac{33}{50}V\) にあります。「いまの値」の R₂ の電流が \(0.18\,V/R\) です。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+
+<details id="d-III3"><summary>⑶ (エ)(オ)　C₁ と C₂ の合成容量と、蓄えられたエネルギー<span class="ans">答 (エ) \(\dfrac23C\)　(オ) \(\dfrac3{100}CV^2\)</span></summary><div class="body">
+<p class="law">直列接続の合成容量</p>
+$$\frac1{C_{12}}=\frac1C+\frac1{2C}\qquad\therefore\ C_{12}=\frac23C$$
+<p>電荷 \(\frac15CV\) と全体の電圧 \(\frac V5+\frac V{10}=\frac3{10}V\) の比をとっても \(\frac23C\) になります。</p>
+<p class="law">静電エネルギー（\(U=\frac12CV^2\)）</p>
+$$\cfic{U_{12}}=\frac12C\Bigl(\frac V5\Bigr)^2+\frac12\cdot2C\Bigl(\frac V{10}\Bigr)^2\nobreak=\frac3{100}CV^2$$
+<p>合成容量を使って \(\frac12\cdot\frac23C\cdot\bigl(\frac3{10}V\bigr)^2\) と計算しても同じです。</p>
+<div class="box"><b>式の立て方</b>：直列は「電荷が共通」、並列は「電圧が共通」と覚え、共通なものを使って合成容量やエネルギーを計算します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右下の棒グラフで、C₁ と C₂ のエネルギーの比が 2 : 1 になっています（電荷が同じなら \(U=Q^2/2C\) は容量に反比例）。</div>
+<button class="goto" data-q="III3">この状況にする</button>
+</div></details>
+
+<details id="d-III4"><summary>⑶ (カ)　十分に時間がたった後の C₃ の電圧<span class="ans">答 \(\dfrac{3}{40}V\)</span></summary><div class="body">
+<p>S₂ を開くと、C₁・C₂・R₃・C₃ は電池から切り離された閉じた回路になります。C₁C₂（容量 \(\frac23C\)、電荷 \(\frac15CV\)）から C₃ へ電荷が移り、電流が 0 になると両者の電圧が等しくなります。この値を \(V'\) とします。</p>
+<p class="law">電気量保存（上側の極板の合計）</p>
+$$\frac15CV+0=\frac23C\,V'+2C\,\cgrav{V'}\qquad\therefore\ V'=\frac{3}{40}V$$
+<p>C₁ と C₂ の間の孤立部分は合計 0 のままなので、C₁C₂ はこの後も1つの \(\frac23C\) のコンデンサーとして扱えます。C₁C₂ と C₃ は並列（電圧が同じ）になり、全体の容量は \(\frac23C+2C=\frac83C\) です。</p>
+<div class="box"><b>式の立て方</b>：スイッチの切りかえ後は、(1) 孤立した導体部分ごとに「電気量の合計 ＝ 切りかえ前の値」、(2) 最終状態では電流 0 なので「抵抗の電圧 0 → つながったコンデンサーの電圧が等しい」を使います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：S₃ を閉じると、R₃ を通って電流が流れ、緑（C₃）の電圧が上がり、青・紫の合計（C₁C₂）が下がって \(\frac3{40}V\) でそろいます。</div>
+<button class="goto" data-q="III4">この状況にする</button>
+</div></details>
+
+<details id="d-III5"><summary>⑶ (キ)　t₁ から t₂ の間に R₃ で消費されたエネルギー<span class="ans">答 \(\dfrac{9}{400}CV^2\)</span></summary><div class="body">
+<p>この間、電池はつながっていないので、静電エネルギーの減少分がすべて R₃ のジュール熱になります。</p>
+<p class="law">エネルギー保存則</p>
+$$\cfr{W}=\frac3{100}CV^2-\frac12\cdot\frac83C\Bigl(\frac3{40}V\Bigr)^2\nobreak=\frac3{100}CV^2-\frac3{400}CV^2\nobreak=\frac9{400}CV^2$$
+<h3>着眼点：R₃ の値によらない</h3>
+<p>R₃ を変えると電流の大きさと流れる時間は変わりますが、失われるエネルギーは変わりません。一般に、電圧 \(V_0\) の容量 \(C_a\) を電荷 0 の \(C_b\) につなぐと、失われるエネルギーは \(\dfrac12\cdot\dfrac{C_aC_b}{C_a+C_b}V_0^{\,2}\) です。ここでは \(C_a=\frac23C,\ C_b=2C,\ V_0=\frac3{10}V\) で \(\frac9{400}CV^2\) となり、一致します。</p>
+<div class="box"><b>式の立て方</b>：抵抗で失われるエネルギーは、電流を時間で積分しなくても「はじめのエネルギー − 終わりのエネルギー（＋電池がした仕事）」で求められます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：棒グラフで、C₁C₂ のエネルギーが減り、C₃ のエネルギーと R₃ のジュール熱（電流の2乗 × 抵抗を時間で足したもの）に分かれます。設定の \(R_3/R\) を変えると、電流のグラフの形は変わっても、ジュール熱の最終値は \(\frac9{400}CV^2\) のままです。</div>
+<button class="goto" data-q="III5">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const st={q:"I1",V:10,r2:0.6,r3:1,spd:1};
+const SL=[
+ ["V","V","電池の起電力","V",4,20,1,0,"all"],
+ ["r2","R₂/R","可変抵抗 R₂ の値（R に対する比）","",0.2,3,0.05,2,"II1"],
+ ["r3","R₃/R","R₃ の値（R に対する比）","",0.25,4,0.05,2,"III4 III5"],
+ ["spd","","再生速度","倍",0.2,3,0.05,2,"all"]];
+const NAMES={VD:"ダイオードの電圧 V_D",ID:"ダイオードの電流 I_D",I:"R₂ を流れる電流 I",I1:"R₁ を流れる電流",V1:"C₁ の電圧",V2:"C₂ の電圧",V3:"C₃ の電圧",Q1:"C₁ の電荷 Q₁",U:"C₁・C₂ の静電エネルギー",W:"R₃ のジュール熱",load:"負荷直線（回路の式）",C12:"C₁ と C₂ の合成容量"};
+const QDEF={I1:{spd:1},II1:{spd:1,r2:0.6},III1:{spd:1},III2:{spd:1},III3:{spd:1},III4:{spd:1,r3:1},III5:{spd:1,r3:1}};
+const cv=mkCv($("#cv"),n=>n?[480,900]:[1000,600]);
+const Rr=1000,C=1e-3;let lastQ="",S={},R={};
+const C12=2*C/3;
+/* ---------- circuit solver ---------- */
+const fD=(v,V)=>v>V/2?(2*v-V)/(2*Rr):0;
+function solveP(V,s2,VQ,R2){// node P potential
+ if(!s2)return V>0?Math.max(V/2,(V/Rr+V/(2*Rr))/(2/Rr)):0;
+ let vp=(V/Rr+VQ/R2)/(1/Rr+1/R2);if(vp<=V/2)return vp;return(V/Rr+V/(2*Rr)+VQ/R2)/(2/Rr+1/R2)}
+/* timeline: phase A (S1 only) → B (S2 closed, charging) → C (S2 open, S3 closed) */
+function simulate(){const V=st.V,q=st.q,R2=q==="II1"?st.r2*Rr:2*Rr,R3=st.r3*Rr,dt=2e-4,hist=[];let t=0,Q=0,Q3=0,W=0,phase="A",t1=null,t2=null,tB=0.6;
+ const tEnd=q==="I1"?3:q==="II1"?0.6+4:20;
+ while(t<tEnd){let s2=false,s3=false;if(t>=tB&&q!=="I1"){s2=true;phase="B"}if(t1!=null){s2=false;s3=true;phase="C"}
+  const VQ=Q/C12,V3=Q3/(2*C),vp=solveP(V,s2,VQ,R2),ID=fD(vp,V),I2=s2?(vp-VQ)/R2:0,I3=s3?(VQ-V3)/R3:0;
+  if(phase==="B"&&q!=="II1"&&t1==null&&Q/C>=V/5){t1=t}
+  if(phase==="C"&&t2==null&&Math.abs(I3)<1e-4*V/Rr){t2=t}
+  if(hist.length===0||t-hist[hist.length-1].t>=0.005)hist.push({t,s2,s3,VP:vp,ID,I1:(V-vp)/Rr,I2,I3,Q,Q3,V1:Q/C,V2:Q/(2*C),V3,W,phase});
+  Q+=(I2-I3)*dt;Q3+=I3*dt;W+=I3*I3*R3*dt;t+=dt;if(t2!=null&&t>t2+1.5)break}
+ return{hist,t1,t2,tB,tEnd:hist[hist.length-1].t}}
+function restart(){if(st.q!==lastQ){const D=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in D)if(P[k]!==D[k])st[k]=D[k];lastQ=st.q}
+ R=simulate();S={t:0,hold:0,paused:false,ph:0}}
+function onParam(k){restart()}
+function stopAt(){const q=st.q;if(R.t1!=null&&(q==="III1"||q==="III2"||q==="III3"))return R.t1;return null}
+function step(dt){const sa=stopAt();if(sa!=null&&!S.paused&&S.t<sa&&S.t+dt>=sa){S.t=sa;S.paused=true;S.hold=0;return}
+ if(S.paused){S.hold+=dt;if(S.hold<2.5){S.ph+=dt;return}S.paused=false;S.t+=1e-3}
+ S.ph+=dt;if(S.t>=R.tEnd){S.hold+=dt;if(S.hold>1.2)restart();return}S.t=Math.min(R.tEnd,S.t+dt)}
+function cur(){const h=R.hist;let i=Math.min(h.length-1,Math.max(0,Math.round(S.t/0.005)));while(i>0&&h[i].t>S.t)i--;while(i<h.length-1&&h[i+1].t<=S.t)i++;return h[i]}
+/* ---------- circuit drawing ---------- */
+function drawCircuit(c,B){const e=cur(),V=st.V,sx=B.w/770,sy=B.h/250,s=Math.min(sx,sy),ox=B.x+(B.w-700*s)/2,oy=B.y+(cv.narrow?24:10),P=(x,y)=>[ox+x*s,oy+y*s],w=1.8;
+ const yt=40,yb=210,xb=40,xP=230,xQ=430,x3=630;const L=(pts,col=CL.ink,lw=w)=>line(c,pts.map(p=>P(...p)),col,lw);
+ const sw=(x,closed)=>{const a=P(x,yt),b=P(x+34,yt);dot(c,a[0],a[1],3.5,CL.bg,CL.ink,1.5);dot(c,b[0],b[1],3.5,CL.bg,CL.ink,1.5);line(c,[a,closed?b:[a[0]+30*s,a[1]-16*s]],closed?CL.ink:CL.mute,2.2)};
+ const res=(x1,x2,lab,col,variable)=>{const a=P(x1,yt-9),b=P(x2,yt+9);rect(c,a[0],a[1],b[0]-a[0],b[1]-a[1],CL.bg,col,1.8);if(variable)arrow(c,a[0]-4,b[1]+5,b[0]+5,a[1]-6,col,1.4);txt(c,lab,(a[0]+b[0])/2,a[1]-12,CL.ink,{s:13,al:"center"})};
+ // wires
+ L([[xb,yb],[xb,yt],[95,yt]]);L([[129,yt],[150,yt]]);L([[200,yt],[260,yt]]);L([[294,yt],[315,yt]]);L([[375,yt],[460,yt]]);L([[494,yt],[520,yt]]);L([[570,yt],[x3,yt],[x3,108]]);L([[x3,122],[x3,yb],[xb,yb]]);
+ L([[xP,yt],[xP,100]]);L([[xP,128],[xP,yb]]);L([[xQ,yt],[xQ,82]]);L([[xQ,96],[xQ,140]]);L([[xQ,154],[xQ,yb]]);
+ [[xP,yt],[xQ,yt],[xP,yb],[xQ,yb]].forEach(p=>{const q=P(...p);dot(c,q[0],q[1],3.2,CL.ink)});
+ // battery
+ const b1=P(xb-16,112),b2=P(xb+16,112),b3=P(xb-9,124),b4=P(xb+9,124);rect(c,P(xb-20,108)[0],P(0,108)[1],40*s,20*s,CL.bg);line(c,[b1,b2],CL.ink,2);line(c,[b3,b4],CL.ink,4);line(c,[P(xb,yt),P(xb,112)],CL.ink,w);line(c,[P(xb,124),P(xb,yb)],CL.ink,w);txt(c,"V",P(xb-26,118)[0],P(0,118)[1],CL.ink,{s:15,it:1,al:"right"});
+ sw(95,true);sw(260,e.s2);sw(460,e.s3);txt(c,"S₁",P(112,yt-26)[0],P(0,yt-26)[1],CL.ink,{s:13,al:"center"});txt(c,"S₂",P(277,yt-26)[0],P(0,yt-26)[1],CL.ink,{s:13,al:"center"});txt(c,"S₃",P(477,yt-26)[0],P(0,yt-26)[1],CL.ink,{s:13,al:"center"});
+ res(150,200,"R₁ (R)",CL.ink);res(315,375,st.q==="II1"?`R₂ (${st.r2.toFixed(2)}R)`:"R₂ (2R)",CL.ink,true);res(520,570,st.q==="III4"||st.q==="III5"?`R₃ (${st.r3.toFixed(2)}R)`:"R₃ (R)",CL.ink);
+ // diode
+ const dOn=e.ID>0;glow(c,"VD",CL.frc);const d1=P(xP-13,100),d2=P(xP+13,100),d3=P(xP,124);c.beginPath();c.moveTo(...d1);c.lineTo(...d2);c.lineTo(...d3);c.closePath();c.fillStyle=dOn?alpha(CL.frc,0.6):CL.bg;c.fill();c.strokeStyle=CL.frc;c.lineWidth=W_("VD",1.8);c.stroke();line(c,[P(xP-13,126),P(xP+13,126)],CL.frc,W_("VD",2.2));noglow(c);
+ txt(c,"D",P(xP-20,112)[0],P(0,112)[1],CL.frc,{s:13,b:1,al:"right"});ktag(c,"VD",`V_D = ${e.VP.toFixed(2)} V`,P(xP+20,112)[0],P(0,112)[1],CL.frc,{s:12});txt(c,dOn?"ON":"OFF",P(xP+20,132)[0],P(0,132)[1],dOn?CL.frc:CL.mute,{s:11,b:1});
+ // capacitors
+ const cap=(x,y,lab,col,k,V0,Q0)=>{glow(c,k,col);line(c,[P(x-22,y-7),P(x+22,y-7)],col,W_(k,3));line(c,[P(x-22,y+7),P(x+22,y+7)],col,W_(k,3));noglow(c);
+  const n=Math.round(Math.min(5,Math.abs(Q0)/(C*V/5)*2.5));for(let i=0;i<n;i++){const xx=x-16+i*8;txt(c,"+",P(xx,y-15)[0],P(0,y-15)[1],col,{s:11,al:"center"});txt(c,"−",P(xx,y+16)[0],P(0,y+16)[1],col,{s:11,al:"center"})}
+  ktag(c,k,`${lab}  ${V0.toFixed(2)} V`,P(x+28,y)[0],P(0,y)[1],col,{s:12})};
+ cap(xQ,89,"C₁",CL.acc,"V1",e.V1,e.Q);cap(xQ,147,"C₂",CL.fic,"V2",e.V2,e.Q);cap(x3,115,"C₃",CL.grav,"V3",e.V3,e.Q3);
+ // current dots
+ const flow=(pts,I,k)=>{if(Math.abs(I)<1e-6)return;const Iref=V/(4*Rr),sp=60*I/Iref,ps=pts.map(p=>P(...p));let tot=0;const seg=[];for(let i=0;i<ps.length-1;i++){const l=Math.hypot(ps[i+1][0]-ps[i][0],ps[i+1][1]-ps[i][1]);seg.push(l);tot+=l}
+  const gap=16,off=((S.ph*sp)%gap+gap)%gap;c.fillStyle=HL(k)?CL.frc:CL.fr;for(let d=off;d<tot;d+=gap){let r=d,i=0;while(i<seg.length&&r>seg[i]){r-=seg[i];i++}if(i>=seg.length)break;const a=ps[i],b=ps[i+1],u=r/seg[i];c.beginPath();c.arc(a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,HL(k)?4:3,0,7);c.fill()}};
+ flow([[xb,yb],[xb,yt],[xP,yt]],e.I1,"I1");flow([[xP,yt],[xP,yb],[xb,yb]],e.ID,"ID");if(e.s2)flow([[xP,yt],[xQ,yt],[xQ,yb],[xb,yb]],e.I2,"I");if(e.s3)flow([[xQ,yt],[x3,yt],[x3,yb],[xQ,yb]],e.I3,"W");
+ const ph=e.phase==="A"?"S₁ だけ閉じている":e.phase==="B"?"S₂ を閉じた：C₁・C₂ を充電中":"S₂ を開き S₃ を閉じた：C₃ へ電荷が移る";txt(c,ph,B.x+B.w-4,B.y+B.h-2,CL.mute,{s:12,al:"right"});
+ if(S.paused)txt(c,"時刻 t₁（C₁ の電圧 = V/5）で一時停止中",B.x+4,B.y+B.h-2,CL.frc,{s:12,b:1})}
+/* ---------- graphs ---------- */
+function drawIV(c,B){const e=cur(),V=st.V,Im=V/Rr,A=axes(c,B,[0,V*1.05],[0,Im*1.05],{xl:"V_D",yl:"I_D",xt:[[V/2,"V/2"],[V,"V"]],yt:[[Im,"V/R"]]});
+ line(c,[[A.X(0),A.Y(0)],[A.X(V/2),A.Y(0)],[A.X(V*1.05),A.Y((2*V*1.05-V)/(2*Rr))]],CL.frc,W_("VD",2.6));txt(c,"ダイオードの特性 ①",A.X(V*0.82),A.Y(Im*0.95),CL.frc,{s:11,al:"right"});
+ // load line: Thevenin from the node P
+ let Vth=V,Rth=Rr;if(e.s2){const R2=st.q==="II1"?st.r2*Rr:2*Rr,VQ=e.V1+e.V2;Rth=Rr*R2/(Rr+R2);Vth=(V/Rr+VQ/R2)*Rth}
+ glow(c,"load",CL.fr);line(c,[[A.X(0),A.Y(Math.min(Im*1.05,Vth/Rth))],[A.X(Vth),A.Y(0)]],CL.fr,W_("load",2),[7,4]);noglow(c);
+ ktag(c,"load",e.s2?"負荷直線（R₂ 側も含む）":"負荷直線 I_D = (V − V_D)/R",A.X(Vth*0.35)+6,A.Y(Math.min(Im,Vth/Rth)*0.75),CL.fr,{s:11});
+ glow(c,"ID",CL.frc);dot(c,A.X(e.VP),A.Y(e.ID),HL("ID")||HL("VD")?8:6,CL.frc,CL.bg,2);noglow(c);
+ txt(c,"ダイオードの I–V グラフ（交点 ● が動作点）",B.x-50,B.y-30,CL.ink,{s:12,b:1})}
+function drawVt(c,B){const h=R.hist,V=st.V,q=st.q,A=axes(c,B,[0,R.tEnd],[0,V*0.85],{xl:"t [s]",xit:false,yl:"電圧 [V]",yit:false,yt:[[V/2,"V/2"],[V/5,"V/5"]]});
+ const vis=h.filter(e=>e.t<=S.t);const cu=(f,col,k,w,d)=>{glow(c,k,col);line(c,vis.map(e=>[A.X(e.t),A.Y(f(e))]),col,W_(k,w),d);noglow(c)};
+ cu(e=>e.VP,CL.frc,"VD",2);if(q!=="I1"){cu(e=>e.V1,CL.acc,"V1",2);cu(e=>e.V2,CL.fic,"V2",2,[6,3])}if(q==="III4"||q==="III5")cu(e=>e.V3,CL.grav,"V3",2.2);
+ if(q==="II1"){const ID=vis.map(e=>[A.X(e.t),A.Y(e.ID*Rr*0.8)]);glow(c,"ID",CL.fr);line(c,ID,CL.fr,W_("ID",2),[2,2]);noglow(c)}
+ if(R.t1!=null){line(c,[[A.X(R.t1),B.y],[A.X(R.t1),B.y+B.h]],alpha(CL.mute,0.7),1,[3,3]);txt(c,"t₁",A.X(R.t1),B.y+B.h+14,CL.ink,{s:12,al:"center"})}
+ if(R.t2!=null&&(q==="III4"||q==="III5")){line(c,[[A.X(R.t2),B.y],[A.X(R.t2),B.y+B.h]],alpha(CL.mute,0.7),1,[3,3]);txt(c,"t₂",A.X(R.t2),B.y+B.h+14,CL.ink,{s:12,al:"center"});line(c,[[B.x,A.Y(3*V/40)],[B.x+B.w,A.Y(3*V/40)]],alpha(CL.grav,0.6),1,[2,3]);txt(c,"3V/40",B.x+B.w-2,A.Y(3*V/40)-8,CL.grav,{s:11,al:"right"})}
+ if(R.tB&&q!=="I1"){txt(c,"S₂ 閉",A.X(R.tB)+3,B.y+8,CL.mute,{s:11})}
+ const lg=q==="I1"?"赤：V_D":q==="II1"?"赤：V_D　青：C₁　紫：C₂　オレンジ点線：I_D（× 0.8R）":q==="III4"||q==="III5"?"赤：V_D　青：C₁　紫：C₂　緑：C₃":"赤：V_D　青：C₁　紫：C₂";txt(c,"電圧の時間変化（"+lg+"）",B.x-50,B.y-30,CL.ink,{s:12,b:1})}
+function drawEn(c,B){const e=cur(),V=st.V,u0=3/100*C*V*V,U1=0.5*C*e.V1**2,U2=0.5*2*C*e.V2**2,U3=0.5*2*C*e.V3**2;const items=[["C₁",U1,CL.acc,"U"],["C₂",U2,CL.fic,"U"],["C₃",U3,CL.grav,"V3"],["R₃ の熱",e.W,CL.fr,"W"],["合計",U1+U2+U3+e.W,CL.mute,""]];
+ const mx=Math.max(u0,U1+U2+U3+e.W)*1.15,nb=items.length,bw=Math.min(54,B.w/nb*0.55);txt(c,"エネルギー（単位：CV²/400）",B.x,B.y-30,CL.ink,{s:12,b:1});
+ const ln=v=>B.y+B.h-B.h*v/mx;line(c,[[B.x,ln(u0)],[B.x+B.w,ln(u0)]],alpha(CL.mute,0.6),1,[4,4]);txt(c,"12（= 3CV²/100）",B.x+2,ln(u0)-9,CL.mute,{s:11});
+ if(st.q==="III5"){line(c,[[B.x,ln(9/400*C*V*V)],[B.x+B.w,ln(9/400*C*V*V)]],alpha(CL.fr,0.6),1,[2,3]);txt(c,"9（= 9CV²/400）",B.x+2,ln(9/400*C*V*V)-9,CL.fr,{s:11})}
+ items.forEach(([lab,v,col,k],i)=>{const cx=B.x+B.w*(i+0.5)/nb,hh=B.h*v/mx;glow(c,k,col);rect(c,cx-bw/2,B.y+B.h-hh,bw,hh,alpha(col,0.55),col,W_(k,1.2));noglow(c);txt(c,lab,cx,B.y+B.h+14,CL.ink,{s:11,al:"center"});txt(c,(v/(C*V*V/400)).toFixed(2),cx,B.y+B.h-hh-9,CL.ink,{s:11,al:"center"})});
+ line(c,[[B.x,B.y+B.h],[B.x+B.w,B.y+B.h]],CL.mute,1.2)}
+function drawAll(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow,q=st.q;
+ const BC=n?{x:4,y:6,w:W-8,h:200}:{x:20,y:6,w:W-40,h:300},G1=n?{x:70,y:270,w:W-110,h:230}:{x:80,y:370,w:380,h:190},G2=n?{x:70,y:590,w:W-110,h:260}:{x:560,y:370,w:W-600,h:190};
+ drawCircuit(c,BC);drawIV(c,G1);if(q==="III3"||q==="III5")drawEn(c,G2);else drawVt(c,G2)}
+/* ---------- live equations ---------- */
+function eqs0(){const q=st.q,r=String.raw,e=cur(),V=st.V,f=(x,d=3)=>x.toFixed(d),N=cv.narrow;
+ const VD=TK("VD","frc",r`V_\mathrm D`),ID=TK("ID","fr",r`I_\mathrm D`),I=TK("I","fr","I");
+ if(q==="I1")return{title:"キルヒホッフの第2法則 ＋ ダイオードの特性",list:[{t:"V="+TK("load","fr","R")+ID+"+"+VD+r`,\qquad `+ID+r`=\frac{2`+VD+r`-V}{2R}`,n:""},{t:VD+r`=\frac34V,\qquad `+ID+r`=\frac{V}{4R}`,n:`V_D = ${NS(f(e.VP,2),"frc")} V（3V/4 = ${f(0.75*V,2)}），I_D = ${f(e.ID*1000,2)} mA（V/4R = ${f(V/4/Rr*1000,2)}）`}]};
+ if(q==="II1"){const r2=st.r2,vd0=V*r2/(1+r2);return{title:"S₂ を閉じた瞬間（C₁・C₂ の電圧 0）：D が OFF の条件",list:[{t:VD+r`=\frac{R_2}{R+R_2}V\le\frac V2\ \Rightarrow\ R_2\le R=X`,n:`R₂ = ${f(r2,2)}R：閉じた瞬間の V_D = ${NS(f(Math.max(vd0,0),2),"frc")} V → ${r2<=1?"D は OFF（I_D = 0）":"D は ON（電流が流れる）"}`}]}}
+ const vq=e.V1+e.V2;
+ if(q==="III1")return{title:"Q = CV と 孤立部分の電気量保存",list:[{t:TK("Q1","acc",r`Q_1`)+r`=C\cdot`+TK("V1","acc",r`\frac V5`)+r`=\frac15CV,`+(N?r`\\`:r`\qquad `)+TK("V2","fic",r`V_2`)+r`=\frac{Q_1}{2C}=\frac{V}{10}`,n:`いま C₁ ${NS(f(e.V1,3),"acc")} V，C₂ ${NS(f(e.V2,3),"fic")} V（V/5 = ${f(V/5,2)}，V/10 = ${f(V/10,2)}）`}]};
+ if(q==="III2"){const L1=VD+"=2R"+I+r`+\frac V5+\frac V{10}`,L2="V=R("+ID+"+"+I+")+"+VD;return{title:"キルヒホッフの法則（2つの閉回路）＋ 特性①",list:N?[{t:L1,n:""},{t:L2,n:""},{t:I+r`=\frac{9V}{50R}`,n:`I = ${NS(f(e.I2*1000,3),"fr")} mA（9V/50R = ${f(9*V/50/Rr*1000,3)}），V_D = ${f(e.VP,3)} V`}]:[{t:L1+r`,\qquad `+L2,n:""},{t:I+r`=\frac{9V}{50R}`,n:`I = ${NS(f(e.I2*1000,3),"fr")} mA（9V/50R = ${f(9*V/50/Rr*1000,3)} mA），V_D = ${f(e.VP,3)} V（33V/50 = ${f(33*V/50,3)}）`}]}}
+ if(q==="III3"){const U=0.5*C*e.V1**2+C*e.V2**2;return{title:"直列の合成容量と静電エネルギー",list:[{t:TK("C12","ink",r`C_{12}`)+r`=\frac{Q_1}{V_1+V_2}=\frac23C`,n:""},{t:TK("U","fic","U")+r`=\frac12C`+TK("V1","acc",r`V_1`)+r`^2+\frac12\cdot2C`+TK("V2","fic",r`V_2`)+r`^2=\frac{3}{100}CV^2`,n:`U = ${NS(f(U/(C*V*V/400),2),"fic")} × CV²/400（12 × CV²/400 = 3CV²/100）`}]}}
+ if(q==="III4")return{title:"電気量保存（S₃ 側の閉じた回路）",list:[{t:r`\frac15CV=\frac23C\,V'+2C\,`+TK("V3","grav","V'")+r`\ \Rightarrow\ V'=\frac{3}{40}V`,n:`C₃ ${NS(f(e.V3,3),"grav")} V，C₁C₂ ${f(vq,3)} V（3V/40 = ${f(3*V/40,3)}）`}]};
+ return{title:"エネルギー保存則（電池はつながっていない）",list:[{t:TK("W","fr","W")+r`=\frac{3}{100}CV^2-\frac12\cdot\frac83C\Bigl(\frac{3}{40}V\Bigr)^2`+(N?r`\\`:"")+r`=\frac{9}{400}CV^2`,n:`ジュール熱（電流²×R₃ を足したもの）${NS(f(e.W/(C*V*V/400),2),"fr")} × CV²/400`}]}}
+function eqs(){const E=eqs0();if(cv.narrow)E.list.forEach(e=>{e.t=e.t.replace(/\\ \\Rightarrow\\ |\\quad\\Rightarrow\\quad |\\qquad /g,m=>"\\\\"+(m.includes("Rightarrow")?"\\Rightarrow ":""))});return E}
+function note(){return`数値例：R = 1 kΩ、C = 1 mF（RC = 1 s）。⑶ では R₂ = 2R。⑶ の (ア)〜(オ) は時刻 t₁ で少し止まります。`}
+function readout(){const e=cur(),V=st.V,f=(x,d=3)=>x.toFixed(d),r=[["時刻 t",f(e.t,2)+" s"],["ダイオードの電圧 V_D",f(e.VP)+" V（起電力の "+f(e.VP/V)+" 倍）"],["ダイオードの電流 I_D",f(e.ID*1000)+" mA（"+f(e.ID*Rr/V)+" V/R）"]];
+ if(st.q!=="I1")r.push(["R₂ の電流 I",f(e.I2*1000)+" mA（"+f(e.I2*Rr/V)+" V/R）"],["C₁ の電圧／C₂ の電圧",f(e.V1)+" ／ "+f(e.V2)+" V"],["C₁ の電荷 Q₁",f(e.Q*1000,3)+" mC（"+f(e.Q/(C*V))+" CV）"]);
+ if(R.t1!=null&&st.q!=="II1")r.push(["t₁（C₁ の電圧が V/5）",f(R.t1)+" s"]);
+ if(st.q==="III4"||st.q==="III5")r.push(["C₃ の電圧",f(e.V3)+" V（起電力の "+f(e.V3/V)+" 倍，3/40 = 0.075）"],["R₃ のジュール熱",f(e.W/(C*V*V),4)+" CV²（9/400 = 0.0225）"]);
+ return r}
+initUI("I1");
+}
+</script>
+</body>
+</html>

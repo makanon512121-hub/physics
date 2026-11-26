@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>ばねでつながった板とおもり：床から浮き上がる条件と重心の運動</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E5%8A%9B%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>ばねでつながった板とおもり：床から浮き上がる条件と重心の運動（名古屋大学 2019年 第1問）</h1>
+<p class="lead">床に置いた板 A の上にばねを立て、おもり B をのせて単振動させます。振幅 <span class="v">d</span> を大きくしていくと、ばねが板を引き上げる力が重力に勝ち、板が床から浮き上がります。「おもりの単振動」「板のつり合い（垂直抗力 <span class="v">N</span>）」「重心の運動」の3つの見方で、浮き上がる条件と浮いた後の運動を確かめます。</p>
+<p class="src">問題文は <a href="https://www.nagoya-u.ac.jp/admissions/exam/data/answer/index.html" target="_blank" rel="noopener">名古屋大学の公式ページ（試験問題・解答例等）</a> で確認してください。図と解説はこのサイトのオリジナルです。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="ばねでつながった板 A とおもり B の運動と、位置・力のグラフ"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">⑴ 縮み x₀</button>
+<button class="qb" data-q="I2">⑵ 角振動数 ω</button>
+<button class="qb" data-q="I3">⑶ 位置 x(t)</button>
+<button class="qb" data-q="I4">⑷ ばねの力 F</button>
+<button class="qb" data-q="I5">⑸ 垂直抗力 N</button>
+<button class="qb" data-q="I6">⑹ 浮き上がる d₀</button>
+<button class="qb" data-q="I7">⑺ cos ωt₁</button>
+<button class="qb" data-q="I8">⑻ 位置 x₁</button>
+<button class="qb" data-q="I9">⑼ 速度 v₁</button>
+<button class="qb" data-q="I10">⑽ 重心 z のグラフ</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。上向きを正とします。図の色：<span class="t-acc">おもり B（青）</span>、<span class="t-fic">板 A（紫）</span>、重心（黒）、<span class="t-fr">ばねの力（オレンジ）</span>、<span class="t-frc">床からの垂直抗力（赤）</span>、<span class="t-grav">重力（緑）</span>。</p>
+
+<details id="d-I1"><summary>⑴　つり合いでのばねの縮み x₀<span class="ans">答 \(x_0=\dfrac{mg}{k}\)</span></summary><div class="body">
+<p>おもり B にはたらく力は、下向きの重力 \(mg\) と、縮んだばねが押し上げる力 \(kx_0\) の2つです。</p>
+<p class="law">力のつり合い（おもり B）</p>
+$$\cfr{kx_0}=\cgrav{mg}\qquad\therefore\ x_0=\frac{mg}{k}$$
+<div class="box"><b>式の立て方</b>：止まっている物体では「上向きの力の和 ＝ 下向きの力の和」です。ばねの力の大きさは「ばね定数 × 自然長からの伸び（縮み）」で、伸び縮みは必ず自然長から測ります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：おもり B の上向きのオレンジの矢印と、下向きの緑の矢印が同じ長さです。\(m\) を大きく、\(k\) を小さくすると縮み \(x_0\) が大きくなります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>⑵　おもり B の角振動数 ω<span class="ans">答 \(\omega=\sqrt{\dfrac km}\)</span></summary><div class="body">
+<p>板 A は床の上で止まっているので、ばねの下端は動きません。おもり B だけが、ばねと重力を受けて動きます。つり合いの位置からの変位を \(X=x-(L-x_0)\) とします。</p>
+<p class="law">運動方程式（おもり B）</p>
+$$m\,a=\cfr{-k(x-L)}\cgrav{-mg}\nobreak=-k\bigl(x-(L-x_0)\bigr)=-k\cacc{X}$$
+<p>加速度が「変位に比例し、逆向き」なので単振動です。\(a=-\omega^2X\) と比べて</p>
+$$\omega=\sqrt{\frac km}$$
+<p>重力はつり合いの位置（振動の中心）を \(x_0\) だけ下げるだけで、角振動数は変えません。鉛直ばね振り子の周期が水平ばね振り子と同じ \(2\pi\sqrt{m/k}\) になるのはこのためです。</p>
+<div class="box"><b>式の立て方</b>：単振動では、(1) つり合いの位置を求め、(2) そこからの変位 \(X\) で運動方程式を書き、(3) \(ma=-KX\) の形にして \(\omega=\sqrt{K/m}\) を読み取ります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(M\) や \(g\) に関係する量を変えても、下の x–t グラフの周期は変わりません。\(k\) を4倍にすると周期が半分になります。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-I3"><summary>⑶　時刻 t のおもり B の位置 x<span class="ans">答 (え)　\(x=L-x_0-d\cos\omega t\)</span></summary><div class="body">
+<p>単振動の位置は「中心 ＋ 振幅 × (sin または cos)」で表せます。中心・振幅・\(t=0\) の位置の3つを順に決めます。</p>
+<ul>
+<li>中心：つり合いの位置 \(x=L-x_0\)（⑴）</li>
+<li>振幅：つり合いの位置から押し下げた距離 \(d\)（静かに放したので、そこが折り返し点）</li>
+<li>\(t=0\)：最も低い点 \(x=L-x_0-d\) から動き始める</li>
+</ul>
+<p class="law">単振動の式</p>
+$$\cacc{x}=(L-x_0)-\cacc{d}\cos\omega t$$
+<p>\(t=0\) を代入すると \(x=L-x_0-d\) になるのは (え) だけです。(お)〜(く) は中心が自然長の位置 \(L\) になっていて、重力で中心が下がることが入っていません。</p>
+<div class="box"><b>式の立て方</b>：選択肢の式は、\(t=0\) を代入して出発点と比べると速く絞れます。さらに \(\omega t=\pi/2\) で中心を通ること、\(\omega t=\pi\) で最高点になることを確かめると確実です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：x–t グラフは最低点から始まる \(-\cos\) の形です。点線（中心 \(L-x_0\)）を上下に \(d\) ずつはさんで振動します。</div>
+<button class="goto" data-q="I3">この状況にする</button>
+</div></details>
+
+<details id="d-I4"><summary>⑷　板 A がばねから受ける力 F<span class="ans">答 \(F=-mg-kd\cos\omega t\)</span></summary><div class="body">
+<p>ばねの質量は無視できるので、ばねは両端に大きさの等しい力をおよぼします。縮んでいれば両端を外向きに押し（板 A は下向き）、伸びていれば両端を内向きに引きます（板 A は上向き）。</p>
+<p class="law">フックの法則（ばねの伸び \(x-L\)）</p>
+$$\cfr{F}=k(x-L)=k(-x_0-d\cos\omega t)\nobreak=-mg-kd\cos\omega t$$
+<p>伸び \(x-L\) が正なら \(F>0\)（上向き）、負なら \(F<0\)（下向き）なので、符号まで含めて1つの式で表せます。</p>
+<h3>別解：おもり B の運動方程式から</h3>
+<p>B の加速度は \(a=\dfrac{d^2x}{dt^2}=d\omega^2\cos\omega t\) です。B がばねから受ける力を \(f\) とすると \(ma=f-mg\) なので \(f=mg+kd\cos\omega t\)。ばねは A にこれと逆向きの力をおよぼすので \(F=-f\) になります。</p>
+<div class="box"><b>式の立て方</b>：ばねの力は「自然長からの伸び」をそのまま符号つきで使うと、向きの場合分けがいりません。軽いばね・軽い糸は、両端に同じ大きさの力を伝える「力の通り道」です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：下のグラフのオレンジの線が \(F\) です。B が最も低いとき（ばねが最も縮むとき）に最も大きく下向きになり、B が自然長の位置より上に来ると \(F\) が正（上向き）に変わります。</div>
+<button class="goto" data-q="I4">この状況にする</button>
+</div></details>
+
+<details id="d-I5"><summary>⑸　板 A が床から受ける垂直抗力 N<span class="ans">答 \(N=(M+m)g+kd\cos\omega t\)</span></summary><div class="body">
+<p>板 A は動かないので、A にはたらく3つの力（重力・ばねの力・垂直抗力）がつり合っています。</p>
+<p class="law">力のつり合い（板 A）</p>
+$$\cfrc{N}+\cfr{F}-\cgrav{Mg}=0\qquad\therefore\ N=Mg-F\nobreak=(M+m)g+kd\cos\omega t$$
+<h3>別解：A と B をまとめて見る</h3>
+<p>A と B をひとまとめにすると、外から受ける力は垂直抗力 \(N\) と重力 \((M+m)g\) だけで、ばねの力は内力として消えます。動いているのは B だけなので</p>
+$$m\cdot d\omega^2\cos\omega t=N-(M+m)g$$
+<p>からも同じ結果が出ます。B が下で上向きに加速しているときは、床は全体の重さより強く押し返します。</p>
+<div class="box"><b>式の立て方</b>：知りたい力が「外力」になるように物体を選びます。\(N\) は A だけを見ても、A＋B 全体を見ても外力です。全体で見るとばねの力を考えなくてよいので計算が短くなります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：赤い線 \(N\) は、平均値 \((M+m)g\)（点線）を中心に \(kd\) の幅で振動します。B が最も高いときに \(N\) が最も小さくなります。</div>
+<button class="goto" data-q="I5">この状況にする</button>
+</div></details>
+
+<details id="d-I6"><summary>⑹　板 A が浮き上がり始める振幅 d₀<span class="ans">答 \(d_0=\dfrac{(M+m)g}{k}\)</span></summary><div class="body">
+<p>板 A が床に接している間は \(N\ge 0\) です。\(N\) が最も小さくなるのは \(\cos\omega t=-1\)（B が最高点）のときなので、その最小値が 0 以上なら A は浮きません。</p>
+<p class="law">浮き上がらない条件（\(N\) の最小値 \(\ge 0\)）</p>
+$$\cfrc{N_{\min}}=(M+m)g-kd\ \ge\ 0\qquad\therefore\ d\le\frac{(M+m)g}{k}=d_0$$
+<h3>着眼点：ばねが板を引き上げる力で考える</h3>
+<p>B が最高点にあるとき、ばねは自然長より \(d-x_0\) だけ伸びて、A を上向きに \(k(d-x_0)\) で引きます。これが A の重さ \(Mg\) を超えると A は浮きます。\(k(d-x_0)=Mg\) より \(d=x_0+\dfrac{Mg}k=\dfrac{(M+m)g}k\) と同じ結果になります。</p>
+<div class="box"><b>式の立て方</b>：「床から離れる」は「垂直抗力が 0 になる」と言いかえます。離れるまでの \(N\) を時刻の式で表し、その最小値を調べます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(d=d_0\) では、赤い線 \(N\) が最高点でちょうど 0 に触れ、A はぎりぎり浮きません。設定の \(d/d_0\) を 1 より少し大きくすると A が浮きます。</div>
+<button class="goto" data-q="I6">この状況にする</button>
+</div></details>
+
+<details id="d-I7"><summary>⑺　A が床を離れる時刻 t₁ の cos ωt₁<span class="ans">答 \(\cos\omega t_1=-\dfrac{d_0}{d}\)</span></summary><div class="body">
+<p>\(d>d_0\) のとき、⑸の \(N\) が 0 になる最初の時刻が \(t_1\) です。それまで A は止まっているので、⑸の式がそのまま使えます。</p>
+<p class="law">床を離れる条件（\(N=0\)）</p>
+$$(M+m)g+kd\cos\omega t_1=0\qquad\therefore\ \cos\omega t_1=-\frac{(M+m)g}{kd}=-\frac{d_0}{d}$$
+<p>\(-1<\cos\omega t_1<0\) なので \(\dfrac\pi2<\omega t_1<\pi\) です。このとき B はつり合いの位置より上にいて、まだ上向きに動いています。</p>
+<div class="box"><b>式の立て方</b>：「〜になった瞬間」は、その瞬間まで成り立っていた式（ここでは⑸）に条件（\(N=0\)）を入れて求めます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：赤い線 \(N\) が 0 に下がった時刻に、縦の点線 \(t_1\) が引かれ、そこから紫の線（A の高さ \(y\)）が持ち上がります。</div>
+<button class="goto" data-q="I7">この状況にする</button>
+</div></details>
+
+<details id="d-I8"><summary>⑻　時刻 t₁ のおもり B の位置 x₁<span class="ans">答 \(x_1=L+\dfrac{Mg}{k}\)</span></summary><div class="body">
+<p>浮き上がる瞬間の A は、垂直抗力 0 のまま、重力 \(Mg\) とばねの引く力がつり合っています。</p>
+<p class="law">力のつり合い（板 A、\(N=0\)）</p>
+$$\cfr{k(x_1-L)}=\cgrav{Mg}\qquad\therefore\ x_1=L+\frac{Mg}{k}$$
+<p>⑶の式に⑺を入れても \(x_1=L-x_0-d\cos\omega t_1=L-x_0+d_0=L+\dfrac{Mg}k\) となり、一致します。\(x_1\) は \(d\) によらず、「ばねが \(Mg/k\) だけ伸びた位置」と決まります。</p>
+<div class="box"><b>式の立て方</b>：位置を問われても、まず「その瞬間に何がつり合っているか」を考えると近道になることがあります。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(d/d_0\) をいろいろ変えても、A が浮き上がるのは B が点線「\(x_1=L+Mg/k\)」に来たときです。</div>
+<button class="goto" data-q="I8">この状況にする</button>
+</div></details>
+
+<details id="d-I9"><summary>⑼　時刻 t₁ のおもり B の速度 v₁<span class="ans">答 \(v_1=\omega\sqrt{d^2-{d_0}^2}\)</span></summary><div class="body">
+<p>⑶の式を時間で微分すると、\(t\le t_1\) の速度は \(v=d\omega\sin\omega t\) です。</p>
+<p class="law">単振動の速度</p>
+$$\cacc{v_1}=d\omega\sin\omega t_1=d\omega\sqrt{1-\Bigl(\frac{d_0}{d}\Bigr)^2}\nobreak=\omega\sqrt{d^2-{d_0}^2}$$
+<p>\(0<\omega t_1<\pi\) なので \(\sin\omega t_1>0\) です（B は上向きに動いている）。</p>
+<h3>別解：単振動のエネルギー</h3>
+<p>中心からの変位を \(X\) とすると、単振動では \(\dfrac12mv^2+\dfrac12kX^2=\dfrac12kd^2\) が一定です。\(t_1\) では \(X=x_1-(L-x_0)=d_0\) なので、\(v_1=\sqrt{\dfrac km}\sqrt{d^2-{d_0}^2}\) とすぐに求まります。</p>
+<div class="box"><b>式の立て方</b>：単振動の速さは、時刻を経由するより「中心からの変位 \(X\)」と振幅から \(v=\omega\sqrt{A^2-X^2}\) で求めるほうが速いことが多いです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：「いまの値」の \(v_1\)（測定）と式の値を比べてください。\(d\) を \(d_0\) に近づけると \(v_1\) は 0 に近づきます（最高点でぎりぎり浮くため）。</div>
+<button class="goto" data-q="I9">この状況にする</button>
+</div></details>
+
+<details id="d-I10"><summary>⑽　0 ≦ t ≦ t₂ の重心の高さ z のグラフ<span class="ans">答 (b)</span></summary><div class="body">
+<p>重心の運動は、外力（重力と垂直抗力）だけで決まります。ばねの力は内力なので入りません。</p>
+<p class="law">重心の運動方程式（A＋B）</p>
+$$(M+m)\,a_G=\cfrc{N}-\cgrav{(M+m)g}$$
+<p><b>① \(0<t<t_1\)</b>：A は床にあり \(y=0\) なので \(z=\dfrac{m x}{m+M}\) です。B は最低点から \(t_1\) まで上がり続ける（⑺より \(\omega t_1<\pi\)）ので、\(z\) は増え続けます。途中で減る (c)(d)(e)(f) は誤りです。</p>
+<p><b>② \(t_1<t<t_2\)</b>：\(N=0\) なので \(a_G=-g\)。重心は投げ上げた物体と同じ放物線をえがきます。\(t_1\) では \(N\) が連続的に 0 になるので、グラフは折れずになめらかにつながります。</p>
+<p><b>③ \(t=t_2\) の高さ</b>：A が床にあるとき、重心の高さは B の高さ \(x\) で決まります。\(0\le t\le t_2\) では垂直抗力が仕事をしない（A が動かないときだけはたらく）ので、力学的エネルギーが保存します。</p>
+<p class="law">力学的エネルギー保存則（A が床にある時刻 \(0\) と \(t_2\) を比べる）</p>
+$$mgx+\frac12k(L-x)^2+K=\text{一定}$$
+<p>\(mgx+\dfrac12k(L-x)^2=\dfrac12k\bigl(x-(L-x_0)\bigr)^2+(\text{定数})\) と書けるので、運動エネルギー \(K\) が残る \(t_2\) では \(|x-(L-x_0)|<d\)、つまり \(x(t_2)>x(0)\) です。着地のとき重心は出発点より高く、(a) は誤りで、(b) が正解です。</p>
+<h3>補足：浮いている間の2物体の動き</h3>
+<p>浮いている間は、重心が放物運動をしながら、ばねの伸び \(e=x-y-L\) が単振動します。2つの運動方程式を引き算すると \(\ddot e=-k\Bigl(\dfrac1m+\dfrac1M\Bigr)e\) となり、角振動数は \(\omega'=\sqrt{\dfrac{k(M+m)}{mM}}\) です（重力は打ち消し合う）。A の高さ \(y\) は、この2つを組み合わせて求まります。</p>
+<div class="box"><b>式の立て方</b>：2物体の運動をグラフで選ぶ問題では、(1) 重心の運動方程式で外力から加速度を決め、(2) 区間の境目で速度がつながるか、(3) 端点の値をエネルギーで比べる、の順に確かめます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：黒い太線が重心の高さ \(z\) です。\(t_1\) から先は放物線になり、\(t_2\) での高さが出発点（灰色の点線）より上にあることを、\(d/d_0\) や \(M/m\) を変えて確かめてください。</div>
+<button class="goto" data-q="I10">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const st={q:"I1",m:0.2,M:0.3,k:20,r:0.6,spd:0.5};
+const SL=[
+ ["m","m","おもり B の質量","kg",0.1,0.4,0.01,2,"all"],
+ ["M","M","板 A の質量","kg",0.1,0.6,0.01,2,"all"],
+ ["k","k","ばね定数","N/m",20,60,1,0,"all"],
+ ["r","d/d₀","押し下げる距離（d₀ 何個分か）","",0,1.6,0.01,2,"I2 I3 I4 I5 I6 I7 I8 I9 I10"],
+ ["spd","","再生速度","倍",0.1,1,0.01,2,"all"]];
+const NAMES={x:"おもり B の位置 x",y:"板 A の高さ y",z:"重心の高さ z",F:"板 A がばねから受ける力 F",fB:"おもり B がばねから受ける力",N:"床からの垂直抗力 N",g:"重力",d:"振幅 d",x0:"つり合いでの縮み x₀",x1:"浮き上がる位置 x₁ = L + Mg/k",t1:"浮き上がる時刻 t₁",v:"おもり B の速度 v",X:"つり合いの位置からの変位 X"};
+const QDEF={I1:{r:0,spd:0.5},I2:{r:0.6,spd:0.5},I3:{r:0.6,spd:0.5},I4:{r:0.6,spd:0.5},I5:{r:0.6,spd:0.5},I6:{r:1,spd:0.5},I7:{r:1.35,spd:0.35},I8:{r:1.35,spd:0.35},I9:{r:1.35,spd:0.35},I10:{r:1.35,spd:0.35}};
+const cv=mkCv($("#cv"),n=>n?[480,1000]:[1000,500]);
+const G=9.8,PL=0.6;let lastQ="",S={},R={};
+const qn=()=>+st.q.slice(1);
+/* ---------- exact motion ---------- */
+function setup(){const m=st.m,M=st.M,k=st.k,x0=m*G/k,d0=(M+m)*G/k,om=Math.sqrt(k/m),dmax=0.97*(PL-x0);
+ const rmax=Math.floor(dmax/d0*100)/100;if(st.r>rmax)st.r=rmax;const d=st.r*d0,T=2*Math.PI/om;
+ const R0={m,M,k,x0,d0,om,d,T,rmax,lift:d>d0*(1+1e-9)};
+ if(R0.lift){const t1=Math.acos(-d0/d)/om,x1=PL-x0-d*Math.cos(om*t1),v1=d*om*Math.sin(om*t1),mu=m*M/(m+M),om2=Math.sqrt(k/mu);
+  Object.assign(R0,{t1,x1,v1,om2,e1:x1-PL,zc1:m*x1/(m+M),wc1:m*v1/(m+M)});
+  let tau=1e-3,prev=0;while(tau<5){const y=fly(R0,tau).y;if(y<0&&tau>0.01){let a=tau-1e-3,b=tau;for(let i=0;i<40;i++){const c2=(a+b)/2;if(fly(R0,c2).y<0)b=c2;else a=c2}R0.t2=t1+(a+b)/2;break}tau+=1e-3}
+  if(!R0.t2)R0.t2=t1+2;R0.tEnd=R0.t2}
+ else R0.tEnd=st.r===0?2:2*T;
+ return R0}
+function fly(P,tau){const{m,M,om2,e1,v1,zc1,wc1}=P,mt=m+M;const zc=zc1+wc1*tau-G*tau*tau/2,wc=wc1-G*tau;
+ const e=e1*Math.cos(om2*tau)+v1/om2*Math.sin(om2*tau),ed=-e1*om2*Math.sin(om2*tau)+v1*Math.cos(om2*tau);
+ const x=zc+M*(e+PL)/mt,y=zc-m*(e+PL)/mt;return{x,y,v:wc+M*ed/mt,u:wc-m*ed/mt,e}}
+function state(t){const P=R,{m,M,k,x0,d,om}=P;let x,y,v,u,N,ac;
+ if(!P.lift||t<=P.t1){x=PL-x0-d*Math.cos(om*t);v=d*om*Math.sin(om*t);y=0;u=0}
+ else{const f=fly(P,Math.min(t,P.t2)-P.t1);x=f.x;y=Math.max(0,f.y);v=f.v;u=f.u}
+ const F=k*(x-y-PL);N=(y<=1e-9&&(!P.lift||t<=P.t1+1e-9))?Math.max(0,M*G-F):0;
+ return{t,x,y,v,u,F,N,z:(m*x+M*y)/(m+M)}}
+function restart(){if(st.q!==lastQ){const D=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in D)if(P[k]!==D[k])st[k]=D[k];lastQ=st.q}
+ R=setup();const n=400,smp=[];for(let i=0;i<=n;i++)smp.push(state(R.tEnd*i/n));R.smp=smp;
+ R.hmax=Math.max(...smp.map(s=>s.x),PL+R.M*G/R.k)*1.08+0.04;R.fmax=Math.max(...smp.map(s=>Math.max(Math.abs(s.F),s.N)),(R.m+R.M)*G)*1.12;S={t:0,hold:0}}
+function onParam(k){restart()}
+function step(dt){if(S.t>=R.tEnd){S.hold+=dt;if(S.hold>(R.lift?0.8:0)){S.t=R.lift?0:S.t-R.tEnd;S.hold=0}return}S.t=Math.min(R.tEnd,S.t+dt)}
+const cur=()=>state(S.t);
+/* ---------- drawing ---------- */
+function hatch(c,x1,x2,y){line(c,[[x1,y],[x2,y]],CL.mute,1.6);for(let x=x1+8;x<x2;x+=10)line(c,[[x,y+1],[x-7,y+9]],alpha(CL.mute,0.7),1)}
+function spring(c,x,yb,yt,col,lw){const n=16,w=12,L1=yb-yt,pts=[[x,yb],[x,yb-L1*0.06]];for(let i=0;i<n;i++){pts.push([x+(i%2?-w:w),yb-L1*(0.06+0.88*(i+0.5)/n)])}pts.push([x,yt+L1*0.06],[x,yt]);line(c,pts,col,lw)}
+function drawScene(c,B){const e=cur(),q=qn(),P=R,fy=B.y+B.h-14,s=(B.h-40)/P.hmax,cx=B.x+165,Y=h=>fy-s*h,PW=Math.min(120,B.w*0.42);
+ hatch(c,cx-PW*0.9,cx+PW*0.9,fy);txt(c,"床",cx+PW*0.9+6,fy+4,CL.mute,{s:12});
+ const ya=Y(e.y),yb=Y(e.x);
+ // reference lines (relative to the plate)
+ const ref=(h,lab,col,dash,k)=>{const yy=Y(e.y+h);glow(c,k,col);line(c,[[cx-PW*0.8,yy],[cx+PW*0.8,yy]],alpha(col,0.75),W_(k,1),dash);noglow(c);txt(c,lab,cx+PW*0.8+4,yy,col,{s:12})};
+ ref(PL,"自然長",CL.mute,[4,4],"");ref(PL-P.x0,"つり合い",CL.mute,[1,3],"X");
+ if(q>=6)ref(PL+P.M*G/P.k,"x₁ = L + Mg/k",CL.fr,[6,4],"x1");
+ // spring & bodies
+ const tension=e.x-e.y-PL;spring(c,cx,ya-8,yb,HL(["F","fB"])?CL.fr:alpha(CL.ink,0.75),HL(["F","fB"])?2.6:1.6);
+ glow(c,"y",CL.fic);rect(c,cx-PW/2,ya-8,PW,8,alpha(CL.fic,0.75),CL.fic,W_("y",1.2));noglow(c);txt(c,"A",cx-PW/2-8,ya-4,CL.fic,{s:13,b:1,al:"right"});
+ glow(c,"x",CL.acc);dot(c,cx,yb,12,alpha(CL.acc,0.85),CL.acc,W_("x",1.5));noglow(c);txt(c,"B",cx-18,yb,CL.acc,{s:13,b:1,al:"right"});
+ // dimensions
+ dimV(c,B.x+20,fy,yb,"x",CL.acc,"x",1);
+ if(e.y>0.002)dimV(c,cx+PW/2+14,fy,ya,"y",CL.fic,"y",1);
+ if(q===1)dimV(c,cx-PW/2-30,Y(e.y+PL),Y(e.y+PL-P.x0),"x₀",CL.fr,"x0",-1);
+ if(q>=2&&q<=6&&P.d>0)dimV(c,B.x+56,Y(PL-P.x0),Y(PL-P.x0-P.d),"d",CL.acc,"d",1);
+ // centre of mass
+ if(q===10){const yz=Y(e.z);glow(c,"z",CL.ink);line(c,[[cx-26,yz],[cx+26,yz]],CL.ink,W_("z",2));dot(c,cx,yz,4,CL.ink);noglow(c);ktag(c,"z","G",cx+30,yz,CL.ink,{s:12})}
+ // forces on B in the scene; forces on A in a small free-body panel
+ const FS=(B.h*0.2)/R.fmax,px=B.x+B.w-44,py=B.y+B.h*0.52;
+ txt(c,"A にはたらく力",px,py-B.h*0.2-18,CL.fic,{s:12,b:1,al:"center"});rect(c,px-26,py-4,52,8,alpha(CL.fic,0.75),CL.fic,1.2);
+ karrow(c,"g",px+16,py+4,px+16,py+4+P.M*G*FS,CL.grav,2.6);ktag(c,"g","Mg",px+22,py+4+P.M*G*FS+12,CL.grav,{s:12,it:1});
+ if(Math.abs(e.F)*FS>3){const y0=e.F>0?py-4:py+4;karrow(c,"F",px,y0,px,y0-e.F*FS,CL.fr,2.6);ktag(c,"F","F",px-6,y0-e.F*FS+(e.F>0?-10:12),CL.fr,{s:12,it:1,al:"right"})}
+ if(e.N*FS>3){karrow(c,"N",px-16,py-4,px-16,py-4-e.N*FS,CL.frc,3);ktag(c,"N","N",px-22,py-4-e.N*FS*0.5,CL.frc,{s:12,it:1,al:"right"})}
+ if(e.N*FS>3)karrow(c,"N",cx+PW*0.3,fy+1,cx+PW*0.3,fy-Math.min(e.N*FS,40),CL.frc,2.4);
+ const fB=-e.F;karrow(c,"g",cx+22,yb,cx+22,yb+P.m*G*FS,CL.grav,2.2);if(Math.abs(fB)*FS>3)karrow(c,"fB",cx-22,yb,cx-22,yb-fB*FS,CL.fr,2.2);
+ if(q===9||q===3||q===2){const VS=40/Math.max(0.2,P.d*P.om);if(Math.abs(e.v)*VS>3)karrow(c,"v",cx+40,yb,cx+40,yb-e.v*VS,CL.acc,2.4)}
+ txt(c,`t = ${S.t.toFixed(2)} s`,B.x+B.w-4,B.y+6,CL.mute,{s:12,al:"right"});
+ if(P.lift&&S.t>=P.t1&&S.t<P.t2)txt(c,"浮いている",B.x+B.w-4,B.y+24,CL.frc,{s:12,b:1,al:"right"});
+ if(P.lift&&S.t>=P.t2)txt(c,"t₂：A が再び着地",B.x+B.w-4,B.y+24,CL.fic,{s:12,b:1,al:"right"})}
+function plot(c,B,f,yr,curves,o){const P=R,A=axes(c,B,[0,P.tEnd],yr,{xl:"t",y0:o.y0,yl:o.yl,yit:false,xt:o.xt});
+ (o.hl||[]).forEach(([v,lab,col,dash])=>{line(c,[[B.x,A.Y(v)],[B.x+B.w,A.Y(v)]],alpha(col,0.7),1,dash);txt(c,lab,B.x+B.w-2,A.Y(v)-8,col,{s:11,al:"right"})});
+ if(P.lift)[[P.t1,"t₁"],[P.t2,"t₂"]].forEach(([t,l])=>{line(c,[[A.X(t),B.y],[A.X(t),B.y+B.h]],alpha(CL.mute,0.7),1,[3,3]);ktag(c,l==="t₁"?"t1":"",l,A.X(t),B.y+B.h+14,CL.ink,{s:12,al:"center"})});
+ curves.forEach(([g,col,k,w,dash])=>{const pts=R.smp.filter(s=>s.t<=S.t+1e-9).map(s=>[A.X(s.t),A.Y(g(s))]);glow(c,k,col);line(c,pts,col,W_(k,w),dash);noglow(c);const e=cur();dot(c,A.X(S.t),A.Y(g(e)),4,col)});
+ txt(c,o.title,B.x-40,B.y-34,CL.ink,{s:12,b:1})}
+function drawGraphs(c,B1,B2){const P=R,q=qn();
+ const z0=P.m*(PL-P.x0-P.d)/(P.m+P.M);
+ const hl1=[[PL-P.x0,"中心 L − x₀",CL.mute,[1,3]]];if(q===10)hl1.push([z0,"z(0)",CL.mute,[5,4]]);if(q>=6)hl1.push([PL+P.M*G/P.k,"x₁",CL.fr,[6,4]]);
+ plot(c,B1,null,[0,P.hmax],[[s=>s.x,CL.acc,"x",2],[s=>s.y,CL.fic,"y",2,[6,3]],...(q===10?[[s=>s.z,CL.ink,"z",3]]:[])],{yl:"高さ [m]",hl:hl1,title:q===10?"位置（青：B の x　紫：A の y　黒：重心 z）":"位置（青：B の x　紫：A の y）"});
+ const fm=P.fmax;plot(c,B2,null,[-fm,fm],[[s=>s.F,CL.fr,"F",2],[s=>s.N,CL.frc,"N",2.2]],{y0:0,yl:"力 [N]",hl:[[(P.m+P.M)*G,"(M+m)g",CL.mute,[1,3]]],title:"板 A が受ける力（オレンジ：ばねの力 F　赤：垂直抗力 N）"})}
+function drawAll(){const c=begin(cv),W=cv.W,H=cv.H,n=cv.narrow;
+ if(n){drawScene(c,{x:16,y:20,w:W-32,h:420});drawGraphs(c,{x:70,y:510,w:W-100,h:170},{x:70,y:780,w:W-100,h:180})}
+ else{drawScene(c,{x:16,y:20,w:440,h:H-36});drawGraphs(c,{x:530,y:56,w:W-570,h:160},{x:530,y:296,w:W-570,h:160})}}
+/* ---------- live equations ---------- */
+function eqs0(){const q=qn(),r=String.raw,e=cur(),P=R,f=(x,d=3)=>x.toFixed(d),N=cv.narrow;
+ const Ft=TK("F","fr","F"),Nt=TK("N","frc","N"),xt=TK("x","acc","x");
+ if(q===1)return{title:"力のつり合い（おもり B）",list:[{t:TK("fB","fr","kx_0")+"="+TK("g","grav","mg")+r`\quad\Rightarrow\quad `+TK("x0","fr","x_0")+r`=\frac{mg}{k}`,n:`x₀ = ${NS(f(P.x0),"fr")} m`}]};
+ if(q===2)return{title:"運動方程式（おもり B）",list:[{t:r`m\,a=`+TK("fB","fr",r`-k(x-L)`)+TK("g","grav","-mg")+"=-k"+TK("X","acc","X"),n:`X = ${NS(f(e.x-(PL-P.x0)),"acc")} m`},{t:r`\omega=\sqrt{\frac km}`,n:`ω = ${f(P.om,2)} rad/s，周期 T = ${f(P.T,3)} s`}]};
+ if(q===3)return{title:"単振動の式（中心 L − x₀，振幅 d，最低点から出発）",list:[{t:xt+r`=(L-x_0)-`+TK("d","acc","d")+r`\cos\omega t`,n:`${NS(f(e.x),"acc")} = ${f(PL-P.x0)} − ${f(P.d)} × cos(${f(P.om*e.t,2)})`}]};
+ if(q===4)return{title:"フックの法則（ばねの伸び x − L）",list:[{t:Ft+r`=k(`+xt+r`-L)=-mg-kd\cos\omega t`,n:`F = ${NS(f(e.F),"fr")} N（${e.F>=0?"上向き：ばねが A を引く":"下向き：ばねが A を押す"}）`}]};
+ if(q===5)return{title:"力のつり合い（板 A）",list:[{t:Nt+"+"+Ft+"-"+TK("g","grav","Mg")+r`=0\ \Rightarrow\ `+Nt+r`=(M+m)g+kd\cos\omega t`,n:`${NS(f(e.N),"frc")} + (${NS(f(e.F),"fr")}) − ${f(P.M*G)} = ${f(e.N+e.F-P.M*G)}`}]};
+ if(q===6)return{title:"浮き上がらない条件（N の最小値 ≥ 0）",list:[{t:TK("N","frc",r`N_{\min}`)+r`=(M+m)g-kd\ \ge 0\ \Rightarrow\ d\le d_0=\frac{(M+m)g}{k}`,n:`d₀ = ${f(P.d0)} m，いまの d = ${f(P.d)} m，N の最小 = ${NS(f((P.m+P.M)*G-P.k*P.d),"frc")} N`}]};
+ if(!P.lift)return{title:"d ≤ d₀ では浮き上がらない",list:[{t:r`d\le d_0`,n:`d/d₀ を 1 より大きくしてください`}]};
+ if(q===7)return{title:"床を離れる条件（N = 0）",list:[{t:r`(M+m)g+kd\cos\omega `+TK("t1","ink","t_1")+r`=0\ \Rightarrow\ \cos\omega t_1=-\frac{d_0}{d}`,n:`cos ωt₁ = ${f(-P.d0/P.d)}，t₁ = ${f(P.t1)} s`}]};
+ if(q===8)return{title:"力のつり合い（板 A，N = 0 の瞬間）",list:[{t:"k("+TK("x1","fr","x_1")+"-L)="+TK("g","grav","Mg")+r`\ \Rightarrow\ x_1=L+\frac{Mg}{k}`,n:`x₁ = ${NS(f(P.x1),"fr")} m（L + Mg/k = ${f(PL+P.M*G/P.k)} m）`}]};
+ if(q===9)return{title:"単振動の速度",list:[{t:TK("v","acc","v_1")+r`=d\omega\sin\omega t_1=\omega\sqrt{d^2-{d_0}^2}`,n:`v₁ = ${NS(f(P.v1),"acc")} m/s（ω√(d²−d₀²) = ${f(P.om*Math.sqrt(P.d*P.d-P.d0*P.d0))} m/s）`}]};
+ const z0=P.m*(PL-P.x0-P.d)/(P.m+P.M),z2=state(P.t2).z;
+ return{title:"重心の運動方程式（外力だけで決まる）",list:[{t:r`(M+m)\,a_G=`+Nt+"-"+TK("g","grav","(M+m)g"),n:e.t<P.t1?"t < t₁：A は床の上，z = mx/(m+M) が増える":"t₁ < t < t₂：N = 0 なので a_G = −g（放物線）"},{t:TK("z","ink",r`z(t_2)`)+r`>z(0)`,n:`z(0) = ${f(z0)} m，z(t₂) = ${NS(f(z2),"ink")} m`}]}}
+function eqs(){const E=eqs0();if(cv.narrow)E.list.forEach(e=>{e.t=e.t.replace(/\\ \\Rightarrow\\ |\\quad\\Rightarrow\\quad |\\qquad /g,m=>"\\\\"+(m.includes("Rightarrow")?"\\Rightarrow ":""))});return E}
+function note(){const P=R;return`L = ${PL} m（ばねの自然長）、g = 9.8 m/s²。d₀ = (M+m)g/k = ${P.d0.toFixed(3)} m。ばねが縮みきらないように d < L − x₀ の範囲（d/d₀ ≦ ${P.rmax.toFixed(2)}）に制限しています。`+(P.lift?"浮いた後は、A が着地する時刻 t₂ までを表示します。":"")}
+function readout(){const e=cur(),P=R,f=(x,d=3)=>x.toFixed(d),r=[["時刻 t",f(e.t,2)+" s"],["B の位置 x",f(e.x)+" m"],["A の高さ y",f(e.y)+" m"],["ばねの力 F（A が受ける，上向き正）",f(e.F)+" N"],["垂直抗力 N",f(e.N)+" N"],["x₀ = mg/k",f(P.x0)+" m"],["ω = √(k/m)",f(P.om,2)+" rad/s"],["d / d₀",f(P.d,3)+" m / "+f(P.d0)+" m"]];
+ if(P.lift){r.push(["t₁（N = 0）",f(P.t1)+" s"],["x₁（測定）／L + Mg/k",f(P.x1)+" ／ "+f(PL+P.M*G/P.k)+" m"],["v₁（測定）／ω√(d²−d₀²)",f(P.v1)+" ／ "+f(P.om*Math.sqrt(P.d*P.d-P.d0*P.d0))+" m/s"],["t₂（着地）",f(P.t2)+" s"],["重心 z(0) → z(t₂)",f(P.m*(PL-P.x0-P.d)/(P.m+P.M))+" → "+f(state(P.t2).z)+" m"])}
+ else r.push(["A","浮かない（d ≦ d₀）"]);return r}
+initUI("I1");
+}
+</script>
+</body>
+</html>
