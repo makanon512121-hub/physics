@@ -17,6 +17,7 @@ const COLUMNS = {
   links: ["リンク", "link", "links"],
   tags: ["タグ", "tags"],
   solution: ["解答解説", "解答・解説", "solution"],
+  similar: ["類題", "similar"],
 };
 // 英語表示のときに使う列（なくてもOK）：「タイトル_en」のように、見出しの後ろに _en をつけた列
 const EN_KEYS = ["title", "category", "type", "university", "description", "links", "tags"];
@@ -200,9 +201,39 @@ function toItems(rows) {
         item.tagList.push(t); item.en.tagList.push(enTags[k] || "");
       });
       item.en.linkList = parseLinks(item.en.links);
+      // 「類題」列：類題にする問題のタイトルを1行に1つ（管理ページの「類題」から選べます）
+      item.similarNames = splitSimilar(item.similar);
       return item;
     })
     .filter((item) => item.title);
+}
+
+function splitSimilar(text) {
+  return String(text || "").split(/\n/).map((t) => t.trim()).filter(Boolean);
+}
+// 類題のタイトル → 問題（手で「、」区切りで書いた場合も読めるように）
+function findByTitle(name) {
+  return data.items.find((i) => i.title === name);
+}
+function similarOf(item) {
+  // 管理ページで読んだシートの最新の中身があればそちら、なければ公開CSVの「類題」列
+  const names = data.similar ? data.similar[item.title] || [] : item.similarNames;
+  const out = [];
+  for (const n of names || []) {
+    const hit = findByTitle(n);
+    const list = hit ? [hit] : n.split(/[、,，]/).map((t) => findByTitle(t.trim())).filter(Boolean);
+    for (const it of list) if (it !== item && !out.includes(it)) out.push(it);
+  }
+  return out;
+}
+// 「東京大学 2018年 第2問」のような短い呼び名
+function probLabel(item) {
+  const parts = [];
+  if (item.university) parts.push(tx(item, "university"));
+  if (item.year) parts.push(yearName(item.year));
+  const q = item.tagList.findIndex((t) => /^第\s*\d+\s*問$/.test(t));
+  if (q >= 0) parts.push((en() && item.en.tagList[q]) || item.tagList[q]);
+  return parts.join(" ") || (item.category ? catName(item.category) : "");
 }
 
 // 「リンク」列を読む：1行に1つ「表示名 URL」（セル内改行は Alt+Enter）。「、」「;」区切りもOK
@@ -671,7 +702,9 @@ function bindCards(root) {
 }
 
 // ---------- 動画ウィンドウ ----------
-function openModal(item) {
+let modalStack = []; // 類題から別の問題に移ったとき、「もどる」で元の問題に戻るため
+function openModal(item, from) {
+  if (from) modalStack.push(from); else if (from !== false) modalStack = [];
   let media = "";
   if (item.videoId) {
     media = `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${item.videoId}?autoplay=1&rel=0"
@@ -692,11 +725,30 @@ function openModal(item) {
       : `<div class="choice sol off" aria-disabled="true">
         <span class="choice-label">${L("解答解説", "Solution")}</span><span class="choice-go">${L("準備中", "Coming soon")}</span></div>`;
   }
+  // 類題（管理ページで選んだ問題。なければボタンを出さない）
+  const sims = similarOf(item);
+  if (sims.length) {
+    tiles += `<button class="choice sim" type="button" data-sim-open aria-expanded="false" aria-controls="modal-sim">
+        <span class="choice-label">${L("類題", "Similar problems")}</span><span class="choice-go">${L(`${sims.length}問`, `${sims.length}`)} <span class="sim-arrow">↓</span></span></button>`;
+  }
   if (tiles) media += `<div class="choices${item.videoId ? " below" : ""}">${tiles}</div>`;
+  if (sims.length) {
+    media += `<div class="sim-list" id="modal-sim" hidden>
+      <p class="sim-head">${L("同じ考え方で解ける問題です。押すとその問題に移ります。", "Problems solved with the same ideas. Tap one to go there.")}</p>
+      ${sims.map((s) => `<button class="sim-item" type="button" style="--c:${colorOf(s)}" data-sim-go="${s.order}">
+        <span class="sim-text"><span class="sim-meta">${esc(probLabel(s))}${s.category ? `<span class="sim-cat">${esc(catName(s.category))}</span>` : ""}</span>
+        <span class="sim-title">${esc(tx(s, "title"))}</span></span><span class="sim-go">→</span></button>`).join("")}
+    </div>`;
+  }
+  if (modalStack.length) {
+    const prev = modalStack[modalStack.length - 1];
+    media += `<button class="modal-back" type="button" data-sim-back title="${esc(tx(prev, "title"))}">← ${L("もどる", "Back")}</button>`;
+  }
   $("modal-media").innerHTML = media;
   $("modal-tags").innerHTML = tagsHtml(item);
   document.querySelector(".modal-box").style.setProperty("--c", colorOf(item));
   $("modal-title").textContent = tx(item, "title");
+  $("modal").dataset.title = item.title;
   $("modal-desc").textContent = tx(item, "description") + (item.updatedAt ? `\n\n${updatedText(item.updatedAt)}` : "");
   const links = [];
   if (item.pdf) links.push(`<a class="btn" href="${esc(item.pdf)}" target="_blank" rel="noopener">${L("問題・解答（PDF）を開く", "Open problem & solution (PDF)")}</a>`);
@@ -704,10 +756,28 @@ function openModal(item) {
   if (item.videoId) links.push(`<a class="btn ghost" href="https://www.youtube.com/watch?v=${item.videoId}" target="_blank" rel="noopener">${L("YouTubeで見る", "Watch on YouTube")}</a>`);
   $("modal-links").innerHTML = links.join("");
   $("modal").hidden = false;
+  document.querySelector(".modal-box").scrollTop = 0;
   document.body.style.overflow = "hidden";
 }
+$("modal-media").addEventListener("click", (e) => {
+  const open = e.target.closest("[data-sim-open]"), go = e.target.closest("[data-sim-go]"), back = e.target.closest("[data-sim-back]");
+  if (open) {
+    const list = $("modal-sim");
+    list.hidden = !list.hidden;
+    open.setAttribute("aria-expanded", String(!list.hidden));
+    open.querySelector(".sim-arrow").textContent = list.hidden ? "↓" : "↑";
+    if (!list.hidden) list.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } else if (go) {
+    const cur = data.items.find((i) => i.title === $("modal").dataset.title);
+    const next = data.items.find((i) => i.order === +go.dataset.simGo);
+    if (next) openModal(next, cur || false);
+  } else if (back && modalStack.length) {
+    openModal(modalStack.pop(), false);
+  }
+});
 
 function closeModal() {
+  modalStack = [];
   $("modal").hidden = true;
   $("modal-media").innerHTML = ""; // 動画を止める
   document.body.style.overflow = "";
@@ -1046,6 +1116,7 @@ function bindAdmin() {
   const errText = (r) => r.error === "password" ? L("パスワードがちがいます。", "Wrong password.")
     : r.error === "share" ? L("画像を公開できませんでした。Googleドライブの共有の設定を確かめてください。", "Could not share the image on Google Drive.")
     : r.error === "type" || r.error === "size" || r.error === "data" ? L("この画像は保存できませんでした（JPEG・PNG などで、15MBまで）。", "This image could not be saved.")
+    : r.error === "notfound" ? L("シートでこの問題が見つかりませんでした。タイトルが変わっていないか確かめてください。", "This problem was not found in the sheet.")
     : r.error === "drive" ? L("Googleドライブを使う許可がまだのようです（使い方ガイドの「B7」の setupDiaryImages を見てください）。", "Google Drive is not authorized yet.")
     : r.error === "script" || r.error === "action" ? L("Apps Script の更新がまだのようです（使い方ガイドの「B7. 管理ページ」を見てください）。", "The Apps Script has not been updated yet.")
     : L("うまくいきませんでした。時間をおいてもう一度お試しください。", "Something went wrong. Please try again later.");
@@ -1084,6 +1155,7 @@ function bindAdmin() {
       <nav class="admin-jump">
         <a href="#ad-word-sec" data-jump>${L("今日の一言", "Today's note")}</a>
         <a href="#ad-diary-sec" data-jump>${L("日記", "Diary")}</a>
+        <a href="#ad-sim-sec" data-jump>${L("類題", "Similar problems")}</a>
         <a href="#ad-pass-sec" data-jump>${L("サイトのパスワード", "Site password")}</a>
         <button class="btn ghost" id="ad-logout" type="button">${L("ログアウト", "Log out")}</button>
       </nav>
@@ -1101,6 +1173,13 @@ function bindAdmin() {
         <div id="ad-diary-form"></div>
         <div id="ad-diary-result"></div>
         <div id="ad-diary-list"><p class="status">${L("読み込み中…", "Loading…")}</p></div>
+      </div>
+      <div class="form admin-box admin-sec" id="ad-sim-sec">
+        <h2 class="admin-h">${L("類題", "Similar problems")}</h2>
+        <p class="admin-note">${L("① 類題を決めたい問題を選ぶ → ② 類題にする問題にチェック → ③ 保存。問題を開いたときの画面に「類題」ボタンが出ます（1問も選ばなければボタンは出ません）。",
+          "1) Choose a problem, 2) tick its similar problems, 3) save. A “Similar problems” button then appears on that problem.")}</p>
+        <div id="ad-sim"></div>
+        <div id="ad-sim-result"></div>
       </div>
       <div class="form admin-box admin-sec" id="ad-pass-sec">
         <h2 class="admin-h">${L("サイトを見るためのパスワード", "Password to view the site")}</h2>
@@ -1257,8 +1336,131 @@ function bindAdmin() {
         };
       });
     }
+    // 類題
+    if (r.similar && typeof r.similar === "object") data.similar = r.similar; // シートの最新の中身（公開CSVは反映に数分かかるため）
+    similarAdmin(); bindSimilarBox();
     diaryForm();
     fetchDiary().then(gotList).catch(() => { $("ad-diary-list").innerHTML = `<p class="notice ng">${errText({ error: "script" })}</p>`; });
+  }
+
+  // ---- 類題の選定 ----
+  // 選んでいる問題（タイトル）と、チェック中の類題（タイトルの並び）
+  const sim = { target: "", picks: [], mutual: true, q: "", uni: "", cat: "", q1: "", uni1: "", cat1: "" };
+  function simFilterHtml(k) {
+    const unis = [...new Set(data.items.map((i) => i.university).filter(Boolean))];
+    const cats = [...new Set(data.items.map((i) => i.category).filter(Boolean))];
+    const q = sim["q" + k], u = sim["uni" + k], c = sim["cat" + k];
+    return `<div class="sim-filter">
+      <input type="search" data-sf="q${k}" value="${esc(q)}" placeholder="${L("タイトル・大学・年・タグで探す", "Search title, university, year, tags")}" aria-label="${L("さがす", "Search")}">
+      <select data-sf="uni${k}" aria-label="${L("大学", "University")}"><option value="">${L("すべての大学", "All universities")}</option>${unis.map((x) => `<option value="${esc(x)}"${x === u ? " selected" : ""}>${esc(uniName(x))}</option>`).join("")}
+        <option value="-"${u === "-" ? " selected" : ""}>${L("大学なし", "No university")}</option></select>
+      <select data-sf="cat${k}" aria-label="${L("分野", "Field")}"><option value="">${L("すべての分野", "All fields")}</option>${cats.map((x) => `<option value="${esc(x)}"${x === c ? " selected" : ""}>${esc(catName(x))}</option>`).join("")}</select>
+    </div>`;
+  }
+  function simMatch(i, k) {
+    const q = sim["q" + k].trim().toLowerCase(), u = sim["uni" + k], c = sim["cat" + k];
+    if (u === "-" ? i.university : u && i.university !== u) return false;
+    if (c && i.category !== c) return false;
+    if (!q) return true;
+    const hay = [i.title, i.en.title, i.university, i.en.university, i.year, i.year && i.year + "年", i.category, i.tags, i.en.tags, probLabel(i)].join(" ").toLowerCase();
+    return q.split(/\s+/).every((w) => hay.includes(w));
+  }
+  const simNames = (item) => similarOf(item).map((x) => x.title);
+  function simRow(i, extra) {
+    return `<span class="sim-text"><span class="sim-meta">${esc(probLabel(i))}${i.category ? `<span class="sim-cat">${esc(catName(i.category))}</span>` : ""}</span>
+      <span class="sim-title">${esc(tx(i, "title"))}</span></span>${extra || ""}`;
+  }
+  function similarAdmin() {
+    const el = $("ad-sim");
+    if (!el) return;
+    if (!data.loaded) { el.innerHTML = `<p class="status">${L("読み込み中…", "Loading…")}</p>`; return; }
+    if (!data.items.length) { el.innerHTML = `<p class="admin-note">${L("問題がまだありません。", "No problems yet.")}</p>`; return; }
+    const target = findByTitle(sim.target);
+    if (!target) {
+      // ① 問題を選ぶ
+      const list = data.items.filter((i) => simMatch(i, "1"));
+      el.innerHTML = `<p class="admin-mode">${L("① 類題を決めたい問題を選んでください", "1) Choose a problem")}</p>
+        ${simFilterHtml("1")}
+        <ul class="sim-pick">${list.map((i) => { const n = similarOf(i).length;
+          return `<li><button type="button" class="sim-item" style="--c:${colorOf(i)}" data-target="${i.order}">${simRow(i,
+            `<span class="sim-count${n ? "" : " none"}">${n ? L(`類題${n}`, `${n} set`) : L("未設定", "None")}</span>`)}</button></li>`; }).join("")
+          || `<li class="admin-note">${L("当てはまる問題がありません。", "No matching problems.")}</li>`}</ul>`;
+    } else {
+      // ② 類題にチェック
+      const list = data.items.filter((i) => i !== target && simMatch(i, ""));
+      const picked = sim.picks.map(findByTitle).filter(Boolean);
+      el.innerHTML = `<div class="sim-target" style="--c:${colorOf(target)}">
+          <span class="admin-mode">${L("この問題の類題を選んでいます", "Choosing similar problems for")}</span>
+          ${simRow(target)}
+          <button type="button" class="btn ghost small" data-sim-change>${L("← 問題を選びなおす", "← Choose another")}</button></div>
+        <div><p class="admin-sub">${L(`選んでいる類題（${picked.length}問）`, `Selected (${picked.length})`)}</p>
+          ${picked.length ? `<ul class="sim-chips">${picked.map((i, k) => `<li style="--c:${colorOf(i)}"><span>${esc(probLabel(i) || tx(i, "title"))}<small>${esc(tx(i, "title"))}</small></span>
+            <span class="sim-chip-btns"><button type="button" data-up="${k}" ${k ? "" : "disabled"} aria-label="${L("上へ", "Move up")}">↑</button><button type="button" data-unpick="${esc(i.title)}" aria-label="${L("外す", "Remove")}">×</button></span></li>`).join("")}</ul>`
+            : `<p class="admin-note">${L("まだありません。下の一覧からチェックしてください（1〜3問くらいがおすすめです）。", "None yet. Tick some below (1–3 is a good number).")}</p>`}</div>
+        <p class="admin-mode">${L("② 類題にする問題にチェック", "2) Tick similar problems")}</p>
+        ${simFilterHtml("")}
+        <ul class="sim-pick">${list.map((i) => `<li><label class="sim-item check" style="--c:${colorOf(i)}"><input type="checkbox" data-pick="${esc(i.title)}"${sim.picks.includes(i.title) ? " checked" : ""}>${simRow(i)}</label></li>`).join("")
+          || `<li class="admin-note">${L("当てはまる問題がありません。", "No matching problems.")}</li>`}</ul>
+        <label class="admin-check"><input type="checkbox" id="ad-sim-mutual"${sim.mutual ? " checked" : ""}> ${L("お互いに類題にする（選んだ問題の類題にも、この問題を入れる）", "Make it mutual (also add this problem to theirs)")}</label>
+        <div class="admin-btns"><button class="btn" id="ad-sim-save" type="button">${L("③ 保存する", "3) Save")}</button>
+          <button class="btn ghost" type="button" data-sim-change>${L("やめる", "Cancel")}</button></div>`;
+      $("ad-sim-save").onclick = saveSimilar;
+    }
+  }
+  // 一覧の操作（検索・絞りこみ・選ぶ・チェック）
+  function bindSimilarBox() {
+    const el = $("ad-sim");
+    if (!el) return;
+    el.addEventListener("input", (e) => {
+      const f = e.target.dataset.sf;
+      if (!f) return;
+      sim[f] = e.target.value;
+      // 検索欄は入力中のカーソルを保ったまま一覧だけ描きなおす
+      const pos = e.target.selectionStart;
+      similarAdmin();
+      const again = el.querySelector(`[data-sf="${f}"]`);
+      if (again && again.tagName === "INPUT") { again.focus(); try { again.setSelectionRange(pos, pos); } catch (err) {} }
+    });
+    el.addEventListener("change", (e) => {
+      if (e.target.dataset.pick != null) {
+        const t = e.target.dataset.pick;
+        sim.picks = e.target.checked ? sim.picks.concat(sim.picks.includes(t) ? [] : [t]) : sim.picks.filter((x) => x !== t);
+        const y = window.scrollY; similarAdmin(); window.scrollTo(0, y);
+      } else if (e.target.id === "ad-sim-mutual") sim.mutual = e.target.checked;
+    });
+    el.addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      if (b.dataset.target != null) {
+        const t = data.items.find((i) => i.order === +b.dataset.target);
+        sim.target = t.title; sim.picks = simNames(t);
+        sim.q = ""; sim.uni = ""; sim.cat = t.category || ""; // はじめは同じ分野だけ表示（「すべての分野」に変えられます）
+        $("ad-sim-result").innerHTML = "";
+        similarAdmin(); $("ad-sim-sec").scrollIntoView({ behavior: "smooth" });
+      } else if (b.dataset.simChange != null) {
+        sim.target = ""; $("ad-sim-result").innerHTML = ""; similarAdmin();
+      } else if (b.dataset.unpick != null) {
+        sim.picks = sim.picks.filter((x) => x !== b.dataset.unpick); similarAdmin();
+      } else if (b.dataset.up != null) {
+        const k = +b.dataset.up; [sim.picks[k - 1], sim.picks[k]] = [sim.picks[k], sim.picks[k - 1]]; similarAdmin();
+      }
+    });
+  }
+  async function saveSimilar() {
+    const btn = $("ad-sim-save");
+    const res = await busy(btn, L("保存中…", "Saving…"), () => adminCall({ _action: "similarSave", _password: pw,
+      _title: sim.target, _list: JSON.stringify(sim.picks), _mutual: sim.mutual ? "1" : "" }));
+    if (res.ok && res.similar) {
+      data.similar = res.similar;
+      const t = findByTitle(sim.target);
+      sim.target = "";
+      similarAdmin();
+      show("ad-sim-result", true, L(`「${esc(t ? t.title : "")}」の類題を保存しました（${t ? similarOf(t).length : 0}問）。ほかの人の画面に出るまで数分かかることがあります。`,
+        `Saved (${t ? similarOf(t).length : 0}). It may take a few minutes to show for everyone.`)
+        + (t ? ` <button type="button" class="linklike" data-sim-view="${t.order}">${L("確かめる →", "Check →")}</button>` : ""));
+      const v = $("ad-sim-result").querySelector("[data-sim-view]");
+      if (v) v.onclick = () => openModal(t);
+    } else failed("ad-sim-result", res.ok ? { error: "script" } : res);
   }
 
   if (!(CONFIG.questionUrl || "").trim()) { box.innerHTML = `<p class="notice info">${L("Apps Script のURLが設定されていません。", "Apps Script URL is not set.")}</p>`; return; }
