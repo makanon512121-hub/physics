@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="../config.js"></script>
+<script src="../gate.js"></script>
+<title>コンデンサーのつなぎかえ・電気振動・LC 並列共振</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--ink:#16181c;--mute:#5b6068;--line:#d9dce1;--panel:#f4f5f7;--acc:#2f4fa8;--frc:#d4361f;--grav:#1f7a4d;--fic:#8a3fb8;--fr:#d98a00;--ok:#1f7a4d;--ng:#d4361f;--road:#8d939b;--soft:rgba(47,79,168,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}}
+:root[data-theme=dark]{--bg:#121417;--ink:#e8eaed;--mute:#9aa1ab;--line:#2c3037;--panel:#1a1d22;--acc:#7f9cf0;--frc:#ff6b52;--grav:#4fd08f;--fic:#c58cf0;--fr:#ffb52e;--ok:#4fd08f;--ng:#ff6b52;--road:#6b717a;--soft:rgba(127,156,240,.14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Noto Sans JP",system-ui,sans-serif;overflow-x:clip}
+.v{font-family:"Times New Roman",Tinos,Times,serif;font-style:italic;font-size:1.12em}
+.u{font-family:"Times New Roman",Tinos,Times,serif;font-style:normal;font-size:1.08em}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:0 0 6px;text-wrap:balance}
+.lead{color:var(--mute);margin:0 0 6px;max-width:75ch}
+.src{font-size:14px;color:var(--mute);margin:0 0 16px}.src a{color:var(--acc)}
+.stage{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{display:block;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--panel);align-items:center}
+button{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qb{font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:17px;margin:0 0 12px}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:4px 12px;align-items:center;margin-bottom:8px}
+.row[hidden]{display:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 7em;gap:10px;align-items:center}
+input[type=range]{width:100%;height:40px;accent-color:var(--acc)}
+output{text-align:right;white-space:nowrap}
+.read{display:grid;gap:8px}
+.read div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read b{font-weight:600;text-align:right;white-space:nowrap}
+.read small{grid-column:1/-1;color:var(--mute);font-size:13px}
+.ok{color:var(--ok)}.ng{color:var(--ng)}
+.frac{font-family:"Times New Roman",Tinos,Times,serif;font-size:1.06em;display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em}
+.sq{border-top:1px solid currentColor;padding:0 .15em;margin-left:.05em}
+.note{color:var(--mute);font-size:13px;margin-top:8px}
+.sitenav{margin-bottom:10px;font-size:14px}.sitenav a{color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px}.sitenav a:hover{color:var(--ink)}
+#kaisetsu{margin-top:28px}
+#kaisetsu>h2{font-size:22px;margin:0 0 4px}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}
+details[open]{border-color:var(--acc)}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:block}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--acc);margin-right:8px}details[open] summary::before{content:"－"}
+summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute);font-size:14px}
+.body{padding:0 18px 16px}
+.body h3{font-size:15px;margin:14px 0 4px;color:var(--acc)}
+.body p{margin:6px 0}
+.eq{display:block;text-align:center;margin:10px 0;font-size:1.05em;overflow-x:auto}
+.box{background:var(--panel);border-radius:8px;padding:10px 14px;margin:10px 0}
+.goto{min-height:36px;font-size:14px;margin-top:6px}
+.hl{background:var(--soft);border-radius:4px;padding:0 3px}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
+.eqlive{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--bg)}
+.eqlive .eh{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between}
+.eqlive .eh b{color:var(--ink);font-size:14px}
+.eqlive .el{position:relative;overflow-x:auto;overflow-y:hidden;padding:2px 0;font-size:1.06em;text-align:center}
+.eqlive .num{font-size:13px;color:var(--mute);text-align:center;margin:-2px 0 6px;font-family:"Times New Roman",Tinos,Times,serif}
+.eqlive .num span{font-weight:700}
+.tk{border-radius:4px;cursor:pointer;padding:0 1px;background:color-mix(in srgb,currentColor 8%,transparent);border-bottom:2px dotted color-mix(in srgb,currentColor 55%,transparent);transition:background-color .15s,box-shadow .15s}
+.tk:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.tk.on{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 0 2px currentColor;border-bottom-color:transparent}
+.tkcap{min-height:22px;margin:4px 0 0 !important;font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tkcap b{font-size:14px}.tkcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.t-acc{color:var(--acc)}.t-frc{color:var(--frc)}.t-grav{color:var(--grav)}.t-fic{color:var(--fic)}.t-fr{color:var(--fr)}.t-ink{color:var(--ink)}.t-mute{color:var(--mute)}
+.legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.law+.katex-display,.law+p{margin-top:4px}
+.katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+</style>
+<script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.getElementById('kaisetsu'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,trust:true,strict:'ignore',macros:KMAC})"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="sitenav"><a href="../#anime/%E9%9B%BB%E7%A3%81%E6%B0%97%E5%AD%A6">← 物理のHPに戻る</a></div>
+<h1>コンデンサーのつなぎかえ・電気振動・LC 並列共振（東北大学 2025年 第2問）</h1>
+<p class="lead">前半は、極板の間隔を変えられるコンデンサーを充電し、スイッチを切りかえて2つのコンデンサーの間で電荷を移します。抵抗を通すと電圧がそろって熱が出て、コイルを通すと電気振動が起こります。電荷の動き（点の流れ）、電気量・電圧のグラフ、エネルギーの棒グラフで追います。後半は、コイルとコンデンサーを並列にした交流回路で、2つの電流が逆向きに流れて打ち消し合う「並列共振」を、波形と回転ベクトルで確かめます。</p>
+
+<div class="stage">
+<canvas id="cv" role="img" aria-label="コンデンサー・コイル・抵抗の回路と電荷の流れ、電気量やエネルギーのグラフ／交流回路の波形と回転ベクトル"></canvas>
+<div class="eqlive" id="eqlive" aria-live="off"></div>
+<div class="bar" id="qbar">
+<button class="qb" data-q="I1">問1⒜ C₂</button>
+<button class="qb" data-q="I2">問1⒝ U₁, U₂</button>
+<button class="qb" data-q="II1">問2⒜ V<sub>C2</sub></button>
+<button class="qb" data-q="II2">⒝ q₁, q₂</button>
+<button class="qb" data-q="II3">⒞ ジュール熱 Q</button>
+<button class="qb" data-q="II4">⒟ 電気振動 I<sub>M</sub></button>
+<button class="qb" data-q="III1">問3⒜ V<sub>C</sub></button>
+<button class="qb" data-q="III2">⒝ I₁</button>
+<button class="qb" data-q="III3">⒞ 共振の間隔 D</button>
+<button class="qb" data-q="III4">⒟ I₀, θ</button>
+<span style="flex:1"></span>
+<button id="play">一時停止</button>
+<button id="rst">はじめから</button>
+</div>
+</div>
+
+<div class="grid">
+<section class="card">
+<h2>設定</h2>
+<div id="sliders"></div>
+<p class="note" id="snote"></p>
+</section>
+<section class="card">
+<h2>いまの値</h2>
+<div class="read" id="read"></div>
+</section>
+</div>
+
+<section id="kaisetsu">
+<h2>解答解説</h2>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-acc">コンデンサー1・電圧 V<sub>C</sub>（青）</span>、<span class="t-fic">コンデンサー2・電流 I₂（紫）</span>、<span class="t-fr">コイル（オレンジ）</span>、<span class="t-frc">抵抗・ジュール熱（赤）</span>、<span class="t-grav">電源（緑）</span>。回路の点は電荷の流れ（電流）を表します。</p>
+
+<details id="d-I1"><summary>問(1)⒜　コンデンサー2 の電気容量 C₂<span class="ans">答 \(C_2=2C\)</span></summary><div class="body">
+<p>平行板コンデンサーの電気容量は、極板の間隔に反比例します。間隔 \(d\) のとき \(C\) なので、間隔を \(\frac d2\) にすると2倍です。</p>
+<p class="law">平行板コンデンサーの電気容量（C = ε₀S/d）</p>
+$$C=\varepsilon_0\frac{S}{d},\qquad \cfic{C_2}=\varepsilon_0\frac{S}{d/2}=2C$$
+<div class="box"><b>式の立て方</b>：極板の面積 \(S\) がわからなくても、「間隔以外は同じ」なら比で求められます。\(C\propto\dfrac{1}{\text{間隔}}\) なので、間隔が \(\frac12\) 倍なら容量は2倍です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右のグラフは C₂ と間隔の関係（反比例）です。極板の間隔が \(d\) から \(\frac d2\) に縮むと、点が \(C\) から \(2C\) に上がります。</div>
+<button class="goto" data-q="I1">この状況にする</button>
+</div></details>
+
+<details id="d-I2"><summary>問(1)⒝　十分に時間がたった後の静電エネルギー U₁, U₂<span class="ans">答 \(U_1=\dfrac12CV_0^{\,2},\ U_2=CV_0^{\,2}\)</span></summary><div class="body">
+<p>十分に時間がたつと、回路のどこにも電流が流れなくなります。すると</p>
+<p>・抵抗1 の電圧は \(R_1\times0=0\) なので、コンデンサー1 の電圧は電源と同じ \(V_0\) です。</p>
+<p>・コイルの電流が変化しないので、誘導起電力 \(L\dfrac{di}{dt}\) も 0 です。コンデンサー2 の電圧もコンデンサー1 と同じ \(V_0\) になります。</p>
+<p class="law">キルヒホッフの第2法則（十分に時間がたった後）</p>
+$$V_0=R_1\cdot0+\frac{\cacc{q_1}}{C},\qquad \frac{\cacc{q_1}}{C}=\frac{\cfic{q_2}}{2C}+L\cdot0$$
+<p class="law">静電エネルギー（U = ½CV²）</p>
+$$\cacc{U_1}=\frac12CV_0^{\,2},\qquad \cfic{U_2}=\frac12(2C)V_0^{\,2}=CV_0^{\,2}$$
+<h3>補足：途中では電気振動が起こる</h3>
+<p>スイッチ1 を閉じた直後は、コイルとコンデンサーの間で電流が行ったり来たりし、抵抗1 で少しずつ熱になって収まります。最後の状態は \(R_1\) や \(L\) によりません。電源がした仕事 \(V_0\times3CV_0=3CV_0^{\,2}\) のうち、静電エネルギーになるのは半分の \(\frac32CV_0^{\,2}\) で、残りの半分は抵抗1 の熱です。</p>
+<div class="box"><b>式の立て方</b>：「十分に時間がたった後」の直流回路では、コンデンサーは「電流が流れない」、コイルは「電圧 0 のただの導線」として扱います。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右上のグラフで \(q_1\) と \(q_2\) が揺れながら \(CV_0\) と \(2CV_0\) に落ち着きます。\(R_1\) を変えると揺れ方は変わりますが、最後の値と、右下の棒（\(U_1\), \(U_2\), 熱）の最後の高さは変わりません。</div>
+<button class="goto" data-q="I2">この状況にする</button>
+</div></details>
+
+<details id="d-II1"><summary>問(2)⒜　状態1 のコンデンサー2 の電位差 V<sub>C2</sub><span class="ans">答 \(V_{\mathrm C2}=4V_0\)</span></summary><div class="body">
+<p>スイッチ2 を端子 a から外すと、コンデンサー2 の下の極板はどこにもつながりません。電荷の逃げ道がないので、電気量は \(2C\cdot V_0=2CV_0\) のままです。間隔を \(2d\) にすると、電気容量は \(\frac C2\) になります。</p>
+<p class="law">Q = CV（電気量は一定）</p>
+$$2CV_0=\frac C2\cdot\cfic{V_{\mathrm C2}}\qquad\therefore\ V_{\mathrm C2}=4V_0$$
+<h3>着眼点：電場は変わらず、間隔だけ広がる</h3>
+<p>極板の電気量が同じなら、極板間の電場 \(E=\dfrac{Q}{\varepsilon_0S}\) は間隔によりません。電圧は（電場）×（間隔）なので、間隔に比例して大きくなります。\(\frac d2\to2d\) で4倍なので、\(V_0\to4V_0\) です。</p>
+<h3>補足：増えたエネルギーはどこから？</h3>
+<p>コンデンサー2 の静電エネルギーは \(CV_0^{\,2}\) から \(\frac12\cdot\frac C2\cdot(4V_0)^2=4CV_0^{\,2}\) に増えます。増えた \(3CV_0^{\,2}\) は、引き合う極板を引き離すときに外から加えた力がした仕事です。</p>
+<div class="box"><b>式の立て方</b>：「スイッチを切ってから極板を動かす」→ 電気量 \(Q\) が一定。「電源につないだまま動かす」→ 電圧 \(V\) が一定。どちらが一定かを最初に決めます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：極板の間の線の本数（電場の強さ）は変わらないまま、間隔が広がるにつれて電圧が比例して増えます。設定の \(n\) を変えると、広げた後の電圧は \(2nV_0\) になります。</div>
+<button class="goto" data-q="II1">この状況にする</button>
+</div></details>
+
+<details id="d-II2"><summary>問(2)⒝　状態2 の電気量 q₁, q₂<span class="ans">答 \(q_1=2CV_0,\ q_2=CV_0\)</span></summary><div class="body">
+<p>スイッチ1 が開いているので、2つのコンデンサーの上側の極板と、それをつなぐ導線は、ほかのどこともつながらない「島」になっています。島の電気量の合計は変わりません。</p>
+<p class="law">電気量保存則（上側の極板の合計）</p>
+$$\cacc{q_1}+\cfic{q_2}=CV_0+2CV_0=3CV_0$$
+<p>スイッチ2 を b につなぐと、2つのコンデンサーと抵抗2 が1つの輪になります。電圧の高いコンデンサー2（\(4V_0\)）から低いコンデンサー1（\(V_0\)）へ電荷が移り、電流が 0 になるのは2つの電圧が等しくなったときです。</p>
+<p class="law">キルヒホッフの第2法則（十分に時間がたった後，抵抗2 の電圧は 0）</p>
+$$\frac{\cacc{q_1}}{C}=\frac{\cfic{q_2}}{C/2}$$
+<p>2つの式を連立して</p>
+$$q_1=2CV_0,\qquad q_2=CV_0\qquad(\text{電圧はともに }2V_0)$$
+<div class="box"><b>式の立て方</b>：コンデンサーのつなぎかえは、(1) 孤立した部分の電気量保存、(2) 最後の電圧の関係（キルヒホッフの第2法則）の2本で決まります。孤立した部分は「スイッチや電源で外とつながっていない極板の組」を探します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右上のグラフで2つの電圧が近づき、\(2V_0\) で一致します。右下の棒の合計（\(3CV_0\)）は最後まで変わりません。</div>
+<button class="goto" data-q="II2">この状況にする</button>
+</div></details>
+
+<details id="d-II3"><summary>問(2)⒞　抵抗2 で発生したジュール熱 Q<span class="ans">答 \(Q=\dfrac32CV_0^{\,2}\)</span></summary><div class="body">
+<p>電源はつながっていないので、エネルギーの出入りは「静電エネルギーの減少 → 抵抗2 の熱」だけです。</p>
+<p class="law">エネルギー保存則（減った静電エネルギー ＝ ジュール熱）</p>
+$$\cfrc{Q}=\Bigl\{\frac12CV_0^{\,2}+\frac12\cdot\frac C2(4V_0)^2\Bigr\}\nobreak-\Bigl\{\frac{(2CV_0)^2}{2C}+\frac{(CV_0)^2}{2\cdot\frac C2}\Bigr\}$$
+$$=\frac92CV_0^{\,2}-3CV_0^{\,2}=\frac32CV_0^{\,2}$$
+<h3>補足：直列の合成容量と電圧の差で一気に求める</h3>
+<p>電圧 \(V_1\), \(V_2\) の2つのコンデンサー \(C_1\), \(C_2\) を抵抗でつないで電圧をそろえるとき、熱は</p>
+$$Q=\frac12\cdot\frac{C_1C_2}{C_1+C_2}\,(V_2-V_1)^2$$
+<p>になります（直列の合成容量に「電圧の差」がかかっていたと考えた形）。この問題では合成容量 \(\frac{C\cdot\frac C2}{C+\frac C2}=\frac C3\)、電圧の差 \(3V_0\) なので \(\frac12\cdot\frac C3\cdot9V_0^{\,2}=\frac32CV_0^{\,2}\) と一致します。\(R_2\) の値によらないこともわかります。</p>
+<div class="box"><b>式の立て方</b>：抵抗の熱は \(RI^2\) を時間で足し合わせず、「はじめと終わりの静電エネルギーの差」で求めます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：\(R_2\) を変えると電流の減り方（速さ）は変わりますが、右下の「R₂ の熱」の最後の高さは同じです。\(n=0.5\)（間隔を変えない）にすると電圧の差がなく、熱は 0 です。</div>
+<button class="goto" data-q="II3">この状況にする</button>
+</div></details>
+
+<details id="d-II4"><summary>問(2)⒟　電気振動の電流の最大値 I<sub>M</sub><span class="ans">答 \(I_M=V_0\sqrt{\dfrac{3C}{L}}\)</span></summary><div class="body">
+<p>状態1 からスイッチ2 を a につなぐと、コンデンサー1、コンデンサー2、コイルが1つの輪になります。抵抗がないので、エネルギーを失わずに電気振動が続きます。電流 \(i\) は、コンデンサー2 からコンデンサー1 へ電荷を運ぶ向きを正とします。</p>
+<p class="law">キルヒホッフの第2法則（コイルの電圧が電流の変化を決める）</p>
+$$L\frac{di}{dt}=\frac{\cfic{q_2}}{C/2}-\frac{\cacc{q_1}}{C}$$
+<p>電流が最大になる瞬間は \(\frac{di}{dt}=0\) なので右辺 = 0、つまり2つのコンデンサーの電圧が等しくなっています。電気量の合計 \(3CV_0\) も同じなので、このときの電気量は ⒝ と同じ \(q_1=2CV_0\), \(q_2=CV_0\) です。</p>
+<p class="law">エネルギー保存則（はじめ ＝ 電流が最大のとき）</p>
+$$\frac92CV_0^{\,2}=3CV_0^{\,2}+\frac12L\cfr{I_M^{\,2}}$$
+$$\therefore\ \frac12LI_M^{\,2}=\frac32CV_0^{\,2},\qquad I_M=V_0\sqrt{\frac{3C}{L}}$$
+<h3>着眼点：⒞ の熱がそのままコイルのエネルギーに</h3>
+<p>⒞ では抵抗2 で熱になった \(\frac32CV_0^{\,2}\) が、抵抗のない ⒟ では、電流が最大の瞬間にコイルのエネルギーになっています。どちらも「2つの電圧がそろった状態」を通るので、同じ量が出てきます。</p>
+<h3>別解：単振動として解く</h3>
+<p>\(i=\dfrac{dq_1}{dt}=-\dfrac{dq_2}{dt}\) を使って上の式を時間で微分すると</p>
+$$\frac{d^2i}{dt^2}=-\frac{3}{LC}\,i$$
+<p>となり、角振動数 \(\omega=\sqrt{\dfrac{3}{LC}}\) の単振動です（2つのコンデンサーの直列の合成容量 \(\frac C3\) とコイルの振動）。\(q_1\) は中心 \(2CV_0\) のまわりを振幅 \(CV_0\) で往復するので</p>
+$$I_M=\omega\times CV_0=V_0\sqrt{\frac{3C}{L}}$$
+<div class="box"><b>式の立て方</b>：電気振動で「電流が最大」のときはコイルの電圧 \(L\frac{di}{dt}=0\) です。これでコンデンサーの電荷が決まり、あとはエネルギー保存則で \(I_M\) が出ます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右下の棒で、静電エネルギーとコイルのエネルギーがやりとりされ、合計は一定です。コイルの棒が最大の瞬間、2つのコンデンサーの電圧がそろっています。\(n=2\) では、振動の端でコンデンサー2 の電気量がちょうど 0 になります。</div>
+<button class="goto" data-q="II4">この状況にする</button>
+</div></details>
+
+<details id="d-III1"><summary>問(3)⒜　コンデンサーの電圧 V<sub>C</sub><span class="ans">答 \(V_{\mathrm C}=-\dfrac{kI_0}{\omega C}\cos(\omega t+\theta)\)</span></summary><div class="body">
+<p>間隔 \(kd\) のコンデンサーの電気容量は \(\frac Ck\) です。図の向きの電流 \(I_2\) は、点 x 側の極板の電気量 \(q\) を増やすので \(I_2=\frac{dq}{dt}\) です。</p>
+<p class="law">電流は電気量の時間変化（q を求める）</p>
+$$q=\int\cfic{I_2}\,dt=-\frac{I_0}{\omega}\cos(\omega t+\theta)$$
+<p class="law">コンデンサーの電圧（V = q/C）</p>
+$$\cacc{V_{\mathrm C}}=\frac{q}{C/k}=-\frac{kI_0}{\omega C}\cos(\omega t+\theta)$$
+<p>\(-\cos x=\sin\bigl(x-\frac\pi2\bigr)\) なので、電圧は電流より \(\frac\pi2\) 遅れています。最大値の比は、コンデンサーのリアクタンス \(\dfrac{1}{\omega\cdot\frac Ck}=\dfrac{k}{\omega C}\) です。</p>
+<div class="box"><b>式の立て方</b>：積分を使わずに、「コンデンサーの電圧は電流より \(\frac\pi2\) 遅れ、最大値は（リアクタンス）×（電流の最大値）」から \(V_{\mathrm C}=\dfrac{k}{\omega C}I_0\sin\bigl(\omega t+\theta-\frac\pi2\bigr)\) と書いても同じです。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：右上のグラフで、紫の \(I_2\) が山になってから \(\frac14\) 周期後に青の \(V_{\mathrm C}\) が山になります。右下の回転ベクトルでは、\(V_{\mathrm C}\) が \(I_2\) より 90° 後ろを回っています。</div>
+<button class="goto" data-q="III1">この状況にする</button>
+</div></details>
+
+<details id="d-III2"><summary>問(3)⒝　コイルの電流 I₁<span class="ans">答 \(I_1=-\dfrac{k}{\omega^2LC}I_0\sin(\omega t+\theta)\)</span></summary><div class="body">
+<p>コイルとコンデンサーは並列なので、コイルにかかる電圧（上側が高い向き）も \(V_{\mathrm C}\) です。</p>
+<p class="law">コイルの自己誘導（電流の変化と電圧）</p>
+$$L\frac{d\cfr{I_1}}{dt}=\cacc{V_{\mathrm C}}=-\frac{kI_0}{\omega C}\cos(\omega t+\theta)$$
+<p class="law">両辺を L で割って時間で積分（直流の成分はない）</p>
+$$\cfr{I_1}=-\frac{k}{\omega^2LC}I_0\sin(\omega t+\theta)$$
+<p>\(I_1\) は \(I_2\) と同じ \(\sin(\omega t+\theta)\) の形で、符号が逆です。コイルの電流は電圧より \(\frac\pi2\) 遅れ、コンデンサーの電流は \(\frac\pi2\) 進むので、2つはいつも逆向き（逆位相）に流れます。</p>
+<div class="box"><b>式の立て方</b>：「並列なら電圧が共通」です。共通の電圧 \(V_{\mathrm C}\) を先に求めてから、それぞれの素子の電流を求めます。コイルの電流は電圧より \(\frac\pi2\) 遅れ、最大値は（電圧の最大値）÷ \(\omega L\) です。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：グラフのオレンジ（\(I_1\)）と紫（\(I_2\)）は、いつも逆向きです。\(k\) や \(\omega\) を変えると、大きさの比 \(\dfrac{k}{\omega^2LC}\) が変わります。</div>
+<button class="goto" data-q="III2">この状況にする</button>
+</div></details>
+
+<details id="d-III3"><summary>問(3)⒞　共振が起きる極板の間隔 D<span class="ans">答 \(D=\omega^2LCd\)</span></summary><div class="body">
+<p>コイルとコンデンサーは、平均すると電力を消費しません。回路の平均の消費電力が 0 になるのは、抵抗に電流が流れないときだけです。</p>
+<p class="law">キルヒホッフの第1法則（抵抗を流れる電流）</p>
+$$\cfrc{I_1+I_2}=\Bigl(1-\frac{k}{\omega^2LC}\Bigr)I_0\sin(\omega t+\theta)$$
+<p class="law">いつも 0 になる条件（間隔 D = kd）</p>
+$$1-\frac{k}{\omega^2LC}=0\qquad\therefore\ k=\omega^2LC,\quad D=kd=\omega^2LCd$$
+<h3>別解：LC 並列共振の式から</h3>
+<p>コイルとコンデンサーの並列部分は、\(\omega=\dfrac{1}{\sqrt{LC'}}\)（\(C'\) はコンデンサーの容量）のとき、2つの電流が打ち消し合って外に電流が流れなくなります（並列共振）。\(C'=\dfrac{Cd}{D}\) を入れると \(\omega^2=\dfrac{D}{LCd}\) で、同じ答えです。</p>
+<p>このとき電流はコイルとコンデンサーの輪の中だけを行き来し、電源からは電流が出ません。電流が最大になる直列共振とは逆の現象です。</p>
+<div class="box"><b>式の立て方</b>：「平均の消費電力が 0」を「抵抗の電流がいつも 0」と言いかえ、電流の和がどの時刻でも 0 になる条件を係数から決めます。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：間隔 \(k\) を動かすと、右下のグラフで消費電力が変わり、\(k=\omega^2LC\)（点線）でちょうど 0 になります。そのとき抵抗を流れる赤い点が止まり、オレンジと紫の点だけが輪の中を行き来します。</div>
+<button class="goto" data-q="III3">この状況にする</button>
+</div></details>
+
+<details id="d-III4"><summary>問(3)⒟　共振のときの I₀ と θ<span class="ans">答 \(I_0=\dfrac{V_1}{\omega L},\ \theta=\dfrac\pi2\)</span></summary><div class="body">
+<p>抵抗に電流が流れないので抵抗の電圧は 0 で、電源の電圧がそのままコンデンサー（とコイル）にかかります。</p>
+<p class="law">キルヒホッフの第2法則（抵抗の電圧は 0）</p>
+$$\cacc{V_{\mathrm C}}=\cgrav{V_1\sin\omega t}$$
+<p>⒜ の結果に \(k=\omega^2LC\) を入れると \(\frac{k}{\omega C}=\omega L\) なので</p>
+$$-\omega L\,I_0\cos(\omega t+\theta)=V_1\sin\omega t$$
+<p>\(\theta=\frac\pi2\) とすると、左辺は \(-\omega LI_0\cos\bigl(\omega t+\frac\pi2\bigr)=\omega LI_0\sin\omega t\) となり、どの時刻でも成り立ちます。</p>
+$$\theta=\frac\pi2,\qquad \cfic{I_0}=\frac{V_1}{\omega L}$$
+<p>（\(\theta=-\frac\pi2\) でも式の形は合いますが、そのとき \(I_0\) が負になります。\(I_0\) は最大値で正なので \(\theta=\frac\pi2\) です。）</p>
+<h3>別解：位相のずれから直接</h3>
+<p>コンデンサーの電流は電圧より \(\frac\pi2\) 進むので、電圧 \(V_1\sin\omega t\) に対して電流は \(\sin\bigl(\omega t+\frac\pi2\bigr)\) の形、つまり \(\theta=\frac\pi2\) です。最大値は電圧 ÷ リアクタンスで \(V_1\cdot\omega\dfrac Ck=\dfrac{V_1}{\omega L}\) です。</p>
+<p>\(I_0\) は \(R\) によりません。抵抗に電流が流れないので、抵抗の大きさは関係なくなるからです。</p>
+<div class="box"><b>式の立て方</b>：「どの時刻でも成り立つ」式は、\(\sin\) と \(\cos\) の係数を比べるか、\(\omega t=0\) や \(\frac\pi2\) など計算しやすい時刻を代入して条件を出します。</div>
+<div class="box"><b>アニメーションで確かめよう</b>：緑の電源電圧と青の \(V_{\mathrm C}\) がぴったり重なり、紫の \(I_2\) は \(\frac14\) 周期だけ先に山になります。\(R\) を変えても \(I_0\) は変わりません。</div>
+<button class="goto" data-q="III4">この状況にする</button>
+</div></details>
+</section>
+</div>
+
+<script>
+{
+if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});
+const $=s=>document.querySelector(s);
+const JF='"Noto Sans JP",sans-serif',VF='"Times New Roman",Tinos,Times,serif';
+let CL={};
+function colors(){const cs=getComputedStyle(document.documentElement);["bg","ink","mute","line","panel","acc","frc","grav","fic","fr","ok","ng","road","soft"].forEach(k=>CL[k]=cs.getPropertyValue("--"+k).trim())}
+function txt(c2,t,x,y,c,o={}){if(typeof t==="string"&&t.includes("_"))return rtxt(c2,t,x,y,c,o);c2.fillStyle=c||CL.ink;c2.font=(o.it?"italic ":"")+(o.b?"700 ":"")+(o.s||15)+"px "+(o.it?VF:JF);c2.textAlign=o.al||"left";c2.textBaseline=o.bl||"middle";c2.fillText(t,x,y)}
+function rtxt(c2,s,x,y,col,o={}){const sz=o.s||15,parts=[],re=/_(\{[^}]*\}|.)/g;let last=0,m;while((m=re.exec(s))){if(m.index>last)parts.push([s.slice(last,m.index),0]);parts.push([m[1].replace(/[{}]/g,""),1]);last=re.lastIndex}if(last<s.length)parts.push([s.slice(last),0]);
+ const f=sb=>sb?`${o.b?"700 ":""}${Math.round(sz*0.72)}px ${o.it?VF:JF}`:(o.it?"italic ":"")+(o.b?"700 ":"")+sz+"px "+(o.it?VF:JF);let w=0;parts.forEach(([t,sb])=>{c2.font=f(sb);w+=c2.measureText(t).width});
+ let cx=o.al==="center"?x-w/2:o.al==="right"?x-w:x;c2.fillStyle=col||CL.ink;c2.textAlign="left";c2.textBaseline=o.bl||"middle";parts.forEach(([t,sb])=>{c2.font=f(sb);c2.fillText(t,cx,y+(sb?sz*0.32:0));cx+=c2.measureText(t).width})}
+function arrow(c2,x1,y1,x2,y2,c,w=3,dash){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<2)return;const ux=dx/L,uy=dy/L,h=Math.min(12,L*.5);c2.strokeStyle=c;c2.fillStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();c2.moveTo(x1,y1);c2.lineTo(x2-ux*h*.7,y2-uy*h*.7);c2.stroke();c2.setLineDash([]);c2.beginPath();c2.moveTo(x2,y2);c2.lineTo(x2-ux*h-uy*h*.45,y2-uy*h+ux*h*.45);c2.lineTo(x2-ux*h+uy*h*.45,y2-uy*h-ux*h*.45);c2.closePath();c2.fill()}
+function line(c2,pts,c,w=2,dash){if(pts.length<2)return;c2.strokeStyle=c;c2.lineWidth=w;c2.setLineDash(dash||[]);c2.beginPath();pts.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));c2.stroke();c2.setLineDash([])}
+function dot(c2,x,y,r,fill,stroke,w=1.5){c2.beginPath();c2.arc(x,y,r,0,Math.PI*2);if(fill){c2.fillStyle=fill;c2.fill()}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=w;c2.stroke()}}
+function rect(c2,x,y,w,h,fill,stroke,lw=1.5){if(fill){c2.fillStyle=fill;c2.fillRect(x,y,w,h)}if(stroke){c2.strokeStyle=stroke;c2.lineWidth=lw;c2.strokeRect(x,y,w,h)}}
+function alpha(col,a){const c=col.trim();if(c.startsWith("#")&&c.length===7){const n=parseInt(c.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}return c}
+/* canvases */
+function mkCv(el,dims){return{el,ctx:el.getContext("2d"),dims,W:1000,H:400,K:1,narrow:false,pw:0}}
+function begin(cv){const w=cv.el.parentElement.clientWidth,n=w<680,dp=Math.min(devicePixelRatio||1,2);
+ const[W,H]=cv.dims(n);
+ if(w!==cv.pw||n!==cv.narrow||W!==cv.W||H!==cv.H){cv.narrow=n;cv.W=W;cv.H=H;cv.pw=w;cv.el.width=Math.round(w*dp);cv.el.height=Math.round(w*H/W*dp);cv.el.style.width="100%";cv.el.style.height=(w*H/W)+"px";cv.el.style.display="block";cv.K=cv.el.width/W}
+ const c=cv.ctx;c.setTransform(cv.K,0,0,cv.K,0,0);c.fillStyle=CL.bg;c.fillRect(0,0,cv.W,cv.H);return c}
+/* graph axes helper: box {x,y,w,h}, ranges */
+function axes(c,B,xr,yr,o={}){const X=v=>B.x+B.w*(v-xr[0])/(xr[1]-xr[0]),Y=v=>B.y+B.h-B.h*(v-yr[0])/(yr[1]-yr[0]);
+ const y0=o.y0!=null?Y(o.y0):B.y+B.h,x0=o.x0!=null?X(o.x0):B.x;
+ line(c,[[B.x,y0],[B.x+B.w+6,y0]],CL.mute,1.2);line(c,[[x0,B.y+B.h],[x0,B.y-6]],CL.mute,1.2);
+ if(o.xl){if(o.xl.length>3)txt(c,o.xl,B.x+B.w+6,y0-14,CL.ink,{it:o.xit!==false,s:14,al:"right"});else txt(c,o.xl,B.x+B.w+10,y0,CL.ink,{it:o.xit!==false,s:15})}if(o.yl)txt(c,o.yl,x0+6,B.y-12,CL.ink,{it:o.yit!==false,s:15});
+ if(o.title)txt(c,o.title,B.x+B.w,B.y-14,CL.ink,{s:13,al:"right"});
+ (o.xt||[]).forEach(([v,l])=>{line(c,[[X(v),y0-4],[X(v),y0+4]],CL.mute,1.2);txt(c,l,X(v),y0+15,CL.mute,{s:12,al:"center"})});
+ (o.yt||[]).forEach(([v,l])=>{line(c,[[x0-4,Y(v)],[x0+4,Y(v)]],CL.mute,1.2);txt(c,l,x0-7,Y(v),CL.mute,{s:12,al:"right"})});
+ return{X,Y}}
+/* framework */
+let playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+const part=()=>st.q.match(/^[IV]+/)[0];
+function showSL(k){const p=SL.find(s=>s[0]===k)[8].split(" ");return p.includes("all")||p.includes(part())||p.includes(st.q)}
+function buildSL(){$("#sliders").innerHTML=SL.map(([k,sym,n,u,mn,mx,sp])=>`<div class="row" id="row_${k}"><label for="s_${k}">${sym?`<span class="v">${sym}</span> `:""}${n}</label><div class="sl"><input type="range" id="s_${k}" min="${mn}" max="${mx}" step="${sp}"><output id="o_${k}"></output></div></div>`).join("");
+ SL.forEach(([k])=>{const el=$("#s_"+k);el.addEventListener("input",()=>{st[k]=+el.value;if(k!=="spd")onParam(k);syncUI()})})}
+function syncPlay(){$("#play").textContent=playing?"一時停止":"再生"}
+function syncUI(){document.querySelectorAll("#qbar .qb").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.q===st.q)));
+ SL.forEach(([k,,,u,,,,dp])=>{$("#row_"+k).hidden=!showSL(k);$("#s_"+k).value=st[k];$("#o_"+k).innerHTML=`${(+st[k]).toFixed(dp)} <span class="u">${u}</span>`});
+ $("#snote").innerHTML=note();showRead()}
+function showRead(){renderEq();$("#read").innerHTML=readout().map(([x,y,s])=>[x,NZ(y),s]).map(([x,y,s])=>`<div><span>${x}</span><b>${y}</b>${s?`<small>${s}</small>`:""}</div>`).join("")}
+function setQ(q,open){st.q=q;restart();syncPlay();if(open)document.querySelectorAll("#kaisetsu details").forEach(dd=>dd.open=dd.id==="d-"+q);syncUI()}
+function initUI(q0){buildSL();
+ document.querySelectorAll("[data-q]").forEach(b=>b.addEventListener("click",()=>{playing=!matchMedia("(prefers-reduced-motion: reduce)").matches;setQ(b.dataset.q,true);if(b.classList.contains("goto"))$(".stage").scrollIntoView({behavior:"smooth",block:"start"})}));
+ $("#play").onclick=()=>{playing=!playing;syncPlay()};$("#rst").onclick=()=>{restart();syncUI()};
+ colors();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",colors);new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+ initEq();setQ(q0,true);let last=performance.now(),acc=0;
+ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(playing){step(dt*st.spd);acc+=dt;if(acc>0.2){acc=0;showRead()}}drawAll();requestAnimationFrame(frame)}
+ requestAnimationFrame(frame)}
+function view(B,xr,yr,al){const s=Math.min(B.w/(xr[1]-xr[0]),B.h/(yr[1]-yr[0]));const ox=B.x+(al==="left"?0:(B.w-s*(xr[1]-xr[0]))/2),oy=B.y+(B.h-s*(yr[1]-yr[0]))/2;return{s,X:x=>ox+s*(x-xr[0]),Y:y=>oy+s*(yr[1]-y),x1:ox+s*(xr[1]-xr[0])}}
+
+/* ---- live equations linked to the animation ----
+ eqs() returns {title, list:[{t:tex, n:html numbers}]}; terms wrapped with TK(key,color,tex).
+ Hover / tap a term -> HLK=key, the canvas draws that element emphasized (HL(key)). */
+let HLK=null,HLsticky=false,eqKey="";
+const TK=(k,c,t)=>`\\htmlClass{tk t-${c} k-${k}}{${t}}`;
+const HL=k=>HLK===k||(Array.isArray(k)&&k.includes(HLK));
+const W_=(k,w)=>HL(k)?w*1.8+1:w;
+function glow(c,k,col){if(HL(k)){c.shadowColor=col;c.shadowBlur=14}else{c.shadowBlur=0}}
+function noglow(c){c.shadowBlur=0}
+const NS=(v,col)=>`<span style="color:var(--${col})">${v}</span>`;
+const NZ=s=>typeof s==="string"?s.replace(/(^|[^0-9.])-(0\.0+)(?![0-9])/g,"$1$2"):s;
+function fx(v,d=3){if(!isFinite(v))return"—";const a=Math.abs(v);if(a!==0&&(a<1e-3||a>=1e5)){const e=Math.floor(Math.log10(a));return(v/10**e).toFixed(2)+"×10<sup>"+e+"</sup>"}return v.toFixed(d)}
+function capUpd(){const c=$("#tkcap");if(!c)return;const N=(typeof NAMES==="object"&&NAMES)||{};const nm=HLK&&N[HLK];
+ if(!HLK){c.className="tkcap";c.innerHTML="";return}
+ const t=$("#eqlive .tk.k-"+HLK),col=t?getComputedStyle(t).color:"";c.className="tkcap on";
+ c.innerHTML=`<span class="dot" style="background:${col}"></span><b style="color:${col}">${nm||"選んだ項"}</b><span>図とグラフの同じ色の部分が太く光っています${HLsticky?"（もう一度押すと解除）":""}</span>`}
+function initEq(){const el=$("#eqlive");if(!el)return;
+ const set=(k,st2)=>{HLK=k;HLsticky=st2;el.querySelectorAll(".tk").forEach(t=>t.classList.toggle("on",!!k&&t.classList.contains("k-"+k)));capUpd()};
+ const keyOf=e=>{const t=e.target.closest&&e.target.closest(".tk");if(!t)return null;const m=[...t.classList].find(s=>s.startsWith("k-"));return m?m.slice(2):null};
+ el.addEventListener("pointerover",e=>{if(e.pointerType==="touch"||HLsticky)return;set(keyOf(e),false)});
+ el.addEventListener("pointerout",e=>{if(e.pointerType==="touch"||HLsticky)return;if(!e.relatedTarget||!el.contains(e.relatedTarget)||!e.relatedTarget.closest(".tk"))set(null,false)});
+ el.addEventListener("click",e=>{const k=keyOf(e);if(!k||(HLsticky&&HLK===k))set(null,false);else set(k,true)});
+ addEventListener("load",()=>{eqKey="";renderEq()})}
+function renderEq(){const el=$("#eqlive");if(!el||typeof eqs!=="function")return;const E=eqs();const key=st.q+"|"+E.list.map(e=>e.t).join("|");
+ if(key!==eqKey){if(!window.katex){el.innerHTML=`<div class="eh"><b>${E.title}</b></div><div class="note">数式を読み込み中…</div>`;return}
+  eqKey=key;el.innerHTML=`<div class="eh"><b>${E.title}</b><span>下線つきの色の項に触れる（タップする）と、図の対応する部分が光ります</span></div><div class="tkcap" id="tkcap"></div>`+E.list.map((e,i)=>`<div class="el" id="el_${i}"></div><div class="num" id="en_${i}"></div>`).join("");
+  E.list.forEach((e,i)=>{try{katex.render(e.t,$("#el_"+i),{displayMode:true,trust:true,strict:"ignore",throwOnError:false,macros:KMAC})}catch(err){$("#el_"+i).textContent=e.t}});
+  if(HLK)el.querySelectorAll(".k-"+HLK).forEach(t=>t.classList.add("on"));capUpd()}
+ E.list.forEach((e,i)=>{const n=$("#en_"+i),v=NZ(e.n||"");if(n&&n.innerHTML!==v)n.innerHTML=v})}
+
+function dimV(c,x,y1,y2,lab,col,k,side=1){const w=W_(k,1.6);glow(c,k,col);line(c,[[x,y1],[x,y2]],col,w);[y1,y2].forEach(y=>line(c,[[x-6,y],[x+6,y]],col,w));noglow(c);if(Math.abs(y2-y1)>14){arrow(c,x,(y1+y2)/2,x,y1+1,col,w);arrow(c,x,(y1+y2)/2,x,y2-1,col,w)}txt(c,lab,x+side*9,(y1+y2)/2,col,{s:HL(k)?16:14,it:1,b:HL(k),al:side>0?"left":"right"})}
+function dimH(c,x1,x2,y,lab,col,k){const w=W_(k,1.6);glow(c,k,col);line(c,[[x1,y],[x2,y]],col,w);[x1,x2].forEach(x=>line(c,[[x,y-6],[x,y+6]],col,w));noglow(c);txt(c,lab,(x1+x2)/2,y+16,col,{s:HL(k)?16:14,it:1,b:HL(k),al:"center"})}
+function karrow(c,k,x1,y1,x2,y2,col,w=3){glow(c,k,col);arrow(c,x1,y1,x2,y2,col,W_(k,w));noglow(c)}
+/* label that becomes a highlighted pill when its key is active */
+function ktag(c,k,lab,x,y,col,o={}){const on=HL(k),s=on?(o.s||14)+2:(o.s||14);if(on||o.bg){c.font=`700 ${s}px ${o.it?VF:JF}`;const w=c.measureText(lab.replace(/_/g,"")).width+12,al=o.al||"left",x0=al==="center"?x-w/2:al==="right"?x-w+6:x-6;c.fillStyle=CL.bg;c.strokeStyle=on?col:alpha(col,0.35);c.lineWidth=on?2:1;c.beginPath();if(c.roundRect)c.roundRect(x0,y-s*0.75,w,s*1.5,6);else c.rect(x0,y-s*0.75,w,s*1.5);c.fill();c.stroke()}txt(c,lab,x,y,col,{...o,s,b:on||o.b})}
+
+const PI=Math.PI;
+const st={q:"I1",rr:1,n:2,r2:1,w:1.4,k:1,R:1,spd:1};
+const SL=[
+ ["rr","R₁","抵抗（単位 √(L/C)）","",0.2,3,0.05,2,"I2"],
+ ["n","n","広げた後の間隔 nd（問題は 2）","",0.5,3,0.05,2,"II"],
+ ["r2","R₂","抵抗（単位 √(L/C)）","",0.2,3,0.05,2,"II2 II3"],
+ ["w","ω√(LC)","電源の角周波数","",0.5,2,0.01,2,"III"],
+ ["k","k","極板の間隔 kd","",0.3,4,0.01,2,"III1 III2 III3"],
+ ["R","R","抵抗（単位 √(L/C)）","",0.2,3,0.05,2,"III"],
+ ["spd","","再生速度","倍",0.2,3,0.05,2,"all"]];
+const NAMES={C2:"コンデンサー2 の電気容量 C₂",gap:"コンデンサー2 の極板の間隔",q1:"コンデンサー1 の電気量 q₁（電圧 q₁/C）",q2:"コンデンサー2 の電気量 q₂（電圧 q₂/C₂）",iR:"抵抗1 を流れる電流",Ldi:"コイルの電圧 L di/dt",i:"抵抗2 を流れる電流 i",U1:"コンデンサー1 の静電エネルギー",U2:"コンデンサー2 の静電エネルギー",UL:"コイルのエネルギー ½Li²",J:"抵抗のジュール熱",VC2:"コンデンサー2 の電位差",IM:"電流の最大値 I<sub>M</sub>",VC:"コンデンサーの電圧 V<sub>C</sub>",I2:"コンデンサーの電流 I₂",I1:"コイルの電流 I₁",IR:"抵抗の電流 I₁ + I₂",Vs:"電源の電圧 V₁ sin ωt",k:"極板の間隔 kd",P:"平均の消費電力"};
+const QDEF={I1:{},I2:{rr:1},II1:{n:2},II2:{n:2,r2:1},II3:{n:2,r2:1},II4:{n:2},III1:{w:1.4,k:1,R:1},III2:{w:1.4,k:1,R:1},III3:{w:1.4,k:1,R:1},III4:{w:1.4,R:1}};
+const cv=mkCv($("#cv"),n=>n?[480,1110]:[1000,620]);
+let lastQ="",S={t:0,hold:0},R={};
+/* ---------- simulation (units: C, V0, L → charge CV0, current V0√(C/L), time √(LC)) ---------- */
+function rk4(f,y,dt){const k1=f(y),k2=f(y.map((v,i)=>v+dt/2*k1[i])),k3=f(y.map((v,i)=>v+dt/2*k2[i])),k4=f(y.map((v,i)=>v+dt*k3[i]));return y.map((v,i)=>v+dt/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]))}
+function simulate(){const q=st.q,n=st.n,h=[];let t=0,y,f,dt;
+ if(q==="I1"||q==="II1")return{mode:"gap",tEnd:4,rate:1};
+ if(part()==="III")return{mode:"ac",tEnd:1e12,rate:2*PI/3};
+ if(q==="I2"){const R1=st.rr,ts=2;y=[0,0,0,0,0,0];
+  f=y=>{const iR=(1-y[0])/R1;return[iR-y[2],y[2],y[0]-y[1]/2,iR,iR,R1*iR*iR]};dt=0.004;
+  h.push({t:0,q1:0,q2:0,i:0,qR:0,W:0,J:0,s1:false,s2:"a"});t=ts;h.push({t,q1:0,q2:0,i:0,qR:0,W:0,J:0,s1:true,s2:"a"});
+  let calm=0,j=0,qm=2;while(t<ts+100){y=rk4(f,y,dt);t+=dt;j++;qm=Math.max(qm,y[1]);const E=0.5*(y[0]-1)**2+0.25*(y[1]-2)**2+0.5*y[2]**2;calm=E<2e-6?calm+dt:0;if(j%5===0)h.push({t,q1:y[0],q2:y[1],i:y[2],qR:y[3],W:y[4],J:y[5],s1:true,s2:"a"});if(calm>1.5)break}
+  return{mode:"sim",h,ts,tEnd:t,rate:t/11,qm}}
+ if(q==="II2"||q==="II3"){const R2=st.r2,tau=R2/(n+1),ts=1.2*tau;y=[1,2,0];f=y=>{const i=(n*y[1]-y[0])/R2;return[i,-i,R2*i*i]};dt=8*tau/3000;
+  h.push({t:0,q1:1,q2:2,i:0,J:0,s1:false,s2:0});t=ts;h.push({t,q1:1,q2:2,i:(2*n-1)/R2,J:0,s1:false,s2:"b"});
+  for(let j=0;j<3000;j++){y=rk4(f,y,dt);t+=dt;h.push({t,q1:y[0],q2:y[1],i:(n*y[1]-y[0])/R2,J:y[2],s1:false,s2:"b"})}
+  return{mode:"sim",h,ts,tEnd:t,rate:t/7}}
+ const om=Math.sqrt(n+1),T=2*PI/om,ts=0.3*T;y=[1,2,0];f=y=>[y[2],-y[2],n*y[1]-y[0]];dt=T/600;
+ h.push({t:0,q1:1,q2:2,i:0,J:0,s1:false,s2:0});t=ts;h.push({t,q1:1,q2:2,i:0,J:0,s1:false,s2:"a"});
+ for(let j=0;j<1800;j++){y=rk4(f,y,dt);t+=dt;h.push({t,q1:y[0],q2:y[1],i:y[2],J:0,s1:false,s2:"a"})}
+ return{mode:"sim",h,ts,tEnd:t,rate:T/3.2}}
+function restart(){if(st.q!==lastQ){const D=QDEF[st.q]||{},P=QDEF[lastQ]||{};for(const k in D)if(P[k]!==D[k])st[k]=D[k];lastQ=st.q}
+ R=simulate();S={t:0,hold:0}}
+function onParam(k){if(R.mode==="ac")return;restart()}
+function step(dt){if(S.t>=R.tEnd){S.hold+=dt;if(S.hold>1.8)restart();return}S.t=Math.min(R.tEnd,S.t+dt*R.rate)}
+function cur(){const q=st.q;
+ if(R.mode==="gap"){const u=Math.max(0,Math.min(1,(S.t-0.6)/2.6)),e=u*u*(3-2*u);
+  return q==="I1"?{t:S.t,g:1-0.5*e,q1:0,q2:0,i:0,qR:0,J:0,s1:false,s2:0}:{t:S.t,g:0.5+(st.n-0.5)*e,q1:1,q2:2,i:0,qR:0,J:0,s1:false,s2:0}}
+ const h=R.h;let lo=0,hi=h.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(h[m].t<=S.t)lo=m;else hi=m}const e=S.t>=h[hi].t?h[hi]:h[lo];
+ return{...e,t:S.t,qR:e.qR||0,g:q==="I2"?0.5:st.n}}
+/* branch currents: i1 = dq1/dt, i2 = dq2/dt */
+function brI(e){const q=st.q;if(q==="I2"){const iR=e.s1?(1-e.q1)/st.rr:0;return{iR,i1:iR-e.i,i2:e.i}}if(q==="II2"||q==="II3"||q==="II4")return{iR:0,i1:e.i,i2:-e.i};return{iR:0,i1:0,i2:0}}
+/* ---------- AC (part III): V1 = 1, L = 1, C = 1; A sin(ωt+φ) ↔ complex A e^{jφ} ---------- */
+const cmul=(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]],cdiv=(a,b)=>{const d=b[0]*b[0]+b[1]*b[1];return[(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d]},cab=a=>Math.hypot(a[0],a[1]),carg=a=>Math.atan2(a[1],a[0]);
+const kEff=()=>st.q==="III4"?st.w*st.w:st.k;
+function ac(kk){const w=st.w,Rr=st.R,k=kk??kEff(),B=w/k-1/w,VLC=cdiv([1,0],[1,Rr*B]),I2=cmul([0,w/k],VLC),I1=cdiv(VLC,[0,w]),IR=[I1[0]+I2[0],I1[1]+I2[1]];
+ return{w,k,B,VLC,I1,I2,IR,I0:cab(I2),th:carg(I2),P:0.5*Rr*cab(IR)**2}}
+const inst=(Z,ph)=>Z[0]*Math.sin(ph)+Z[1]*Math.cos(ph);
+const integ=(Z,ph,w)=>(-Z[0]*Math.cos(ph)+Z[1]*Math.sin(ph))/w;
+/* ---------- drawing helpers ---------- */
+function flow(c,P,pts,Q,I,col,k,sc=70){const a=Math.min(1,Math.abs(I)/0.06);if(a<0.04)return;const ps=pts.map(p=>P(...p)),seg=[];let tot=0;for(let i=0;i<ps.length-1;i++){const l=Math.hypot(ps[i+1][0]-ps[i][0],ps[i+1][1]-ps[i][1]);seg.push(l);tot+=l}
+ const gp=18,off=((Q*sc)%gp+gp)%gp,rr=HL(k)?4.4:3.2;c.fillStyle=alpha(col,a);for(let d=off;d<tot;d+=gp){let r=d,i=0;while(i<seg.length&&r>seg[i]){r-=seg[i];i++}if(i>=seg.length)break;const A=ps[i],B=ps[i+1],u=r/seg[i];c.beginPath();c.arc(A[0]+(B[0]-A[0])*u,A[1]+(B[1]-A[1])*u,rr,0,7);c.fill()}}
+function coil(c,P,x,y1,y2,col,w){const nb=4,p1=P(x,y1),p2=P(x,y2),r=(p2[1]-p1[1])/nb/2;c.strokeStyle=col;c.lineWidth=w;c.beginPath();for(let i=0;i<nb;i++){c.moveTo(p1[0],p1[1]+r*2*i);c.arc(p1[0],p1[1]+r*(2*i+1),r,-PI/2,PI/2,false)}c.stroke()}
+function plates(c,P,x,y1,y2,hw,col,k,q){const w=W_(k,3);glow(c,k,col);line(c,[P(x-hw,y1),P(x+hw,y1)],col,w);line(c,[P(x-hw,y2),P(x+hw,y2)],col,w);noglow(c);
+ const ns=Math.min(8,Math.round(Math.abs(q)*2));if(ns>0){const a=P(x-hw,y1),b=P(x+hw,y2);for(let i=0;i<ns;i++){const xx=a[0]+(b[0]-a[0])*(i+0.5)/ns;if(Math.abs(b[1]-a[1])>8)line(c,[[xx,a[1]+3],[xx,b[1]-3]],alpha(col,0.35),1.2);txt(c,q>0?"+":"−",xx,a[1]-7,q>0?CL.frc:CL.acc,{s:12,al:"center",b:1});txt(c,q>0?"−":"+",xx,b[1]+8,q>0?CL.acc:CL.frc,{s:12,al:"center",b:1})}}}
+/* ---------- circuit of 問1・問2 ---------- */
+function drawC1(c,B){const e=cur(),q=st.q,s=Math.min(B.w/440,B.h/400),ox=B.x+(B.w-440*s)/2,oy=B.y,P=(x,y)=>[ox+x*s,oy+y*s],Lw=(pts,col=CL.ink,w=1.8)=>line(c,pts.map(p=>P(...p)),col,w),fz=cv.narrow?1.22:1,T=(t,x,y,col,o)=>{const p=P(x,y);txt(c,t,p[0],p[1],col,{...o,s:(o.s||15)*fz})},KT=(k,t,x,y,col,o)=>{const p=P(x,y);ktag(c,k,t,p[0],p[1],col,{...o,s:(o.s||14)*fz})};
+ const xL=40,x1=210,x2=330,xa=290,xb=370,yT=40,yB=380,c1y=196,g1=16,c2y=96,gp=16*e.g,ysw=205,ytm=240,ycz=255,yce=325,yj=345,tm=e.s2==="a"?xa:e.s2==="b"?xb:null,I=brI(e);
+ // charge flow (drawn under the elements)
+ flow(c,P,[[x1,yB],[xL,yB],[xL,yT],[x1,yT]],e.qR,I.iR,CL.frc,"iR");
+ flow(c,P,[[x1,yT],[x1,c1y]],e.q1,I.i1,CL.acc,"q1");flow(c,P,[[x1,c1y+g1],[x1,yB]],e.q1,I.i1,CL.acc,"q1");
+ flow(c,P,[[x1,yT],[x2,yT],[x2,c2y]],e.q2,I.i2,CL.fic,"i");if(tm)flow(c,P,[[x2,c2y+gp],[x2,ysw],[tm,ytm],[tm,yj],[x2,yj],[x2,yB],[x1,yB]],e.q2,I.i2,CL.fic,"i");
+ // wires
+ Lw([[xL,yB],[xL,222]]);Lw([[xL,210],[xL,125]]);Lw([[xL,85],[xL,yT],[x2,yT],[x2,c2y]]);Lw([[x1,yT],[x1,c1y]]);Lw([[x1,c1y+g1],[x1,yB]]);Lw([[x2,c2y+gp],[x2,ysw]]);
+ Lw([[xa,ytm],[xa,ycz]]);Lw([[xa,yce],[xa,yj],[xb,yj],[xb,yce]]);Lw([[xb,ycz],[xb,ytm]]);Lw([[x2,yj],[x2,yB]]);Lw([[xL,yB],[x2,yB]]);
+ [[x1,yT],[x1,yB],[x2,yB]].forEach(p=>{const a=P(...p);dot(c,a[0],a[1],3.2,CL.ink)});
+ // battery
+ Lw([[xL-18,210],[xL+18,210]],CL.grav,2.2);Lw([[xL-10,222],[xL+10,222]],CL.grav,4.5);T("V₀",xL+24,216,CL.grav,{s:15,it:1});T("+",xL-24,204,CL.mute,{s:12,al:"center"});
+ // switch 1
+ {const a=P(xL,85),b=P(xL,125);dot(c,a[0],a[1],3.5,CL.bg,CL.ink,1.5);dot(c,b[0],b[1],3.5,CL.bg,CL.ink,1.5);line(c,[b,e.s1?a:[b[0]-18*s,a[1]+6*s]],e.s1?CL.ink:CL.mute,2.4);T("スイッチ1",xL+12,105,CL.ink,{s:12})}
+ // R1
+ {const a=P(100,yB-9),b=P(170,yB+9);glow(c,"iR",CL.frc);rect(c,a[0],a[1],b[0]-a[0],b[1]-a[1],CL.bg,CL.frc,W_("iR",1.8));noglow(c);T("抵抗1 R₁",135,yB+22,CL.ink,{s:12,al:"center"})}
+ // C1
+ plates(c,P,x1,c1y,c1y+g1,26,CL.acc,["q1","U1"],e.q1);T("コンデンサー1  C",x1-34,c1y-12,CL.ink,{s:12,al:"right"});
+ KT("q1",`q₁ = ${e.q1.toFixed(2)}CV₀`,x1-34,c1y+12,CL.acc,{s:12,al:"right"});T(`電圧 ${e.q1.toFixed(2)}V₀`,x1-34,c1y+32,CL.acc,{s:12,al:"right"});
+ // C2 (variable)
+ plates(c,P,x2,c2y,c2y+gp,26,CL.fic,["q2","U2","C2"],e.q2);{const a=P(x2-30,c2y+gp+10),b=P(x2+30,c2y-10);arrow(c,a[0],a[1],b[0],b[1],alpha(CL.mute,0.8),1.2)}
+ {const a=P(x2+40,c2y),b=P(x2+40,c2y+gp);dimV(c,a[0],a[1],b[1],Math.abs(e.g-0.5)<1e-6?"d/2":`${e.g.toFixed(2)}d`,CL.fic,"gap",1)}
+ const C2v=1/e.g;T("コンデンサー2",x2-42,c2y-22,CL.ink,{s:12,al:"right"});KT("C2",`C₂ = ${C2v.toFixed(2)}C`,x2-42,c2y-2,CL.fic,{s:12,al:"right"});
+ KT("q2",`q₂ = ${e.q2.toFixed(2)}CV₀`,x2-42,c2y+20,CL.fic,{s:12,al:"right"});KT("VC2",`電圧 ${(e.q2/C2v).toFixed(2)}V₀`,x2-42,c2y+40,CL.fic,{s:12,al:"right"});
+ // switch 2
+ {const pv=P(x2,ysw),ta=P(xa,ytm),tb=P(xb,ytm);[pv,ta,tb].forEach(p=>dot(c,p[0],p[1],3.5,CL.bg,CL.ink,1.5));const en=tm===xa?ta:tm===xb?tb:P(x2,ytm-8);line(c,[pv,en],tm?CL.ink:CL.mute,2.4);
+  T("a",xa-12,ytm-10,CL.ink,{s:13,al:"center"});T("b",xb+12,ytm-10,CL.ink,{s:13,al:"center"});T("スイッチ2",x2+12,ysw-14,CL.ink,{s:12})}
+ // coil and R2
+ glow(c,["Ldi","UL"],CL.fr);coil(c,P,xa,ycz,yce,CL.fr,W_(["Ldi","UL"],2.2));noglow(c);T("コイル L",xa-16,(ycz+yce)/2,CL.fr,{s:12,al:"right"});
+ {const a=P(xb-8,ycz),b=P(xb+8,yce);glow(c,["J","i"],CL.frc);rect(c,a[0],a[1],b[0]-a[0],b[1]-a[1],CL.bg,CL.frc,W_(["J","i"],1.8));noglow(c);T("R₂",xb+14,(ycz+yce)/2-8,CL.ink,{s:13,it:1});T("抵抗2",xb+14,(ycz+yce)/2+10,CL.ink,{s:11})}
+ // status
+ const msg=q==="I1"?"はじめ：スイッチ1 は開、スイッチ2 はどちらにもつながず、間隔を d → d/2 に":q==="I2"?(e.s1?"スイッチ2 を a、スイッチ1 を閉じた":"スイッチ2 を a につないだ（スイッチ1 はまだ開）"):q==="II1"?"スイッチ2 を a から外し、スイッチ1 を開いて、間隔を広げる":e.s2?`状態1 からスイッチ2 を ${e.s2} につないだ`:"状態1（スイッチ1 開、スイッチ2 はどちらにもつながない）";
+ T(msg,0,12,CL.ink,{s:13,b:1})}
+/* ---------- circuit of 問3 ---------- */
+function drawC2(c,B){const A=ac(),ph=S.t,s=Math.min(B.w/440,B.h/400),ox=B.x+(B.w-440*s)/2,oy=B.y,P=(x,y)=>[ox+x*s,oy+y*s],Lw=(pts,col=CL.ink,w=1.8)=>line(c,pts.map(p=>P(...p)),col,w),fz=cv.narrow?1.22:1,T=(t,x,y,col,o)=>{const p=P(x,y);txt(c,t,p[0],p[1],col,{...o,s:(o.s||15)*fz})},KT=(k,t,x,y,col,o)=>{const p=P(x,y);ktag(c,k,t,p[0],p[1],col,{...o,s:(o.s||14)*fz})};
+ const xL=46,xA=240,xC=352,yT=50,yB=350,cy=200,gp=9*A.k,yt=cy-gp/2,yb=cy+gp/2,w=A.w;
+ const vR=inst(A.IR,ph),v1=inst(A.I1,ph),v2=inst(A.I2,ph),vc=inst(A.VLC,ph),vs=Math.sin(ph);
+ flow(c,P,[[xA,yB],[xL,yB],[xL,yT],[xA,yT]],integ(A.IR,ph,w),vR,CL.frc,"IR",40);
+ flow(c,P,[[xA,yT],[xA,yB]],integ(A.I1,ph,w),v1,CL.fr,"I1",40);
+ flow(c,P,[[xA,yT],[xC,yT],[xC,yt]],integ(A.I2,ph,w),v2,CL.fic,"I2",40);flow(c,P,[[xC,yb],[xC,yB],[xA,yB]],integ(A.I2,ph,w),v2,CL.fic,"I2",40);
+ Lw([[xL,176],[xL,yT],[xC,yT],[xC,yt]]);Lw([[xC,yb],[xC,yB],[xL,yB],[xL,224]]);Lw([[xA,yT],[xA,160]]);Lw([[xA,240],[xA,yB]]);
+ [[xA,yT],[xA,yB]].forEach(p=>{const a=P(...p);dot(c,a[0],a[1],3.2,CL.ink)});
+ // source
+ {const p=P(xL,200);glow(c,"Vs",CL.grav);dot(c,p[0],p[1],24*s,CL.bg,CL.grav,W_("Vs",2));noglow(c);const pts=[];for(let i=0;i<=30;i++){const u=i/30;pts.push([p[0]-14*s+28*s*u,p[1]-8*s*Math.sin(2*PI*u)])}line(c,pts,CL.grav,1.8)}
+ T("交流電源",xL+32,186,CL.grav,{s:12});T("V₁ sin ωt",xL+32,206,CL.grav,{s:13,it:1});
+ [[120,"w"],[280,"z"]].forEach(([y,l])=>{const p=P(xL,y);dot(c,p[0],p[1],3,CL.ink);T(l,xL-12,y,CL.ink,{s:14,it:1,al:"right"})});
+ KT("Vs",`${vs>=0?"+":"−"}${Math.abs(vs).toFixed(2)}`,xL+32,232,CL.grav,{s:12});
+ // R
+ {const a=P(110,yB-9),b=P(190,yB+9);glow(c,["IR","P"],CL.frc);rect(c,a[0],a[1],b[0]-a[0],b[1]-a[1],CL.bg,CL.frc,W_(["IR","P"],1.8));noglow(c);T("抵抗 R",150,yB+24,CL.ink,{s:12,al:"center"});KT("IR",`I₁+I₂ = ${NZ(vR.toFixed(2))}`,150,yB-26,CL.frc,{s:12,al:"center"})}
+ // coil
+ glow(c,"I1",CL.fr);coil(c,P,xA,160,240,CL.fr,W_("I1",2.2));noglow(c);T("コイル L",xA-16,200,CL.fr,{s:12,al:"right"});
+ {const a=P(xA-16,78),b=P(xA-16,118);arrow(c,a[0],a[1],b[0],b[1],CL.fr,1.8);T("I₁",xA-26,98,CL.fr,{s:14,it:1,al:"right"})}
+ KT("I1",`I₁ = ${NZ(v1.toFixed(2))}`,xA-14,290,CL.fr,{s:12,al:"right"});
+ // capacitor
+ glow(c,["VC","I2","k"],CL.fic);line(c,[P(xC-26,yt),P(xC+26,yt)],CL.fic,W_(["VC","I2","k"],3));line(c,[P(xC-26,yb),P(xC+26,yb)],CL.fic,W_(["VC","I2","k"],3));noglow(c);
+ {const qc=vc/A.k,ns=Math.min(6,Math.round(Math.abs(qc)*2.5)),a=P(xC-22,yt),b=P(xC+22,yb);for(let i=0;i<ns;i++){const xx=a[0]+(b[0]-a[0])*(i+0.5)/ns;txt(c,qc>0?"+":"−",xx,a[1]-7,qc>0?CL.frc:CL.acc,{s:12,al:"center",b:1});txt(c,qc>0?"−":"+",xx,b[1]+8,qc>0?CL.acc:CL.frc,{s:12,al:"center",b:1})}}
+ {const a=P(xC-30,yb+12),b=P(xC+30,yt-12);arrow(c,a[0],a[1],b[0],b[1],alpha(CL.mute,0.8),1.2)}
+ {const a=P(xC+34,yt),b=P(xC+34,yb);dimV(c,a[0],a[1],b[1],`${A.k.toFixed(2)}d`,CL.fic,"k",1)}
+ T("x",xC+14,yt-22,CL.ink,{s:14,it:1});T("y",xC+14,yb+22,CL.ink,{s:14,it:1});
+ {const a=P(xC+16,78),b=P(xC+16,118);arrow(c,a[0],a[1],b[0],b[1],CL.fic,1.8);T("I₂",xC+26,98,CL.fic,{s:14,it:1})}
+ KT("VC",`V_C = ${NZ(vc.toFixed(2))}`,xC-36,cy,CL.acc,{s:12,al:"right"});KT("I2",`I₂ = ${NZ(v2.toFixed(2))}`,xC-14,290,CL.fic,{s:12,al:"right"});
+ const res=Math.abs(A.k-w*w)<0.02*w*w;T(st.q==="III4"?"共振：間隔を ω²LCd にした（抵抗に電流が流れない）":res?"共振している（抵抗に電流が流れない）":"コンデンサーの間隔を kd に固定",0,14,res||st.q==="III4"?CL.ok:CL.ink,{s:13,b:1})}
+/* ---------- graphs ---------- */
+function gtitle(c,B,t,dy=34){txt(c,t,B.x-46,B.y-dy,CL.ink,{s:12,b:1})}
+function drawCg(c,B){const e=cur(),ax=axes(c,B,[0,2.4],[0,4.4],{xl:"間隔",xit:false,yl:"C₂",yit:false,xt:[[0.5,"d/2"],[1,"d"],[2,"2d"]],yt:[[1,"C"],[2,"2C"],[4,"4C"]]});
+ [[0.5,2],[1,1]].forEach(([g,v])=>line(c,[[ax.X(g),ax.Y(0)],[ax.X(g),ax.Y(v)],[ax.X(0),ax.Y(v)]],alpha(CL.mute,0.6),1,[3,3]));
+ const pts=[];for(let i=0;i<=200;i++){const g=0.225+2.175*i/200;pts.push([ax.X(g),ax.Y(1/g)])}glow(c,"C2",CL.fic);line(c,pts,CL.fic,W_("C2",2.2));noglow(c);
+ glow(c,"gap",CL.fic);dot(c,ax.X(e.g),ax.Y(1/e.g),HL("gap")?8:6,CL.fic,CL.bg,2);noglow(c);
+ gtitle(c,B,"電気容量は極板の間隔に反比例（C₂ = ε₀S ÷ 間隔）")}
+function drawVg(c,B){const e=cur(),n=st.n,gm=3.2,ax=axes(c,B,[0,gm],[0,2*gm],{xl:"間隔",xit:false,yl:"V_{C2}",yit:false,xt:[[0.5,"d/2"],[1,"d"],[2,"2d"],[3,"3d"]],yt:[[1,"V₀"],[4,"4V₀"]]});
+ line(c,[[ax.X(n),ax.Y(0)],[ax.X(n),ax.Y(2*n)],[ax.X(0),ax.Y(2*n)]],alpha(CL.mute,0.6),1,[3,3]);
+ glow(c,"VC2",CL.fic);line(c,[[ax.X(0),ax.Y(0)],[ax.X(gm),ax.Y(2*gm)]],CL.fic,W_("VC2",2.2));noglow(c);dot(c,ax.X(e.g),ax.Y(2*e.g),6,CL.fic,CL.bg,2);
+ gtitle(c,B,"電気量が一定 → 電圧は間隔に比例（V = 2nV₀）")}
+function tAxes(c,B,yr,o){const ax=axes(c,B,[0,R.tEnd],yr,{xl:"t",...o});line(c,[[ax.X(R.ts),B.y],[ax.X(R.ts),B.y+B.h]],alpha(CL.mute,0.6),1,[3,3]);return ax}
+function curve(c,ax,key,fy,col,w=2.2,dash){const pts=[];for(const e of R.h){if(e.t>S.t)break;pts.push([ax.X(e.t),ax.Y(fy(e))])}glow(c,key,col);line(c,pts,col,W_(key,w),dash);noglow(c)}
+function drawQt(c,B){const ym=Math.max(2.4,R.qm*1.1),ax=tAxes(c,B,[0,ym],{yl:"電気量",yit:false,yt:[[1,"CV₀"],[2,"2CV₀"]]});
+ [1,2].forEach(v=>line(c,[[B.x,ax.Y(v)],[B.x+B.w,ax.Y(v)]],alpha(CL.mute,0.5),1,[2,3]));txt(c,"スイッチ1 を閉じる",ax.X(R.ts)+4,B.y+6,CL.mute,{s:11});
+ curve(c,ax,"q1",e=>e.q1,CL.acc);curve(c,ax,"q2",e=>e.q2,CL.fic);
+ ktag(c,"q1","q₁",B.x+B.w-30,ax.Y(1)+14,CL.acc,{s:12});ktag(c,"q2","q₂",B.x+B.w-30,ax.Y(2)-14,CL.fic,{s:12});
+ gtitle(c,B,"コンデンサーの電気量（単位 CV₀）")}
+function drawVt(c,B){const n=st.n,Vf=3*n/(n+1),ax=tAxes(c,B,[0,Math.max(1.2,2*n*1.1)],{yl:"電圧",yit:false,yt:[[1,"V₀"],[Vf,Vf.toFixed(2)+"V₀"],[2*n,(2*n).toFixed(1)+"V₀"]].filter((v,i,a)=>i===0||Math.abs(v[0]-a[i-1][0])>0.25)});
+ line(c,[[B.x,ax.Y(Vf)],[B.x+B.w,ax.Y(Vf)]],alpha(CL.mute,0.6),1,[2,3]);txt(c,"b につなぐ",ax.X(R.ts)+4,B.y+6,CL.mute,{s:11});
+ curve(c,ax,"q1",e=>e.q1,CL.acc);curve(c,ax,"q2",e=>n*e.q2,CL.fic);
+ ktag(c,"q1","コンデンサー1",B.x+B.w-4,ax.Y(Vf)+16,CL.acc,{s:11,al:"right"});ktag(c,"q2","コンデンサー2",B.x+B.w-4,ax.Y(Vf)-16,CL.fic,{s:11,al:"right"});
+ gtitle(c,B,"2つのコンデンサーの電圧（単位 V₀）")}
+function drawIt(c,B){const n=st.n,IM=(2*n-1)/Math.sqrt(n+1),ym=Math.max(0.3,Math.abs(IM)*1.3),ax=tAxes(c,B,[-ym,ym],{y0:0,yl:"i",yt:[[IM,"I_M"],[-IM,"−I_M"]]});
+ [IM,-IM].forEach(v=>{glow(c,"IM",CL.fr);line(c,[[B.x,ax.Y(v)],[B.x+B.w,ax.Y(v)]],alpha(CL.fr,0.6),W_("IM",1),[4,3]);noglow(c)});txt(c,"a につなぐ",ax.X(R.ts)+4,B.y+6,CL.mute,{s:11});
+ curve(c,ax,"UL",e=>e.i,CL.fr);gtitle(c,B,"コイルを流れる電流 i（単位 V₀√(C/L)）")}
+function bars(c,B,items,mx,title,refs=[]){const nb=items.length,bw=Math.min(54,B.w/nb*0.5),ln=v=>B.y+B.h-B.h*Math.max(0,Math.min(v,mx))/mx;
+ refs.forEach(([v,l])=>{line(c,[[B.x,ln(v)],[B.x+B.w,ln(v)]],alpha(CL.mute,0.6),1,[4,4]);txt(c,l,B.x-6,ln(v),CL.mute,{s:11,al:"right"})});
+ items.forEach(([l,v,col,k],i)=>{const cx=B.x+B.w*(i+0.5)/nb,y=ln(v);glow(c,k,col);rect(c,cx-bw/2,y,bw,B.y+B.h-y,alpha(col,0.55),col,W_(k,1.2));noglow(c);txt(c,l,cx,B.y+B.h+13,CL.ink,{s:11,al:"center"});txt(c,NZ(v.toFixed(2)),cx,y-9,CL.ink,{s:11,al:"center"})});
+ line(c,[[B.x,B.y+B.h],[B.x+B.w,B.y+B.h]],CL.mute,1.2);gtitle(c,B,title)}
+/* AC graphs */
+function acList(A){const q=st.q;return q==="III1"?[[A.I2,CL.fic,"I2","I₂"],[A.VLC,CL.acc,"VC","V_C"]]:q==="III2"?[[A.VLC,CL.acc,"VC","V_C"],[A.I1,CL.fr,"I1","I₁"],[A.I2,CL.fic,"I2","I₂",[4,4]]]:q==="III3"?[[A.I1,CL.fr,"I1","I₁"],[A.I2,CL.fic,"I2","I₂"],[A.IR,CL.frc,"IR","I₁+I₂"]]:[[[1,0],CL.grav,"Vs","V₁sinωt"],[A.VLC,CL.acc,"VC","V_C",[7,5]],[A.I2,CL.fic,"I2","I₂"],[A.IR,CL.frc,"IR","I₁+I₂"]]}
+function drawWave(c,B){const A=ac(),ph=S.t,list=acList(A),ym=Math.max(0.2,...list.map(l=>cab(l[0])))*1.18,ax=axes(c,B,[0,4*PI],[-ym,ym],{y0:0,xl:"ωt",xt:[[PI,"π"],[2*PI,"2π"],[3*PI,"3π"],[4*PI,"4π"]]});
+ list.forEach(([Z,col,k,l,dash])=>{const pts=[];for(let i=0;i<=240;i++){const p=4*PI*i/240;pts.push([ax.X(p),ax.Y(inst(Z,p))])}glow(c,k,col);line(c,pts,col,W_(k,2.2),dash);noglow(c)});
+ const pm=((ph%(4*PI))+4*PI)%(4*PI);line(c,[[ax.X(pm),B.y],[ax.X(pm),B.y+B.h]],alpha(CL.mute,0.7),1,[3,3]);list.forEach(([Z,col])=>dot(c,ax.X(pm),ax.Y(inst(Z,pm)),5,col,CL.bg,1.5));
+ let lx=B.x-40;list.forEach(([Z,col,k,l])=>{line(c,[[lx,B.y-10],[lx+14,B.y-10]],col,3);ktag(c,k,l,lx+20,B.y-10,col,{s:12,it:1});c.font="700 13px "+VF;lx+=c.measureText(l.replace(/_/g,"")).width+40});
+ gtitle(c,B,"時間変化（電圧は V₁，電流は V₁√(C/L) を単位）",34)}
+function drawPhasor(c,B){const A=ac(),ph=S.t,q=st.q,list=q==="III1"?[[A.I2,CL.fic,"I2","I₂","I"],[A.VLC,CL.acc,"VC","V_C","V"]]:q==="III2"?[[A.VLC,CL.acc,"VC","V_C","V"],[A.I1,CL.fr,"I1","I₁","I"],[A.I2,CL.fic,"I2","I₂","I"]]:[[[1,0],CL.grav,"Vs","V₁","V"],[A.I2,CL.fic,"I2","I₂","I"]];
+ const r=Math.min(B.h/2-10,B.w/2-40),cx=B.x+B.w/2,cy=B.y+B.h/2;dot(c,cx,cy,r,null,alpha(CL.mute,0.35),1);line(c,[[cx-r-10,cy],[cx+r+10,cy]],alpha(CL.mute,0.6),1);line(c,[[cx,cy+r+10],[cx,cy-r-10]],CL.mute,1.2);
+ const mV=Math.max(1e-9,...list.filter(l=>l[4]==="V").map(l=>cab(l[0]))),mI=Math.max(1e-9,...list.filter(l=>l[4]==="I").map(l=>cab(l[0])));
+ list.forEach(([Z,col,k,l,kind])=>{const sc=r*cab(Z)/(kind==="V"?mV:mI);if(sc<3)return;const a=ph+carg(Z),x=cx+sc*Math.cos(a),y=cy-sc*Math.sin(a);line(c,[[x,y],[cx,y]],alpha(col,0.5),1,[3,3]);dot(c,cx,y,3.5,col);karrow(c,k,cx,cy,x,y,col,2.6);ktag(c,k,l,x+(Math.cos(a)>=0?8:-8),y+(Math.sin(a)>=0?-8:8),col,{s:12,it:1,al:Math.cos(a)>=0?"left":"right"})});
+ txt(c,"縦の成分が瞬間の値",cx+r*0.15,B.y+B.h+12,CL.mute,{s:11});gtitle(c,B,"回転ベクトル（反時計回りに回る）")}
+function drawPk(c,B){const A=ac(),w=st.w,Rr=st.R,Pk=k=>{const b=w/k-1/w;return 0.5*Rr*b*b/(1+Rr*Rr*b*b)},ym=0.5/Rr*1.15,ax=axes(c,B,[0,4.2],[0,ym],{xl:"間隔",xit:false,yl:"P̄",yit:false,xt:[[1,"d"],[2,"2d"],[3,"3d"],[4,"4d"]]});
+ const pts=[];for(let i=0;i<=300;i++){const k=0.15+4.05*i/300;pts.push([ax.X(k),ax.Y(Pk(k))])}glow(c,"P",CL.frc);line(c,pts,CL.frc,W_("P",2.2));noglow(c);
+ const kr=w*w;if(kr<4.2){glow(c,"k",CL.ok);line(c,[[ax.X(kr),B.y],[ax.X(kr),B.y+B.h]],alpha(CL.ok,0.8),W_("k",1.2),[5,4]);noglow(c);txt(c,"ω²LCd",ax.X(kr)+4,B.y+8,CL.ok,{s:12,it:1})}
+ dot(c,ax.X(A.k),ax.Y(A.P),7,CL.frc,CL.bg,2);gtitle(c,B,"平均の消費電力と極板の間隔（単位 V₁²√(C/L)）")}
+function drawAll(){const c=begin(cv),W=cv.W,n=cv.narrow,q=st.q,p=part();
+ const BC=n?{x:0,y:8,w:W,h:440}:{x:6,y:20,w:530,h:575},G1=n?{x:62,y:530,w:W-92,h:220}:{x:610,y:66,w:W-660,h:225},G2=n?{x:62,y:840,w:W-92,h:210}:{x:610,y:390,w:W-660,h:185};
+ if(p==="III"){drawC2(c,BC);drawWave(c,G1);if(q==="III3")drawPk(c,G2);else drawPhasor(c,G2);return}
+ drawC1(c,BC);const e=cur();
+ if(q==="I1"){drawCg(c,n?{x:62,y:540,w:W-92,h:480}:{x:610,y:70,w:W-660,h:480});return}
+ if(q==="I2"){drawQt(c,G1);bars(c,G2,[["電源の仕事",e.W,CL.grav,"W"],["U₁",e.q1*e.q1/2,CL.acc,"U1"],["U₂",e.q2*e.q2/4,CL.fic,"U2"],["コイル",e.i*e.i/2,CL.fr,"UL"],["R₁ の熱",e.J,CL.frc,"J"]],3.3,"エネルギー（単位 CV₀²）",[[3,"3"],[1.5,"1.5"]]);return}
+ const U1=e.q1*e.q1/2,U2=st.n*e.q2*e.q2/2,U0=0.5+2*st.n;
+ if(q==="II1"){drawVg(c,G1);const U=2*e.g;bars(c,G2,[["U₂（静電エネルギー）",U,CL.fic,"U2"],["外から加えた仕事",U-1,CL.grav,"W"]],2*3.2*1.05,"コンデンサー2 のエネルギー（単位 CV₀²）",[[1,"1"],[2*st.n,(2*st.n).toFixed(1)]]);return}
+ if(q==="II2"){drawVt(c,G1);bars(c,G2,[["q₁",e.q1,CL.acc,"q1"],["q₂",e.q2,CL.fic,"q2"],["合計",e.q1+e.q2,CL.mute,""]],3.4,"電気量（単位 CV₀）",[[3,"3"]]);return}
+ if(q==="II3"){drawVt(c,G1);bars(c,G2,[["U₁",U1,CL.acc,"U1"],["U₂",U2,CL.fic,"U2"],["R₂ の熱",e.J,CL.frc,"J"],["合計",U1+U2+e.J,CL.mute,""]],U0*1.12,"エネルギー（単位 CV₀²）",[[U0,U0.toFixed(1)],[(2*st.n-1)**2/(2*(st.n+1)),"Q"]]);return}
+ drawIt(c,G1);bars(c,G2,[["U₁",U1,CL.acc,"U1"],["U₂",U2,CL.fic,"U2"],["コイル ½Li²",e.i*e.i/2,CL.fr,"UL"],["合計",U1+U2+e.i*e.i/2,CL.mute,""]],U0*1.12,"エネルギー（単位 CV₀²）",[[U0,U0.toFixed(1)],[(2*st.n-1)**2/(2*(st.n+1)),"最大"]])}
+/* ---------- live equations ---------- */
+function eqs0(){const q=st.q,r=String.raw,f=(x,k=3)=>NZ(x.toFixed(k)),Q1=TK("q1","acc","q_1"),Q2=TK("q2","fic","q_2");
+ if(q==="I1"){const e=cur();return{title:"平行板コンデンサーの電気容量（間隔に反比例）",list:[{t:TK("C2","fic","C_2")+r`=\varepsilon_0\frac{S}{`+TK("gap","fic",r`d/2`)+r`}=2\cdot\varepsilon_0\frac{S}{d}=2C`,n:`いまの間隔 ${f(e.g,2)}d → C₂ = ${NS(f(1/e.g),"fic")} C`}]}}
+ if(q==="I2"){const e=cur(),I=brI(e),Ldi=e.q1-e.q2/2;return{title:"キルヒホッフの第2法則（十分後は電流 0）",list:[
+  {t:r`V_0=R_1`+TK("iR","frc",r`i_R`)+r`+\frac{`+Q1+r`}{C}`,n:e.s1?`1 = ${NS(f(st.rr*I.iR),"frc")} + ${NS(f(e.q1),"acc")}（単位 V₀）`:"スイッチ1 はまだ開いている"},
+  {t:r`\frac{`+Q1+r`}{C}=\frac{`+Q2+r`}{2C}+`+TK("Ldi","fr",r`L\frac{di}{dt}`),n:`${NS(f(e.q1),"acc")} = ${NS(f(e.q2/2),"fic")} + ${NS(f(Ldi),"fr")}`},
+  {t:TK("U1","acc","U_1")+r`=\frac12CV_0^{\,2},\quad `+TK("U2","fic","U_2")+r`=\frac12(2C)V_0^{\,2}=CV_0^{\,2}`,n:`いま U₁ = ${NS(f(e.q1*e.q1/2),"acc")}，U₂ = ${NS(f(e.q2*e.q2/4),"fic")}（単位 CV₀²）`}]}}
+ const n=st.n,e=part()==="III"?null:cur();
+ if(q==="II1")return{title:"電気量が一定（Q = CV）",list:[{t:TK("q2","fic","Q_2")+r`=2C\cdot V_0=2CV_0,\quad `+TK("C2","fic",r`C_2'`)+r`=\frac{C}{n}`,n:`n = ${f(n,2)}，いまの間隔 ${f(e.g,2)}d → C₂' = ${NS(f(1/e.g),"fic")} C`},{t:TK("VC2","fic",r`V_{\mathrm C2}`)+r`=\frac{Q_2}{C_2'}=2nV_0\quad(n=2\text{ で }4V_0)`,n:`いま V<sub>C2</sub> = ${NS(f(2*e.g),"fic")} V₀`}]};
+ if(q==="II2")return{title:"キルヒホッフの第2法則と電気量保存則",list:[
+  {t:r`\frac{`+Q2+r`}{C/n}-\frac{`+Q1+r`}{C}=R_2`+TK("i","frc","i"),n:e.s2?`${NS(f(n*e.q2),"fic")} − ${NS(f(e.q1),"acc")} = ${NS(f(st.r2*e.i),"frc")}（単位 V₀）`:"スイッチ2 はまだ b につないでいない"},
+  {t:Q1+"+"+Q2+r`=3CV_0`,n:`${NS(f(e.q1),"acc")} + ${NS(f(e.q2),"fic")} = ${f(e.q1+e.q2)}（単位 CV₀）`},
+  {t:r`i=0\ \Rightarrow\ `+Q1+r`=\frac{3n}{n+1}CV_0,\quad `+Q2+r`=\frac{3}{n+1}CV_0`,n:`n = ${f(n,2)}：q₁ → ${f(3*n/(n+1))}，q₂ → ${f(3/(n+1))}（n = 2 で 2CV₀，CV₀）`}]};
+ if(q==="II3"){const Qg=(2*n-1)**2/(2*(n+1)),U=e.q1*e.q1/2+n*e.q2*e.q2/2;return{title:"エネルギー保存則（減った静電エネルギー ＝ ジュール熱）",list:[
+  {t:TK("J","frc","Q")+r`=\Bigl(\frac{(CV_0)^2}{2C}+\frac{(2CV_0)^2}{2C/n}\Bigr)`+(cv.narrow?r`\\`:"")+r`-\Bigl(\frac{`+Q1+r`^2}{2C}+\frac{`+Q2+r`^2}{2C/n}\Bigr)`,n:`いままでの熱 ${NS(f(e.J),"frc")} ＝ ${f(0.5+2*n)} − ${f(U)}（単位 CV₀²）`},
+  {t:r`Q=\frac12\cdot\frac{C}{n+1}\bigl\{(2n-1)V_0\bigr\}^2\qquad (n=2\text{ で }\tfrac32CV_0^{\,2})`,n:`n = ${f(n,2)}：Q = ${NS(f(Qg),"frc")} CV₀²`}]}}
+ if(q==="II4"){const U1=e.q1*e.q1/2,U2=n*e.q2*e.q2/2,UL=e.i*e.i/2,IM=(2*n-1)/Math.sqrt(n+1);return{title:"コイルを含む輪の電気振動",list:[
+  {t:TK("Ldi","fr",r`L\frac{di}{dt}`)+r`=\frac{`+Q2+r`}{C/n}-\frac{`+Q1+r`}{C}`,n:e.s2?`${NS(f(n*e.q2-e.q1),"fr")} = ${NS(f(n*e.q2),"fic")} − ${NS(f(e.q1),"acc")}（単位 V₀）`:"スイッチ2 はまだ a につないでいない"},
+  {t:r`\frac{`+Q1+r`^2}{2C}+\frac{`+Q2+r`^2}{2C/n}+`+TK("UL","fr",r`\frac12Li^2`)+r`=\text{一定}`,n:`${f(U1)} + ${f(U2)} + ${NS(f(UL),"fr")} = ${f(U1+U2+UL)}（単位 CV₀²）`},
+  {t:r`\frac12L`+TK("IM","fr","I_M")+r`^{\,2}=Q\ \Rightarrow\ I_M=V_0\sqrt{\frac{3C}{L}}\ \ (n=2)`,n:`n = ${f(n,2)}：I<sub>M</sub> = ${NS(f(IM),"fr")} V₀√(C/L)（n = 2 で √3 = 1.732）`}]}}
+ const A=ac(),ph=S.t,I2=TK("I2","fic","I_2"),I1=TK("I1","fr","I_1"),VC=TK("VC","acc",r`V_\mathrm C`),kk=TK("k","fic","k");
+ if(q==="III1")return{title:"電流を積分して電気量 → 電圧",list:[
+  {t:r`q=\int `+I2+r`\,dt=-\frac{I_0}{\omega}\cos(\omega t+\theta)`,n:`I₀ = ${NS(f(A.I0),"fic")}，θ = ${f(A.th/PI,2)}π`},
+  {t:VC+r`=\frac{q}{C/`+kk+r`}=-\frac{`+kk+r`\,I_0}{\omega C}\cos(\omega t+\theta)`,n:`最大値 kI₀/(ωC) = ${NS(f(A.k*A.I0/A.w),"acc")}（いま V<sub>C</sub> = ${NS(f(inst(A.VLC,ph)),"acc")}）`}]};
+ if(q==="III2")return{title:"並列なので電圧が共通（コイルの自己誘導）",list:[
+  {t:r`L\frac{d`+I1+r`}{dt}=`+VC+r`=-\frac{kI_0}{\omega C}\cos(\omega t+\theta)`,n:""},
+  {t:I1+r`=-\frac{k}{\omega^2LC}I_0\sin(\omega t+\theta)`,n:`k/(ω²LC) = ${f(A.k/A.w**2)} → I₁ の最大値 ${NS(f(cab(A.I1)),"fr")}（I₀ = ${f(A.I0)}）`}]};
+ if(q==="III3")return{title:"抵抗の電流がいつも 0 になる条件",list:[
+  {t:TK("IR","frc",r`I_1+I_2`)+r`=\Bigl(1-\frac{`+kk+r`}{\omega^2LC}\Bigr)I_0\sin(\omega t+\theta)`,n:`1 − k/(ω²LC) = ${NS(f(1-A.k/A.w**2),"frc")}`},
+  {t:TK("P","frc",r`\overline{P}`)+r`=0\ \Rightarrow\ k=\omega^2LC,\quad D=\omega^2LCd`,n:`いま P̄ = ${NS(f(A.P,4),"frc")}，共振の間隔 ω²LCd = ${f(A.w**2,2)}d（いま ${f(A.k,2)}d）`}]};
+ return{title:"抵抗の電圧が 0 → 電源の電圧がそのままコンデンサーに",list:[
+  {t:r`R(`+TK("IR","frc",r`I_1+I_2`)+r`)=0\ \Rightarrow\ `+VC+"="+TK("Vs","grav",r`V_1\sin\omega t`),n:`いま V<sub>C</sub> = ${NS(f(inst(A.VLC,ph)),"acc")}，電源 = ${NS(f(Math.sin(ph)),"grav")}`},
+  {t:r`-\omega L\,`+TK("I2","fic","I_0")+r`\cos(\omega t+\theta)=V_1\sin\omega t\ \Rightarrow\ \theta=\frac{\pi}{2},\quad I_0=\frac{V_1}{\omega L}`,n:`I₀ = ${NS(f(A.I0),"fic")}（1/(ω√(LC)) = ${f(1/A.w)}），θ = ${f(A.th/PI,2)}π`}]}}
+function eqs(){const E=eqs0();if(cv.narrow)E.list.forEach(e=>{e.t=e.t.replace(/\\ \\Rightarrow\\ |\\qquad |,\\quad /g,m=>"\\\\"+(m.includes("Rightarrow")?"\\Rightarrow ":""))});return E}
+function note(){const p=part();return p==="III"?`V₁ = 1，L = 1，C = 1（間隔 d のときの容量）とした値です。電流は V₁√(C/L)，抵抗は √(L/C) を単位にしています。${st.q==="III4"?"⒟ では間隔を共振の ω²LCd に固定しています。":""}`:`コンデンサー1 の容量 C，電源の電圧 V₀，コイル L を単位にしています（電気量 CV₀，エネルギー CV₀²，電流 V₀√(C/L)，時間 √(LC)）。`}
+function readout(){const f=(x,k=3)=>x.toFixed(k),q=st.q,p=part();
+ if(p==="III"){const A=ac();return[["間隔 kd",f(A.k,2)+" d"],["共振の間隔 ω²LCd",f(A.w*A.w,2)+" d"],["I₂ の最大値 I₀",f(A.I0)],["位相差 θ",f(A.th/PI,3)+" π"],["I₁ の最大値",f(cab(A.I1))],["抵抗の電流の最大値",f(cab(A.IR))],["平均の消費電力",f(A.P,4)]]}
+ const e=cur();if(q==="I1")return[["コンデンサー2 の間隔",f(e.g,2)+" d"],["電気容量 C₂",f(1/e.g)+" C"]];
+ if(q==="II1")return[["コンデンサー2 の間隔",f(e.g,2)+" d"],["電気容量 C₂",f(1/e.g)+" C"],["電気量（一定）","2.000 CV₀"],["電位差 V<sub>C2</sub>",f(2*e.g)+" V₀"],["静電エネルギー",f(2*e.g)+" CV₀²"]];
+ const C2=1/e.g,r=[["時刻 t",f(e.t,2)+" √(LC)"],["q₁",f(e.q1)+" CV₀"],["q₂",f(e.q2)+" CV₀"],["コンデンサー1 の電圧",f(e.q1)+" V₀"],["コンデンサー2 の電圧",f(e.q2/C2)+" V₀"]];
+ if(q==="I2")return r.concat([["コイルの電流 i",f(e.i)+" V₀√(C/L)"],["R₁ のジュール熱",f(e.J)+" CV₀²"]]);
+ if(q==="II4")return r.concat([["電流 i",f(e.i)+" V₀√(C/L)"],["I<sub>M</sub>（式の値）",f((2*st.n-1)/Math.sqrt(st.n+1))+" V₀√(C/L)"]]);
+ return r.concat([["抵抗2 の電流 i",f(e.i)+" V₀√(C/L)"],["R₂ のジュール熱",f(e.J)+" CV₀²"]])}
+initUI("I1");
+}
+</script>
+</body>
+</html>
