@@ -79,6 +79,8 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
 .law+.katex-display,.law+p{margin-top:4px}
 .katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
+.box>b:first-child{color:var(--acc)}.box p{margin:6px 0}.box p:first-of-type{margin-top:2px}
 </style>
 <script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
@@ -125,111 +127,140 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-acc">注目する分子（青）</span>、<span class="t-fr">ピストンの速さ・力積（オレンジ）</span>、<span class="t-frc">圧力（赤）</span>、<span class="t-fic">エネルギー（紫）</span>。アニメーションの分子数は 2000 個（表示は一部）で、1 mol の \(N_\mathrm A\) 個の代わりです。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。各設問は「方針 → 解答（法則 → 式 → 結果）」の順で、くわしい説明は下の「式の立て方」「補足」にまとめました。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-acc">注目する分子（青）</span>、<span class="t-fr">ピストンの速さ・力積（オレンジ）</span>、<span class="t-frc">圧力（赤）</span>、<span class="t-fic">エネルギー（紫）</span>。アニメーションの分子数は 2000 個（表示は一部）で、1 mol の \(N_\mathrm A\) 個の代わりです。</p>
 
 <details id="d-I1"><summary>⑴ (ア)　はじめの圧力 p₀<span class="ans">答 \(p_0=\dfrac{N_\mathrm AkT}{L^3}\)</span></summary><div class="body">
-<p>容器の体積は \(L^3\)、物質量は 1 mol です。気体定数は \(R=N_\mathrm Ak\)（1 mol あたりの分子数 × 分子1個あたりの定数）です。</p>
+<p class="hoshin"><b>方針</b>1 mol、体積 \(L^3\) で状態方程式。\(R=N_\mathrm Ak\) と置きかえる。</p>
+<h3>解答</h3>
 <p class="law">理想気体の状態方程式</p>
 $$\cfrc{p_0}\cdot L^3=1\cdot N_\mathrm Ak\,T\qquad\therefore\ p_0=\frac{N_\mathrm AkT}{L^3}$$
-<div class="box"><b>式の立て方</b>：\(pV=nRT\) で、\(R\) が使えない文字指定のときは \(R=N_\mathrm Ak\) と置きかえます。\(Nk\)（分子数 × ボルツマン定数）は「分子1個ずつで数えた \(nR\)」です。</div>
+<div class="box"><b>式の立て方</b>
+<p>\(pV=nRT\) に、体積 \(V=L^3\)、物質量 \(n=1\) を入れます。\(R\) が使えない文字指定のときは \(R=N_\mathrm Ak\)（1 mol あたりの分子数 × 分子1個あたりの定数）と置きかえます。</p></div>
+<div class="box"><b>補足</b>
+<p>\(Nk\)（分子数 × ボルツマン定数）は「分子1個ずつで数えた \(nR\)」です。状態方程式を \(pV=NkT\) の形で書いておくと、⑶ 以降の分子運動論の式と比べやすくなります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：ピストンは止まっています。分子が壁やピストンにぶつかり続けることで、圧力が生まれています（⑶で数えます）。</div>
 <button class="goto" data-q="I1">この状況にする</button>
 </div></details>
 
 <details id="d-I2"><summary>⑵ (イ)(ウ)　ゆっくり押し込んだ後の圧力 p₁<span class="ans">答 \(p_1=p_0\Bigl(1-\dfrac{\Delta z}{L}\Bigr)^{-\gamma},\ \ p_1\fallingdotseq\Bigl(1+\dfrac{5\Delta z}{3L}\Bigr)p_0\)</span></summary><div class="body">
-<p>断熱材でできた容器なので、熱の出入りはありません。ゆっくり動かす断熱変化にはポアソンの法則が使えます。体積は \(L^3\to L^2(L-\Delta z)\) です。</p>
+<p class="hoshin"><b>方針</b>断熱容器でゆっくり動かすので、ポアソンの法則。体積は \(L^3\to L^2(L-\Delta z)\)。</p>
+<h3>解答</h3>
 <p class="law">ポアソンの法則（断熱変化）</p>
 $$p_0\,(L^3)^\gamma=\cfrc{p_1}\bigl(L^2(L-\Delta z)\bigr)^\gamma\qquad\therefore\ p_1=p_0\Bigl(1-\frac{\Delta z}{L}\Bigr)^{-\gamma}$$
-<p>\(\Delta z\ll L\) のとき、問題の近似式と単原子分子の \(\gamma=\dfrac53\) を使って</p>
-$$p_1\fallingdotseq\Bigl(1+\gamma\frac{\Delta z}{L}\Bigr)p_0=\Bigl(1+\frac{5\Delta z}{3L}\Bigr)p_0$$
-<p>近似式は、p–V グラフの断熱線を \(V=L^3\) で直線（接線）に置きかえたものです。</p>
-<div class="box"><b>式の立て方</b>：\(pV^\gamma\) は「前と後で等しい」と書き、比をとって \(p_1/p_0=(V_0/V_1)^\gamma\) にします。\((1+x)^n\fallingdotseq1+nx\)（\(|x|\ll1\)）は、指数が負でも分数でも使えます。</div>
+<p class="law">近似式（\(\gamma=\frac53\)）</p>
+$$p_1\fallingdotseq\Bigl(1+\gamma\frac{\Delta z}{L}\Bigr)p_0\qquad\therefore\ p_1\fallingdotseq\Bigl(1+\frac{5\Delta z}{3L}\Bigr)p_0$$
+<div class="box"><b>式の立て方</b>
+<p>断熱材でできた容器なので熱の出入りはなく、ゆっくり動かす断熱変化なのでポアソンの法則 \(pV^\gamma=\text{一定}\) が使えます。「前と後で等しい」と書き、比をとって \(p_1/p_0=(V_0/V_1)^\gamma\) にします。</p>
+<p>近似は \((1+x)^n\fallingdotseq1+nx\)（\(|x|\ll1\)）で、指数が負でも分数でも使えます。ここでは \(x=-\Delta z/L\)、\(n=-\gamma\) です。単原子分子なので \(\gamma=\dfrac53\) です。</p></div>
+<div class="box"><b>補足</b>
+<p>近似式は、p–V グラフの断熱線を \(V=L^3\) の点で直線（接線）に置きかえたものです。\(\Delta z\) が大きくなるほど、本当の断熱線は接線より上にずれていきます。</p>
+<p>同じ体積変化でも、等温変化なら \(p\fallingdotseq(1+\Delta z/L)p_0\) なので、断熱変化のほうが圧力の上がり方が \(\gamma\) 倍大きくなります。押し込んだ仕事で気体の温度が上がるぶんが上乗せされるからで、このことを⑷で分子の衝突から確かめます。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：右の p–V グラフで、分子の動きから計算した圧力（赤い点）が断熱線（実線）にそって上がります。等温線（点線）より急なのは、押し込んだ仕事で分子が速くなる（温度が上がる）からです。\(\Delta z/L\) を大きくすると、接線（ウ）と断熱線（イ）の差が見えてきます。</div>
 <button class="goto" data-q="I2">この状況にする</button>
 </div></details>
 
 <details id="d-II1"><summary>⑶ (エ)(オ)　1回の衝突の力積と、時間 t の衝突回数<span class="ans">答 \(2mv_z,\ \ N_\mathrm C=\dfrac{v_zt}{2L}\)</span></summary><div class="body">
-<p>止まったピストンに弾性衝突すると、速度の \(z\) 成分は \(v_z\to-v_z\) と反転し、他の成分は変わりません。</p>
+<p class="hoshin"><b>方針</b>弾性衝突で \(v_z\to-v_z\)。分子の運動量変化からピストンの力積、往復距離 \(2L\) から回数。</p>
+<h3>解答</h3>
 <p class="law">運動量と力積の関係（分子）</p>
-$$m(-v_z)-mv_z=-2mv_z$$
-<p>分子が受けた力積は \(-2mv_z\)（下向き）なので、作用・反作用でピストンは上向きに \(\cfr{2mv_z}\) の力積を受けます。</p>
-<p>分子は \(z\) 方向には、底とピストンの間（距離 \(L\)）を速さ \(v_z\) で往復します。往復 \(2L\) ごとにピストンに1回当たるので</p>
-<p class="law">衝突回数（往復の距離で割る）</p>
+$$m(-v_z)-mv_z=-2mv_z\qquad\therefore\ \text{ピストンが受ける力積}\ \cfr{2mv_z}$$
+<p class="law">衝突回数（進む距離 ÷ 往復の距離）</p>
 $$N_\mathrm C=\frac{v_zt}{2L}$$
-<p>横の壁との衝突は \(v_x,v_y\) を変えるだけで、\(z\) 方向の往復には影響しません。</p>
-<div class="box"><b>式の立て方</b>：分子運動論は (1) 1回の力積、(2) 単位時間の衝突回数、(3) 全分子の和、の3段階です。(2) は「\(z\) 方向に進む距離 \(v_zt\) ÷ 1往復の距離 \(2L\)」で数えます。</div>
+<div class="box"><b>式の立て方</b>
+<p>分子運動論は (1) 1回の力積、(2) 一定時間の衝突回数、(3) 全分子の和、の3段階で組み立てます。</p>
+<p>(1) 止まったピストンに弾性衝突すると、速度の \(z\) 成分は \(v_z\to-v_z\) と反転し、他の成分は変わりません。分子が受けた力積は \(-2mv_z\)（下向き）なので、作用・反作用でピストンは上向きに \(2mv_z\) の力積を受けます。</p>
+<p>(2) 分子は \(z\) 方向には、底とピストンの間（距離 \(L\)）を速さ \(v_z\) で往復します。往復 \(2L\) ごとにピストンに1回当たるので、「\(z\) 方向に進む距離 \(v_zt\) ÷ 1往復の距離 \(2L\)」で数えます。</p></div>
+<div class="box"><b>補足</b>
+<p>横の壁との衝突は \(v_x,v_y\) を反転させるだけで、\(z\) 方向の往復には影響しません。そのため、分子が斜めに飛んでいても、\(z\) 方向の動きだけを見て回数を数えられます。</p>
+<p>ここでは分子どうしの衝突を無視していますが、分子どうしがぶつかって速度を交換しても、全体として「\(z\) 方向に運ばれる運動量」の平均は変わらないので、圧力の結果は同じになります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：右のグラフは青い分子の高さ \(z\) の時間変化です。ピストンに当たるたびにオレンジの印がつき、「いまの値」で衝突回数（数えた値）と \(v_zt/2L\) を比べられます。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-II2"><summary>⑶ (カ)　分子全体から受ける圧力 pₐ<span class="ans">答 \(p_\mathrm a=\dfrac{N_\mathrm Am\overline{{v_z}^2}}{L^3}\)</span></summary><div class="body">
-<p>1つの分子がピストンにおよぼす平均の力は、(エ)×(オ)÷\(t\) です。</p>
+<p class="hoshin"><b>方針</b>1分子の平均の力 ＝ (エ)×(オ)÷\(t\)。全分子で足して面積 \(L^2\) で割る。</p>
+<h3>解答</h3>
 <p class="law">平均の力 ＝ 力積の合計 ÷ 時間</p>
 $$\bar f=2mv_z\times\frac{v_zt}{2L}\times\frac1t=\frac{m{v_z}^2}{L}$$
-<p>\(N_\mathrm A\) 個の分子について足すと、\({v_z}^2\) の和は \(N_\mathrm A\overline{{v_z}^2}\) です。面積 \(L^2\) で割って圧力にします。</p>
-<p class="law">圧力 ＝ 力 ÷ 面積</p>
-$$\cfrc{p_\mathrm a}=\frac{1}{L^2}\cdot\frac{m\cdot N_\mathrm A\overline{{v_z}^2}}{L}=\frac{N_\mathrm Am\overline{{v_z}^2}}{L^3}$$
-<div class="box"><b>式の立て方</b>：分子ごとに速さが違うので、\({v_z}^2\) は「2乗の平均 × 個数」に置きかえてから足します。\(\overline{v_z}^2\)（平均の2乗）ではなく \(\overline{{v_z}^2}\)（2乗の平均）である点に注意します。</div>
+<p class="law">圧力 ＝ 力 ÷ 面積（\(N_\mathrm A\) 個の和）</p>
+$$\cfrc{p_\mathrm a}=\frac{1}{L^2}\cdot\frac{m\cdot N_\mathrm A\overline{{v_z}^2}}{L}\qquad\therefore\ p_\mathrm a=\frac{N_\mathrm Am\overline{{v_z}^2}}{L^3}$$
+<div class="box"><b>式の立て方</b>
+<p>力積は「力 × 時間」なので、時間 \(t\) の間の力積の合計を \(t\) で割れば平均の力になります。</p>
+<p>分子ごとに速さが違うので、\({v_z}^2\) をそのまま \(N_\mathrm A\) 倍することはできません。「\({v_z}^2\) の和 ＝ 2乗の平均 × 個数 ＝ \(N_\mathrm A\overline{{v_z}^2}\)」と置きかえてから足します。</p></div>
+<div class="box"><b>補足</b>
+<p>\(\overline{v_z}^2\)（平均の2乗）ではなく \(\overline{{v_z}^2}\)（2乗の平均）である点に注意します。\(v_z\) の平均は、上向きと下向きが打ち消し合って 0 になりますが、\({v_z}^2\) の平均は 0 になりません。</p>
+<p>結果を \(p_\mathrm aL^3=N_\mathrm Am\overline{{v_z}^2}\) と書くと、「\(pV\) は分子の運動の激しさで決まる」という形になり、次の (キ) で状態方程式と結びつきます。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：「ピストンが受けた力積の合計 ÷ 時間 ÷ 面積」で測った圧力が、時間がたつにつれて \(N m\overline{{v_z}^2}/L^3\) の値に近づきます。右のグラフで2つを比べてください。</div>
 <button class="goto" data-q="II2">この状況にする</button>
 </div></details>
 
 <details id="d-II3"><summary>⑶ (キ)　√(vz²の平均) の値<span class="ans">答 (d) 170 m/s</span></summary><div class="body">
-<p>(カ) と (ア) は同じ圧力なので、等しいとおきます。</p>
+<p class="hoshin"><b>方針</b>(カ) と (ア) は同じ圧力なので等しいとおく。</p>
+<h3>解答</h3>
 <p class="law">分子運動論の圧力 ＝ 状態方程式の圧力</p>
 $$\frac{N_\mathrm Am\overline{{v_z}^2}}{L^3}=\frac{N_\mathrm AkT}{L^3}\qquad\therefore\ \sqrt{\overline{{v_z}^2}}=\sqrt{\frac{kT}{m}}$$
-$$\sqrt{\frac{1.4\times10^{-23}\times300}{1.4\times10^{-25}}}=\sqrt{3.0\times10^4}\nobreak\fallingdotseq1.7\times10^2\ \mathrm{m/s}$$
-<p>1.4 どうしが約分できるように数値が選ばれています。\(\sqrt3\fallingdotseq1.73\) より 170 m/s で、(d) です。</p>
-<h3>着眼点：1方向あたり \(\frac12kT\)</h3>
-<p>\(m\overline{{v_z}^2}=kT\) は「\(z\) 方向の運動エネルギーの平均が \(\frac12kT\)」という意味です。\(x,y,z\) の3方向で同じなので、分子1個の運動エネルギーの平均は \(\frac32kT\) になります（⑷の (サ) で使います）。</p>
-<div class="box"><b>式の立て方</b>：同じ量を2通りに表した式を「等しい」とおくと、ミクロ（分子の速さ）とマクロ（温度）がつながります。</div>
+$$\sqrt{\frac{1.4\times10^{-23}\times300}{1.4\times10^{-25}}}=\sqrt{3.0\times10^4}\nobreak\fallingdotseq1.7\times10^2\ \mathrm{m/s}\qquad\therefore\ \text{(d)}$$
+<div class="box"><b>式の立て方</b>
+<p>同じ量（ここでは圧力）を2通りに表した式を「等しい」とおくと、ミクロの量（分子の速さ）とマクロの量（温度）がつながります。数値計算では、1.4 どうしが約分できるように数値が選ばれていて、\(\sqrt3\fallingdotseq1.73\) より 170 m/s です。</p></div>
+<div class="box"><b>補足</b>
+<p><b>着眼点（1方向あたり \(\frac12kT\)）</b>：\(m\overline{{v_z}^2}=kT\) は「\(z\) 方向の運動エネルギーの平均が \(\frac12kT\)」という意味です。\(x,y,z\) の3方向で同じなので、分子1個の運動エネルギーの平均は \(\frac32kT\) になります（⑷の (サ) で使います）。</p>
+<p>速さの目安は \(\sqrt{kT/m}\) で、温度が高いほど、分子が軽いほど速くなります。3方向まとめた2乗平均速度は \(\sqrt{3kT/m}\fallingdotseq300\ \mathrm{m/s}\) です。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：右のグラフは分子の \(v_z\) の分布です。縦の線 \(\pm\sqrt{\overline{{v_z}^2}}\) の位置は \(T\) を4倍にすると2倍、\(m\) を4倍にすると半分になります。</div>
 <button class="goto" data-q="II3">この状況にする</button>
 </div></details>
 
 <details id="d-III1"><summary>⑷ (ク)(ケ)　動くピストンと衝突した後の速さ、1回で得る運動エネルギー<span class="ans">答 \(v_z+2v_\mathrm p,\ \ \Delta\varepsilon\fallingdotseq2mv_zv_\mathrm p\)</span></summary><div class="body">
-<p>ピストンは速さ \(v_\mathrm p\) で下がってきます。ピストンから見ると、分子は速さ \(v_z+v_\mathrm p\) で近づき、弾性衝突なので同じ速さ \(v_z+v_\mathrm p\) で離れます。</p>
-<p class="law">弾性衝突（反発係数 1：相対速度の大きさが変わらない）</p>
+<p class="hoshin"><b>方針</b>ピストンから見ると止まった壁との弾性衝突。相対速度の大きさが変わらないことを使う。</p>
+<h3>解答</h3>
+<p class="law">弾性衝突（反発係数 1）</p>
 $$v_z'-v_\mathrm p=v_z+v_\mathrm p\qquad\therefore\ \cacc{v_z'}=v_z+2\cfr{v_\mathrm p}$$
-<p>ここで \(v_z'\) は床から見た衝突後の速さ（下向き）、\(v_z'-v_\mathrm p\) はピストンから見た離れる速さです。\(x,y\) 成分は変わらないので、運動エネルギーの増加は \(z\) 成分だけです。</p>
 <p class="law">運動エネルギーの変化</p>
-$$\Delta\varepsilon=\frac12m(v_z+2v_\mathrm p)^2-\frac12m{v_z}^2\nobreak=2mv_zv_\mathrm p+2m{v_\mathrm p}^2\fallingdotseq2mv_zv_\mathrm p$$
-<h3>着眼点：近づいてくる壁は球を速くする</h3>
-<p>バットで打ち返されたボールが速くなるのと同じです。逆にピストンを引く（遠ざかる壁）と、分子は遅くなり、気体は冷えます（断熱膨張）。</p>
-<div class="box"><b>式の立て方</b>：動く壁との衝突は、壁といっしょに動く人から見ると「止まった壁との衝突」になります。その見方で速度を反転し、最後に壁の速度を足し戻します。</div>
+$$\Delta\varepsilon=\frac12m(v_z+2v_\mathrm p)^2-\frac12m{v_z}^2\qquad\therefore\ \Delta\varepsilon\fallingdotseq2mv_zv_\mathrm p$$
+<div class="box"><b>式の立て方</b>
+<p>動く壁との衝突は、壁といっしょに動く人から見ると「止まった壁との衝突」になります。その見方で速度を反転し、最後に壁の速度を足し戻します。</p>
+<p>ピストンは速さ \(v_\mathrm p\) で下がってきます。ピストンから見ると、分子は速さ \(v_z+v_\mathrm p\) で近づき、弾性衝突なので同じ速さ \(v_z+v_\mathrm p\) で離れます。床から見た衝突後の速さ（下向き）を \(v_z'\) とすると、ピストンから見た離れる速さは \(v_z'-v_\mathrm p\) です。</p>
+<p>\(x,y\) 成分は変わらないので、運動エネルギーの増加は \(z\) 成分だけで計算できます。展開すると \(2mv_zv_\mathrm p+2m{v_\mathrm p}^2\) で、\(v_\mathrm p\ll v_z\) より2乗の項を無視します。</p></div>
+<div class="box"><b>補足</b>
+<p><b>着眼点（近づいてくる壁は球を速くする）</b>：バットで打ち返されたボールが速くなるのと同じです。逆にピストンを引く（遠ざかる壁）と、分子は遅くなり、気体は冷えます（断熱膨張）。</p>
+<p>ピストンの質量が十分大きいので、ピストンの速さは衝突で変わらないとしています。分子が得たエネルギーは、ピストンを押している外部（手など）が供給しています。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：青い分子がピストンに当たるたびに、「いまの値」に衝突前後の速さとその差が出ます。差が \(2v_\mathrm p\) に一致することを確かめてください。</div>
 <button class="goto" data-q="III1">この状況にする</button>
 </div></details>
 
 <details id="d-III2"><summary>⑷ (コ)　時間 Δt の間に気体全体が得る運動エネルギー ΔE<span class="ans">答 \(\Delta E\fallingdotseq\dfrac{N_\mathrm Am\overline{{v_z}^2}}{L}\Delta z\)</span></summary><div class="body">
-<p>1つの分子が \(\Delta t\) の間に当たる回数は (オ)×\(\dfrac{\Delta t}{t}=\dfrac{v_z\Delta t}{2L}\) です。</p>
+<p class="hoshin"><b>方針</b>1回分 (ケ) × \(\Delta t\) の間の回数 × 分子数。\(v_\mathrm p\Delta t=\Delta z\)。</p>
+<h3>解答</h3>
 <p class="law">1分子が得るエネルギー ＝ 1回分 × 回数</p>
-$$2mv_zv_\mathrm p\times\frac{v_z\Delta t}{2L}=\frac{m{v_z}^2}{L}\,v_\mathrm p\Delta t\nobreak=\frac{m{v_z}^2}{L}\,\Delta z$$
-<p>\(v_\mathrm p\Delta t=\Delta z\)（ピストンが動いた距離）を使いました。全分子で足すと</p>
+$$2mv_zv_\mathrm p\times\frac{v_z\Delta t}{2L}=\frac{m{v_z}^2}{L}\,\Delta z$$
+<p class="law">全分子で和をとる</p>
 $$\cfic{\Delta E}=\frac{N_\mathrm Am\overline{{v_z}^2}}{L}\,\Delta z$$
-<h3>着眼点：これはピストンがした仕事</h3>
-<p>(カ) より \(\dfrac{N_\mathrm Am\overline{{v_z}^2}}{L}=p_\mathrm aL^2\)（ピストンを押す力）なので、\(\Delta E=p_\mathrm aL^2\cdot\Delta z\)、つまり「力 × 動いた距離 ＝ 仕事」です。断熱圧縮で内部エネルギーが仕事の分だけ増えるという熱力学第1法則を、分子の衝突で説明したことになります。</p>
-<div class="box"><b>式の立て方</b>：ミクロの量（1回の変化 × 回数 × 分子数）を組み立てたら、最後に (カ) の圧力の形を探して、マクロの量（仕事など）に読みかえます。</div>
+<div class="box"><b>式の立て方</b>
+<p>ミクロの量は「1回の変化 × 回数 × 分子数」と組み立てます。1つの分子が \(\Delta t\) の間に当たる回数は、(オ) の \(t\) を \(\Delta t\) にかえて \(\dfrac{v_z\Delta t}{2L}\) です。ピストンが動いた距離 \(v_\mathrm p\Delta t=\Delta z\) を使うと、速さ \(v_\mathrm p\) が式から消えます。</p>
+<p>組み立てたら、最後に (カ) の圧力の形を探して、マクロの量（仕事など）に読みかえます。</p></div>
+<div class="box"><b>補足</b>
+<p><b>着眼点（これはピストンがした仕事）</b>：(カ) より \(\dfrac{N_\mathrm Am\overline{{v_z}^2}}{L}=p_\mathrm aL^2\)（ピストンを押す力）なので、\(\Delta E=p_\mathrm aL^2\cdot\Delta z\)、つまり「力 × 動いた距離 ＝ 仕事」です。断熱圧縮で内部エネルギーが仕事の分だけ増えるという熱力学第1法則を、分子の衝突で説明したことになります。</p>
+<p>この式は、押し込む途中で \(\overline{{v_z}^2}\) が変わらないとした近似で、\(\Delta z\ll L\) のときにだけ正しい式です。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：右のグラフの紫の線が気体全体の運動エネルギーです。ピストンが止まった後の増加量を、式の \(\Delta E\)（点線）と比べてください。\(\Delta z/L\) を大きくすると測定値のほうが大きくなります。押し込む途中で \(\overline{{v_z}^2}\) 自体が増えるのに、式では押す前の値を使っているからです（\(\Delta z\ll L\) でだけ正しい近似）。</div>
 <button class="goto" data-q="III2">この状況にする</button>
 </div></details>
 
 <details id="d-III3"><summary>⑷ (サ)(シ)(ス)　E と U、押し込んだ後の圧力 p_b<span class="ans">答 \(E=\dfrac32N_\mathrm Am\overline{{v_z}^2},\ \ U=\dfrac32p_\mathrm bL^2(L-\Delta z),\ \ \)(c)</span></summary><div class="body">
-<p>3方向が同等なので \(\overline{v^2}=3\overline{{v_z}^2}\) です。</p>
-<p class="law">気体全体の運動エネルギー</p>
-$$\cfic{E}=N_\mathrm A\times\frac12m\overline{v^2}=\frac32N_\mathrm Am\overline{{v_z}^2}$$
+<p class="hoshin"><b>方針</b>3方向が同等として \(E\) と \(U\) を書き、エネルギーの収支 \(E+\Delta E=U\) から \(p_\mathrm b\) を求める。</p>
+<h3>解答</h3>
+<p class="law">気体全体の運動エネルギー（\(\overline{v^2}=3\overline{{v_z}^2}\)）</p>
+$$\cfic{E}=N_\mathrm A\times\frac12m\overline{v^2}\qquad\therefore\ E=\frac32N_\mathrm Am\overline{{v_z}^2}$$
 <p class="law">単原子分子理想気体の内部エネルギー</p>
-$$U=\frac32nRT=\frac32\cfrc{p_\mathrm b}V\nobreak=\frac32p_\mathrm bL^2(L-\Delta z)$$
+$$U=\frac32nRT=\frac32\cfrc{p_\mathrm b}V\qquad\therefore\ U=\frac32p_\mathrm bL^2(L-\Delta z)$$
 <p class="law">エネルギーの収支（\(E+\Delta E=U\)）</p>
 $$\frac32p_\mathrm aL^3+p_\mathrm aL^2\Delta z=\frac32p_\mathrm bL^2(L-\Delta z)$$
-<p>(カ) の \(N_\mathrm Am\overline{{v_z}^2}=p_\mathrm aL^3\) を使いました。両辺を \(\frac32L^3\) で割って整理すると</p>
-$$p_\mathrm b=p_\mathrm a\Bigl(1-\frac{\Delta z}{L}\Bigr)^{-1}\nobreak+\frac23p_\mathrm a\frac{\Delta z}{L}\Bigl(1-\frac{\Delta z}{L}\Bigr)^{-1}\qquad\text{(c)}$$
-<p>\(\Delta z\ll L\) で \(\Bigl(1-\dfrac{\Delta z}{L}\Bigr)^{-1}\fallingdotseq1+\dfrac{\Delta z}{L}\) とし、\((\Delta z/L)^2\) を無視すると \(p_\mathrm b\fallingdotseq\Bigl(1+\dfrac{5\Delta z}{3L}\Bigr)p_\mathrm a\) となり、(ウ) と一致します。</p>
-<h3>着眼点：2つの項の意味</h3>
-<p>第1項は「エネルギーは同じまま体積だけ小さくなった」ことによる増加（等温圧縮と同じ）、第2項は「押し込んだ仕事で分子が速くなった」ことによる増加です。等温線より断熱線が急なのは、この第2項があるからです。</p>
-<h3>補足：3方向にエネルギーを分け直すもの</h3>
-<p>ピストンとの衝突で増えるのは \(v_z\) だけです。それでも \(U=\frac32pV\)（3方向が同等）を使えるのは、実際の気体では分子どうしの衝突でエネルギーが3方向に分け直されるからです。もし分け直しが起きなければ、\(z\) 方向だけが速くなり、圧力は \(p\fallingdotseq\Bigl(1+\dfrac{3\Delta z}{L}\Bigr)p_\mathrm a\)（\(\gamma=3\) と同じ）まで上がります。設定の「分子どうしの衝突の効果」を切りかえて比べられます。</p>
-<div class="box"><b>式の立て方</b>：選択肢の式は、そのまま比べるより「自分で導いた式を変形する」か「\(\Delta z\to0\) で (ウ) と一致するか」で絞ります。(c) 以外は1次の係数が \(\frac53\) になりません。</div>
+$$\therefore\ p_\mathrm b=p_\mathrm a\Bigl(1-\frac{\Delta z}{L}\Bigr)^{-1}\nobreak+\frac23p_\mathrm a\frac{\Delta z}{L}\Bigl(1-\frac{\Delta z}{L}\Bigr)^{-1}\qquad\text{(c)}$$
+<div class="box"><b>式の立て方</b>
+<p>押し込む前の運動エネルギー \(E\) に、押し込みで得た \(\Delta E\) を足したものが、押し込んだ後の内部エネルギー \(U\) です。\(E\) と \(\Delta E\) は (カ) の \(N_\mathrm Am\overline{{v_z}^2}=p_\mathrm aL^3\) で \(p_\mathrm a\) に、\(U\) は \(nRT=pV\) で \(p_\mathrm b\) に書きかえ、両辺を \(\frac32L^3\) で割って整理します。</p>
+<p>選択肢の式は、そのまま比べるより「自分で導いた式を変形する」か「\(\Delta z\to0\) で (ウ) と一致するか」で絞ります。(c) 以外は1次の係数が \(\frac53\) になりません。</p></div>
+<div class="box"><b>補足</b>
+<p><b>(ウ) との一致</b>：\(\Delta z\ll L\) で \(\Bigl(1-\dfrac{\Delta z}{L}\Bigr)^{-1}\fallingdotseq1+\dfrac{\Delta z}{L}\) とし、\((\Delta z/L)^2\) を無視すると \(p_\mathrm b\fallingdotseq\Bigl(1+\dfrac{5\Delta z}{3L}\Bigr)p_\mathrm a\) となり、ポアソンの法則から出した (ウ) と一致します。</p>
+<p><b>2つの項の意味</b>：第1項は「エネルギーは同じまま体積だけ小さくなった」ことによる増加（等温圧縮と同じ）、第2項は「押し込んだ仕事で分子が速くなった」ことによる増加です。等温線より断熱線が急なのは、この第2項があるからです。</p>
+<p><b>3方向にエネルギーを分け直すもの</b>：ピストンとの衝突で増えるのは \(v_z\) だけです。それでも \(U=\frac32pV\)（3方向が同等）を使えるのは、実際の気体では分子どうしの衝突でエネルギーが3方向に分け直されるからです。もし分け直しが起きなければ、\(z\) 方向だけが速くなり、圧力は \(p\fallingdotseq\Bigl(1+\dfrac{3\Delta z}{L}\Bigr)p_\mathrm a\)（\(\gamma=3\) と同じ）まで上がります。設定の「分子どうしの衝突の効果」を切りかえて比べられます。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：p–V グラフで、(ス) の式（オレンジ）、ポアソンの法則（実線）、接線（ウ）を比べます。\(\Delta z/L\) が小さいところでは3本が重なり、大きくすると少しずつ離れます。分子の動きから計算した圧力（赤い点）はポアソンの法則にそって動きます。</div>
 <button class="goto" data-q="III3">この状況にする</button>
 </div></details>

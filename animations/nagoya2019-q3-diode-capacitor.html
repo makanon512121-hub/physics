@@ -79,6 +79,8 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
 .law+.katex-display,.law+p{margin-top:4px}
 .katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
+.box>b:first-child{color:var(--acc)}.box p{margin:6px 0}.box p:first-of-type{margin-top:2px}
 </style>
 <script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
@@ -123,91 +125,117 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-frc">ダイオード（赤）</span>、<span class="t-acc">C₁（青）</span>、<span class="t-fic">C₂（紫）</span>、<span class="t-grav">C₃（緑）</span>、<span class="t-fr">電流（オレンジの点の流れ）</span>。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。各設問は「方針 → 解答（法則 → 式 → 結果）」の順で、くわしい説明は下の「式の立て方」「補足」にまとめました。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-frc">ダイオード（赤）</span>、<span class="t-acc">C₁（青）</span>、<span class="t-fic">C₂（紫）</span>、<span class="t-grav">C₃（緑）</span>、<span class="t-fr">電流（オレンジの点の流れ）</span>。</p>
 
 <details id="d-I1"><summary>⑴　S₁ を閉じたときの V<sub>D</sub> と I<sub>D</sub><span class="ans">答 \(V_\mathrm D=\dfrac34V,\ \ I_\mathrm D=\dfrac{V}{4R}\)</span></summary><div class="body">
-<p>S₂ が開いているので、電流は「電池 → R₁ → D → 電池」の1本の道だけを流れます。</p>
-<p class="law">キルヒホッフの第2法則（電池 → R₁ → D の閉回路）</p>
+<p class="hoshin"><b>方針</b>閉回路の式とダイオードの特性（ON の区間と仮定）を連立し、最後に仮定を確かめる。</p>
+<h3>解答</h3>
+<p class="law">キルヒホッフの第2法則（電池 → R₁ → D）</p>
 $$V=R\,\cfr{I_\mathrm D}+\cfrc{V_\mathrm D}$$
-<p class="law">ダイオードの特性（式①，ON の区間 \(V_\mathrm D>\frac V2\) と仮定）</p>
-$$I_\mathrm D=\frac{2V_\mathrm D-V}{2R}$$
-<p>①を代入すると \(V=V_\mathrm D-\dfrac V2+V_\mathrm D\) なので \(V_\mathrm D=\dfrac34V\)、\(I_\mathrm D=\dfrac{V}{4R}\) です。\(\frac34V>\frac12V\) なので、ON と仮定したことと合っています。</p>
-<h3>着眼点：グラフの交点（動作点）として読む</h3>
-<p>回路の式を \(I_\mathrm D=\dfrac{V-V_\mathrm D}{R}\) と書くと、I–V グラフ上の右下がりの直線（負荷直線）になります。ダイオードの特性の折れ線との交点が、実際の電圧と電流です。</p>
-<div class="box"><b>式の立て方</b>：非直線の素子があるときは、(1) 素子以外の部分でキルヒホッフの法則を書き、(2) 素子の特性と連立します。特性が場合分けされているときは、どちらかの区間を仮定して解き、最後に仮定が正しいか確かめます。</div>
+<p class="law">ダイオードの特性（式①、\(V_\mathrm D>\frac V2\) と仮定）</p>
+$$I_\mathrm D=\frac{2V_\mathrm D-V}{2R}\qquad\therefore\ V_\mathrm D=\frac34V,\ \ I_\mathrm D=\frac{V}{4R}$$
+<p>\(\frac34V>\frac12V\) なので仮定に合う。</p>
+<div class="box"><b>式の立て方</b>
+<p>非直線の素子（ダイオード）があるときは、(1) 素子以外の部分でキルヒホッフの法則を書き、(2) 素子の特性と連立します。特性が場合分けされているときは、どちらかの区間を仮定して解き、最後に仮定が正しいか確かめます。</p>
+<p>S₂ が開いているので、電流は「電池 → R₁ → D → 電池」の1本の道だけを流れます。①を代入すると \(V=V_\mathrm D-\dfrac V2+V_\mathrm D\) となり、\(V_\mathrm D\) が求まります。</p></div>
+<div class="box"><b>補足</b>
+<p><b>着眼点（グラフの交点＝動作点として読む）</b>：回路の式を \(I_\mathrm D=\dfrac{V-V_\mathrm D}{R}\) と書くと、I–V グラフ上の右下がりの直線（負荷直線）になります。ダイオードの特性の折れ線との交点が、実際の電圧と電流です。</p>
+<p>負荷直線は、横軸と \(V_\mathrm D=V\)（電流 0 のとき D に全電圧）で、縦軸と \(I_\mathrm D=V/R\)（D を導線とみなしたときの電流）で交わります。この2点を結ぶだけで描けるので、計算の前に交点がどちらの区間にあるか見当をつけられます。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：左下の I–V グラフで、オレンジの負荷直線と赤い特性の交点（●）が \(V_\mathrm D=\frac34V\) にあります。</div>
 <button class="goto" data-q="I1">この状況にする</button>
 </div></details>
 
 <details id="d-II1"><summary>⑵　S₂ を閉じた瞬間に I<sub>D</sub> = 0 となる抵抗値 X<span class="ans">答 \(X=R\)</span></summary><div class="body">
-<p>閉じた瞬間、C₁ と C₂ には電荷がないので電圧も 0 です。つまりその瞬間だけ、コンデンサーは導線と同じはたらきをし、R₂ の右端の電位は 0 になります。</p>
-<p>\(I_\mathrm D=0\)（ダイオードが OFF）なら、電流は R₁ と R₂ を直列に流れ、D の電圧は R₂ の電圧と同じです。</p>
-<p class="law">抵抗の直列接続（電圧は抵抗値に比例して分かれる）</p>
+<p class="hoshin"><b>方針</b>閉じた瞬間のコンデンサーは電荷 0 で導線と同じ。D が OFF なら R₁ と R₂ の直列で、D の電圧 \(\le\frac V2\) が条件。</p>
+<h3>解答</h3>
+<p class="law">抵抗の直列接続（電圧の分配）</p>
 $$\cfrc{V_\mathrm D}=\frac{R_2}{R+R_2}V$$
 <p class="law">ダイオードが OFF の条件</p>
-$$\frac{R_2}{R+R_2}V\le\frac V2\qquad\therefore\ R_2\le R$$
-<p>よって \(X=R\) です。</p>
-<h3>着眼点：負荷直線が下がる</h3>
-<p>R₂ を並列につなぐと、D から見た回路は「起電力 \(\dfrac{R_2}{R+R_2}V\)、内部抵抗 \(\dfrac{RR_2}{R+R_2}\) の電池」と同じになります。R₂ が小さいほど負荷直線の切片が左に下がり、\(V_\mathrm D=\frac V2\) を下回ると交点が \(I_\mathrm D=0\) の水平部分に移ります。</p>
-<div class="box"><b>式の立て方</b>：スイッチを入れた「瞬間」のコンデンサーは、直前と同じ電荷（ここでは 0）をもつ電池として扱います。電荷 0 なら導線、十分時間がたった後は電流 0 の断線として扱います。</div>
+$$\frac{R_2}{R+R_2}V\le\frac V2\qquad\therefore\ R_2\le R,\ \ X=R$$
+<div class="box"><b>式の立て方</b>
+<p>スイッチを入れた「瞬間」のコンデンサーは、直前と同じ電荷をもつ電池として扱います。電荷 0 なら電圧も 0 で導線と同じ、十分時間がたった後は電流 0 の断線として扱います。</p>
+<p>ここでは C₁ と C₂ に電荷がないので、R₂ の右端の電位は 0 です。\(I_\mathrm D=0\)（ダイオードが OFF）なら、電流は R₁ と R₂ を直列に流れ、D の電圧は R₂ の電圧と同じになります。直列の抵抗では、電圧は抵抗値に比例して分かれます。</p></div>
+<div class="box"><b>補足</b>
+<p><b>着眼点（負荷直線が下がる）</b>：R₂ を並列につなぐと、D から見た回路は「起電力 \(\dfrac{R_2}{R+R_2}V\)、内部抵抗 \(\dfrac{RR_2}{R+R_2}\) の電池」と同じになります。R₂ が小さいほど負荷直線の切片が左に下がり、\(V_\mathrm D=\frac V2\) を下回ると交点が \(I_\mathrm D=0\) の水平部分に移ります。</p>
+<p>\(R_2=R\) のときは、ちょうど \(V_\mathrm D=\frac V2\) となり、特性の折れ目で電流 0 になります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：設定の \(R_2/R\) を 1 より小さくすると、S₂ を閉じた瞬間に D の電流（赤い線）が 0 に落ちます。コンデンサーが充電されて電圧が上がると、やがて D に再び電流が流れ始めます。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-III1"><summary>⑶ (ア)(イ)　時刻 t₁ の C₁ の電荷と C₂ の電圧<span class="ans">答 (ア) \(\dfrac15CV\)　(イ) \(\dfrac1{10}V\)</span></summary><div class="body">
+<p class="hoshin"><b>方針</b>\(Q=CV\)。C₁ と C₂ の間は孤立部分なので、両者の電荷は等しい。</p>
+<h3>解答</h3>
 <p class="law">コンデンサーの電荷（\(Q=CV\)）</p>
-$$\cacc{Q_1}=C\cdot\frac V5=\frac15CV$$
-<p>C₁ の下の極板と C₂ の上の極板をつなぐ導線は、どこにもつながっていない孤立した部分です。はじめ電荷 0 なので、ずっと合計 0 のままです。よって C₂ の上の極板には \(+Q_1\) があり、C₂ の電荷も \(Q_1\) です。</p>
-<p class="law">電気量保存（孤立した部分）と \(V=Q/C\)</p>
-$$\cfic{V_2}=\frac{Q_1}{2C}=\frac1{10}V$$
-<div class="box"><b>式の立て方</b>：直列のコンデンサーは「間の孤立部分の電気量 ＝ 一定」から電荷が等しくなります。電圧は電荷 ÷ 電気容量なので、容量の大きい C₂ の電圧は C₁ の半分です。</div>
+$$\cacc{Q_1}=C\cdot\frac V5\qquad\therefore\ Q_1=\frac15CV$$
+<p class="law">電気量保存（孤立部分）と \(V=Q/C\)</p>
+$$\cfic{V_2}=\frac{Q_1}{2C}\qquad\therefore\ V_2=\frac1{10}V$$
+<div class="box"><b>式の立て方</b>
+<p>直列のコンデンサーは「間の孤立部分の電気量 ＝ 一定」から電荷が等しくなります。C₁ の下の極板と C₂ の上の極板をつなぐ導線は、どこにもつながっていない孤立した部分です。はじめ電荷 0 なので、ずっと合計 0 のままです。よって C₂ の上の極板には \(+Q_1\) があり、C₂ の電荷も \(Q_1\) です。</p></div>
+<div class="box"><b>補足</b>
+<p>電圧は電荷 ÷ 電気容量なので、電荷が同じなら容量の大きい C₂（\(2C\)）の電圧は C₁ の半分です。直列のコンデンサーでは、電圧は容量に反比例して分かれます（抵抗の直列では抵抗値に比例するのと逆）。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：S₂ を閉じると C₁ と C₂ の極板に同じ数の ＋・− が増えていきます。右下のグラフで、青（C₁）がいつも紫（C₂）の2倍の電圧になっています。</div>
 <button class="goto" data-q="III1">この状況にする</button>
 </div></details>
 
 <details id="d-III2"><summary>⑶ (ウ)　時刻 t₁ に R₂ を流れる電流<span class="ans">答 \(\dfrac{9V}{50R}\)</span></summary><div class="body">
-<p>R₂ の電流を \(I\) とします。分かれ道（D の上の点）でキルヒホッフの第1法則を使うと、R₁ を流れる電流は \(I_\mathrm D+I\) です。</p>
-<p class="law">キルヒホッフの第2法則（D → R₂ → C₁ → C₂ の閉回路）</p>
+<p class="hoshin"><b>方針</b>R₂ の電流を \(I\) とし、2つの閉回路の式とダイオードの特性①を連立する。コンデンサーはそのときの電圧の電池とみる。</p>
+<h3>解答</h3>
+<p class="law">キルヒホッフの第2法則（D → R₂ → C₁ → C₂）</p>
 $$\cfrc{V_\mathrm D}=2R\,\cfr{I}+\frac V5+\frac V{10}$$
-<p class="law">キルヒホッフの第2法則（電池 → R₁ → D の閉回路）</p>
+<p class="law">キルヒホッフの第2法則（電池 → R₁ → D）</p>
 $$V=R(I_\mathrm D+\cfr{I})+\cfrc{V_\mathrm D}$$
-<p>①より \(RI_\mathrm D=V_\mathrm D-\dfrac V2\) なので、2つ目の式は \(2V_\mathrm D+RI=\dfrac32V\) になります。1つ目の \(V_\mathrm D=2RI+\dfrac3{10}V\) を入れて</p>
-$$5RI=\frac32V-\frac35V=\frac9{10}V\qquad\therefore\ I=\frac{9V}{50R}$$
-<p>このとき \(V_\mathrm D=\dfrac{33}{50}V>\dfrac V2\) なので、ダイオードは ON のままです。</p>
-<div class="box"><b>式の立て方</b>：未知数（\(I,\ I_\mathrm D,\ V_\mathrm D\)）の数だけ式を集めます。第1法則で電流の文字を減らし、第2法則は「独立な閉回路の数」だけ書きます。コンデンサーは、そのときの電圧をもつ電池と考えます。</div>
+<p>①で \(I_\mathrm D\) を消去して</p>
+$$5RI=\frac32V-\frac35V\qquad\therefore\ I=\frac{9V}{50R}$$
+<div class="box"><b>式の立て方</b>
+<p>未知数（\(I,\ I_\mathrm D,\ V_\mathrm D\)）の数だけ式を集めます。第1法則で電流の文字を減らし、第2法則は「独立な閉回路の数」だけ書きます。</p>
+<p>分かれ道（D の上の点）でキルヒホッフの第1法則を使うと、R₁ を流れる電流は \(I_\mathrm D+I\) です。①より \(RI_\mathrm D=V_\mathrm D-\dfrac V2\) なので、2つ目の式は \(2V_\mathrm D+RI=\dfrac32V\) になります。ここに1つ目の \(V_\mathrm D=2RI+\dfrac3{10}V\) を入れると \(5RI\) の式になります。</p></div>
+<div class="box"><b>補足</b>
+<p>このとき \(V_\mathrm D=\dfrac{33}{50}V>\dfrac V2\) なので、ダイオードは ON のままで、①を使ったことと合っています。</p>
+<p>コンデンサーの電圧が上がるにつれて R₂ の電流は小さくなり、D の電圧は⑴の \(\frac34V\) に近づいていきます。十分時間がたつと R₂ には電流が流れず、⑴と同じ状態にもどります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：\(t_1\) で一度止まります。I–V グラフでは、負荷直線（C₁・C₂ の電圧 \(\frac3{10}V\) が入った形）と特性の交点が \(V_\mathrm D=\frac{33}{50}V\) にあります。「いまの値」の R₂ の電流が \(0.18\,V/R\) です。</div>
 <button class="goto" data-q="III2">この状況にする</button>
 </div></details>
 
 <details id="d-III3"><summary>⑶ (エ)(オ)　C₁ と C₂ の合成容量と、蓄えられたエネルギー<span class="ans">答 (エ) \(\dfrac23C\)　(オ) \(\dfrac3{100}CV^2\)</span></summary><div class="body">
+<p class="hoshin"><b>方針</b>直列の合成容量の式と、各コンデンサーの静電エネルギーの和。</p>
+<h3>解答</h3>
 <p class="law">直列接続の合成容量</p>
 $$\frac1{C_{12}}=\frac1C+\frac1{2C}\qquad\therefore\ C_{12}=\frac23C$$
-<p>電荷 \(\frac15CV\) と全体の電圧 \(\frac V5+\frac V{10}=\frac3{10}V\) の比をとっても \(\frac23C\) になります。</p>
 <p class="law">静電エネルギー（\(U=\frac12CV^2\)）</p>
-$$\cfic{U_{12}}=\frac12C\Bigl(\frac V5\Bigr)^2+\frac12\cdot2C\Bigl(\frac V{10}\Bigr)^2\nobreak=\frac3{100}CV^2$$
-<p>合成容量を使って \(\frac12\cdot\frac23C\cdot\bigl(\frac3{10}V\bigr)^2\) と計算しても同じです。</p>
-<div class="box"><b>式の立て方</b>：直列は「電荷が共通」、並列は「電圧が共通」と覚え、共通なものを使って合成容量やエネルギーを計算します。</div>
+$$\cfic{U_{12}}=\frac12C\Bigl(\frac V5\Bigr)^2+\frac12\cdot2C\Bigl(\frac V{10}\Bigr)^2\qquad\therefore\ U_{12}=\frac3{100}CV^2$$
+<div class="box"><b>式の立て方</b>
+<p>直列は「電荷が共通」、並列は「電圧が共通」と覚え、共通なものを使って合成容量やエネルギーを計算します。直列の合成容量は、逆数の和 \(\dfrac1{C_{12}}=\dfrac1{C_1}+\dfrac1{C_2}\) です。</p></div>
+<div class="box"><b>補足</b>
+<p>電荷 \(\frac15CV\) と全体の電圧 \(\frac V5+\frac V{10}=\frac3{10}V\) の比をとっても \(\frac23C\) になります。エネルギーも合成容量を使って \(\frac12\cdot\frac23C\cdot\bigl(\frac3{10}V\bigr)^2\) と計算でき、同じ値です。</p>
+<p>電荷が同じなら \(U=\dfrac{Q^2}{2C}\) は容量に反比例するので、C₁ と C₂ のエネルギーの比は 2 : 1 です。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：右下の棒グラフで、C₁ と C₂ のエネルギーの比が 2 : 1 になっています（電荷が同じなら \(U=Q^2/2C\) は容量に反比例）。</div>
 <button class="goto" data-q="III3">この状況にする</button>
 </div></details>
 
 <details id="d-III4"><summary>⑶ (カ)　十分に時間がたった後の C₃ の電圧<span class="ans">答 \(\dfrac{3}{40}V\)</span></summary><div class="body">
-<p>S₂ を開くと、C₁・C₂・R₃・C₃ は電池から切り離された閉じた回路になります。C₁C₂（容量 \(\frac23C\)、電荷 \(\frac15CV\)）から C₃ へ電荷が移り、電流が 0 になると両者の電圧が等しくなります。この値を \(V'\) とします。</p>
+<p class="hoshin"><b>方針</b>最後は電流 0 で C₁C₂ と C₃ の電圧が等しい（\(V'\)）。上側の極板の電気量保存。</p>
+<h3>解答</h3>
 <p class="law">電気量保存（上側の極板の合計）</p>
 $$\frac15CV+0=\frac23C\,V'+2C\,\cgrav{V'}\qquad\therefore\ V'=\frac{3}{40}V$$
-<p>C₁ と C₂ の間の孤立部分は合計 0 のままなので、C₁C₂ はこの後も1つの \(\frac23C\) のコンデンサーとして扱えます。C₁C₂ と C₃ は並列（電圧が同じ）になり、全体の容量は \(\frac23C+2C=\frac83C\) です。</p>
-<div class="box"><b>式の立て方</b>：スイッチの切りかえ後は、(1) 孤立した導体部分ごとに「電気量の合計 ＝ 切りかえ前の値」、(2) 最終状態では電流 0 なので「抵抗の電圧 0 → つながったコンデンサーの電圧が等しい」を使います。</div>
+<div class="box"><b>式の立て方</b>
+<p>スイッチの切りかえ後は、(1) 孤立した導体部分ごとに「電気量の合計 ＝ 切りかえ前の値」、(2) 最終状態では電流 0 なので「抵抗の電圧 0 → つながったコンデンサーの電圧が等しい」を使います。</p>
+<p>S₂ を開くと、C₁・C₂・R₃・C₃ は電池から切り離された閉じた回路になります。C₁C₂（容量 \(\frac23C\)、電荷 \(\frac15CV\)）から C₃ へ電荷が移り、電流が 0 になると両者の電圧が等しくなります。</p></div>
+<div class="box"><b>補足</b>
+<p>C₁ と C₂ の間の孤立部分は合計 0 のままなので、C₁C₂ はこの後も1つの \(\frac23C\) のコンデンサーとして扱えます。C₁C₂ と C₃ は並列（電圧が同じ）になり、全体の容量は \(\frac23C+2C=\frac83C\) です。電荷 \(\frac15CV\) をこの容量で割っても \(V'=\frac3{40}V\) が出ます。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：S₃ を閉じると、R₃ を通って電流が流れ、緑（C₃）の電圧が上がり、青・紫の合計（C₁C₂）が下がって \(\frac3{40}V\) でそろいます。</div>
 <button class="goto" data-q="III4">この状況にする</button>
 </div></details>
 
 <details id="d-III5"><summary>⑶ (キ)　t₁ から t₂ の間に R₃ で消費されたエネルギー<span class="ans">答 \(\dfrac{9}{400}CV^2\)</span></summary><div class="body">
-<p>この間、電池はつながっていないので、静電エネルギーの減少分がすべて R₃ のジュール熱になります。</p>
+<p class="hoshin"><b>方針</b>電池はつながっていないので、静電エネルギーの減少分がすべて R₃ のジュール熱。</p>
+<h3>解答</h3>
 <p class="law">エネルギー保存則</p>
-$$\cfr{W}=\frac3{100}CV^2-\frac12\cdot\frac83C\Bigl(\frac3{40}V\Bigr)^2\nobreak=\frac3{100}CV^2-\frac3{400}CV^2\nobreak=\frac9{400}CV^2$$
-<h3>着眼点：R₃ の値によらない</h3>
-<p>R₃ を変えると電流の大きさと流れる時間は変わりますが、失われるエネルギーは変わりません。一般に、電圧 \(V_0\) の容量 \(C_a\) を電荷 0 の \(C_b\) につなぐと、失われるエネルギーは \(\dfrac12\cdot\dfrac{C_aC_b}{C_a+C_b}V_0^{\,2}\) です。ここでは \(C_a=\frac23C,\ C_b=2C,\ V_0=\frac3{10}V\) で \(\frac9{400}CV^2\) となり、一致します。</p>
-<div class="box"><b>式の立て方</b>：抵抗で失われるエネルギーは、電流を時間で積分しなくても「はじめのエネルギー − 終わりのエネルギー（＋電池がした仕事）」で求められます。</div>
+$$\cfr{W}=\frac3{100}CV^2-\frac12\cdot\frac83C\Bigl(\frac3{40}V\Bigr)^2\qquad\therefore\ W=\frac9{400}CV^2$$
+<div class="box"><b>式の立て方</b>
+<p>抵抗で失われるエネルギーは、電流を時間で積分しなくても「はじめのエネルギー − 終わりのエネルギー（＋電池がした仕事）」で求められます。ここでは電池がないので、(オ) の \(\frac3{100}CV^2\) から、終わりの \(\frac12\cdot\frac83C\,V'^2=\frac3{400}CV^2\) を引きます。</p></div>
+<div class="box"><b>補足</b>
+<p><b>着眼点（R₃ の値によらない）</b>：R₃ を変えると電流の大きさと流れる時間は変わりますが、失われるエネルギーは変わりません。一般に、電圧 \(V_0\) の容量 \(C_a\) を電荷 0 の \(C_b\) につなぐと、失われるエネルギーは \(\dfrac12\cdot\dfrac{C_aC_b}{C_a+C_b}V_0^{\,2}\) です。ここでは \(C_a=\frac23C,\ C_b=2C,\ V_0=\frac3{10}V\) で \(\frac9{400}CV^2\) となり、一致します。</p>
+<p>はじめのエネルギーの \(\frac34\)（\(=\frac{C_b}{C_a+C_b}\)）が熱になり、残りの \(\frac14\) だけがコンデンサーに残ります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：棒グラフで、C₁C₂ のエネルギーが減り、C₃ のエネルギーと R₃ のジュール熱（電流の2乗 × 抵抗を時間で足したもの）に分かれます。設定の \(R_3/R\) を変えると、電流のグラフの形は変わっても、ジュール熱の最終値は \(\frac9{400}CV^2\) のままです。</div>
 <button class="goto" data-q="III5">この状況にする</button>
 </div></details>

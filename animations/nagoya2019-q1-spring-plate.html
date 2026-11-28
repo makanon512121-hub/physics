@@ -79,6 +79,8 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
 .law+.katex-display,.law+p{margin-top:4px}
 .katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
+.box>b:first-child{color:var(--acc)}.box p{margin:6px 0}.box p:first-of-type{margin-top:2px}
 </style>
 <script>const KMAC={"\\cacc":"\\htmlClass{t-acc}{#1}","\\cfrc":"\\htmlClass{t-frc}{#1}","\\cgrav":"\\htmlClass{t-grav}{#1}","\\cfic":"\\htmlClass{t-fic}{#1}","\\cfr":"\\htmlClass{t-fr}{#1}"};</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
@@ -126,125 +128,158 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。上向きを正とします。図の色：<span class="t-acc">おもり B（青）</span>、<span class="t-fic">板 A（紫）</span>、重心（黒）、<span class="t-fr">ばねの力（オレンジ）</span>、<span class="t-frc">床からの垂直抗力（赤）</span>、<span class="t-grav">重力（緑）</span>。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。各設問は「方針 → 解答（法則 → 式 → 結果）」の順で、くわしい説明は下の「式の立て方」「補足」にまとめました。「この状況にする」で上のアニメーションがその設問の設定になります。上向きを正とします。図の色：<span class="t-acc">おもり B（青）</span>、<span class="t-fic">板 A（紫）</span>、重心（黒）、<span class="t-fr">ばねの力（オレンジ）</span>、<span class="t-frc">床からの垂直抗力（赤）</span>、<span class="t-grav">重力（緑）</span>。</p>
 
 <details id="d-I1"><summary>⑴　つり合いでのばねの縮み x₀<span class="ans">答 \(x_0=\dfrac{mg}{k}\)</span></summary><div class="body">
-<p>おもり B にはたらく力は、下向きの重力 \(mg\) と、縮んだばねが押し上げる力 \(kx_0\) の2つです。</p>
+<p class="hoshin"><b>方針</b>おもり B にはたらく重力とばねの力のつり合い。</p>
+<h3>解答</h3>
 <p class="law">力のつり合い（おもり B）</p>
 $$\cfr{kx_0}=\cgrav{mg}\qquad\therefore\ x_0=\frac{mg}{k}$$
-<div class="box"><b>式の立て方</b>：止まっている物体では「上向きの力の和 ＝ 下向きの力の和」です。ばねの力の大きさは「ばね定数 × 自然長からの伸び（縮み）」で、伸び縮みは必ず自然長から測ります。</div>
+<div class="box"><b>式の立て方</b>
+<p>止まっている物体では「上向きの力の和 ＝ 下向きの力の和」です。おもり B にはたらく力は、下向きの重力 \(mg\) と、縮んだばねが押し上げる力 \(kx_0\) の2つだけです。</p>
+<p>ばねの力の大きさは「ばね定数 × 自然長からの伸び（縮み）」です。伸び縮みは、つり合いの位置ではなく必ず自然長から測ります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：おもり B の上向きのオレンジの矢印と、下向きの緑の矢印が同じ長さです。\(m\) を大きく、\(k\) を小さくすると縮み \(x_0\) が大きくなります。</div>
 <button class="goto" data-q="I1">この状況にする</button>
 </div></details>
 
 <details id="d-I2"><summary>⑵　おもり B の角振動数 ω<span class="ans">答 \(\omega=\sqrt{\dfrac km}\)</span></summary><div class="body">
-<p>板 A は床の上で止まっているので、ばねの下端は動きません。おもり B だけが、ばねと重力を受けて動きます。つり合いの位置からの変位を \(X=x-(L-x_0)\) とします。</p>
+<p class="hoshin"><b>方針</b>板 A は動かないので、B だけの運動方程式を「つり合いの位置からの変位」で書き、単振動の形にする。</p>
+<h3>解答</h3>
+<p>つり合いの位置からの変位を \(X=x-(L-x_0)\) とする。</p>
 <p class="law">運動方程式（おもり B）</p>
-$$m\,a=\cfr{-k(x-L)}\cgrav{-mg}\nobreak=-k\bigl(x-(L-x_0)\bigr)=-k\cacc{X}$$
-<p>加速度が「変位に比例し、逆向き」なので単振動です。\(a=-\omega^2X\) と比べて</p>
-$$\omega=\sqrt{\frac km}$$
-<p>重力はつり合いの位置（振動の中心）を \(x_0\) だけ下げるだけで、角振動数は変えません。鉛直ばね振り子の周期が水平ばね振り子と同じ \(2\pi\sqrt{m/k}\) になるのはこのためです。</p>
-<div class="box"><b>式の立て方</b>：単振動では、(1) つり合いの位置を求め、(2) そこからの変位 \(X\) で運動方程式を書き、(3) \(ma=-KX\) の形にして \(\omega=\sqrt{K/m}\) を読み取ります。</div>
+$$m\,a=\cfr{-k(x-L)}\cgrav{-mg}=-k\cacc{X}\qquad\therefore\ \omega=\sqrt{\frac km}$$
+<div class="box"><b>式の立て方</b>
+<p>単振動の問題は、次の3段階で進めます。</p>
+<p>(1) つり合いの位置を求める（⑴で \(x=L-x_0\)）。(2) そこからの変位 \(X\) で運動方程式を書く。(3) \(ma=-KX\) の形にして、\(\omega=\sqrt{K/m}\) を読み取る。</p>
+<p>ばねの力は、伸び \(x-L\) を符号つきのまま使って \(-k(x-L)\) と書けば、ばねが伸びていても縮んでいても同じ式で済みます。</p></div>
+<div class="box"><b>補足</b>
+<p>板 A は床の上で止まっているので、ばねの下端は動きません。動くのはおもり B だけで、B が受けるのはばねの力と重力です。</p>
+<p>運動方程式の右辺を整理すると \(-k(x-L)-mg=-k\bigl(x-(L-x_0)\bigr)\) となり、\(kx_0=mg\) を使うと重力の項がちょうど消えます。加速度が「変位 \(X\) に比例し、逆向き」なので単振動であり、\(a=-\omega^2X\) と比べて \(\omega\) が決まります。</p>
+<p>重力のはたらきは、振動の中心（つり合いの位置）を \(x_0\) だけ下げることだけで、角振動数は変えません。鉛直につるしたばね振り子の周期が、水平なばね振り子と同じ \(2\pi\sqrt{m/k}\) になるのはこのためです。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：\(M\) や \(g\) に関係する量を変えても、下の x–t グラフの周期は変わりません。\(k\) を4倍にすると周期が半分になります。</div>
 <button class="goto" data-q="I2">この状況にする</button>
 </div></details>
 
 <details id="d-I3"><summary>⑶　時刻 t のおもり B の位置 x<span class="ans">答 (え)　\(x=L-x_0-d\cos\omega t\)</span></summary><div class="body">
-<p>単振動の位置は「中心 ＋ 振幅 × (sin または cos)」で表せます。中心・振幅・\(t=0\) の位置の3つを順に決めます。</p>
-<ul>
-<li>中心：つり合いの位置 \(x=L-x_0\)（⑴）</li>
-<li>振幅：つり合いの位置から押し下げた距離 \(d\)（静かに放したので、そこが折り返し点）</li>
-<li>\(t=0\)：最も低い点 \(x=L-x_0-d\) から動き始める</li>
-</ul>
+<p class="hoshin"><b>方針</b>単振動の「中心・振幅・\(t=0\) の位置」を決める。</p>
+<h3>解答</h3>
+<p>中心 \(x=L-x_0\)、振幅 \(d\)、\(t=0\) で最低点から動き始めるので</p>
 <p class="law">単振動の式</p>
-$$\cacc{x}=(L-x_0)-\cacc{d}\cos\omega t$$
-<p>\(t=0\) を代入すると \(x=L-x_0-d\) になるのは (え) だけです。(お)〜(く) は中心が自然長の位置 \(L\) になっていて、重力で中心が下がることが入っていません。</p>
-<div class="box"><b>式の立て方</b>：選択肢の式は、\(t=0\) を代入して出発点と比べると速く絞れます。さらに \(\omega t=\pi/2\) で中心を通ること、\(\omega t=\pi\) で最高点になることを確かめると確実です。</div>
+$$\cacc{x}=(L-x_0)-\cacc{d}\cos\omega t\qquad\therefore\ \text{(え)}$$
+<div class="box"><b>式の立て方</b>
+<p>単振動の位置は「中心 ＋ 振幅 × (\(\sin\) または \(\cos\))」の形です。</p>
+<p>・中心：つり合いの位置 \(x=L-x_0\)（⑴）<br>・振幅：つり合いの位置から押し下げた距離 \(d\)（静かに放したので、そこが折り返し点）<br>・\(t=0\)：最も低い点 \(x=L-x_0-d\) から動き始めるので \(-\cos\) の形</p></div>
+<div class="box"><b>補足</b>
+<p>選択肢の式は、\(t=0\) を代入して出発点と比べると速く絞れます。\(t=0\) で \(x=L-x_0-d\) になるのは (え) だけです。(お)〜(く) は中心が自然長の位置 \(L\) になっていて、重力で振動の中心が下がることが入っていません。</p>
+<p>さらに確かめるなら、\(\omega t=\pi/2\) で中心 \(L-x_0\) を通ること、\(\omega t=\pi\) で最高点 \(L-x_0+d\) に来ることを代入して確認します。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：x–t グラフは最低点から始まる \(-\cos\) の形です。点線（中心 \(L-x_0\)）を上下に \(d\) ずつはさんで振動します。</div>
 <button class="goto" data-q="I3">この状況にする</button>
 </div></details>
 
 <details id="d-I4"><summary>⑷　板 A がばねから受ける力 F<span class="ans">答 \(F=-mg-kd\cos\omega t\)</span></summary><div class="body">
-<p>ばねの質量は無視できるので、ばねは両端に大きさの等しい力をおよぼします。縮んでいれば両端を外向きに押し（板 A は下向き）、伸びていれば両端を内向きに引きます（板 A は上向き）。</p>
+<p class="hoshin"><b>方針</b>ばねの伸び \(x-L\) を符号つきで使い、フックの法則で A が受ける力を書く。</p>
+<h3>解答</h3>
 <p class="law">フックの法則（ばねの伸び \(x-L\)）</p>
-$$\cfr{F}=k(x-L)=k(-x_0-d\cos\omega t)\nobreak=-mg-kd\cos\omega t$$
-<p>伸び \(x-L\) が正なら \(F>0\)（上向き）、負なら \(F<0\)（下向き）なので、符号まで含めて1つの式で表せます。</p>
-<h3>別解：おもり B の運動方程式から</h3>
-<p>B の加速度は \(a=\dfrac{d^2x}{dt^2}=d\omega^2\cos\omega t\) です。B がばねから受ける力を \(f\) とすると \(ma=f-mg\) なので \(f=mg+kd\cos\omega t\)。ばねは A にこれと逆向きの力をおよぼすので \(F=-f\) になります。</p>
-<div class="box"><b>式の立て方</b>：ばねの力は「自然長からの伸び」をそのまま符号つきで使うと、向きの場合分けがいりません。軽いばね・軽い糸は、両端に同じ大きさの力を伝える「力の通り道」です。</div>
+$$\cfr{F}=k(x-L)=k(-x_0-d\cos\omega t)\qquad\therefore\ F=-mg-kd\cos\omega t$$
+<div class="box"><b>式の立て方</b>
+<p>ばねの質量は無視できるので、ばねは両端に大きさの等しい力をおよぼします。縮んでいれば両端を外向きに押し（板 A には下向き）、伸びていれば両端を内向きに引きます（板 A には上向き）。</p>
+<p>そこで伸び \(x-L\) をそのまま使い、\(F=k(x-L)\) と書きます。伸び \(x-L\) が正なら \(F>0\)（上向き）、負なら \(F\lt 0\)（下向き）となり、向きの場合分けがいりません。軽いばね・軽い糸は、両端に同じ大きさの力を伝える「力の通り道」と考えると整理しやすくなります。</p></div>
+<div class="box"><b>補足</b>
+<p><b>別解（おもり B の運動方程式から）</b>：⑶の式を2回微分すると、B の加速度は \(a=\dfrac{d^2x}{dt^2}=d\omega^2\cos\omega t\) です。B がばねから受ける力を \(f\) とすると \(ma=f-mg\) なので \(f=mg+kd\cos\omega t\)。ばねは A にこれと逆向きの力をおよぼすので \(F=-f\) となり、同じ結果になります。</p>
+<p>\(F\) の平均は \(-mg\)（B の重さぶんだけ下に押す）で、そのまわりを \(kd\) の幅でゆれます。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：下のグラフのオレンジの線が \(F\) です。B が最も低いとき（ばねが最も縮むとき）に最も大きく下向きになり、B が自然長の位置より上に来ると \(F\) が正（上向き）に変わります。</div>
 <button class="goto" data-q="I4">この状況にする</button>
 </div></details>
 
 <details id="d-I5"><summary>⑸　板 A が床から受ける垂直抗力 N<span class="ans">答 \(N=(M+m)g+kd\cos\omega t\)</span></summary><div class="body">
-<p>板 A は動かないので、A にはたらく3つの力（重力・ばねの力・垂直抗力）がつり合っています。</p>
+<p class="hoshin"><b>方針</b>止まっている板 A の力のつり合い（重力・ばねの力・垂直抗力）。</p>
+<h3>解答</h3>
 <p class="law">力のつり合い（板 A）</p>
-$$\cfrc{N}+\cfr{F}-\cgrav{Mg}=0\qquad\therefore\ N=Mg-F\nobreak=(M+m)g+kd\cos\omega t$$
-<h3>別解：A と B をまとめて見る</h3>
-<p>A と B をひとまとめにすると、外から受ける力は垂直抗力 \(N\) と重力 \((M+m)g\) だけで、ばねの力は内力として消えます。動いているのは B だけなので</p>
+$$\cfrc{N}+\cfr{F}-\cgrav{Mg}=0\qquad\therefore\ N=(M+m)g+kd\cos\omega t$$
+<div class="box"><b>式の立て方</b>
+<p>知りたい力が「外力」になるように、注目する物体を選びます。\(N\) は A だけを見ても、A＋B 全体を見ても外力です。A だけを見るときは、⑷で求めたばねの力 \(F\) を使って \(N=Mg-F\) とします。</p></div>
+<div class="box"><b>補足</b>
+<p><b>別解（A と B をまとめて見る）</b>：A と B をひとまとめにすると、外から受ける力は垂直抗力 \(N\) と重力 \((M+m)g\) だけで、ばねの力は内力として消えます。動いているのは B だけなので、全体の運動方程式は</p>
 $$m\cdot d\omega^2\cos\omega t=N-(M+m)g$$
-<p>からも同じ結果が出ます。B が下で上向きに加速しているときは、床は全体の重さより強く押し返します。</p>
-<div class="box"><b>式の立て方</b>：知りたい力が「外力」になるように物体を選びます。\(N\) は A だけを見ても、A＋B 全体を見ても外力です。全体で見るとばねの力を考えなくてよいので計算が短くなります。</div>
+<p>となり、同じ結果がばねの力を考えずに出ます。</p>
+<p>B が下のほうで上向きに加速しているときは、床は全体の重さより強く押し返し（\(N>(M+m)g\)）、B が上のほうで下向きに加速しているときは、全体の重さより弱く押し返します。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：赤い線 \(N\) は、平均値 \((M+m)g\)（点線）を中心に \(kd\) の幅で振動します。B が最も高いときに \(N\) が最も小さくなります。</div>
 <button class="goto" data-q="I5">この状況にする</button>
 </div></details>
 
 <details id="d-I6"><summary>⑹　板 A が浮き上がり始める振幅 d₀<span class="ans">答 \(d_0=\dfrac{(M+m)g}{k}\)</span></summary><div class="body">
-<p>板 A が床に接している間は \(N\ge 0\) です。\(N\) が最も小さくなるのは \(\cos\omega t=-1\)（B が最高点）のときなので、その最小値が 0 以上なら A は浮きません。</p>
-<p class="law">浮き上がらない条件（\(N\) の最小値 \(\ge 0\)）</p>
-$$\cfrc{N_{\min}}=(M+m)g-kd\ \ge\ 0\qquad\therefore\ d\le\frac{(M+m)g}{k}=d_0$$
-<h3>着眼点：ばねが板を引き上げる力で考える</h3>
-<p>B が最高点にあるとき、ばねは自然長より \(d-x_0\) だけ伸びて、A を上向きに \(k(d-x_0)\) で引きます。これが A の重さ \(Mg\) を超えると A は浮きます。\(k(d-x_0)=Mg\) より \(d=x_0+\dfrac{Mg}k=\dfrac{(M+m)g}k\) と同じ結果になります。</p>
-<div class="box"><b>式の立て方</b>：「床から離れる」は「垂直抗力が 0 になる」と言いかえます。離れるまでの \(N\) を時刻の式で表し、その最小値を調べます。</div>
+<p class="hoshin"><b>方針</b>浮かない条件は「\(N\) の最小値 \(\ge 0\)」。\(N\) は B が最高点（\(\cos\omega t=-1\)）で最小。</p>
+<h3>解答</h3>
+<p class="law">浮き上がらない条件（\(N_{\min}\ge 0\)）</p>
+$$\cfrc{N_{\min}}=(M+m)g-kd\ \ge\ 0\qquad\therefore\ d_0=\frac{(M+m)g}{k}$$
+<div class="box"><b>式の立て方</b>
+<p>「床から離れる」は「垂直抗力が 0 になる」と言いかえます。床に接している間は \(N\ge 0\) なので、離れるまでの \(N\) を時刻の式（⑸）で表し、その最小値が 0 以上かどうかを調べます。\(d\le d_0\) なら A は浮かず、\(d>d_0\) なら浮きます。</p></div>
+<div class="box"><b>補足</b>
+<p><b>着眼点（ばねが板を引き上げる力で考える）</b>：B が最高点にあるとき、ばねは自然長より \(d-x_0\) だけ伸びて、A を上向きに \(k(d-x_0)\) で引きます。これが A の重さ \(Mg\) を超えると A は浮きます。\(k(d-x_0)=Mg\) より \(d=x_0+\dfrac{Mg}k=\dfrac{(M+m)g}k\) と、同じ結果になります。</p>
+<p>つまり、「ばねが自然長からさらに \(Mg/k\) 伸びるところまで B が上がれるか」が浮くかどうかの分かれ目です。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：\(d=d_0\) では、赤い線 \(N\) が最高点でちょうど 0 に触れ、A はぎりぎり浮きません。設定の \(d/d_0\) を 1 より少し大きくすると A が浮きます。</div>
 <button class="goto" data-q="I6">この状況にする</button>
 </div></details>
 
 <details id="d-I7"><summary>⑺　A が床を離れる時刻 t₁ の cos ωt₁<span class="ans">答 \(\cos\omega t_1=-\dfrac{d_0}{d}\)</span></summary><div class="body">
-<p>\(d>d_0\) のとき、⑸の \(N\) が 0 になる最初の時刻が \(t_1\) です。それまで A は止まっているので、⑸の式がそのまま使えます。</p>
+<p class="hoshin"><b>方針</b>離れる瞬間まで成り立つ⑸の式に \(N=0\) を入れる。</p>
+<h3>解答</h3>
 <p class="law">床を離れる条件（\(N=0\)）</p>
-$$(M+m)g+kd\cos\omega t_1=0\qquad\therefore\ \cos\omega t_1=-\frac{(M+m)g}{kd}=-\frac{d_0}{d}$$
-<p>\(-1<\cos\omega t_1<0\) なので \(\dfrac\pi2<\omega t_1<\pi\) です。このとき B はつり合いの位置より上にいて、まだ上向きに動いています。</p>
-<div class="box"><b>式の立て方</b>：「〜になった瞬間」は、その瞬間まで成り立っていた式（ここでは⑸）に条件（\(N=0\)）を入れて求めます。</div>
+$$(M+m)g+kd\cos\omega t_1=0\qquad\therefore\ \cos\omega t_1=-\frac{d_0}{d}$$
+<div class="box"><b>式の立て方</b>
+<p>「〜になった瞬間」は、その瞬間まで成り立っていた式に条件を入れて求めます。\(d>d_0\) のとき、\(t_1\) までは A が止まっているので⑸の式がそのまま使え、そこに \(N=0\) を入れます。</p></div>
+<div class="box"><b>補足</b>
+<p>\(-1\lt \cos\omega t_1\lt 0\) なので \(\dfrac\pi2\lt \omega t_1\lt \pi\) です。このとき B はつり合いの位置より上にいて、まだ上向きに動いています（最高点に着く前に A が浮く）。\(d\) を大きくするほど \(\cos\omega t_1\) は 0 に近づき、浮き上がりが早くなります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：赤い線 \(N\) が 0 に下がった時刻に、縦の点線 \(t_1\) が引かれ、そこから紫の線（A の高さ \(y\)）が持ち上がります。</div>
 <button class="goto" data-q="I7">この状況にする</button>
 </div></details>
 
 <details id="d-I8"><summary>⑻　時刻 t₁ のおもり B の位置 x₁<span class="ans">答 \(x_1=L+\dfrac{Mg}{k}\)</span></summary><div class="body">
-<p>浮き上がる瞬間の A は、垂直抗力 0 のまま、重力 \(Mg\) とばねの引く力がつり合っています。</p>
+<p class="hoshin"><b>方針</b>浮き上がる瞬間の A では、\(N=0\) のまま重力とばねの力がつり合う。</p>
+<h3>解答</h3>
 <p class="law">力のつり合い（板 A、\(N=0\)）</p>
 $$\cfr{k(x_1-L)}=\cgrav{Mg}\qquad\therefore\ x_1=L+\frac{Mg}{k}$$
-<p>⑶の式に⑺を入れても \(x_1=L-x_0-d\cos\omega t_1=L-x_0+d_0=L+\dfrac{Mg}k\) となり、一致します。\(x_1\) は \(d\) によらず、「ばねが \(Mg/k\) だけ伸びた位置」と決まります。</p>
-<div class="box"><b>式の立て方</b>：位置を問われても、まず「その瞬間に何がつり合っているか」を考えると近道になることがあります。</div>
+<div class="box"><b>式の立て方</b>
+<p>位置を問われても、まず「その瞬間に何がつり合っているか」を考えると近道になることがあります。浮く瞬間の A は、垂直抗力が 0 で、まだ動き出していないので、ばねが引き上げる力 \(k(x_1-L)\) と重力 \(Mg\) がつり合っています。</p></div>
+<div class="box"><b>補足</b>
+<p>⑶の式に⑺を入れても \(x_1=L-x_0-d\cos\omega t_1=L-x_0+d_0=L+\dfrac{Mg}k\) となり、一致します。</p>
+<p>\(x_1\) は振幅 \(d\) によらず、「ばねが \(Mg/k\) だけ伸びた位置」と決まります。⑹の着眼点と同じ内容で、\(d\) が大きいほど早くこの位置に届きます。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：\(d/d_0\) をいろいろ変えても、A が浮き上がるのは B が点線「\(x_1=L+Mg/k\)」に来たときです。</div>
 <button class="goto" data-q="I8">この状況にする</button>
 </div></details>
 
 <details id="d-I9"><summary>⑼　時刻 t₁ のおもり B の速度 v₁<span class="ans">答 \(v_1=\omega\sqrt{d^2-{d_0}^2}\)</span></summary><div class="body">
-<p>⑶の式を時間で微分すると、\(t\le t_1\) の速度は \(v=d\omega\sin\omega t\) です。</p>
+<p class="hoshin"><b>方針</b>⑶を微分した速度の式に⑺を入れる（\(\sin\omega t_1>0\)）。</p>
+<h3>解答</h3>
 <p class="law">単振動の速度</p>
-$$\cacc{v_1}=d\omega\sin\omega t_1=d\omega\sqrt{1-\Bigl(\frac{d_0}{d}\Bigr)^2}\nobreak=\omega\sqrt{d^2-{d_0}^2}$$
-<p>\(0<\omega t_1<\pi\) なので \(\sin\omega t_1>0\) です（B は上向きに動いている）。</p>
-<h3>別解：単振動のエネルギー</h3>
-<p>中心からの変位を \(X\) とすると、単振動では \(\dfrac12mv^2+\dfrac12kX^2=\dfrac12kd^2\) が一定です。\(t_1\) では \(X=x_1-(L-x_0)=d_0\) なので、\(v_1=\sqrt{\dfrac km}\sqrt{d^2-{d_0}^2}\) とすぐに求まります。</p>
-<div class="box"><b>式の立て方</b>：単振動の速さは、時刻を経由するより「中心からの変位 \(X\)」と振幅から \(v=\omega\sqrt{A^2-X^2}\) で求めるほうが速いことが多いです。</div>
+$$\cacc{v_1}=d\omega\sin\omega t_1=d\omega\sqrt{1-\Bigl(\frac{d_0}{d}\Bigr)^2}\qquad\therefore\ v_1=\omega\sqrt{d^2-{d_0}^2}$$
+<div class="box"><b>式の立て方</b>
+<p>⑶の式 \(x=L-x_0-d\cos\omega t\) を時間で微分すると、\(t\le t_1\) の速度は \(v=d\omega\sin\omega t\) です。\(0\lt \omega t_1\lt \pi\) なので \(\sin\omega t_1>0\)（B は上向きに動いている）とし、\(\sin\omega t_1=\sqrt{1-\cos^2\omega t_1}\) で⑺を使います。</p></div>
+<div class="box"><b>補足</b>
+<p><b>別解（単振動のエネルギー）</b>：中心からの変位を \(X\) とすると、単振動では \(\dfrac12mv^2+\dfrac12kX^2=\dfrac12kd^2\) が一定です。\(t_1\) では \(X=x_1-(L-x_0)=d_0\) なので、\(v_1=\sqrt{\dfrac km}\sqrt{d^2-{d_0}^2}\) とすぐに求まります。</p>
+<p>単振動の速さは、時刻を経由するより「中心からの変位 \(X\)」と振幅 \(A\) から \(v=\omega\sqrt{A^2-X^2}\) で求めるほうが速いことが多いです。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：「いまの値」の \(v_1\)（測定）と式の値を比べてください。\(d\) を \(d_0\) に近づけると \(v_1\) は 0 に近づきます（最高点でぎりぎり浮くため）。</div>
 <button class="goto" data-q="I9">この状況にする</button>
 </div></details>
 
 <details id="d-I10"><summary>⑽　0 ≦ t ≦ t₂ の重心の高さ z のグラフ<span class="ans">答 (b)</span></summary><div class="body">
-<p>重心の運動は、外力（重力と垂直抗力）だけで決まります。ばねの力は内力なので入りません。</p>
+<p class="hoshin"><b>方針</b>重心の運動方程式で区間ごとの形を、力学的エネルギー保存則で \(t_2\) の高さを決める。</p>
+<h3>解答</h3>
 <p class="law">重心の運動方程式（A＋B）</p>
 $$(M+m)\,a_G=\cfrc{N}-\cgrav{(M+m)g}$$
-<p><b>① \(0<t<t_1\)</b>：A は床にあり \(y=0\) なので \(z=\dfrac{m x}{m+M}\) です。B は最低点から \(t_1\) まで上がり続ける（⑺より \(\omega t_1<\pi\)）ので、\(z\) は増え続けます。途中で減る (c)(d)(e)(f) は誤りです。</p>
-<p><b>② \(t_1<t<t_2\)</b>：\(N=0\) なので \(a_G=-g\)。重心は投げ上げた物体と同じ放物線をえがきます。\(t_1\) では \(N\) が連続的に 0 になるので、グラフは折れずになめらかにつながります。</p>
-<p><b>③ \(t=t_2\) の高さ</b>：A が床にあるとき、重心の高さは B の高さ \(x\) で決まります。\(0\le t\le t_2\) では垂直抗力が仕事をしない（A が動かないときだけはたらく）ので、力学的エネルギーが保存します。</p>
-<p class="law">力学的エネルギー保存則（A が床にある時刻 \(0\) と \(t_2\) を比べる）</p>
-$$mgx+\frac12k(L-x)^2+K=\text{一定}$$
-<p>\(mgx+\dfrac12k(L-x)^2=\dfrac12k\bigl(x-(L-x_0)\bigr)^2+(\text{定数})\) と書けるので、運動エネルギー \(K\) が残る \(t_2\) では \(|x-(L-x_0)|<d\)、つまり \(x(t_2)>x(0)\) です。着地のとき重心は出発点より高く、(a) は誤りで、(b) が正解です。</p>
-<h3>補足：浮いている間の2物体の動き</h3>
-<p>浮いている間は、重心が放物運動をしながら、ばねの伸び \(e=x-y-L\) が単振動します。2つの運動方程式を引き算すると \(\ddot e=-k\Bigl(\dfrac1m+\dfrac1M\Bigr)e\) となり、角振動数は \(\omega'=\sqrt{\dfrac{k(M+m)}{mM}}\) です（重力は打ち消し合う）。A の高さ \(y\) は、この2つを組み合わせて求まります。</p>
-<div class="box"><b>式の立て方</b>：2物体の運動をグラフで選ぶ問題では、(1) 重心の運動方程式で外力から加速度を決め、(2) 区間の境目で速度がつながるか、(3) 端点の値をエネルギーで比べる、の順に確かめます。</div>
+<p>\(0\lt t\lt t_1\)：\(z=\dfrac{mx}{m+M}\) で B は上がり続ける → \(z\) は増加。<br>\(t_1\lt t\lt t_2\)：\(N=0\) → \(a_G=-g\)（放物線、\(t_1\) でなめらかにつながる）。</p>
+<p class="law">力学的エネルギー保存則（時刻 \(0\) と \(t_2\)）</p>
+$$\frac12k\bigl(x-(L-x_0)\bigr)^2+K=\text{一定}\qquad\therefore\ x(t_2)>x(0)\ \Rightarrow\ \text{(b)}$$
+<div class="box"><b>式の立て方</b>
+<p>2物体の運動をグラフで選ぶ問題では、次の順に確かめます。(1) 重心の運動方程式で、外力から重心の加速度を決める。(2) 区間の境目で速度がつながるか（折れ曲がらないか）を見る。(3) 端点の値をエネルギーで比べる。</p>
+<p>重心の運動は外力（重力と垂直抗力）だけで決まり、ばねの力は内力なので入りません。</p></div>
+<div class="box"><b>補足</b>
+<p><b>① \(0\lt t\lt t_1\)</b>：A は床にあり \(y=0\) なので \(z=\dfrac{m x}{m+M}\) です。B は最低点から \(t_1\) まで上がり続ける（⑺より \(\omega t_1\lt \pi\)）ので、\(z\) は増え続けます。途中で減る (c)(d)(e)(f) は誤りです。</p>
+<p><b>② \(t_1\lt t\lt t_2\)</b>：\(N=0\) なので \(a_G=-g\)。重心は投げ上げた物体と同じ放物線をえがきます。\(t_1\) では \(N\) が連続的に 0 になるので、グラフは折れずになめらかにつながります。</p>
+<p><b>③ \(t=t_2\) の高さ</b>：A が床にあるとき、重心の高さは B の高さ \(x\) で決まります。\(0\le t\le t_2\) では垂直抗力が仕事をしない（A が動かないときだけはたらく）ので、力学的エネルギー \(mgx+\dfrac12k(L-x)^2+K\) が保存します。ここで</p>
+$$mgx+\frac12k(L-x)^2\nobreak=\frac12k\bigl(x-(L-x_0)\bigr)^2+(\text{定数})$$
+<p>と書けるので、運動エネルギー \(K\) が残る \(t_2\) では \(|x-(L-x_0)|\lt d\)、つまり \(x(t_2)>x(0)\) です。着地のとき重心は出発点より高く、(a) は誤りで (b) が正解です。</p>
+<p><b>浮いている間の2物体の動き</b>：浮いている間は、重心が放物運動をしながら、ばねの伸び \(e=x-y-L\) が単振動します。2つの運動方程式を引き算すると \(\ddot e=-k\Bigl(\dfrac1m+\dfrac1M\Bigr)e\) となり、角振動数は \(\omega'=\sqrt{\dfrac{k(M+m)}{mM}}\) です（重力は打ち消し合う）。A の高さ \(y\) は、この2つを組み合わせて求まります。</p></div>
 <div class="box"><b>アニメーションで確かめよう</b>：黒い太線が重心の高さ \(z\) です。\(t_1\) から先は放物線になり、\(t_2\) での高さが出発点（灰色の点線）より上にあることを、\(d/d_0\) や \(M/m\) を変えて確かめてください。</div>
 <button class="goto" data-q="I10">この状況にする</button>
 </div></details>
