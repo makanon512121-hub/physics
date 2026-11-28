@@ -63,6 +63,9 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .hl{background:var(--soft);border-radius:4px;padding:0 3px}
 @media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
 .katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}.law+.katex-display,.law+p{margin-top:4px}
+.box>b:first-child{color:var(--acc)}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
@@ -105,96 +108,116 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「方針」と「解答」で式の流れをつかみ、くわしい説明は下の「式の立て方」「補足」で確かめてください。「この状況にする」で上のアニメーションがその設問の設定になります。</p>
 
 <details id="d-I"><summary>I　直線で加速できる最大の加速度<span class="ans">答 \(\mu g\)</span></summary><div class="body">
-<h3>考え方</h3>
-<p>車輪のモーターが車輪を回すと、車輪は路面を<b>後ろ向き</b>にけります。その反作用として、路面は車輪を<b>前向き</b>に押し返します。これが静止摩擦力 \(f\) で、一輪車を前に加速させる力は<b>この摩擦力だけ</b>です（モーターの力は内力なので、全体を加速させることはできません）。</p>
-<h3>式</h3>
-<p>鉛直方向はつり合っているので、垂直抗力は \(N = mg\)。水平方向の運動方程式は</p>
-$$ma = f$$
-<p>すべらない条件は「静止摩擦力 ≦ 最大静止摩擦力」なので \(f \le \mu N = \mu mg\)。よって</p>
-$$a \le \mu g \qquad \therefore\ \text{最大値は } \mu g$$
+<p class="hoshin"><b>方針</b>一輪車を前に押す外力は路面からの静止摩擦力だけ。運動方程式と「摩擦力 ≦ 最大静止摩擦力」を組み合わせる。</p>
+<h3>解答</h3>
+<p class="law">運動方程式（水平）・力のつり合い（鉛直）</p>
+$$ma = f, \qquad N = mg$$
+<p class="law">すべらない条件</p>
+$$f \le \mu N \qquad\therefore\quad a \le \mu g$$
+<p>よって最大の加速度は \(\mu g\)。</p>
+<div class="box"><b>式の立て方</b>：運動方程式の右辺には<b>外から</b>一輪車にはたらく力だけを書きます。モーターが車輪を回す力は一輪車の内部どうしの力（内力）なので、全体の加速には直接入りません。車輪が路面を後ろへけると、その反作用で路面が車輪を<b>前向き</b>に押します。これが静止摩擦力 \(f\) で、加速の原因になる水平な外力はこれしかありません。だから \(ma = f\) と書けます。あとは「静止摩擦力は \(\mu N\) を超えられない」という条件を、鉛直のつり合いから出した \(N = mg\) と組み合わせるだけです。</div>
+<div class="box"><b>補足</b>：加速中は棒が前に傾かないと倒れてしまいます。棒といっしょに加速する立場で見ると、重心に後ろ向きの慣性力 \(ma\) がはたらきます。重力 \(mg\) と慣性力 \(ma\) の合力が接点を通らないと、接点のまわりに回転してしまうので、棒は水平面から
+$$\tan\theta = \frac{g}{a}$$
+となる角 \(\theta\) だけ前に傾きます。「重心にはたらく力の合力が接点を通る」というこの見方が、II・III の傾きの問題でそのまま使えます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：加速度 \(a\) を大きくしていくと、左上のゲージ（必要な摩擦力 ÷ 最大静止摩擦力）が 100% に近づきます。\(a > \mu g\) にすると車輪が空回りして、その加速度は出せません。\(\mu\) を変えると限界の位置が動くことも確認しましょう。</div>
-<h3>参考：加速中は前に傾かないと倒れる</h3>
-<p>「棒といっしょに」見ると、重心に後ろ向きの慣性力 \(ma\) がはたらきます。重力と慣性力の合力が車輪の接点を通らないと棒は回転してしまうので、棒は水平面から \(\tan\theta = \dfrac{g}{a}\) となる角 \(\theta\) だけ前に傾きます。この考え方が II で活躍します。</p>
 <button class="goto" data-q="I">この状況にする</button>
 </div></details>
 
 <details id="d-II1"><summary>II(1)　水平面で円運動するときの傾き<span class="ans">答 \(\tan\theta = \dfrac{gR}{v_0^2}\)</span></summary><div class="body">
-<h3>なぜ「棒といっしょに」見るのか</h3>
-<p>棒が傾いたまま一定の姿勢を保っているので、<b>棒から見れば棒は静止</b>しています。静止して見える立場なら、力のつり合いと<b>力のモーメントのつり合い</b>がそのまま使えます。その代わり、重心に<b>慣性力（遠心力）</b> \(m\dfrac{v_0^2}{R}\) を外向きに加えます。</p>
-<h3>力のモーメントのつり合い</h3>
-<p>棒にはたらく力は ① 重力 \(mg\)（重心）② 慣性力（重心）③ 垂直抗力 \(N\)（接点）④ 静止摩擦力 \(f\)（接点）です。<b>接点のまわり</b>で考えると ③④ のモーメントは 0 なので、① と ② の<b>合力が接点を通る</b>こと、つまり合力の向きが棒の向きと一致することが条件になります。</p>
-$$\tan\theta = \frac{mg}{m\dfrac{v_0^2}{R}} = \frac{gR}{v_0^2}$$
-<p>接点まわりのモーメントを直接書いても同じ結果です。</p>
-$$mg\cdot\frac{L}{2}\cos\theta = m\frac{v_0^2}{R}\cdot\frac{L}{2}\sin\theta$$
+<p class="hoshin"><b>方針</b>棒といっしょに回る立場で見ると棒は静止している。重心に遠心力を加え、接点のまわりの力のモーメントのつり合いを書く。</p>
+<h3>解答</h3>
+<p class="law">力のモーメントのつり合い（接点のまわり、棒といっしょに回る立場）</p>
+$$mg\cdot\frac{L}{2}\cos\theta = m\frac{v_0^2}{R}\cdot\frac{L}{2}\sin\theta \qquad\therefore\quad \tan\theta = \frac{gR}{v_0^2}$$
+<div class="box"><b>式の立て方</b>：棒は傾いたまま一定の姿勢で回っているので、<b>棒から見れば棒は止まって</b>見えます。止まって見える立場なら、力のつり合いと力のモーメントのつり合いがそのまま使えます。そのかわり重心に慣性力（遠心力）\(m\dfrac{v_0^2}{R}\) を外向きに加えます。
+<br>棒にはたらく力は ① 重力 \(mg\)（重心）② 遠心力（重心）③ 垂直抗力 \(N\)（接点）④ 静止摩擦力 \(f\)（接点）の4つです。<b>未知の力 ③④ が集まる接点</b>をモーメントの中心に選ぶと、③④ の腕の長さが 0 になって式から消え、①② だけの式になります。腕の長さは、重力（鉛直）に対しては重心の水平距離 \(\dfrac{L}{2}\cos\theta\)、遠心力（水平）に対しては重心の高さ \(\dfrac{L}{2}\sin\theta\) です。</div>
+<div class="box"><b>補足</b>：この式は「① と ② の<b>合力が接点を通る</b>」、つまり合力の向きが棒の向きと一致することと同じ意味です。合力の水平成分と鉛直成分の比が棒の傾きになるので
+$$\tan\theta = \frac{mg}{m\dfrac{v_0^2}{R}}$$
+と一気に書くこともできます。結果に \(L\) や \(m\) は入りません。速く回るほど遠心力が大きくなり、棒はより深く内側に傾きます（\(\theta\) が小さくなる）。自転車でカーブを曲がるときに体を内側に倒すのも同じ理由です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：右の図の点線（重力と慣性力の合力）が、いつも棒に沿って接点に向かっています。\(v_0\) を大きくすると慣性力が増え、棒はより深く内側に傾きます（\(\theta\) が小さくなる）。\(L\) や \(m\) には関係しません。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-II2"><summary>II(2)　すべらずに回れる最大の速さ<span class="ans">答 \(v_1 = \sqrt{\mu g R}\)</span></summary><div class="body">
-<h3>考え方</h3>
-<p>水平面上の円運動で、中心向きの力（向心力）になれる水平な力は<b>静止摩擦力だけ</b>です。したがって</p>
-$$f = m\frac{v_0^2}{R}, \qquad N = mg$$
-<p>すべらない条件 \(f \le \mu N\) より \(v_0^2 \le \mu g R\)。よって最大値は</p>
-$$v_1 = \sqrt{\mu g R}$$
+<p class="hoshin"><b>方針</b>向心力をまかなう水平な外力は静止摩擦力だけ。円運動の運動方程式に「摩擦力 ≦ 最大静止摩擦力」を合わせる。</p>
+<h3>解答</h3>
+<p class="law">円運動の運動方程式（中心方向）・力のつり合い（鉛直）</p>
+$$m\frac{v_0^2}{R} = f, \qquad N = mg$$
+<p class="law">すべらない条件</p>
+$$f \le \mu N \quad\Rightarrow\quad v_0^2 \le \mu gR \qquad\therefore\quad v_1 = \sqrt{\mu gR}$$
+<div class="box"><b>式の立て方</b>：円運動の運動方程式は「質量 × 向心加速度 \(\dfrac{v^2}{R}\) ＝ 中心向きの外力の合計」です。水平面の上では、重力も垂直抗力も鉛直なので中心向きの成分をもちません。中心向きの外力になれるのは接点の静止摩擦力だけなので、右辺は \(f\) だけになります。（II(1) の「棒といっしょに回る立場」で遠心力とのつり合いとして書いても同じ式です。）</div>
+<div class="box"><b>補足</b>：結果は \(m\) にも \(L\) にもよらず、\(\mu\) と \(R\) だけで決まります。半径が大きいゆるいカーブほど速く回れ、路面がぬれて \(\mu\) が小さいと限界の速さが下がります。\(v_0\) が \(v_1\) を超えると摩擦力が向心力をまかないきれず、一輪車は円の外側へすべり出します。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：接点の摩擦力の矢印と、点線の目盛り（最大静止摩擦力 \(\mu N\)）を比べてください。\(v_0\) を \(v_1\) より大きくすると、上から見た図で一輪車が外側へすべり出ていきます。半径 \(R\) を大きくすると \(v_1\) も大きくなります。</div>
 <button class="goto" data-q="II2">この状況にする</button>
 </div></details>
 
 <details id="d-II3"><summary>II(3)　円運動しながら加速するときの摩擦力<span class="ans">答 \(m\sqrt{a^2 + \dfrac{v_0^4}{R^2}}\)</span></summary><div class="body">
-<h3>加速度を2つの向きに分ける</h3>
-<p>速さを変えながら円運動するとき、加速度は<b>接線方向</b>（速さを変える）の \(a\) と、<b>中心方向</b>（向きを変える）の \(\dfrac{v_0^2}{R}\) の2つに分けられます。この2つの向きは直交しています。</p>
-<h3>どちらも摩擦力がまかなう</h3>
-<p>水平な力は静止摩擦力だけなので、摩擦力の接線成分 \(f_1\) と中心向き成分 \(f_2\) は</p>
+<p class="hoshin"><b>方針</b>加速度を接線方向 \(a\) と中心方向 \(\dfrac{v_0^2}{R}\) に分け、それぞれを摩擦力の成分がまかなう。</p>
+<h3>解答</h3>
+<p class="law">運動方程式（接線方向・中心方向）</p>
 $$f_1 = ma, \qquad f_2 = m\frac{v_0^2}{R}$$
-<p>大きさは三平方の定理で</p>
-$$f = \sqrt{f_1^2 + f_2^2} = m\sqrt{a^2 + \frac{v_0^4}{R^2}}$$
+<p class="law">直交する成分の合成（三平方の定理）</p>
+$$f = \sqrt{f_1^{\,2} + f_2^{\,2}} \qquad\therefore\quad f = m\sqrt{a^2 + \frac{v_0^4}{R^2}}$$
+<div class="box"><b>式の立て方</b>：速さを変えながら円運動するときの加速度は、<b>接線方向</b>（速さを変える）の \(a\) と、<b>中心方向</b>（向きを変える）の \(\dfrac{v_0^2}{R}\) の2つに分けられ、この2つは直交しています。運動方程式は方向ごとに立てられるので、接線方向・中心方向それぞれに「質量 × 加速度 ＝ その方向の外力」を書きます。どちらの方向も、水平な外力は静止摩擦力しかないので、右辺は摩擦力の成分 \(f_1,\ f_2\) になります。</div>
+<div class="box"><b>補足</b>：\(f_1\) と \(f_2\) は直交しているので、摩擦力の大きさは単純な和 \(f_1 + f_2\) ではなく三平方の定理で求めます。摩擦力の向きは進行方向より少し内側を向いていて、\(a\) を大きくするほど前向きに、\(v_0\) を大きくするほど内向きに傾きます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：上から見た図の右下に「摩擦円」を出しています。円の半径が最大静止摩擦力 \(\mu mg\)、矢印が実際の摩擦力です。\(a\) を増やすと矢印が横（接線方向）に伸びます。</div>
 <button class="goto" data-q="II3">この状況にする</button>
 </div></details>
 
 <details id="d-II4"><summary>II(4)　すべらずに加速できる \(a\) の最大値<span class="ans">答 \(\sqrt{\mu^2 g^2 - \dfrac{v_0^4}{R^2}}\)</span></summary><div class="body">
-<p>(3) の摩擦力が最大静止摩擦力 \(\mu mg\) に達するときが限界です。</p>
-$$m\sqrt{a^2 + \frac{v_0^4}{R^2}} \le \mu mg$$
-$$\therefore\quad a \le \sqrt{\mu^2 g^2 - \frac{v_0^4}{R^2}}$$
-<h3>意味（摩擦円）</h3>
-<p>摩擦力のベクトルの先端は、半径 \(\mu mg\) の円の内側にしか置けません。曲がるために中心向きの成分をすでに使っているので、加速（またはブレーキ）に使える余裕は直線のとき（I の \(\mu g\)）より小さくなります。\(v_0 \to v_1\) では余裕が 0 になり、少しも加速できません。「カーブの途中で急加速・急ブレーキをするとすべりやすい」理由です。</p>
+<p class="hoshin"><b>方針</b>(3) の摩擦力が最大静止摩擦力 \(\mu mg\) を超えない条件を書く。</p>
+<h3>解答</h3>
+<p class="law">すべらない条件（\(N = mg\)）</p>
+$$m\sqrt{a^2 + \frac{v_0^4}{R^2}} \le \mu mg \qquad\therefore\quad a \le \sqrt{\mu^2 g^2 - \frac{v_0^4}{R^2}}$$
+<div class="box"><b>式の立て方</b>：静止摩擦力の条件 \(f \le \mu N\) の \(f\) は、成分ではなく<b>摩擦力ベクトル全体の大きさ</b>です。接線方向だけ、中心方向だけで別々に \(\mu N\) と比べるのではなく、(3) で合成した大きさを \(\mu mg\) と比べます。両辺を2乗して \(a^2\) について解けば答えが出ます。</div>
+<div class="box"><b>補足</b>：摩擦力ベクトルの先端は、半径 \(\mu mg\) の円（摩擦円）の内側にしか置けません。カーブでは向心力のために中心向きの成分をすでに使っているので、加速（やブレーキ）に回せる余裕は、直線のとき（I の \(\mu g\)）より小さくなります。\(v_0 = 0\) とおくと I の答え \(\mu g\) に戻り、\(v_0 \to v_1 = \sqrt{\mu gR}\) では根号の中が 0 になって少しも加速できません。「カーブの途中で急加速・急ブレーキをするとすべりやすい」理由がこの式に表れています。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：\(a\) を少しずつ上げ、摩擦円の矢印が円からはみ出す所が限界です。\(v_0\) を大きくしてから同じことをすると、限界の \(a\) が小さくなります。</div>
 <button class="goto" data-q="II4">この状況にする</button>
 </div></details>
 
 <details id="d-III1"><summary>III(1)　すりばち状の路面での傾き<span class="ans">答 \(\tan\theta = \dfrac{gR}{v_0^2}\)（\(\varphi\) によらない）</span></summary><div class="body">
-<p>棒といっしょに見ると、重心にはたらく重力 \(mg\) と慣性力 \(m\dfrac{v_0^2}{R}\) は、路面が傾いていても II と<b>まったく同じ</b>です。垂直抗力と摩擦力は接点にはたらくので、接点まわりのモーメントは 0。したがって条件も II(1) と同じで</p>
-$$\tan\theta = \frac{gR}{v_0^2}$$
-<p>ポイントは、棒の傾きは<b>路面に対して</b>ではなく<b>水平面に対して</b>決まるということです。</p>
+<p class="hoshin"><b>方針</b>II(1) と同じく接点のまわりのモーメントを考える。路面からの力はすべて接点にはたらくので、路面の傾きは式に入らない。</p>
+<h3>解答</h3>
+<p class="law">力のモーメントのつり合い（接点のまわり、棒といっしょに回る立場）</p>
+$$mg\cdot\frac{L}{2}\cos\theta = m\frac{v_0^2}{R}\cdot\frac{L}{2}\sin\theta \qquad\therefore\quad \tan\theta = \frac{gR}{v_0^2}$$
+<div class="box"><b>式の立て方</b>：路面が傾いても変わるのは垂直抗力と摩擦力の<b>向き</b>だけで、どちらも接点にはたらくことは同じです。接点のまわりではこの2力のモーメントは 0 なので、残るのは重心にはたらく重力 \(mg\) と遠心力 \(m\dfrac{v_0^2}{R}\) だけ。これは II(1) とまったく同じ2力なので、同じ式になります。</div>
+<div class="box"><b>補足</b>：棒の傾き \(\theta\) は<b>路面に対して</b>ではなく<b>水平面に対して</b>決まります。決めているのは重心にはたらく「重力＋遠心力」の向きで、路面の形には関係しないからです。路面の傾き \(\varphi\) が効いてくるのは、次の (2) のように「すべるかどうか」を考えるときです。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：傾斜角 \(\varphi\) を変えても、棒と水平面のなす角 \(\theta\) は変わりません。</div>
 <button class="goto" data-q="III1">この状況にする</button>
 </div></details>
 
 <details id="d-III2"><summary>III(2)　すりばちで回れる最大の速さ<span class="ans">答 \(v_2 = \sqrt{\dfrac{\mu + \tan\varphi}{1 - \mu\tan\varphi}\,gR}\)</span></summary><div class="body">
-<h3>力の向き</h3>
-<p>垂直抗力 \(N\) は<b>路面に垂直</b>（斜め上、中心寄り）、摩擦力 \(f\) は<b>路面に沿う</b>向きです。速いときは外へすべり出そうとするので、摩擦力は斜面に沿って下向き（中心寄り）になります。</p>
-<h3>水平・鉛直に分けてつり合いを書く（棒といっしょに見る）</h3>
-$$\begin{aligned}\text{水平：}\ & N\sin\varphi + f\cos\varphi = m\frac{v^2}{R}\\ \text{鉛直：}\ & N\cos\varphi - f\sin\varphi = mg\end{aligned}$$
-<p>限界では \(f = \mu N\)。2式の比をとると \(N\) が消えて</p>
-$$\frac{v_2^2}{gR} = \frac{\sin\varphi + \mu\cos\varphi}{\cos\varphi - \mu\sin\varphi} = \frac{\tan\varphi + \mu}{1 - \mu\tan\varphi}$$
-$$\therefore\quad v_2 = \sqrt{\frac{\mu + \tan\varphi}{1 - \mu\tan\varphi}\,gR}$$
-<p>（解答例のように斜面に垂直・平行に分けても同じ結果になります。）条件 \(\tan\varphi &lt; \dfrac{1}{\mu}\) は分母を正にするためのもので、これを超える急な傾斜だと理論上どんなに速くてもすべりません。</p>
+<p class="hoshin"><b>方針</b>限界の速さでは外へすべり出そうとするので、摩擦力は斜面に沿って下向き（中心寄り）で \(f = \mu N\)。水平・鉛直の2式から \(N\) を消す。</p>
+<h3>解答</h3>
+<p class="law">円運動の運動方程式（水平）・力のつり合い（鉛直）</p>
+$$\begin{aligned}N\sin\varphi + f\cos\varphi &= m\frac{v^2}{R}\\ N\cos\varphi - f\sin\varphi &= mg\end{aligned}$$
+<p class="law">すべり出す直前（\(f = \mu N\)）、2式の比をとる</p>
+$$\frac{v_2^{\,2}}{gR} = \frac{\sin\varphi + \mu\cos\varphi}{\cos\varphi - \mu\sin\varphi} = \frac{\mu + \tan\varphi}{1 - \mu\tan\varphi} \qquad\therefore\quad v_2 = \sqrt{\frac{\mu + \tan\varphi}{1 - \mu\tan\varphi}\,gR}$$
+<div class="box"><b>式の立て方</b>：まず力の向きを決めます。垂直抗力 \(N\) は<b>路面に垂直</b>（斜め上、中心寄り）、摩擦力 \(f\) は<b>路面に沿う</b>向きです。速すぎると外へすべり出そうとするので、摩擦力はそれを止める向き、つまり斜面に沿って下向き（中心寄り）になります。
+<br>次に分ける方向を選びます。加速度は水平に中心を向く \(\dfrac{v^2}{R}\) だけで、鉛直方向の加速度は 0 です。そこで<b>水平・鉛直</b>に分けると、水平は円運動の運動方程式、鉛直はつり合いと、それぞれすっきり書けます。\(N\) と \(f\) は斜めなので、\(\sin\varphi,\ \cos\varphi\) で成分に分けます。最後に \(f = \mu N\) を入れて比をとると \(N\) が消えます。</div>
+<div class="box"><b>補足</b>：斜面に平行・垂直に分けても同じ結果になります。その場合は加速度 \(\dfrac{v^2}{R}\) のほうを斜面方向と垂直方向に分けることになり、式が少しだけ複雑になります。
+<br>条件 \(\tan\varphi \lt \dfrac{1}{\mu}\) は分母を正にするためのものです。これより急な傾斜では、理論上どんなに速くても外へはすべり出しません。また \(\varphi = 0\) とおくと II(2) の \(v_1 = \sqrt{\mu gR}\) に戻ることも確かめておきましょう。
+<br>逆に、傾斜が急で速さが小さすぎると内側（下）へすべり落ちそうになり、摩擦力は斜面に沿って<b>上向き</b>になります。このときの限界は上の式で \(\mu\) を \(-\mu\) に置きかえた \(\sqrt{\dfrac{\tan\varphi - \mu}{1 + \mu\tan\varphi}\,gR}\) です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：接点の摩擦力の矢印と点線の目盛り（\(\mu N\)）を比べます。\(v\) が \(v_2\) を超えると外にすべり出します。逆に、傾斜が急で \(v\) が小さすぎると摩擦力は<b>斜面上向き</b>になり、内側（下）にすべり落ちることもあります（最小の速さも表示しています）。</div>
 <button class="goto" data-q="III2">この状況にする</button>
 </div></details>
 
 <details id="d-III3"><summary>III(3)　外側を高くする理由<span class="ans">答 同じ半径でも \(v_2 > v_1\)</span></summary><div class="body">
-<p>II(2) と III(2) を同じ \(R,\ \mu\) で比べると、\(\varphi > 0\) のとき分子は大きく、分母は小さくなるので \(v_2 > v_1\) です。つまり<b>外側を高くした路面のほうが、同じ半径のカーブをすべらずにより速く回れる</b>。これが高速道路のカーブや競輪のバンクに傾斜がある理由です。</p>
-<h3>なぜ速く回れるのか</h3>
-<p>① 垂直抗力が斜めに傾くので、その<b>水平成分が向心力の一部</b>を受けもつ。② 垂直抗力そのものが大きくなり、<b>最大静止摩擦力 \(\mu N\) も大きくなる</b>。この2つの効果です。</p>
-<p>とくに \(v = \sqrt{gR\tan\varphi}\) のときは摩擦力が 0 でも回れます（道路の「設計速度」の考え方）。</p>
+<p class="hoshin"><b>方針</b>II(2) と III(2) の答えを同じ \(R,\ \mu\) で比べる。</p>
+<h3>解答</h3>
+<p class="law">II(2)・III(2) の結果の比較（\(\varphi > 0\)）</p>
+$$\frac{v_2^{\,2}}{v_1^{\,2}} = \frac{\mu + \tan\varphi}{\mu\,(1 - \mu\tan\varphi)} > 1 \qquad\therefore\quad v_2 > v_1$$
+<p>外側を高くした路面のほうが、同じ半径のカーブをすべらずに速く回れる。</p>
+<div class="box"><b>式の立て方</b>：\(\varphi > 0\) なら分子 \(\mu + \tan\varphi\) は \(\mu\) より大きく、分母 \(1 - \mu\tan\varphi\) は 1 より小さいので、比は 1 より大きくなります。式を比べるときは、このように「分子は増え、分母は減る」と一つずつ見ていくと確実です。</div>
+<div class="box"><b>補足</b>：速く回れる理由は2つあります。① 垂直抗力が中心側に傾くので、その<b>水平成分が向心力の一部</b>を受けもつ。② 鉛直のつり合いを保つために垂直抗力そのものが大きくなり、<b>最大静止摩擦力 \(\mu N\) も大きくなる</b>。
+<br>とくに \(v = \sqrt{gR\tan\varphi}\) のときは、垂直抗力の水平成分だけで向心力がまかなえるので、摩擦力が 0 でも回れます（III(2) の式で \(f = 0\) とおくと得られます）。高速道路のカーブや競輪場のバンクに傾斜がつけてあるのはこのためで、道路の「設計速度」もこの考え方で決められています。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：このボタンでは、上の図の下に \(v_1\)（水平）と \(v_2\)（傾斜）の棒グラフを並べています。\(\varphi\) を 0 にすると2つが一致し、\(\varphi\) を大きくすると \(v_2\) が伸びます。</div>
 <button class="goto" data-q="III3">この状況にする</button>
 </div></details>
 </section>
+<script>if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)&&!/\\begin/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});</script>
 </div>
 
 <script>

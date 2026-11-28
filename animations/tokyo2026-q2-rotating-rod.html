@@ -63,6 +63,9 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .hl{background:var(--soft);border-radius:4px;padding:0 3px}
 @media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
 .katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}.law+.katex-display,.law+p{margin-top:4px}
+.box>b:first-child{color:var(--acc)}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
@@ -106,89 +109,115 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。ここでは \(\alpha = \dfrac{1}{2}Bl^2\) とします。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「方針」と「解答」で式の流れをつかみ、くわしい説明は下の「式の立て方」「補足」で確かめてください。「この状況にする」で上のアニメーションがその設問の設定になります。ここでは \(\alpha = \dfrac{1}{2}Bl^2\) とします。</p>
 
 <details id="d-I"><summary>I　回転する棒の起電力<span class="ans">答 \(\alpha = \dfrac{1}{2}Bl^2\)</span></summary><div class="body">
-<h3>棒が横切る面積</h3>
-<p>短い時間 \(\Delta t\) の間に、棒は角度 \(\omega_1\Delta t\) だけ回ります。棒が通過した部分は半径 \(l\)、中心角 \(\omega_1\Delta t\) の扇形なので</p>
+<p class="hoshin"><b>方針</b>棒が単位時間に横切る扇形の面積から磁束の変化を出し、ファラデーの電磁誘導の法則を使う。</p>
+<h3>解答</h3>
+<p class="law">棒が \(\Delta t\) の間に横切る面積（扇形）</p>
 $$\Delta S = \frac{1}{2}l^2\,\omega_1\Delta t$$
-<h3>ファラデーの法則</h3>
-<p>この面を貫く磁束は \(\Delta\Phi = B\,\Delta S\)。単位時間あたりに横切る磁束が起電力なので</p>
-$$E_1 = \frac{\Delta\Phi}{\Delta t} = \frac{1}{2}Bl^2\omega_1 \qquad\therefore\quad \alpha = \frac{1}{2}Bl^2$$
-<h3>別の見方（ローレンツ力）</h3>
-<p>回転軸から \(r\) の位置の電荷は速さ \(r\omega\) で動くので、棒に沿って \(q\,r\omega B\) の力を受けます。棒の中点の速さ \(\dfrac{l\omega}{2}\) を「平均の速さ」と考えると、\(vBl\) の式から</p>
+<p class="law">ファラデーの電磁誘導の法則</p>
+$$E_1 = \frac{B\,\Delta S}{\Delta t} = \frac{1}{2}Bl^2\omega_1 \qquad\therefore\quad \alpha = \frac{1}{2}Bl^2$$
+<div class="box"><b>式の立て方</b>：動く導体の起電力は「導体が単位時間に横切る磁束」で求められます。そこで、短い時間 \(\Delta t\) の間に棒が通過した部分の面積を考えます。棒は角度 \(\omega_1\Delta t\) だけ回るので、通過した部分は半径 \(l\)、中心角 \(\omega_1\Delta t\) の扇形で、面積は \(\dfrac{1}{2}l^2\times(\text{中心角})\)。磁場は一様なので、横切る磁束は \(\Delta\Phi = B\,\Delta S\) です。これを \(\Delta t\) で割ったものが起電力の大きさです。</div>
+<div class="box"><b>補足</b>：ローレンツ力から考えることもできます。回転軸から \(r\) の位置の電荷は速さ \(r\omega\) で動くので、棒に沿って \(q\,r\omega B\) の力を受けます。この力は軸からの距離に比例して大きくなるので、棒全体では「中点の速さ \(\dfrac{l\omega}{2}\) で棒全体が動いている」と考えたときと同じになり、\(vBl\) の式から
 $$E = \frac{l\omega}{2}\cdot B\cdot l = \frac{1}{2}Bl^2\omega$$
+となります。起電力が \(\omega\) に比例し、\(l\) の2乗に比例することは、この後の設問すべての土台になります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：青い扇形が直前の短い時間に棒が横切った面積です。\(\omega_1\) を2倍にすると扇形も起電力も2倍、\(l\) を2倍にすると4倍になります。</div>
 <button class="goto" data-q="I">この状況にする</button>
 </div></details>
 
 <details id="d-II1"><summary>II(1)　スイッチを X に入れた直後のモーメント<span class="ans">答 \(\dfrac{Bl^2V}{2R}\)</span></summary><div class="body">
-<p>直後は棒がまだ止まっている（\(\omega = 0\)）ので、棒の起電力は 0。回路の電流は</p>
+<p class="hoshin"><b>方針</b>直後は \(\omega = 0\) で起電力 0。オームの法則で電流を出し、一様に分布する電磁力の合力が中点にはたらくとしてモーメントを求める。</p>
+<h3>解答</h3>
+<p class="law">オームの法則（直後は棒の起電力 0）</p>
 $$I_0 = \frac{V}{R}$$
-<p>棒の各部分（長さ \(\Delta x\)）には同じ大きさの力 \(I_0 B\,\Delta x\) がはたらきます。力は棒全体に<b>一様に分布</b>しているので、合力 \(I_0Bl\) が<b>棒の中点</b>（軸から \(\dfrac{l}{2}\)）にはたらくと考えてよく、</p>
-$$N = \frac{l}{2}\cdot I_0Bl = \frac{Bl^2V}{2R}$$
-<p>積分で書くと次のとおりです。なお \(N = \alpha I_0\) と書けることにも注目しておきましょう。</p>
+<p class="law">電流が磁場から受ける力（合力 \(I_0Bl\)、作用点は中点）と力のモーメント</p>
+$$N = \frac{l}{2}\cdot I_0Bl \qquad\therefore\quad N = \frac{Bl^2V}{2R}$$
+<div class="box"><b>式の立て方</b>：棒の各部分（長さ \(\Delta x\)）には、どこでも同じ大きさの力 \(I_0B\,\Delta x\) がはたらきます。重力が一様な棒の重心（中点）にまとめられるのと同じで、<b>一様に分布した力は、合力 \(I_0Bl\) が中点にはたらく</b>と考えてかまいません。回転軸から中点までの距離は \(\dfrac{l}{2}\) なので、モーメントは「腕の長さ × 力」で \(\dfrac{l}{2}\times I_0Bl\) です。</div>
+<div class="box"><b>補足</b>：積分で書くと次のとおりで、同じ結果になります。
 $$N = \int_0^l x\,I_0B\,dx = \frac{1}{2}I_0Bl^2$$
+\(N = \alpha I_0\) と書けることに注目しておきましょう。起電力が \(\alpha\omega\)、モーメントが \(\alpha I\) と、どちらも同じ係数 \(\alpha\) で表されます。これが IV で「回る棒をコンデンサーとみなせる」理由につながります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：棒に並んだ小さな矢印がどれも同じ長さ（一様な力）で、太い矢印が中点にはたらく合力です。「再生」すると回り始めます。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-II2"><summary>II(2)　回り始める向き<span class="ans">答 上から見て反時計回り（図の（あ）の向き）</span></summary><div class="body">
-<p>電源の正極から出た電流は、抵抗 → 端子 P → レール → 棒（<b>先端から回転軸へ</b>）→ 端子 O と流れます。磁場は紙面の裏から表向き（鉛直上向き）。フレミングの左手の法則（\(\vec F = I\vec L\times\vec B\)）で、棒は上から見て<b>反時計回り</b>に押されます。</p>
+<p class="hoshin"><b>方針</b>棒を流れる電流の向きを回路でたどり、フレミングの左手の法則で力の向きを決める。</p>
+<h3>解答</h3>
+<p class="law">電流の向き（電源の正極から）</p>
+<p>抵抗 → 端子 P → レール → 棒（<b>先端から回転軸へ</b>）→ 端子 O</p>
+<p class="law">フレミングの左手の法則（\(\vec F = I\vec L\times\vec B\)、磁場は鉛直上向き）</p>
+<p>棒は上から見て<b>反時計回り</b>（（あ）の向き）に押される。</p>
+<div class="box"><b>式の立て方</b>：力の向きを決めるには、まず<b>棒の中を電流がどちら向きに流れるか</b>を確定させます。電源の正極から出て、回路を一周して負極に戻る道すじを順にたどります。次に、電流の向き（中指）・磁場の向き（人差し指）を合わせ、親指の向きが力の向きです。ベクトル積 \(I\vec L\times\vec B\) で、\(\vec L\) を電流の向きにとって右ねじを回しても同じ結果になります。</div>
+<div class="box"><b>補足</b>：棒が回り始めると、I の起電力が<b>電流を減らす向き</b>に生じます（レンツの法則）。この「逆起電力」が次の (3) の主役です。モーターが回り始めると電流が減るのも同じしくみです。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：オレンジの点が電流の流れ、棒の上の赤い矢印が力の向きです。</div>
 <button class="goto" data-q="II2">この状況にする</button>
 </div></details>
 
 <details id="d-II3"><summary>II(3)　十分時間がたった後の角速度<span class="ans">答 \(\omega_2 = \dfrac{V}{\alpha} = \dfrac{2V}{Bl^2}\)</span></summary><div class="body">
-<p>棒が回り始めると、I で求めた起電力 \(\alpha\omega\) が<b>電源と逆向き</b>に生じます（逆起電力）。電流は</p>
-$$I = \frac{V - \alpha\omega}{R}$$
-<p>と小さくなり、回転を速める力のモーメント \(\alpha I\) も小さくなります。\(\omega\) が一定になるのはモーメント 0、つまり \(I = 0\) のとき。キルヒホッフの第2法則で</p>
+<p class="hoshin"><b>方針</b>角速度が一定になるのはモーメント 0、つまり電流 0 のとき。キルヒホッフの第2法則で \(I = 0\) とおく。</p>
+<h3>解答</h3>
+<p class="law">キルヒホッフの第2法則（棒の逆起電力 \(\alpha\omega\)）</p>
+$$V - \alpha\omega = RI$$
+<p class="law">\(\omega\) が一定 ⇔ モーメント \(\alpha I = 0\) ⇔ \(I = 0\)</p>
 $$V = \alpha\omega_2 \qquad\therefore\quad \omega_2 = \frac{V}{\alpha} = \frac{2V}{Bl^2}$$
-<p>摩擦がないので、電流 0 になればそのまま一定の角速度で回り続けます。最終の角速度は \(R\) や棒の質量によりません（それらは<b>近づく速さ</b>だけを決めます）。</p>
+<div class="box"><b>式の立て方</b>：回路の式では、棒は「起電力 \(\alpha\omega\) の電池」として扱います。向きは (2) の補足のとおり電源と逆向きなので、一周の起電力の和は \(V - \alpha\omega\)、電圧降下は抵抗の \(RI\) だけです。一方、棒の回転を速めるモーメントは II(1) と同じ形で \(\alpha I\)。摩擦はないので、角速度が変化しなくなる条件はモーメントが 0、つまり \(I = 0\) です。これを回路の式に入れます。</div>
+<div class="box"><b>補足</b>：回り始めは電流 \(\dfrac{V}{R}\) が流れて加速しますが、\(\omega\) が増えると逆起電力 \(\alpha\omega\) が大きくなり、電流もモーメントも小さくなります。こうして \(\omega\) は \(\dfrac{V}{\alpha}\) にだんだん近づきます。電流が 0 になれば力ははたらかず、摩擦もないので、そのまま一定の角速度で回り続けます。
+<br>最終の角速度は \(R\) や棒の質量によりません。それらは<b>近づく速さ</b>を決めるだけです。またエネルギーで見ると、電源がした仕事（\(V\) × 流れた電荷）のちょうど半分が棒の運動エネルギーになり、残り半分は抵抗でジュール熱になります（コンデンサーを電池で充電するときと同じ比率です）。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：グラフの \(\omega\) が点線 \(\dfrac{V}{\alpha}\) に近づき、電流 \(I\) は 0 に近づきます。\(R\) や \(M\) を変えても最終値は同じで、近づく速さだけが変わります。エネルギーを見ると、電源がした仕事の<b>ちょうど半分</b>が運動エネルギー、残り半分がジュール熱になっています。</div>
 <button class="goto" data-q="II3">この状況にする</button>
 </div></details>
 
 <details id="d-III"><summary>III　コンデンサー1に切り替えた後のエネルギー<span class="ans">答 \(\dfrac{1}{2}C_1\alpha^2\omega_3^2\)</span></summary><div class="body">
-<p>スイッチを Y に切り替えると、回る棒が電池の役目をしてコンデンサー1を充電します。このとき流れる電流は棒の回転を<b>妨げる</b>向きの力を生むので、棒は減速します（レンツの法則）。</p>
-<p>やがて \(\omega\) が一定（\(\omega_3\)）になるのは、電流が 0 のとき。抵抗の電圧も 0 なので、コンデンサーの電圧は棒の起電力 \(\alpha\omega_3\) に等しくなり</p>
-$$U_1 = \frac{1}{2}C_1(\alpha\omega_3)^2 = \frac{1}{2}C_1\alpha^2\omega_3^2 \quad\left(= \frac{1}{8}C_1B^2l^4\omega_3^2\right)$$
+<p class="hoshin"><b>方針</b>\(\omega\) が一定になるのは電流 0 のとき。抵抗の電圧も 0 なので、コンデンサーの電圧は棒の起電力に等しい。</p>
+<h3>解答</h3>
+<p class="law">キルヒホッフの第2法則（\(I = 0\)）</p>
+$$\frac{q}{C_1} = \alpha\omega_3$$
+<p class="law">コンデンサーの静電エネルギー</p>
+$$U_1 = \frac{1}{2}C_1\left(\frac{q}{C_1}\right)^2 \qquad\therefore\quad U_1 = \frac{1}{2}C_1\alpha^2\omega_3^2$$
+<div class="box"><b>式の立て方</b>：スイッチを Y に切り替えると、回路は「棒（起電力 \(\alpha\omega\)）・抵抗・コンデンサー1」の一周になります。一周の式は \(\alpha\omega - RI - \dfrac{q}{C_1} = 0\)。角速度が一定になるのは (3) と同じく電流 0 のときなので、\(RI = 0\) として、コンデンサーの電圧と棒の起電力を等しくおきます。</div>
+<div class="box"><b>補足</b>：切り替え直後は、回る棒が電池の役目をしてコンデンサー1を充電します。このとき流れる電流は、棒の回転を<b>妨げる</b>向きのモーメントを生むので、棒は減速します（レンツの法則）。棒の運動エネルギーの一部がコンデンサーのエネルギーに、一部がジュール熱に変わります。
+<br>\(\alpha = \dfrac{1}{2}Bl^2\) を入れると \(U_1 = \dfrac{1}{8}C_1B^2l^4\omega_3^{\,2}\) です。\(\omega_3\) そのものは、IV で求めます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：\(\omega\) が下がっていき、コンデンサーの電圧 \(\dfrac{q}{C_1}\) が棒の起電力 \(\alpha\omega\) と等しくなった所で止まります。\(C_1\) を大きくすると、\(\omega_3\) は小さくなります。</div>
 <button class="goto" data-q="III">この状況にする</button>
 </div></details>
 
 <details id="d-IV1"><summary>IV(1)　回る棒＝仮想コンデンサー2<span class="ans">答 \(Q_2 = \dfrac{\beta\omega}{\alpha},\ C_2 = \dfrac{\beta}{\alpha^2}\)</span></summary><div class="body">
-<h3>エネルギーで対応させる</h3>
-<p>端子 O–P 間の電圧は棒の起電力 \(V_2 = \alpha\omega\)。運動エネルギーをこの電圧で書き直すと</p>
+<p class="hoshin"><b>方針</b>棒の運動エネルギーを端子電圧 \(V_2 = \alpha\omega\) で書き直し、\(\dfrac{1}{2}C_2V_2^{\,2}\) と見比べる。</p>
+<h3>解答</h3>
+<p class="law">回転の運動エネルギーを \(V_2 = \alpha\omega\) で表す</p>
 $$\frac{1}{2}\beta\omega^2 = \frac{1}{2}\cdot\frac{\beta}{\alpha^2}\cdot(\alpha\omega)^2$$
-<p>これを \(\dfrac{1}{2}C_2V_2^{\,2}\) と見比べて</p>
+<p class="law">コンデンサーのエネルギー \(\dfrac{1}{2}C_2V_2^{\,2}\) と比較、\(Q_2 = C_2V_2\)</p>
 $$C_2 = \frac{\beta}{\alpha^2}, \qquad Q_2 = C_2V_2 = \frac{\beta\omega}{\alpha}$$
-<h3>電流でも対応している</h3>
-<p>棒の回転の運動方程式は \(\beta\dfrac{\Delta\omega}{\Delta t} = \alpha I\)。両辺を \(\alpha\) で割ると</p>
-$$I = \frac{\Delta}{\Delta t}\left(\frac{\beta\omega}{\alpha}\right)$$
-<p>つまり<b>流れこんだ電荷の分だけ \(\dfrac{\beta\omega}{\alpha}\) が増える</b>ので、\(Q_2\) は「本当に流れこんだ電荷の合計」になっています。だからこの見方が正しく使えるのです。</p>
-<p>（参考：一様な棒なら \(\beta = \dfrac{1}{3}Ml^2\) なので \(C_2 = \dfrac{4M}{3B^2l^2}\)。重い棒ほど「容量の大きいコンデンサー」です。）</p>
+<div class="box"><b>式の立て方</b>：コンデンサーとみなすには「電圧 \(V_2\)」と「エネルギー \(\dfrac{1}{2}C_2V_2^{\,2}\)」の関係が成り立てばよいので、まず端子 O–P 間の電圧を棒の起電力 \(\alpha\omega\) と決めます。次に運動エネルギー \(\dfrac{1}{2}\beta\omega^2\) の \(\omega\) を \(\dfrac{V_2}{\alpha}\) に置きかえて、\(V_2^{\,2}\) の係数を読みとります。</div>
+<div class="box"><b>補足</b>：エネルギーだけでなく、電流（電荷の流れ）でもきちんと対応しています。棒の回転の運動方程式は、II(1) のモーメント \(\alpha I\) を使って
+$$\beta\frac{\Delta\omega}{\Delta t} = \alpha I \qquad\Rightarrow\qquad I = \frac{\Delta}{\Delta t}\left(\frac{\beta\omega}{\alpha}\right)$$
+と書けます。つまり<b>流れこんだ電荷の分だけ \(\dfrac{\beta\omega}{\alpha}\) が増える</b>ので、\(Q_2\) は実際に流れこんだ電荷の合計そのものです。電圧・電荷・エネルギーのすべてがコンデンサーと同じ関係になっているので、回路の問題としてそのまま扱えます。
+<br>一様な棒なら \(\beta = \dfrac{1}{3}Ml^2\) なので \(C_2 = \dfrac{4M}{3B^2l^2}\)。重い棒ほど「容量の大きいコンデンサー」です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：回路図に「コンデンサー2」の目盛りを表示しています。\(\omega\) に比例して \(Q_2\) がたまり、エネルギーの棒グラフで \(\dfrac{1}{2}\beta\omega^2\) と \(\dfrac{Q_2^{\,2}}{2C_2}\) が一致します。</div>
 <button class="goto" data-q="IV1">この状況にする</button>
 </div></details>
 
 <details id="d-IV2"><summary>IV(2)(3)　コンデンサー2つで考える<span class="ans">答 \(U_1 = \dfrac{C_1C_2^{\,2}V^2}{2(C_1+C_2)^2},\ \omega_3 = \dfrac{C_2V}{\alpha(C_1+C_2)}\)</span></summary><div class="body">
-<h3>(2) 電荷の分配</h3>
-<p>X 側で十分時間がたつと、コンデンサー2の電圧は \(V\)、電荷は \(C_2V\)。Y に切り替えると、空のコンデンサー1とつながり、電流が 0 になるまで電荷が移動します。最後は<b>2つの電圧が等しく</b>（\(v\) とする）、<b>電荷の和は変わらない</b>ので</p>
+<p class="hoshin"><b>方針</b>充電されたコンデンサー2と空のコンデンサー1をつなぐ問題とみる。最後は電圧が等しく、電荷の和は保存される。</p>
+<h3>解答</h3>
+<p class="law">(2) 電気量保存（切り替え前：\(C_2V\)）と電圧が等しい条件</p>
 $$C_1v + C_2v = C_2V \qquad\therefore\quad v = \frac{C_2V}{C_1 + C_2}$$
+<p class="law">静電エネルギー</p>
 $$U_1 = \frac{1}{2}C_1v^2 = \frac{C_1C_2^{\,2}V^2}{2(C_1 + C_2)^2}$$
-<h3>(3) \(\omega_3\) を求める</h3>
-<p>コンデンサー2の電圧は棒の起電力 \(\alpha\omega_3\) なので \(\alpha\omega_3 = v\)。</p>
-$$\omega_3 = \frac{C_2V}{\alpha(C_1 + C_2)}$$
-<p>\(C_2 = \dfrac{\beta}{\alpha^2}\) を代入すると \(\omega_3 = \dfrac{\beta V}{\alpha(\alpha^2C_1 + \beta)}\)。これは「\(\beta\omega + \alpha q\) が一定に保たれる」ことからも導けます。</p>
-<h3>エネルギーは減っている</h3>
-<p>切り替え前の \(\dfrac{1}{2}C_2V^2\) と、切り替え後の2つのコンデンサーのエネルギーの和を比べると、差</p>
+<p class="law">(3) コンデンサー2の電圧 ＝ 棒の起電力</p>
+$$\alpha\omega_3 = v \qquad\therefore\quad \omega_3 = \frac{C_2V}{\alpha(C_1 + C_2)}$$
+<div class="box"><b>式の立て方</b>：X 側で十分時間がたつと II(3) より \(\alpha\omega_2 = V\) なので、コンデンサー2の電圧は \(V\)、電荷は \(C_2V\) です。Y に切り替えると、空のコンデンサー1と抵抗を通してつながり、電流が 0 になるまで電荷が移動します。
+<br>電流 0 では抵抗の電圧も 0 なので、<b>2つのコンデンサーの電圧が等しく</b>なります（\(v\) とおく）。また、電荷はコンデンサー2からコンデンサー1へ移るだけなので、<b>電荷の和は切り替え前と変わりません</b>。この2つの条件で式を立てます。(3) は、コンデンサー2の電圧が棒の起電力 \(\alpha\omega\) だったことを思い出せば、\(v\) から \(\omega_3\) が出ます。</div>
+<div class="box"><b>補足</b>：\(C_2 = \dfrac{\beta}{\alpha^2}\) を代入すると \(\omega_3 = \dfrac{\beta V}{\alpha(\alpha^2C_1 + \beta)}\) です。これは IV(1) の補足（流れこんだ電荷の分だけ \(\dfrac{\beta\omega}{\alpha}\) が増える）から、棒から出た電荷がそのままコンデンサー1にたまることを使い、「\(\beta\omega + \alpha q\) が一定」（\(q\) はコンデンサー1の電荷）としても導けます。
+<br>エネルギーを比べると、切り替え前の \(\dfrac{1}{2}C_2V^2\) より、切り替え後の2つのコンデンサーのエネルギーの和のほうが
 $$\frac{1}{2}\cdot\frac{C_1C_2}{C_1 + C_2}V^2$$
-<p>がジュール熱として抵抗で失われます（抵抗 \(R\) の値によらない）。</p>
+だけ小さくなっています。この差がジュール熱として抵抗で失われた分で、抵抗 \(R\) の値によりません（\(R\) は電荷が移る速さだけを決めます）。\(C_1 = C_2\) のときは \(\omega_3 = \dfrac{\omega_2}{2}\) で、ちょうど半分の角速度になります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：このボタンでは X で充電 → 自動で Y に切り替え、までを続けて再生します。グラフの点線は式で予想した \(\omega_2\) と \(\omega_3\)。\(C_1 = C_2\) にすると \(\omega_3 = \dfrac{\omega_2}{2}\) になることを確かめてみましょう。</div>
 <button class="goto" data-q="IV2">この状況にする</button>
 </div></details>
 </section>
+<script>if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)&&!/\\begin/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});</script>
 </div>
 
 <script>

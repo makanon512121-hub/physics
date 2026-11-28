@@ -63,6 +63,9 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .hl{background:var(--soft);border-radius:4px;padding:0 3px}
 @media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.row{grid-template-columns:minmax(0,1fr)}}
 .katex{font-size:1.08em}.katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
+.law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}.law+.katex-display,.law+p{margin-top:4px}
+.box>b:first-child{color:var(--acc)}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
@@ -106,100 +109,131 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。「方針」と「解答」で式の流れをつかみ、くわしい説明は下の「式の立て方」「補足」で確かめてください。「この状況にする」で上のアニメーションがその設問の設定になります。</p>
 
 <details id="d-I1"><summary>I(1)　スクリーンを焦点の位置に置けばよい理由</summary><div class="body">
-<h3>レンズの式</h3>
-<p>物体とレンズの距離を \(a\)、レンズと実像の距離を \(b\)、焦点距離を \(f\) とすると</p>
-$$\frac{1}{a} + \frac{1}{b} = \frac{1}{f}$$
-<p>明瞭な像を映すには、スクリーンを実像の位置（レンズから \(b\)）に置きます。いまは \(a = D,\ f = d\) なので</p>
-$$b = \frac{Dd}{D - d} = \frac{d}{1 - \dfrac{d}{D}}$$
-<p>\(D \gg d\) では \(\dfrac{d}{D} \approx 0\) なので \(b \approx d\)。つまり<b>スクリーンを焦点距離 \(d\) の位置に置けばよい</b>。（\(\dfrac{1}{D} \approx 0\) として \(\dfrac{1}{b} = \dfrac{1}{d}\) と答えてもよい。）遠くの物体から来る光は、ほぼ平行光線とみなせるからです。</p>
+<p class="hoshin"><b>方針</b>写像公式で実像の位置 \(b\) を求め、\(D \gg d\) の近似をする。</p>
+<h3>解答</h3>
+<p class="law">写像公式（物体 \(a = D\)、焦点距離 \(f = d\)）</p>
+$$\frac{1}{D} + \frac{1}{b} = \frac{1}{d} \qquad\therefore\quad b = \frac{d}{1 - \dfrac{d}{D}}$$
+<p class="law">\(D \gg d\) の近似</p>
+$$\frac{d}{D} \approx 0 \qquad\therefore\quad b \approx d$$
+<p>実像はほぼ焦点の位置にできるので、スクリーンを焦点（レンズから \(d\)）に置けばよい。</p>
+<div class="box"><b>式の立て方</b>：くっきりした像を映すには、スクリーンを<b>実像のできる位置</b>に置きます。実像の位置は写像公式 \(\dfrac{1}{a} + \dfrac{1}{b} = \dfrac{1}{f}\)（\(a\)：物体〜レンズ、\(b\)：レンズ〜像）で決まるので、\(a = D,\ f = d\) を入れて \(b\) について解きます。\(b\) を \(\dfrac{d}{1 - d/D}\) の形にしておくと、\(D \gg d\) で分母が 1 に近づくことがすぐに見えます。（\(\dfrac{1}{D} \approx 0\) として、はじめから \(\dfrac{1}{b} = \dfrac{1}{d}\) としてもかまいません。）</div>
+<div class="box"><b>補足</b>：遠くの物体の1点から出た光は、レンズに届くころにはほぼ<b>平行光線</b>になっています。平行光線は凸レンズの焦点面に集まるので、遠くのものの像は焦点の位置にできます。物体が近づくと（\(D\) が小さくなると）\(b\) は \(d\) より大きくなり、スクリーンを少し後ろに下げる必要があります。カメラのピント合わせでレンズを前に繰り出すのはこのためです。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：\(D/d\) を大きくすると、像の位置（赤い点線）が焦点 F に近づきます。スクリーンをずらすと右上の「スクリーン上の像」がぼやけます（ここでは光線の広がりによるボケ）。</div>
 <button class="goto" data-q="I1">この状況にする</button>
 </div></details>
 
 <details id="d-I2"><summary>I(2)　像の高さと焦点距離<span class="ans">答 (b)　\(h = \dfrac{Hd}{D}\)，長い</span></summary><div class="body">
-<p>レンズの中心を通る光線は直進します。物体の先端からレンズの中心を通る光線を考えると、物体側と像側で相似な三角形ができ、</p>
+<p class="hoshin"><b>方針</b>物体の先端からレンズの中心を通る光線（直進する）で、相似な三角形をつくる。</p>
+<h3>解答</h3>
+<p class="law">倍率（レンズの中心を通る光線の相似）</p>
 $$\frac{h}{H} = \frac{b}{D} \approx \frac{d}{D} \qquad\therefore\quad h = \frac{Hd}{D}$$
-<p>物体の大きさ \(H\) と距離 \(D\) が決まっていれば、像の高さは焦点距離 \(d\) に比例します。だから遠くのものを大きく写したいなら、<b>焦点距離の長いレンズ</b>を使えばよい（望遠レンズ）。</p>
+<p>\(h\) は \(d\) に比例するので、像を大きくするには焦点距離の<b>長い</b>レンズを使えばよい。</p>
+<div class="box"><b>式の立て方</b>：像の大きさを求めるときは、<b>レンズの中心を通る光線は曲がらずに直進する</b>ことを使います。物体の先端からレンズの中心を通る直線を引くと、物体側（高さ \(H\)、距離 \(D\)）と像側（高さ \(h\)、距離 \(b\)）で、レンズの中心を頂点とする相似な直角三角形ができます。ここで I(1) の \(b \approx d\) を使います。</div>
+<div class="box"><b>補足</b>：物体の大きさ \(H\) と距離 \(D\) が決まっていれば、像の高さは焦点距離 \(d\) だけで決まります。遠くのものを大きく写す望遠レンズが焦点距離の長いレンズなのはこのためです。ただし I(1) より、スクリーンもレンズから \(d\) 離れた所に置く必要があるので、焦点距離を長くすると装置も長くなってしまいます。これを解決するのが I(3)〜(5) の組み合わせレンズです。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：焦点距離 \(d\) を2倍にすると、スクリーン上の像の高さ \(h\) も2倍になります。ただしスクリーンも遠くなり、装置が長くなってしまう……これが次の I(3)〜(5) のテーマです。</div>
 <button class="goto" data-q="I2">この状況にする</button>
 </div></details>
 
 <details id="d-I3"><summary>I(3)　凹レンズ L₃ の焦点距離と \(\tan\alpha\)<span class="ans">答 \(\dfrac{3}{2}d,\ \ \dfrac{w}{15d}\)</span></summary><div class="body">
-<h3>配置の整理</h3>
-<p>凸レンズ L₂（焦点距離 \(5d\)）から \(4d\) の所に凹レンズ L₃、そこから \(3d\) の所にスクリーン S があります。光軸に平行に入った光は、L₃ がなければ L₂ の焦点 P₁（L₂ から \(5d\)、つまり <b>L₃ を \(d\) だけ過ぎた所</b>）に集まるはずでした。</p>
-<h3>L₃ にとっての「虚物体」</h3>
-<p>光は P₁ に向かって集まりながら L₃ に入るので、P₁ は L₃ にとって<b>虚物体</b>（レンズの後ろ側にある物体）です。レンズの式で、虚物体の距離を \(-d\)、実像（P₂）までを \(3d\)、凹レンズの焦点距離を \(-f_3\) とおくと</p>
-$$\frac{1}{-d} + \frac{1}{3d} = \frac{1}{-f_3} \qquad\therefore\quad f_3 = \frac{3}{2}d$$
-<h3>\(\tan\alpha\)</h3>
-<p>L₂ を出た光は、\(5d\) 進む間に高さが \(w\) から 0 まで下がる直線上にあるので、\(4d\) 進んだ L₃ では高さ \(\dfrac{w}{5}\)。そこから \(3d\) 先の P₂ で光軸と交わるので</p>
-$$\tan\alpha = \frac{w/5}{3d} = \frac{w}{15d}$$
+<p class="hoshin"><b>方針</b>L₂ がつくるはずの像 P₁ を、L₃ にとっての物体（虚物体）とみて写像公式を使う。\(\tan\alpha\) は光線の幾何で求める。</p>
+<h3>解答</h3>
+<p class="law">写像公式（L₃：虚物体 P₁ は後方 \(d\)、像 P₂ は後方 \(3d\)）</p>
+$$\frac{1}{-d} + \frac{1}{3d} = -\frac{1}{f_3} \qquad\therefore\quad f_3 = \frac{3}{2}d$$
+<p class="law">光線の幾何（L₃ での高さ \(\dfrac{w}{5}\)、P₂ まで \(3d\)）</p>
+$$\tan\alpha = \frac{w/5}{3d} \qquad\therefore\quad \tan\alpha = \frac{w}{15d}$$
+<div class="box"><b>式の立て方</b>：組み合わせレンズは<b>1枚ずつ順番に</b>考えます。
+<br>① まず L₂ だけを考えます。光軸に平行に入った光は、L₂ の焦点 P₁（L₂ から \(5d\)）に集まろうとします。L₃ は L₂ から \(4d\) の所にあるので、P₁ は <b>L₃ を \(d\) だけ過ぎた所</b>です。
+<br>② 次に L₃ を考えます。光は P₁ に向かって集まりながら L₃ に入るので、P₁ は L₃ にとって「後ろ側にある物体」（<b>虚物体</b>）です。写像公式では、物体がレンズの後ろ側にあるとき \(a\) を負にします（\(a = -d\)）。像 P₂ はスクリーン上（後方 \(3d\)）なので \(b = 3d\)。凹レンズの焦点距離は負の値 \(-f_3\) として入れます。
+<br>③ \(\tan\alpha\) は、L₂ を出た光の直線をたどります。光線は \(5d\) 進む間に高さ \(w\) から 0 まで一定の割合で下がるので、\(4d\) 進んだ L₃ では高さ \(w\left(1 - \dfrac{4}{5}\right) = \dfrac{w}{5}\)。そこで折れ曲がり、\(3d\) 先の P₂ で光軸と交わります。</div>
+<div class="box"><b>補足</b>：凹レンズは光を広げるはたらきをするので、光が集まる点を P₁ から P₂ へ<b>後ろにずらし</b>ます（\(d\) 先 → \(3d\) 先）。そのかわり光軸と交わる角度は浅くなり（\(\tan\alpha\) が小さくなる）、これが次の I(4) で「焦点距離が長いレンズと同じはたらき」につながります。
+<br>符号に自信がないときは、作図で確かめるのが安全です。「凹レンズの前側の焦点に向かって入る光は、平行光線になって出ていく」ことなどを使い、得られた \(f_3\) で P₂ に集まるかを確かめてみましょう。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：太い線が光線（あ）です。点線は L₃ がなかった場合に光が向かう P₁。L₃ の焦点距離や位置を変えると、像の位置（スクリーン）が動きます。「問題の配置に戻す」で \(f_3 = 1.5d\) に戻ります。</div>
 <button class="goto" data-q="I3">この状況にする</button>
 </div></details>
 
 <details id="d-I4"><summary>I(4)　同じはたらきをする単一の凸レンズ<span class="ans">答 \(15d\)</span></summary><div class="body">
-<p>焦点距離 \(f\) の凸レンズに、光軸から \(w\) の高さで平行光線が入ると、光は焦点（レンズから \(f\)）で光軸と交わり、そのときの角度は \(\tan\alpha = \dfrac{w}{f}\)。これが I(3) の \(\tan\alpha = \dfrac{w}{15d}\) と一致するので</p>
-$$f = 15d$$
-<p>この単レンズはスクリーンから \(15d\) の所に置くことになります。I(2) より、像の大きさは焦点距離に比例するので、組み合わせレンズは「焦点距離 \(15d\) のレンズ」と同じ大きさの像をつくります。</p>
+<p class="hoshin"><b>方針</b>単レンズに高さ \(w\) の平行光線を入れたときの角度を、I(3) の \(\tan\alpha\) と等しくおく。</p>
+<h3>解答</h3>
+<p class="law">平行光線は焦点に集まる（単レンズ、焦点距離 \(f\)）</p>
+$$\tan\alpha = \frac{w}{f} = \frac{w}{15d} \qquad\therefore\quad f = 15d$$
+<div class="box"><b>式の立て方</b>：「同じはたらき」とは、同じ平行光線を入れたときに<b>同じ角度で P₂ に集まる</b>ことです。焦点距離 \(f\) の凸レンズに高さ \(w\) で光軸に平行に入った光は、レンズから \(f\) 先の焦点で光軸と交わるので、角度は \(\tan\alpha = \dfrac{w}{f}\)。これを I(3) の結果と比べます。</div>
+<div class="box"><b>補足</b>：結果に \(w\) が残らないので、どの高さで入った平行光線も同じ角度で P₂ に集まります。つまり組み合わせレンズ全体は「焦点距離 \(15d\) のレンズ」とみなせます。I(2) より像の大きさは焦点距離に比例するので、この組み合わせは焦点距離 \(15d\) の単レンズと同じ大きさの像をつくります。単レンズの場合は、スクリーンから \(15d\) 前にレンズを置くことになります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：紫の破線が単レンズに置き換えた場合の光線です。\(w\) を変えても、2つの光線は同じ角度で P₂ に入ります。</div>
 <button class="goto" data-q="I4">この状況にする</button>
 </div></details>
 
 <details id="d-I5"><summary>I(5)　組み合わせレンズの利点<span class="ans">答 鏡筒（装置）を短くできる</span></summary><div class="body">
-<p>同じ大きさの像（焦点距離 \(15d\) 相当）を得るのに、単レンズではレンズからスクリーンまで \(15d\) 必要ですが、図の組み合わせでは L₂ からスクリーンまで <b>\(7d\)</b> で済みます。<b>望遠レンズを短く（小さく・軽く）できる</b>のが利点です。</p>
-<h3>参考</h3>
-<p>性質の異なるレンズを組み合わせると、色によって焦点がずれる「色収差」や、レンズの端と中央で焦点がずれる「球面収差」を打ち消しあうように設計でき、よりくっきりした像が得られます。</p>
+<p class="hoshin"><b>方針</b>同じ大きさの像をつくるのに必要な長さを、単レンズと組み合わせレンズで比べる。</p>
+<h3>解答</h3>
+<p class="law">I(4) の結果の比較（レンズ〜スクリーンの長さ）</p>
+$$\text{単レンズ：}15d \qquad \text{組み合わせ：}4d + 3d = 7d$$
+<p>同じ大きさの像を得るのに装置（鏡筒）を短く、小さく軽くできる。</p>
+<div class="box"><b>式の立て方</b>：I(4) で、組み合わせレンズと焦点距離 \(15d\) の単レンズは同じ大きさの像をつくることがわかりました。あとは「最初のレンズからスクリーンまで」の長さを比べるだけです。組み合わせでは L₂〜L₃ が \(4d\)、L₃〜スクリーンが \(3d\) です。</div>
+<div class="box"><b>補足</b>：凸レンズで光を集めかけ、凹レンズで少し広げて集まる点を遠ざけると、実際の長さより焦点距離の長いレンズとしてはたらきます。カメラの望遠レンズはこのしくみ（テレフォト型）で全長を短くしています。
+<br>また、性質の異なるレンズを組み合わせると、色によって焦点がずれる「色収差」や、レンズの端と中央で焦点がずれる「球面収差」を打ち消しあうように設計でき、よりくっきりした像が得られます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：下の2本の帯で長さ \(7d\) と \(15d\) を比べています。L₃ を L₂ から離す（スクリーンに近づける）とどうなるかも試してみましょう。</div>
 <button class="goto" data-q="I5">この状況にする</button>
 </div></details>
 
 <details id="d-II1"><summary>II(1)　波面上の2点から Q までの光路差<span class="ans">答 \(\Delta L = x(1 - \cos\beta) - y\sin\beta\)</span></summary><div class="body">
-<h3>考え方</h3>
-<p>レンズを出た直後の波面 W は、焦点 O を中心とする半径 \(d\) の球面です。波面上の点はすべて同じ位相なので、O にはすべての光が同じ位相で届き、明るくなります。O から少しずれた点 \(\mathrm{Q}(x,\,y)\) では、届く光の道のりにわずかな差ができます。</p>
-<h3>近似の計算</h3>
-<p>\(|x|,\ |y| \ll d\) なので、2次の小さな量 \(\dfrac{x^2 + y^2}{d^2}\) は捨て、\(\sqrt{1+\varepsilon} \approx 1 + \dfrac{\varepsilon}{2}\) を使います。</p>
-$$\overline{\mathrm{W_1Q}} = \sqrt{(d - x)^2 + y^2} = d\sqrt{1 - \frac{2x}{d} + \frac{x^2 + y^2}{d^2}} \approx d - x$$
-$$\overline{\mathrm{W_2Q}} = d\sqrt{1 - \frac{2(x\cos\beta + y\sin\beta)}{d} + \frac{x^2 + y^2}{d^2}} \approx d - x\cos\beta - y\sin\beta$$
-<p>差をとると</p>
-$$\Delta L = \overline{\mathrm{W_2Q}} - \overline{\mathrm{W_1Q}} = x(1 - \cos\beta) - y\sin\beta$$
-<h3>図形的な意味</h3>
-<p>Q がごく近いとき、遠くの点 W から Q までの距離は「\(d\) − （OQ を W の方向へ射影した長さ）」です。W₁ の方向への射影は \(x\)、W₂ の方向への射影は \(x\cos\beta + y\sin\beta\)。その差が \(\Delta L\) です（ヤングの実験の近似と同じ考え方）。</p>
+<p class="hoshin"><b>方針</b>W₁Q、W₂Q を三平方の定理で書き、\(|x|,\ |y| \ll d\) の近似で1次まで残して差をとる。</p>
+<h3>解答</h3>
+<p class="law">三平方の定理と近似 \(\sqrt{1+\varepsilon} \approx 1 + \dfrac{\varepsilon}{2}\)（2次の微小量を捨てる）</p>
+$$\overline{\mathrm{W_1Q}} = d\sqrt{1 - \frac{2x}{d} + \frac{x^2 + y^2}{d^2}} \nobreak \approx d - x$$
+$$\overline{\mathrm{W_2Q}} = d\sqrt{1 - \frac{2(x\cos\beta + y\sin\beta)}{d} + \frac{x^2 + y^2}{d^2}} \nobreak \approx d - x\cos\beta - y\sin\beta$$
+<p class="law">光路差</p>
+$$\Delta L = \overline{\mathrm{W_2Q}} - \overline{\mathrm{W_1Q}} \qquad\therefore\quad \Delta L = x(1 - \cos\beta) - y\sin\beta$$
+<div class="box"><b>式の立て方</b>：レンズを出た直後の波面 W は、焦点 O を中心とする半径 \(d\) の球面です。問題の座標（O が原点）では、W₁ は \((d,\ 0)\)、W₂ は \((d\cos\beta,\ d\sin\beta)\) にあります（W₂ は O から見て光軸と角 \(\beta\) をなす方向）。Q \((x,\ y)\) までの距離を座標の差で書き、2乗して展開すると、\(d^2\)、\(d\) と \(x,\ y\) の積（1次）、\(x^2 + y^2\)（2次）の項が出てきます。\(|x|,\ |y| \ll d\) なので2次の項 \(\dfrac{x^2 + y^2}{d^2}\) を捨て、ルートは \(\sqrt{1+\varepsilon} \approx 1 + \dfrac{\varepsilon}{2}\) で外します。この「2乗して展開 → 小さい項を捨てる → ルートを近似で外す」は、ヤングの実験など干渉の問題で何度も使う手順です。</div>
+<div class="box"><b>補足</b>：波面上の点はすべて同じ位相なので、焦点 O には全部の光が同じ位相で届いて強め合います。O から少しずれた Q では道のりに差ができ、その差 \(\Delta L\) が明るさを決めます。
+<br>図形的には、Q がごく近いとき「遠くの点 W から Q までの距離 ≒ \(d\) −（OQ を W の方向へ射影した長さ）」です。W₁ の方向への射影は \(x\)、W₂ の方向への射影は \(x\cos\beta + y\sin\beta\) で、その差がそのまま \(\Delta L\) になっています。こう見ると、計算しなくても結果の形が予想できます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：右の拡大図で Q をドラッグ（またはスライダー）すると、厳密な \(\Delta L\) と近似式の値がほぼ一致することがわかります。背景の明るさは、レンズの縦の断面上の点からの波を足し合わせた光の強さです。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-II2"><summary>II(2)　スクリーン上のボケの大きさ<span class="ans">答 \(\dfrac{\lambda}{2\sin\beta}\)</span></summary><div class="body">
-<p>スクリーン上（\(x = 0\)）では \(\Delta L = -y\sin\beta\)。これが半波長 \(\dfrac{\lambda}{2}\) になる \(y\) をボケの大きさとするので</p>
-$$|y|\sin\beta = \frac{\lambda}{2} \qquad\therefore\quad |y| = \frac{\lambda}{2\sin\beta}$$
-<h3>なぜ \(\lambda/2\) で「ボケの端」なのか</h3>
-<p>上端 W₂ と中央 W₁ の差が \(\dfrac{\lambda}{2}\) のとき、下端と上端の差は \(\lambda\)。このときレンズの上半分からの波と下半分からの波がちょうど打ち消し合い、明るさがほぼ 0 になります。だからここが「明るい点の広がり」の端の目安です。</p>
-<p>\(\beta\) が大きい（口径 \(R\) が大きい・焦点距離が短い）ほど、また波長が短いほどボケは小さくなります。</p>
+<p class="hoshin"><b>方針</b>(1) で \(x = 0\)（スクリーン上）とし、\(|\Delta L| = \dfrac{\lambda}{2}\) となる \(|y|\) を求める。</p>
+<h3>解答</h3>
+<p class="law">(1) の光路差（\(x = 0\)）とボケの端の条件</p>
+$$|\Delta L| = |y|\sin\beta = \frac{\lambda}{2} \qquad\therefore\quad |y| = \frac{\lambda}{2\sin\beta}$$
+<div class="box"><b>式の立て方</b>：スクリーンは焦点を通り光軸に垂直なので、スクリーン上の点は \(x = 0\) です。(1) の結果に \(x = 0\) を入れると \(\Delta L = -y\sin\beta\)。問題の約束どおり、この大きさが半波長 \(\dfrac{\lambda}{2}\) になる所をボケの端とします。</div>
+<div class="box"><b>補足</b>：なぜ \(\dfrac{\lambda}{2}\) で「端」といえるのかを考えます。中央 W₁ と上端 W₂ の光路差が \(\dfrac{\lambda}{2}\) のとき、下端と上端の差は \(\lambda\) です。このとき、レンズの上半分の各点からの波と、それと \(\dfrac{\lambda}{2}\) ずれた下半分の各点からの波が対になって打ち消し合い、明るさがほぼ 0 になります。光をどれだけ上手に集めても、波である以上この大きさより小さな点にはならない、というのがこの設問の主題です。
+<br>\(\beta\) が大きい（口径 \(R\) が大きい・焦点距離が短い）ほど、また波長 \(\lambda\) が短いほど、ボケは小さくなります。天体望遠鏡の口径を大きくすると細かいものまで見分けられるのも、この関係によります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：下のグラフはスクリーン上の明るさの分布です。縦の点線 \(\pm\dfrac{\lambda}{2\sin\beta}\) で明るさがほぼ 0 になります。レンズの半径 \(R\) や波長 \(\lambda\) を変えてみましょう。</div>
 <button class="goto" data-q="II2">この状況にする</button>
 </div></details>
 
 <details id="d-II3"><summary>II(3)　数値で計算する<span class="ans">答 \(6.5\times10^{-7}\ \mathrm{m}\)，物体上で \(6.5\times10^{-4}\ \mathrm{m}\)</span></summary><div class="body">
-<p>\(d = 12\ \mathrm{cm},\ R = 5.0\ \mathrm{cm}\) なので、直角三角形の辺の比 \(5 : 12 : 13\) より</p>
+<p class="hoshin"><b>方針</b>\(\sin\beta\) を辺の比から出して (2) に代入し、I(2) の倍率で物体上の長さに直す。</p>
+<h3>解答</h3>
+<p class="law">直角三角形の辺の比（\(d = 12\ \mathrm{cm},\ R = 5.0\ \mathrm{cm}\)）</p>
 $$\sin\beta = \frac{R}{\sqrt{d^2 + R^2}} = \frac{5}{13}$$
-$$\frac{\lambda}{2\sin\beta} = \frac{5.0\times10^{-7}\times13}{2\times5} = 6.5\times10^{-7}\ \mathrm{m}$$
-<p>物体（\(D = 1.2\times10^2\ \mathrm{m}\) 先）と像の大きさの比は \(d : D = 0.12 : 120 = 1 : 1000\)（I(2) の \(h = \dfrac{Hd}{D}\)）。よって物体上では1000倍して</p>
-$$6.5\times10^{-7}\times1000 = 6.5\times10^{-4}\ \mathrm{m}\quad(\text{約 }0.65\ \mathrm{mm})$$
-<p>つまり 120 m 先の 0.65 mm より細かいものは、このレンズでは見分けられません。</p>
+<p class="law">(2) の結果に代入</p>
+$$\frac{\lambda}{2\sin\beta} = \frac{5.0\times10^{-7}\times13}{2\times5} \nobreak = 6.5\times10^{-7}\ \mathrm{m}$$
+<p class="law">倍率 \(\dfrac{h}{H} = \dfrac{d}{D} = \dfrac{0.12}{1.2\times10^2} = \dfrac{1}{1000}\)（I(2)）</p>
+$$6.5\times10^{-7}\times1000 = 6.5\times10^{-4}\ \mathrm{m}$$
+<div class="box"><b>式の立て方</b>：\(\beta\) はレンズの端 W₂ から焦点 O を見たときの、光軸とのなす角です。光軸方向に \(d\)、縦に \(R\) の直角三角形なので、斜辺は \(\sqrt{d^2 + R^2} = 13\ \mathrm{cm}\)（\(5 : 12 : 13\)）。スクリーン上のボケを物体上の長さに直すには、I(2) の \(h = \dfrac{Hd}{D}\) を逆に使い、スクリーン上の長さを \(\dfrac{D}{d}\) 倍します。単位を m にそろえてから比をとると間違えません。</div>
+<div class="box"><b>補足</b>：物体上で約 0.65 mm ということは、120 m 先にある 0.65 mm より細かい模様は、このレンズではどうがんばってもぼやけて見分けられない、という意味です。これはレンズの出来の良し悪しではなく、光が波であることから決まる限界（回折限界）です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：このボタンで問題の数値になります。「いまの値」に計算の途中経過を出しています。</div>
 <button class="goto" data-q="II3">この状況にする</button>
 </div></details>
 
 <details id="d-II4"><summary>II(4)　スクリーン位置の許容範囲（焦点深度）<span class="ans">答 \(|x| = \dfrac{\lambda}{2(1 - \cos\beta)}\)</span></summary><div class="body">
-<p>Q を光軸上（\(y = 0\)）で動かすと \(\Delta L = x(1 - \cos\beta)\)。これが \(\dfrac{\lambda}{2}\) になるまでを許容範囲とするので</p>
-$$|x| = \frac{\lambda}{2(1 - \cos\beta)}$$
-<p>\(\beta\) が小さいと \(1 - \cos\beta \approx \dfrac{\beta^2}{2}\) はとても小さいので、許容範囲は横のボケ（\(\approx \dfrac{\lambda}{2\beta}\)）よりずっと長くなります。問題の数値では \(\dfrac{13}{2}\lambda \approx 3.3\ \mu\mathrm{m}\)（片側）で、横のボケ \(0.65\ \mu\mathrm{m}\) の約5倍です。カメラで絞りを絞る（\(\beta\) を小さくする）とピントの合う範囲が広がるのも、この関係からわかります。</p>
+<p class="hoshin"><b>方針</b>(1) で \(y = 0\)（光軸上）とし、\(|\Delta L| = \dfrac{\lambda}{2}\) となる \(|x|\) を求める。</p>
+<h3>解答</h3>
+<p class="law">(1) の光路差（\(y = 0\)）と許容範囲の条件</p>
+$$|\Delta L| = |x|(1 - \cos\beta) = \frac{\lambda}{2} \qquad\therefore\quad |x| = \frac{\lambda}{2(1 - \cos\beta)}$$
+<div class="box"><b>式の立て方</b>：スクリーンを光軸に沿って前後にずらすことは、Q を光軸上（\(y = 0\)）で動かすことと同じです。(1) の結果に \(y = 0\) を入れ、(2) と同じく \(\dfrac{\lambda}{2}\) を基準にします。</div>
+<div class="box"><b>補足</b>：問題の数値では \(\cos\beta = \dfrac{12}{13}\) なので \(1 - \cos\beta = \dfrac{1}{13}\)、許容範囲は \(\dfrac{13}{2}\lambda \approx 3.3\ \mu\mathrm{m}\)（片側）。横のボケ \(0.65\ \mu\mathrm{m}\) の約5倍です。
+<br>\(\beta\) が小さいと \(1 - \cos\beta \approx \dfrac{\beta^2}{2}\) は \(\sin\beta \approx \beta\) よりずっと小さくなるので、光軸方向の許容範囲（\(\approx \dfrac{\lambda}{\beta^2}\)）は横のボケ（\(\approx \dfrac{\lambda}{2\beta}\)）より長くなります。明るい部分は光軸方向に細長い形をしているわけです。
+<br>カメラで絞りを絞る（\(\beta\) を小さくする）と、ピントの合う範囲（焦点深度）が広がります。そのかわり (2) の横のボケは大きくなるので、絞りすぎると細かい部分がぼやけます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：拡大図の明るい部分が光軸方向（横）に細長く伸びています。下のグラフは光軸上の明るさです。\(R\) を小さくすると、明るい部分がさらに長く伸びます。</div>
 <button class="goto" data-q="II4">この状況にする</button>
 </div></details>
 </section>
+<script>if(matchMedia("(max-width:560px)").matches)document.querySelectorAll("#kaisetsu .body").forEach(b=>{b.innerHTML=b.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g,(m,t)=>/\\qquad|\\nobreak/.test(t)&&!/\\begin/.test(t)?"$$\\begin{gathered}"+t.replace(/\\qquad(\\therefore)?|\\nobreak/g,(x,th)=>"\\\\"+(th||""))+"\\end{gathered}$$":m)});</script>
 </div>
 
 <script>
