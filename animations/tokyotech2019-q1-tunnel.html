@@ -77,6 +77,7 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
 .legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
 .law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
 .law+.katex-display,.law+p{margin-top:4px}
 .katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
 </style>
@@ -124,111 +125,112 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。A から B の向きを <span class="v">x</span> の正、トンネルの中点を原点 O とします。式を短くするため \(k=\dfrac{4\pi\rho Gm}{3}\) とおきます。図の色：<span class="t-acc">小物体 P（青）</span>、<span class="t-fic">小物体 Q（紫）</span>、<span class="t-grav">万有引力（緑）</span>、<span class="t-frc">垂直抗力（赤）</span>、<span class="t-fr">摩擦力（オレンジ）</span>。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。各設問は「方針 → 解答（法則と式）」を先に短くまとめ、くわしい考え方は下の「式の立て方」「補足」に書いています。「この状況にする」で上のアニメーションがその設問の設定になります。A から B の向きを <span class="v">x</span> の正、トンネルの中点を原点 O とします。式を短くするため \(k=\dfrac{4\pi\rho Gm}{3}\) とおきます。図の色：<span class="t-acc">小物体 P（青）</span>、<span class="t-fic">小物体 Q（紫）</span>、<span class="t-grav">万有引力（緑）</span>、<span class="t-frc">垂直抗力（赤）</span>、<span class="t-fr">摩擦力（オレンジ）</span>。</p>
 
 <details id="d-I1"><summary>⒜　位置 x での万有引力の大きさと x 成分<span class="ans">答 大きさ \(\dfrac{4\pi\rho Gm}{3}\sqrt{x^2+d^2}\)，x 成分 \(-\dfrac{4\pi\rho Gm}{3}x\)</span></summary><div class="body">
-<p>地球の中心 O′ から P までの距離を \(r\) とすると、三平方の定理より \(r=\sqrt{x^2+d^2}\) です。問題文のとおり、P を引くのは「半径 \(r\) の球の部分」だけで、その外側の殻からの引力は打ち消し合います。</p>
-<p class="law">半径 r の球の質量（密度 × 体積）</p>
+<p class="hoshin"><b>方針</b>P を引くのは中心 O′ から半径 \(r=\sqrt{x^2+d^2}\) の球の部分だけ。その質量が O′ に集まったとして万有引力の法則を使い、直角三角形の辺の比で x 成分に分ける。</p>
+<h3>解答</h3>
+<p class="law">半径 r の球の質量</p>
 $$M(r)=\rho\cdot\frac43\pi r^3$$
-<p class="law">万有引力の法則（質量 M(r) が中心 O′ に集まったとみなす）</p>
+<p class="law">万有引力の法則</p>
 $$\cgrav{F}=G\frac{mM(r)}{r^2}=\frac{4\pi\rho Gm}{3}\,r\nobreak=\frac{4\pi\rho Gm}{3}\sqrt{x^2+d^2}$$
-<p>引力は O′ の向きです。O′ から P へのベクトルは \((x,\,d)\) の向きなので、x 成分は大きさに \(-\dfrac{x}{r}\) をかけたものです。</p>
-<p class="law">力の分解（x 成分）</p>
-$$\cacc{F_x}=-F\cdot\frac{x}{r}=-\frac{4\pi\rho Gm}{3}\,x=-kx$$
-<h3>着眼点：引力は「中心からの距離に比例」</h3>
-<p>地表の外では引力は \(1/r^2\) で弱まりますが、地球の内部では、効く質量が \(r^3\) に比例して減るため、引力は \(r\) に比例します。中心ではちょうど 0 です。外側の殻の引力が打ち消し合うことは、電場のガウスの法則（球対称な電荷の内側では外側の殻の電荷が効かない）と同じしくみです。</p>
-<div class="box"><b>式の立て方</b>：(1) 効く質量 \(M(r)\) を密度 × 体積で求め、(2) 万有引力の法則で大きさを出し、(3) 図の直角三角形の辺の比で x 成分に分けます。分けるときは「向き」を符号で表すのを忘れずに。</div>
+<p class="law">x 成分（引力は O′ の向き）</p>
+$$\cacc{F_x}=-F\cdot\frac{x}{r}\qquad\therefore\ \cacc{F_x}=-\frac{4\pi\rho Gm}{3}\,x=-kx$$
+<div class="box"><b>式の立て方</b>：(1) 効く質量 \(M(r)\) を「密度 × 体積」で求める、(2) 万有引力の法則で大きさを出す、(3) 図の直角三角形で x 成分に分ける、の3段です。(3) では、O′ から P へのベクトルが \((x,\,d)\) の向きで、引力はその逆向きなので、大きさに \(-\dfrac{x}{r}\) をかけます。成分に分けるときは、向きを符号で表すのを忘れないようにします。</div>
+<div class="box"><b>補足</b><br><b>外側の殻は効かない</b>　P より外側にある球殻の部分は、P をあらゆる向きに引き、その合計がちょうど 0 になります（問題文で与えられた事実）。これは電場のガウスの法則で「球対称な電荷の内側では、外側の殻の電荷が効かない」のと同じしくみです。<br><b>引力は中心からの距離に比例</b>　地表の外では引力は \(1/r^2\) で弱まりますが、地球の内部では効く質量が \(r^3\) に比例して減るので、\(F\propto r^3/r^2=r\) となり、中心ではちょうど 0 です。x 成分が \(-kx\) とばねの力と同じ形になったことが、この後の設問すべての土台になります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：緑の破線の円が「効く球」です。P が中心に近づくほど円が小さくなり、緑の矢印（引力）も短くなります。右下のグラフでは、大きさ（緑）は曲線ですが、x 成分（青）はまっすぐな直線です。</div>
 <button class="goto" data-q="I1">この状況にする</button>
 </div></details>
 
 <details id="d-I2"><summary>⒝　A で放してから B に着くまでの時間<span class="ans">答 \(\dfrac12\sqrt{\dfrac{3\pi}{\rho G}}\)</span></summary><div class="body">
-<p>トンネルに垂直な方向は壁が支えるので、動きに関係するのは x 成分だけです。加速度を \(a\) とします。</p>
+<p class="hoshin"><b>方針</b>運動に効くのは ⒜ の x 成分 \(-kx\) だけ。運動方程式が単振動の形になるので、A → B は半周期。</p>
+<h3>解答</h3>
 <p class="law">運動方程式（x 方向）</p>
 $$m\,\cacc{a}=-\frac{4\pi\rho Gm}{3}\,x$$
-<p>加速度が変位に比例して逆向きなので、O を中心とする単振動です。\(a=-\omega^2x\) と比べて</p>
+<p class="law">単振動の角振動数と周期</p>
 $$\omega=\sqrt{\frac{4\pi\rho G}{3}},\qquad T_0=\frac{2\pi}{\omega}=\sqrt{\frac{3\pi}{\rho G}}$$
-<p>A から B までは振動の半周期なので、かかる時間は</p>
+<p class="law">A → B は半周期</p>
 $$T=\frac{T_0}{2}=\frac12\sqrt{\frac{3\pi}{\rho G}}$$
-<h3>着眼点：トンネルの位置によらない</h3>
-<p>答えに \(d\) も \(R\) も入っていません。地球のどの2点をトンネルで結んでも、A → B の時間は同じです。地球の平均密度 \(\rho\fallingdotseq5.5\ \mathrm{g/cm^3}\) を入れると約 42 分になります。トンネルが長いと振幅が大きいぶん速くなり、ちょうど打ち消し合います。</p>
-<div class="box"><b>式の立て方</b>：単振動の問題では、運動方程式を \(ma=-(\text{定数})\times x\) の形に整理し、\(\omega=\sqrt{\text{定数}/m}\) を読み取ります。片道は半周期、中心までは 1/4 周期です。</div>
+<div class="box"><b>式の立て方</b>：トンネルに垂直な方向の力は壁（垂直抗力）が支えるので、運動方程式は x 方向だけを書きます。単振動の問題では、運動方程式を \(ma=-(\text{定数})\times x\) の形に整理し、\(a=-\omega^2x\) と見比べて \(\omega=\sqrt{\text{定数}/m}\) を読み取ります。中心は「力が 0 になる位置」で、ここでは O です。A は振動の端（速さ 0）なので、A → B（端から端）は半周期、A → O（端から中心）は 1/4 周期です。</div>
+<div class="box"><b>補足</b><br><b>トンネルの位置によらない</b>　答えには \(d\) も \(R\) も入っていません。地球のどの2点をトンネルで結んでも、A → B の時間は同じです。トンネルが長いと振幅が大きいぶん速く動くので、ちょうど打ち消し合います。単振動の周期が振幅によらない（等時性）ことの、わかりやすい例です。<br><b>実際の値</b>　地球の平均密度 \(\rho\fallingdotseq5.5\ \mathrm{g/cm^3}\) を入れると \(T\) は約 42 分です。地表すれすれを回る人工衛星の周期（約 84 分）のちょうど半分で、これも偶然ではありません。衛星の円運動を1つの直径に投影すると、同じ \(\omega\) の単振動になるからです。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：うすく描いた別のトンネルの点も同時に放しています。長さの違うトンネルでも、すべての点が同時に反対側に着きます。\(\rho\) を変えると時間が変わり、\(d/R\) を変えても変わりません。</div>
 <button class="goto" data-q="I2">この状況にする</button>
 </div></details>
 
 <details id="d-I3"><summary>⒞　1回目の衝突直前の P の速度 v<sub>P</sub><span class="ans">答 \(v_\mathrm P=2\sqrt{\dfrac{\pi\rho G(R^2-d^2)}{3}}\)</span></summary><div class="body">
-<p>A は地表の点なので、O′ からの距離は \(R\) です。よって OA の長さ（振幅）は \(A=\sqrt{R^2-d^2}\) です。x 方向の力 \(-kx\) は、ばね定数 \(k\) のばねと同じ形なので、位置エネルギー \(\frac12kx^2\) を使えます。</p>
-<p class="law">力学的エネルギー保存則（A と O）</p>
-$$\frac12m\,\cacc{v_\mathrm P}^2=\frac12k\,A^2$$
-$$v_\mathrm P=A\sqrt{\frac km}=A\,\omega\nobreak=2\sqrt{\frac{\pi\rho G(R^2-d^2)}{3}}$$
-<p>Q はまだ止まっていて、P は右向き（＋）に進んでいるので、速度は正です。</p>
-<div class="box"><b>式の立て方</b>：単振動の中心での速さは「振幅 × 角振動数」\(v=A\omega\) で、エネルギー保存から出しても同じです。どちらでも求められるようにしておくと検算になります。</div>
+<p class="hoshin"><b>方針</b>力 \(-kx\) は位置エネルギー \(\frac12kx^2\) をもつ。振幅 \(A=\mathrm{OA}=\sqrt{R^2-d^2}\) として、A と O で力学的エネルギー保存。</p>
+<h3>解答</h3>
+<p class="law">三平方の定理（振幅）</p>
+$$A=\sqrt{R^2-d^2}$$
+<p class="law">力学的エネルギー保存則（A → O）</p>
+$$\frac12m\,\cacc{v_\mathrm P}^2=\frac12k\,A^2\qquad\therefore\ \cacc{v_\mathrm P}=A\sqrt{\frac km}=2\sqrt{\frac{\pi\rho G(R^2-d^2)}{3}}$$
+<div class="box"><b>式の立て方</b>：x 方向の力 \(-kx\) は「ばね定数 \(k\) のばね」と同じ形なので、位置エネルギーを \(\frac12kx^2\) とおけます（基準は O）。A では速さ 0・位置エネルギー \(\frac12kA^2\)、O では位置エネルギー 0 なので、その差がすべて運動エネルギーになります。P は右向き（＋）に進むので、速度は正の値です。</div>
+<div class="box"><b>補足</b><br><b>別解（単振動の公式）</b>　単振動の中心での速さは「振幅 × 角振動数」\(v=A\omega\) です。⒝ の \(\omega\) を使うと \(v_\mathrm P=\sqrt{R^2-d^2}\sqrt{\dfrac{4\pi\rho G}{3}}\) で、同じ答えになります。エネルギー保存と \(A\omega\) のどちらでも出せるようにしておくと、検算に使えます。<br><b>垂直抗力は仕事をしない</b>　P はトンネルの壁から垂直抗力を受けますが、運動の向きに垂直なので仕事は 0 です。そのため、x 成分の位置エネルギーだけを考えれば十分です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：P が O に着く直前で止まります。右下の位相図（横軸 \(x\)、縦軸 \(v/\omega\)）では、P の点が半径 \(A\) の円をえがいて、てっぺん \(v/\omega=A\) に来ています。</div>
 <button class="goto" data-q="I3">この状況にする</button>
 </div></details>
 
 <details id="d-I4"><summary>⒟　1回目の衝突直後の P と Q の速度<span class="ans">答 \(v_\mathrm P'=\dfrac{1-e}{2}v_\mathrm P,\ \ v_\mathrm Q'=\dfrac{1+e}{2}v_\mathrm P\)</span></summary><div class="body">
-<p>衝突は一瞬なので、その間に万有引力がする力積は無視できます（しかも O では x 成分が 0）。</p>
+<p class="hoshin"><b>方針</b>衝突は一瞬なので外力の力積は無視できる。運動量保存則と反発係数の式の2本を連立。</p>
+<h3>解答</h3>
 <p class="law">運動量保存則</p>
 $$m\,v_\mathrm P+m\cdot0=m\,\cacc{v_\mathrm P'}+m\,\cfic{v_\mathrm Q'}$$
-<p class="law">反発係数の式（離れる速さ ＝ e × 近づく速さ）</p>
+<p class="law">反発係数の式</p>
 $$\cfic{v_\mathrm Q'}-\cacc{v_\mathrm P'}=e\,(v_\mathrm P-0)$$
-<p>2式を足したり引いたりして</p>
-$$\cacc{v_\mathrm P'}=\frac{1-e}{2}v_\mathrm P,\qquad\cfic{v_\mathrm Q'}=\frac{1+e}{2}v_\mathrm P$$
-<p>\(0\lt e\lt 1\) なので、どちらも正（右向き）です。また \(\dfrac{1+e}2\lt 1\) より \(v_\mathrm Q'\lt v_\mathrm P\) なので、Q が B を越えて地表の外へ飛び出すことはありません。</p>
-<div class="box"><b>式の立て方</b>：衝突では (1) 運動量保存、(2) 反発係数の式、の2本を立てます。反発係数は「衝突後の相対速度 ＝ −e × 衝突前の相対速度」で、引く順番（Q − P）を両辺でそろえると符号を間違えません。</div>
+<p>2式より</p>
+$$\therefore\ \cacc{v_\mathrm P'}=\frac{1-e}{2}v_\mathrm P,\qquad\cfic{v_\mathrm Q'}=\frac{1+e}{2}v_\mathrm P$$
+<div class="box"><b>式の立て方</b>：衝突では (1) 運動量保存、(2) 反発係数の式、の2本を立てます。反発係数は「衝突後の相対速度 ＝ −e × 衝突前の相対速度」です。左辺と右辺で引く順番（Q − P）をそろえると符号を間違えません。2式を足すと \(2v_\mathrm Q'=(1+e)v_\mathrm P\)、引くと \(2v_\mathrm P'=(1-e)v_\mathrm P\) が出ます。</div>
+<div class="box"><b>補足</b><br><b>なぜ運動量保存が使えるか</b>　衝突の間も万有引力ははたらいていますが、衝突時間はごく短いので、その力積は無視できます。しかも衝突する O では引力の x 成分がちょうど 0 です。<br><b>答えの確かめ</b>　\(0\lt e\lt 1\) なので、どちらも正（右向き）で、P は Q の後ろについていきます。また \(\dfrac{1+e}2\lt 1\) より \(v_\mathrm Q'\lt v_\mathrm P\) なので、Q が B を越えて地表の外へ飛び出すことはありません。極端な場合として、\(e=1\) なら P が止まり Q が \(v_\mathrm P\) で進む（同じ質量どうしの速度の入れかえ）、\(e=0\) なら一体となって \(\frac12v_\mathrm P\) で進む、と確かめられます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：衝突の直後で止まり、うすい矢印（直前）と濃い矢印（直後）が並びます。\(e\) を 1 にすると P が止まって Q が \(v_\mathrm P\) で進み（速度の入れかえ）、0 にすると2つが \(\frac12v_\mathrm P\) で一緒に進みます。</div>
 <button class="goto" data-q="I4">この状況にする</button>
 </div></details>
 
 <details id="d-I5"><summary>⒠　P と Q が折り返す位置 X<sub>P</sub>，X<sub>Q</sub><span class="ans">答 \(X_\mathrm P=\dfrac{(1-e)\sqrt{R^2-d^2}}{2},\ \ X_\mathrm Q=\dfrac{(1+e)\sqrt{R^2-d^2}}{2}\)</span></summary><div class="body">
-<p>Q も P と同じ質量で、同じ万有引力 \(-kx\) を受けるので、衝突後はどちらも O を中心とする同じ角振動数 \(\omega\) の単振動をします。O での速さが振幅を決めます。</p>
-<p class="law">力学的エネルギー保存則（O と折り返し点）</p>
+<p class="hoshin"><b>方針</b>衝突後の P，Q はどちらも O を中心とする同じ \(\omega\) の単振動。O での速さと折り返し点で力学的エネルギー保存。</p>
+<h3>解答</h3>
+<p class="law">力学的エネルギー保存則（O → 折り返し点）</p>
 $$\frac12m\,v_\mathrm P'^2=\frac12k\,\cacc{X_\mathrm P}^2,\qquad\frac12m\,v_\mathrm Q'^2=\frac12k\,\cfic{X_\mathrm Q}^2$$
-<p>⒞ の \(\frac12mv_\mathrm P^2=\frac12kA^2\) と比べると、折り返し点は速さの比で縮みます。</p>
-$$\cacc{X_\mathrm P}=\frac{v_\mathrm P'}{v_\mathrm P}A=\frac{(1-e)\sqrt{R^2-d^2}}{2},\qquad\cfic{X_\mathrm Q}=\frac{(1+e)\sqrt{R^2-d^2}}{2}$$
-<div class="box"><b>式の立て方</b>：「\(v_\mathrm P\) などを使ってはいけない」とあるので、速度の比 \(\frac{1\mp e}{2}\) を経由して \(A=\sqrt{R^2-d^2}\) で表します。単振動では「中心の速さ ∝ 振幅」なので、比だけで済みます。</div>
+<p>⒞ の \(\frac12mv_\mathrm P^2=\frac12kA^2\) と比べて</p>
+$$\therefore\ \cacc{X_\mathrm P}=\frac{v_\mathrm P'}{v_\mathrm P}A=\frac{(1-e)\sqrt{R^2-d^2}}{2},\qquad\cfic{X_\mathrm Q}=\frac{(1+e)\sqrt{R^2-d^2}}{2}$$
+<div class="box"><b>式の立て方</b>：Q も P と同じ質量で、同じ万有引力 \(-kx\) を受けるので、運動のしかたは P と同じ単振動です。どちらも O から出発するので、O での速さが振幅を決めます。問題で「\(v_\mathrm P\) などを使ってはいけない」とあるので、⒞ の式と割り算して \(X=\dfrac{v'}{v_\mathrm P}A\) とし、⒟ の速度の比 \(\dfrac{1\mp e}{2}\) と \(A=\sqrt{R^2-d^2}\) で表します。</div>
+<div class="box"><b>補足</b><br><b>中心の速さ ∝ 振幅</b>　単振動では \(v_{\max}=A\omega\) なので、同じ \(\omega\) の単振動どうしなら、中心での速さの比がそのまま振幅の比になります。今回のように比だけで答えが出るのはこのためです。<br><b>2つの和は A</b>　\(X_\mathrm P+X_\mathrm Q=A\) です。運動量保存より \(v_\mathrm P'+v_\mathrm Q'=v_\mathrm P\) で、振幅は速さに比例するからです。e の値によらず成り立つので、答えの検算に使えます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：折り返す瞬間で止まり、トンネル上に \(X_\mathrm P\)、\(X_\mathrm Q\) の目印が出ます。2つの和はちょうど \(A\)（OB の長さ）です。位相図では、P と Q が半径 \(X_\mathrm P\)、\(X_\mathrm Q\) の円に乗りかえています。</div>
 <button class="goto" data-q="I5">この状況にする</button>
 </div></details>
 
 <details id="d-I6"><summary>⒡　2回目の衝突の位置と、そこまでの時間<span class="ans">答 \(x=0\)（原点 O），⒝ の答の 1 倍</span></summary><div class="body">
-<p>1回目の衝突の時刻から測った時間を \(t'\) とします。P と Q は O を同時に出発し、同じ \(\omega\) で単振動するので</p>
-<p class="law">単振動の式（O から出発）</p>
+<p class="hoshin"><b>方針</b>P，Q は O を同時に出発し、振幅だけが違う同じ \(\omega\) の単振動。位置が一致するのは2つとも O に戻ったとき。</p>
+<h3>解答</h3>
+<p class="law">単振動の式（1回目の衝突から時間 t′）</p>
 $$\cacc{x_\mathrm P}=X_\mathrm P\sin\omega t',\qquad\cfic{x_\mathrm Q}=X_\mathrm Q\sin\omega t'$$
-<p>振幅は違っても、\(\sin\omega t'=0\) となる時刻はそろっています。\(\omega t'=\pi\) で2つとも O に戻り、そこで初めて同じ位置になります（それまでは \(x_\mathrm Q>x_\mathrm P\)）。</p>
-$$x=0,\qquad\Delta t=\frac{\pi}{\omega}=\frac{T_0}{2}=T$$
-<p>つまり ⒝ の答えの 1 倍です。このとき2つは左向きに進んでいて、速い Q が遅い P に後ろから追いつく形で衝突します。</p>
-<h3>補足：衝突をくり返すと</h3>
-<p>衝突はいつも O で、半周期 \(T\) ごとに起こります。衝突のたびに相対速度は \(e\) 倍になり、運動量の和は変わらないので、2つの速度は平均の \(\frac12v_\mathrm P\) に近づき、最後は一体となって振幅 \(\frac A2\) の単振動になります。失われる力学的エネルギーは全体の半分です。</p>
-<div class="box"><b>式の立て方</b>：同じ周期の単振動が2つあるときは、まず「中心を通る時刻」が共通かどうかを見ます。振幅の違いは位置の大小に効くだけで、時刻は角振動数だけで決まります。</div>
+<p class="law">\(x_\mathrm P=x_\mathrm Q\) となる最初の時刻（\(\sin\omega t'=0\)，\(\omega t'=\pi\)）</p>
+$$x=0,\qquad\therefore\ \Delta t=\frac{\pi}{\omega}=\frac{T_0}{2}=T\quad(\text{⒝ の答の 1 倍})$$
+<div class="box"><b>式の立て方</b>：同じ周期の単振動が2つあるときは、まず「中心を通る時刻」が共通かどうかを見ます。\(X_\mathrm P\ne X_\mathrm Q\) なので、\(x_\mathrm P=x_\mathrm Q\) になるのは \(\sin\omega t'=0\) のときだけです。\(0\lt\omega t'\lt\pi\) の間はずっと \(x_\mathrm Q>x_\mathrm P\) で、\(\omega t'=\pi\) で初めて2つとも O に戻ります。振幅の違いは位置の大小に効くだけで、時刻は角振動数だけで決まります。</div>
+<div class="box"><b>補足</b><br><b>2回目の衝突のようす</b>　このとき2つは左向きに進んでいて、速い Q（速さ \(v_\mathrm Q'\)）が遅い P（速さ \(v_\mathrm P'\)）に後ろから追いつく形で衝突します。<br><b>衝突をくり返すと</b>　衝突はいつも O で、半周期 \(T\) ごとに起こります。衝突のたびに相対速度は \(e\) 倍になり、運動量の和は変わらないので、2つの速度は平均の \(\frac12v_\mathrm P\) に近づきます。最後は一体となって振幅 \(\frac A2\) の単振動になります。このとき力学的エネルギーは \(2\times\frac12m\bigl(\frac{v_\mathrm P}{2}\bigr)^2=\frac14mv_\mathrm P^2\) で、はじめの \(\frac12mv_\mathrm P^2\) のちょうど半分が衝突で失われたことになります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：左上の x–t グラフで、青（P）と紫（Q）の山の高さは違っても、0 を横切る時刻がそろっています。2回目の衝突の直前で止まったあと、そのまま衝突をくり返して1つの円（振幅 \(A/2\)）に近づく様子を位相図で見られます。</div>
 <button class="goto" data-q="I6">この状況にする</button>
 </div></details>
 
 <details id="d-II1"><summary>⒢　垂直抗力の大きさ N<span class="ans">答 \(N=\dfrac{4\pi\rho Gmd}{3}\)</span></summary><div class="body">
-<p>P はトンネルの底に沿って動くので、底に垂直な方向（OO′ の方向）には動きません。その方向の力はつり合っています。万有引力の、底に垂直な成分は大きさに \(\dfrac dr\) をかけたものです。</p>
+<p class="hoshin"><b>方針</b>P はトンネルに垂直な方向（OO′ 方向）には動かない。その方向で力のつり合い。</p>
+<h3>解答</h3>
 <p class="law">力のつり合い（トンネルに垂直な方向）</p>
-$$\cfrc{N}=F\cdot\frac{d}{r}\nobreak=k\sqrt{x^2+d^2}\cdot\frac{d}{\sqrt{x^2+d^2}}\nobreak=\frac{4\pi\rho Gmd}{3}$$
-<p>\(x\) によらず一定です。引力の大きさ \(F\) は O から離れるほど大きくなりますが、そのぶん向きが寝て、垂直成分は変わりません。</p>
-<div class="box"><b>式の立て方</b>：動かない方向で「力のつり合い」、動く方向で「運動方程式」を立てます。垂直抗力は運動方向に垂直なつり合いから決まり、動摩擦力はその \(\mu'\) 倍です。</div>
+$$\cfrc{N}=F\cdot\frac{d}{r}\nobreak=k\sqrt{x^2+d^2}\cdot\frac{d}{\sqrt{x^2+d^2}}\qquad\therefore\ \cfrc{N}=\frac{4\pi\rho Gmd}{3}$$
+<div class="box"><b>式の立て方</b>：「動かない方向ではつり合い、動く方向では運動方程式」が基本です。万有引力を、トンネルに沿った成分（⒜ の \(F_x\)）と垂直な成分に分けます。垂直な成分は、大きさ \(F\) に直角三角形の辺の比 \(\dfrac dr\) をかけたもので、これと垂直抗力 \(N\) がつり合います。</div>
+<div class="box"><b>補足</b><br><b>N は x によらず一定</b>　引力の大きさ \(F\) は O から離れるほど大きくなりますが、そのぶん向きが寝て、垂直成分 \(F\frac dr=kd\) は変わりません。そのため動摩擦力 \(\mu'N=\mu'kd\) も一定で、次の ⒣ の計算が簡単になります。<br><b>見かけの重力</b>　\(N=kd\) は、トンネルの底から見ると「\(d\) だけ下にある中心に向かう重力」のようにはたらいています。トンネルが中心に近い（\(d\) が小さい）ほど底を押す力は小さくなり、\(d=0\)（中心を通るトンネル）では 0 です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：赤い矢印（垂直抗力）は P がどこにいても同じ長さです。右下のグラフで、緑（引力の大きさ）は端ほど大きいのに、赤（\(N\)）は水平な直線です。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-II2"><summary>⒣　動摩擦係数 μ′ と、静止摩擦係数 μ の条件<span class="ans">答 \(\mu'=\dfrac{\sqrt{R^2-d^2}}{4d}\)，\(\dfrac{\sqrt{R^2-d^2}}{2d}\le\mu\lt \dfrac{\sqrt{R^2-d^2}}{d}\)</span></summary><div class="body">
-<p>A（\(x=-A\)）で静かに放し、\(x=\frac A2\) で止まりました。動いている間の動摩擦力は \(\mu'N=\mu'kd\) で一定、向きは運動と逆（左向き）です。</p>
+<p class="hoshin"><b>方針</b>μ′ は「A で静止 → \(x=\frac A2\) で静止」の間でエネルギーと仕事の関係。μ は「A で動き出した」「\(\frac A2\) で動き出さない」の2条件。</p>
+<h3>解答</h3>
 <p class="law">エネルギーと仕事の関係（A → 止まった点）</p>
-$$\frac12k\Bigl(\frac A2\Bigr)^2-\frac12kA^2=\cfr{-\mu'kd}\Bigl(\frac A2+A\Bigr)$$
-<p>左辺は「位置エネルギーの変化」（運動エネルギーは両端とも 0）、右辺は摩擦力がした仕事です。左辺を \(\frac12k\bigl(\frac A2+A\bigr)\bigl(\frac A2-A\bigr)\) と因数分解すると、\(\frac A2+A\) が両辺で約分できて</p>
-$$\frac12\Bigl(-\frac A2\Bigr)=-\mu'd\qquad\therefore\ \mu'=\frac{A}{4d}=\frac{\sqrt{R^2-d^2}}{4d}$$
-<p>次に静止摩擦係数です。最大摩擦力は \(\mu N=\mu kd\) です。A では動き出したので、引力の x 成分の大きさ \(kA\) が最大摩擦力を上回っています。\(x=\frac A2\) では止まり続けたので、\(k\frac A2\) が最大摩擦力以下です。</p>
-<p class="law">静止摩擦力の条件（動き出す／動き出さない）</p>
+$$\frac12k\Bigl(\frac A2\Bigr)^2-\frac12kA^2=\cfr{-\mu'kd}\Bigl(\frac A2+A\Bigr)\qquad\therefore\ \mu'=\frac{A}{4d}=\frac{\sqrt{R^2-d^2}}{4d}$$
+<p class="law">静止摩擦力の条件（\(\frac A2\) で動かない／A で動き出す）</p>
 $$k\cdot\frac A2\le\mu\,kd\lt k\cdot A\qquad\therefore\ \frac{\sqrt{R^2-d^2}}{2d}\le\mu\lt \frac{\sqrt{R^2-d^2}}{d}$$
-<h3>着眼点：摩擦は「振動の中心」をずらす</h3>
-<p>右向きに動いている間の運動方程式は \(ma=-kx-\mu'kd=-k(x+\mu'd)\) です。これは中心が \(x=-\mu'd\) にずれた単振動なので、P は中心をはさんで対称な位置で止まります。\(-A\) と \(\frac A2\) の真ん中が \(-\frac A4\) なので、\(\mu'd=\frac A4\) と、エネルギーの式を使わずに同じ答えが出ます。</p>
-<div class="box"><b>式の立て方</b>：動摩擦力が一定のときは「運動エネルギーの変化 ＝ 保存力以外の力の仕事」が速く、\(x^2-A^2=(x+A)(x-A)\) の因数分解で計算が軽くなります。止まり続けるかどうかは、そこで「動かそうとする力 ≤ 最大摩擦力」かで判断します。</div>
+<div class="box"><b>式の立て方</b><br><b>μ′</b>　動いている間の動摩擦力は \(\mu'N=\mu'kd\) で一定、向きは運動と逆（左向き）です。両端とも運動エネルギーは 0 なので、「位置エネルギーの変化 ＝ 摩擦力がした仕事」です。移動距離は \(\frac A2-(-A)=\frac{3A}{2}\)。左辺を \(\frac12k\bigl(\frac A2+A\bigr)\bigl(\frac A2-A\bigr)\) と因数分解すると、\(\frac A2+A\) が両辺で約分でき、\(\frac12\bigl(-\frac A2\bigr)=-\mu'd\) が残ります。<br><b>μ</b>　最大摩擦力は \(\mu N=\mu kd\) です。止まっている物体が動き出すかどうかは、その位置で「動かそうとする力（引力の x 成分の大きさ \(k|x|\)）」と最大摩擦力を比べます。A では動き出したので \(kA>\mu kd\)、\(\frac A2\) では止まり続けたので \(k\frac A2\le\mu kd\) です。</div>
+<div class="box"><b>補足</b><br><b>別解：摩擦は振動の中心をずらす</b>　右向きに動いている間の運動方程式は \(ma=-kx-\mu'kd=-k(x+\mu'd)\) です。これは中心が \(x=-\mu'd\) にずれた単振動なので、P は中心をはさんで対称な位置で止まります。\(-A\) と \(\frac A2\) の真ん中は \(-\frac A4\) なので \(\mu'd=\frac A4\) と、エネルギーの式を使わずに同じ答えが出ます。<br><b>等号のつき方</b>　「動き出した」は最大摩擦力を超えた（等号なし）、「動き出さない」は最大摩擦力以下（等号あり）です。<br><b>条件が成り立つか</b>　μ′ \(=\frac A{4d}\) と比べると \(\mu\ge\frac{A}{2d}=2\mu'\) で、静止摩擦係数は動摩擦係数より大きいという一般的な関係とも合っています。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：x–t グラフに、ずれた振動の中心（破線）が出ます。右下の力のグラフで、灰色の帯（最大摩擦力の範囲）の内側に止まった点が入っていれば止まり続けます。\(\mu\) を下限より小さくすると折り返して戻り、上限以上にすると A から動き出しません。</div>
 <button class="goto" data-q="II2">この状況にする</button>
 </div></details>

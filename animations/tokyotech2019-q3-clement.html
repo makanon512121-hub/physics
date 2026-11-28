@@ -77,6 +77,7 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
 .legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
 .law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
 .law+.katex-display,.law+p{margin-top:4px}
 .katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
 </style>
@@ -123,92 +124,95 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-acc">容器に残る空気（青い分子）</span>、灰色の分子は外へ出ていく空気、<span class="t-frc">断熱変化（赤）</span>、<span class="t-grav">等温線（緑）</span>、<span class="t-fr">定積変化・流入する熱（オレンジ）</span>。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。各設問は「方針 → 解答（法則と式）」を先に短くまとめ、くわしい考え方は下の「式の立て方」「補足」に書いています。「この状況にする」で上のアニメーションがその設問の設定になります。図の色：<span class="t-acc">容器に残る空気（青い分子）</span>、灰色の分子は外へ出ていく空気、<span class="t-frc">断熱変化（赤）</span>、<span class="t-grav">等温線（緑）</span>、<span class="t-fr">定積変化・流入する熱（オレンジ）</span>。</p>
 
 <details id="d-I1"><summary>⒜　状態 A，B でのモル数 n₁，n₂<span class="ans">答 \(n_1=\dfrac{P_1V_1}{RT_0},\ \ n_2=\dfrac{P_0V_1}{RT_1}\)</span></summary><div class="body">
-<p>どちらの状態も、容器の体積 \(V_1\) いっぱいに空気が入っています。A は圧力 \(P_1\)・温度 \(T_0\)、B は圧力 \(P_0\)・温度 \(T_1\) です。</p>
+<p class="hoshin"><b>方針</b>A，B それぞれの瞬間に容器内にある気体について状態方程式。</p>
+<h3>解答</h3>
 <p class="law">理想気体の状態方程式（A と B）</p>
 $$P_1V_1=\cacc{n_1}RT_0,\qquad P_0V_1=\cacc{n_2}RT_1$$
-$$\cacc{n_1}=\frac{P_1V_1}{RT_0},\qquad\cacc{n_2}=\frac{P_0V_1}{RT_1}$$
-<p>コック C₂ を開けている間に空気が出ていくので \(n_2\lt n_1\) です。</p>
-<div class="box"><b>式の立て方</b>：状態方程式は「ある瞬間に容器の中にある気体」について、その瞬間の \(P,\ V,\ T\) で立てます。出入りがある問題では、どの瞬間のどの気体かを決めてから書きます。</div>
+$$\therefore\ \cacc{n_1}=\frac{P_1V_1}{RT_0},\qquad\cacc{n_2}=\frac{P_0V_1}{RT_1}$$
+<div class="box"><b>式の立て方</b>：状態方程式は「ある瞬間に容器の中にある気体」について、その瞬間の \(P,\ V,\ T\) で立てます。どちらの状態も、容器の体積 \(V_1\) いっぱいに空気が入っています。A は圧力 \(P_1\)・温度 \(T_0\)、B はコック C₂ を閉じた直後で、圧力は外と同じ \(P_0\)、温度は断熱膨張で下がった \(T_1\) です。出入りがある問題では、どの瞬間のどの気体かを先に決めてから書きます。</div>
+<div class="box"><b>補足</b><br><b>n₂ &lt; n₁</b>　コック C₂ を開けている間に空気が外へ出ていくので、\(n_2\lt n_1\) です。この「出ていった分」があるために、容器全体には断熱変化の式が使えません（⒞ で扱います）。<br><b>差圧計の読み</b>　この実験では圧力そのものではなく、大気圧 \(P_0\) との差 \(h_1=P_1-P_0\)、\(h_2=P_2-P_0\) を測ります。B では容器内が大気圧に等しいので、差圧は 0 です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：はじめ（A）の分子は青と灰色を合わせた数、コックを閉じた後（B）は青だけです。「いまの値」で \(n_2/n_1\) を確かめられます。</div>
 <button class="goto" data-q="I1">この状況にする</button>
 </div></details>
 
 <details id="d-I2"><summary>⒝　状態 C の圧力 P₂<span class="ans">答 \(P_2=\dfrac{n_2}{n_1}P_1\)</span></summary><div class="body">
-<p>B から C の間はコックが閉じているので、モル数は \(n_2\) のまま、体積も \(V_1\) のままで、温度だけ \(T_0\) に戻ります。</p>
+<p class="hoshin"><b>方針</b>C は A と体積・温度が同じ。状態方程式を A の式と割り算。</p>
+<h3>解答</h3>
 <p class="law">理想気体の状態方程式（C）</p>
 $$\cacc{P_2}V_1=n_2RT_0$$
-<p>A の式 \(P_1V_1=n_1RT_0\) と割り算すると、\(V_1\) も \(RT_0\) も消えます。</p>
-$$\cacc{P_2}=\frac{n_2}{n_1}P_1$$
-<div class="box"><b>式の立て方</b>：同じ体積・同じ温度の2つの状態は、圧力がモル数に比例します。共通な量が多い2つの状態を選んで比をとると、式が短くなります。</div>
+<p class="law">A の式 \(P_1V_1=n_1RT_0\) で割る</p>
+$$\therefore\ \cacc{P_2}=\frac{n_2}{n_1}P_1$$
+<div class="box"><b>式の立て方</b>：B から C の間はコックが閉じているので、モル数は \(n_2\) のまま、体積も \(V_1\) のままで、壁からの熱で温度だけが \(T_0\) に戻ります。C と A は体積も温度も同じなので、割り算すると \(V_1\) も \(RT_0\) も消えます。共通な量が多い2つの状態を選んで比をとると、式が短くなります。</div>
+<div class="box"><b>補足</b><br><b>圧力はモル数に比例</b>　同じ体積・同じ温度なら、圧力はモル数（分子の数）に比例します。分子1個1個が壁に与える衝撃が同じで、その数だけが違うからです。この比 \(\dfrac{n_2}{n_1}=\dfrac{P_2}{P_1}\) が、⒟ でモル数を消すのに使えます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：C で止まります。容器の大きさも温度も A と同じなので、圧力の比は分子の数の比（青 ÷ 全部）に等しくなっています。</div>
 <button class="goto" data-q="I2">この状況にする</button>
 </div></details>
 
 <details id="d-I3"><summary>⒞　P₁(n₂/n₁)<sup>γ</sup> = P₀ を示す<span class="ans">答 容器に残る n₂ の部分だけに断熱変化の式を使う</span></summary><div class="body">
-<p>\(PV^\gamma=\text{一定}\) は、決まった量の気体が断熱変化するときの式です。容器から出ていく空気があるので、容器全体には使えません。そこで、最後まで容器に残る \(n_2\) モルの部分だけに注目します。</p>
-<p>状態 A でこの部分が占める体積を \(V_\mathrm A\) とします。A では容器内の圧力も温度も一様なので、体積はモル数に比例します。</p>
-<p class="law">状態方程式（同じ P₁，T₀ ならモル数に比例）</p>
+<p class="hoshin"><b>方針</b>断熱変化の式は量が決まった気体にしか使えない。最後まで容器に残る \(n_2\) モルだけに注目し、A でそれが占めていた体積から \(V_1\) への断熱膨張と見る。</p>
+<h3>解答</h3>
+<p class="law">状態方程式（A で n₂ モルが占める体積）</p>
 $$\cacc{V_\mathrm A}=\frac{n_2}{n_1}V_1$$
-<p>この部分は、圧力 \(P_1\)・体積 \(V_\mathrm A\) から、圧力 \(P_0\)・体積 \(V_1\) まで断熱膨張します。</p>
-<p class="law">ポアソンの法則（断熱変化）</p>
+<p class="law">ポアソンの法則（\(P_1,\ V_\mathrm A\) → \(P_0,\ V_1\)）</p>
 $$P_1\Bigl(\frac{n_2}{n_1}V_1\Bigr)^\gamma=P_0V_1^{\,\gamma}\qquad\therefore\ P_1\Bigl(\frac{n_2}{n_1}\Bigr)^\gamma=P_0$$
-<h3>着眼点：見えない仕切りを考える</h3>
-<p>残る空気と出ていく空気の間に、熱を通さない軽い仕切りがあると考えます。仕切りの外側の空気がコックから押し出される間に、内側の \(n_2\) モルは仕切りを押して広がり、容器全体を満たします。出ていく空気は、このピストンの役目をしているだけです。</p>
-<div class="box"><b>式の立て方</b>：気体が出入りする断熱変化では、(1) 最後まで残る気体を決め、(2) その気体が最初に占めていた体積を求め、(3) その気体だけに \(PV^\gamma=\text{一定}\) を使います。</div>
+<div class="box"><b>式の立て方</b>：気体が出入りする断熱変化では、(1) 最後まで残る気体を決める、(2) その気体が最初に占めていた体積を求める、(3) その気体だけに \(PV^\gamma=\text{一定}\) を使う、の順に進めます。(2) では、A の容器内は圧力も温度も一様なので、同じ \(P_1,\ T_0\) のもとで体積はモル数に比例し、\(V_\mathrm A=\dfrac{n_2}{n_1}V_1\) です。</div>
+<div class="box"><b>補足</b><br><b>見えない仕切りを考える</b>　残る空気と出ていく空気の間に、熱を通さない軽い仕切りがあると考えます。仕切りの外側の空気がコックから押し出される間に、内側の \(n_2\) モルは仕切りを押して広がり、容器全体を満たします。出ていく空気は、このピストンの役目をしているだけです。<br><b>断熱とみなせる理由</b>　コックを開けている時間はごく短く、その間に壁から入る熱は無視できます。そのため A → B は断熱変化、その後ゆっくり熱が入る B → C は定積変化、と分けて考えます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：A では青い分子が下の \(V_\mathrm A\) の部分に、灰色の分子が上の部分にいます。C₂ を開くと灰色の分子が外へ出て、点線の仕切りが上がり、青い部分が容器いっぱいに広がります。P–V 図では赤い断熱曲線に沿って A → B と進みます。</div>
 <button class="goto" data-q="I3">この状況にする</button>
 </div></details>
 
 <details id="d-I4"><summary>⒟　h₁，h₂ で表した比熱比 γ<span class="ans">答 \(\gamma=\dfrac{h_1}{h_1-h_2}\)</span></summary><div class="body">
-<p>⒝ の \(\dfrac{n_2}{n_1}=\dfrac{P_2}{P_1}\) を ⒞ に入れて、モル数を消します。</p>
+<p class="hoshin"><b>方針</b>⒝ の \(\frac{n_2}{n_1}=\frac{P_2}{P_1}\) を ⒞ に入れてモル数を消す。\(h_1,\ h_2\ll P_0\) として1次の近似。</p>
+<h3>解答</h3>
+<p class="law">⒝ を ⒞ に代入</p>
 $$\frac{P_1}{P_0}\Bigl(\frac{P_2}{P_1}\Bigr)^\gamma=1$$
-<p>\(P_1=P_0+h_1,\ P_2=P_0+h_2\) を入れ、両辺の対数をとります。</p>
-<p class="law">対数をとる</p>
+<p class="law">対数をとる（\(P_1=P_0+h_1,\ P_2=P_0+h_2\)）</p>
 $$\log\Bigl(1+\frac{h_1}{P_0}\Bigr)+\gamma\log\frac{1+h_2/P_0}{1+h_1/P_0}=0$$
-<p class="law">近似式（\(\frac{1+x}{1+y}\fallingdotseq1+x-y\)，\(\log(1+x)\fallingdotseq x\)）</p>
+<p class="law">近似式（\(\log(1+x)\fallingdotseq x\)）</p>
 $$\frac{h_1}{P_0}+\gamma\Bigl(\frac{h_2}{P_0}-\frac{h_1}{P_0}\Bigr)=0\qquad\therefore\ \gamma=\frac{h_1}{h_1-h_2}$$
-<p>対数を使わずに \(\bigl(\frac{P_0+h_2}{P_0+h_1}\bigr)^\gamma\fallingdotseq1+\gamma\bigl(\frac{h_2}{P_0}-\frac{h_1}{P_0}\bigr)\) と近似しても同じ結果になります。</p>
-<h3>着眼点：P–V 図の傾きの比として読む</h3>
-<p>A と C はどちらも温度 \(T_0\) なので、\(n_2\) モルの空気について見ると、同じ等温線の上にあります（\(P_1V_\mathrm A=P_2V_1\)）。A から体積が \(V_1\) まで増える間に、断熱曲線では圧力が \(h_1\) 下がり、等温線では \(h_1-h_2\) 下がります。断熱曲線の傾きは等温線の傾きの \(\gamma\) 倍なので、その比が \(\gamma\) です。断熱変化で下がった温度が、定積変化で同じだけ上がって元に戻る、と言いかえることもできます。</p>
-<div class="box"><b>式の立て方</b>：小さな量の近似では、まず式を「1 + 小さい量」の形にそろえ、小さい量の1次の項だけを残します。最後に答えが \(P_0\) によらない形になるのが目安です。</div>
+<div class="box"><b>式の立て方</b>：小さな量の近似では、まず式を「1 + 小さい量」の形にそろえ、小さい量の1次の項だけを残します。ここでは \(\dfrac{P_1}{P_0}=1+\dfrac{h_1}{P_0}\)、\(\dfrac{P_2}{P_1}=\dfrac{1+h_2/P_0}{1+h_1/P_0}\) とそろえてから対数をとり、\(\log\dfrac{1+x}{1+y}=\log(1+x)-\log(1+y)\fallingdotseq x-y\) を使います。最後に答えが \(P_0\) によらない形になるのが、正しく近似できたかの目安です。</div>
+<div class="box"><b>補足</b><br><b>別解（対数を使わない）</b>　\(\Bigl(\dfrac{P_0+h_2}{P_0+h_1}\Bigr)^\gamma\fallingdotseq\Bigl(1+\dfrac{h_2}{P_0}-\dfrac{h_1}{P_0}\Bigr)^\gamma\fallingdotseq1+\gamma\Bigl(\dfrac{h_2}{P_0}-\dfrac{h_1}{P_0}\Bigr)\) と近似して、\(\Bigl(1+\dfrac{h_1}{P_0}\Bigr)\) との積の1次の項をとっても同じ結果になります。<br><b>P–V 図の傾きの比として読む</b>　\(n_2\) モルの空気について見ると、A と C はどちらも温度 \(T_0\) なので同じ等温線の上にあります（\(P_1V_\mathrm A=P_2V_1\)）。A から体積が \(V_1\) まで増える間に、断熱曲線では圧力が \(h_1\) 下がり、等温線では \(h_1-h_2\) 下がります。断熱曲線の傾きは等温線の傾きの \(\gamma\) 倍（\(\frac{dP}{dV}=-\gamma\frac PV\) と \(-\frac PV\)）なので、その比が \(\gamma\) です。断熱変化で下がった温度が、定積変化で同じだけ上がって元に戻る、と言いかえることもできます。<br><b>実験の工夫</b>　温度を直接測らず、差圧計の2つの読みだけで \(\gamma\) が出せるのがこの実験のよいところです。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：「いまの値」に、正確な \(\gamma\) と、測った \(h_1,\ h_2\) から近似式で出した値が並びます。\(h_1/P_0\) を小さくするほど2つが一致し、大きくするとずれます。P–V 図の赤（断熱）と緑（等温）の傾きの違いも見比べましょう。</div>
 <button class="goto" data-q="I4">この状況にする</button>
 </div></details>
 
 <details id="d-I5"><summary>⒠　2原子分子の空気で得られるべき γ<span class="ans">答 \(\gamma=\dfrac75=1.4\)</span></summary><div class="body">
+<p class="hoshin"><b>方針</b>2原子分子は \(C_V=\frac52R\)。マイヤーの関係で \(C_P\) を出して比をとる。</p>
+<h3>解答</h3>
 <p class="law">マイヤーの関係</p>
 $$C_P=C_V+R=\frac52R+R=\frac72R$$
 <p class="law">比熱比の定義</p>
-$$\gamma=\frac{C_P}{C_V}=\frac{\frac72R}{\frac52R}=\frac75$$
-<p>単原子分子（\(C_V=\frac32R\)）なら \(\gamma=\frac53\) です。一般に、分子が自由に動ける向き（自由度）が \(f\) なら \(C_V=\frac f2R\)、\(\gamma=\frac{f+2}{f}\) で、自由度が大きいほど \(\gamma\) は 1 に近づきます。</p>
-<div class="box"><b>式の立て方</b>：\(C_P\) は \(C_V\) より、定圧で膨張するときに外にする仕事のぶん（1 モルあたり \(R\)）だけ大きくなります。\(C_V\) がわかれば \(C_P\) と \(\gamma\) はすぐ求まります。</div>
+$$\gamma=\frac{C_P}{C_V}\qquad\therefore\ \gamma=\frac{\frac72R}{\frac52R}=\frac75$$
+<div class="box"><b>式の立て方</b>：\(C_P\) は \(C_V\) より、定圧で温度を上げるときに膨張して外にする仕事のぶん（1 モルあたり \(P\Delta V=R\Delta T\)、つまり \(R\)）だけ大きくなります。これがマイヤーの関係 \(C_P=C_V+R\) です。\(C_V\) がわかれば \(C_P\) と \(\gamma\) はすぐ求まります。</div>
+<div class="box"><b>補足</b><br><b>自由度と γ</b>　単原子分子（\(C_V=\frac32R\)）なら \(\gamma=\frac53\) です。一般に、分子がエネルギーをたくわえられる向き（自由度）が \(f\) なら \(C_V=\frac f2R\)、\(\gamma=\frac{f+2}{f}\) で、自由度が大きいほど \(\gamma\) は 1 に近づきます。2原子分子は並進3つ＋回転2つで \(f=5\) です。<br><b>実際の空気</b>　空気の主成分は窒素と酸素の2原子分子なので、実験で測ると \(\gamma\fallingdotseq1.4\) に近い値になります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：設定の「分子の自由度」を 3（単原子）、5（2原子）、6（多原子）と変えると、同じ \(h_1\) でも \(h_2\) が変わります。\(\gamma\) が大きいほど断熱膨張での温度の下がり方が大きく、\(h_2\) も大きくなります。</div>
 <button class="goto" data-q="I5">この状況にする</button>
 </div></details>
 
 <details id="d-I6"><summary>⒡　温度差 T₀ − T₁<span class="ans">答 \(T_0-T_1=\dfrac{h_2}{P_0+h_2}T_0\)</span></summary><div class="body">
-<p>B から C は、モル数 \(n_2\)・体積 \(V_1\) が変わらない定積変化です。</p>
+<p class="hoshin"><b>方針</b>B → C はモル数も体積も変わらない定積変化。ボイル・シャルルの法則で B と C を結ぶ。</p>
+<h3>解答</h3>
 <p class="law">ボイル・シャルルの法則（B と C）</p>
-$$\frac{P_0V_1}{\cfrc{T_1}}=\frac{P_2V_1}{T_0}\qquad\therefore\ \cfrc{T_1}=\frac{P_0}{P_0+h_2}T_0$$
-$$T_0-\cfrc{T_1}=\Bigl(1-\frac{P_0}{P_0+h_2}\Bigr)T_0\nobreak=\frac{h_2}{P_0+h_2}T_0$$
-<p>温度センサーで \(T_1\) を直接読めなくても、温度が戻った後の差圧 \(h_2\) から、断熱膨張でどれだけ冷えたかがわかります。</p>
-<div class="box"><b>式の立て方</b>：同じ量の気体の2つの状態は、ボイル・シャルルの法則 \(\frac{PV}{T}=\text{一定}\) で結びます。体積が同じなら圧力は絶対温度に比例します。</div>
+$$\frac{P_0V_1}{\cfrc{T_1}}=\frac{(P_0+h_2)V_1}{T_0}\qquad\therefore\ \cfrc{T_1}=\frac{P_0}{P_0+h_2}T_0$$
+$$\therefore\ T_0-\cfrc{T_1}=\frac{h_2}{P_0+h_2}T_0$$
+<div class="box"><b>式の立て方</b>：同じ量の気体の2つの状態は、ボイル・シャルルの法則 \(\frac{PV}{T}=\text{一定}\) で結びます。体積が同じなら、圧力は絶対温度に比例します。B の圧力は \(P_0\)、C の圧力は \(P_2=P_0+h_2\) です。最後は \(1-\dfrac{P_0}{P_0+h_2}=\dfrac{h_2}{P_0+h_2}\) と通分します。</div>
+<div class="box"><b>補足</b><br><b>温度を測らずに温度差がわかる</b>　温度センサーで \(T_1\) を直接読めなくても、温度が戻った後の差圧 \(h_2\) から、断熱膨張でどれだけ冷えたかがわかります。<br><b>⒟ との関係</b>　\(h_2\ll P_0\) なら \(T_0-T_1\fallingdotseq\dfrac{h_2}{P_0}T_0\) です。\(h_2=h_1\cdot\dfrac{\gamma-1}{\gamma}\)（⒟ の式の変形）なので、\(\gamma\) が大きいほど同じ \(h_1\) でよく冷えることがわかります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：B で止まります。温度表示器が \(T_0\) より低い \(T_1\) を示し、分子の動きも少し遅くなっています。その後、壁から熱が入って温度と圧力が一緒に上がります。</div>
 <button class="goto" data-q="I6">この状況にする</button>
 </div></details>
 
 <details id="d-I7"><summary>⒢　B から C の間に流入する熱量<span class="ans">答 \(Q=\dfrac52h_2V_1\)</span></summary><div class="body">
-<p>体積が変わらないので、気体は仕事をしません。流入した熱はすべて内部エネルギーの増加になります。</p>
-<p class="law">定積変化の熱量（熱力学第1法則で W = 0）</p>
-$$\cfr{Q}=n_2C_V(T_0-T_1)\nobreak=n_2\cdot\frac52R\cdot\frac{h_2}{P_0+h_2}T_0$$
-<p class="law">状態方程式（C：\(P_2V_1=n_2RT_0\)）</p>
+<p class="hoshin"><b>方針</b>定積変化なので仕事は 0、流入した熱 ＝ 内部エネルギーの増加。\(nR\Delta T\) を状態方程式で \(P,\ V\) に書きかえる。</p>
+<h3>解答</h3>
+<p class="law">熱力学第1法則（定積：W = 0）</p>
+$$\cfr{Q}=n_2C_V(T_0-T_1)=n_2\cdot\frac52R\cdot\frac{h_2}{P_0+h_2}T_0$$
+<p class="law">状態方程式（C）</p>
 $$n_2RT_0=(P_0+h_2)V_1\qquad\therefore\ \cfr{Q}=\frac52h_2V_1$$
-<h3>補足：定積変化の熱は「圧力の増え方 × 体積」</h3>
-<p>一般に、体積 \(V\) のまま圧力が \(\Delta P\) 増える定積変化では \(Q=\dfrac{C_V}{R}V\,\Delta P\) です。状態方程式 \(PV=nRT\) より \(nR\,\Delta T=V\,\Delta P\) となるからです。モル数や温度を経由しなくても、差圧計の読み \(h_2\) と容器の体積だけで熱量が決まります。</p>
-<div class="box"><b>式の立て方</b>：熱量は (1) どの変化か（定積・定圧・断熱）を確かめ、(2) 定積なら \(nC_V\Delta T\)、(3) \(nR\Delta T\) を状態方程式で \(P\)・\(V\) の量に書きかえる、の順に進めます。</div>
+<div class="box"><b>式の立て方</b>：熱量は (1) どの変化か（定積・定圧・断熱）を確かめ、(2) 定積なら \(Q=nC_V\Delta T\)、(3) \(nR\Delta T\) を状態方程式で \(P\)・\(V\) の量に書きかえる、の順に進めます。ここでは ⒡ の \(T_0-T_1\) を使い、C の状態方程式で \(n_2RT_0\) を \((P_0+h_2)V_1\) に置きかえると、\(P_0+h_2\) が約分されます。</div>
+<div class="box"><b>補足</b><br><b>定積変化の熱は「圧力の増え方 × 体積」</b>　一般に、体積 \(V\) のまま圧力が \(\Delta P\) 増える定積変化では \(Q=\dfrac{C_V}{R}V\,\Delta P\) です。状態方程式 \(PV=nRT\) より \(nR\,\Delta T=V\,\Delta P\) となるからです。今回は \(\Delta P=h_2\)、\(\frac{C_V}{R}=\frac52\) なので、モル数や温度を経由しなくても、差圧計の読み \(h_2\) と容器の体積だけで \(\frac52h_2V_1\) と出せます。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：オレンジの矢印が壁から入る熱です。「いまの値」の熱量が、差圧の増加とともに増えて \(\frac52h_2V_1\) に達します（容器の体積 \(V_1=10\) L として J で表示）。</div>
 <button class="goto" data-q="I7">この状況にする</button>
 </div></details>

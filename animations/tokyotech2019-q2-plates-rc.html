@@ -77,6 +77,7 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 .legend{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
 .legend i{display:inline-block;width:14px;height:4px;border-radius:2px}
 .law{display:inline-block;margin:10px 0 0;padding:1px 10px;border:1px solid var(--acc);border-radius:999px;color:var(--acc);font-size:13px;font-weight:700;line-height:1.6}
+.hoshin{border-left:4px solid var(--acc);background:var(--panel);border-radius:0 8px 8px 0;padding:8px 14px;margin:10px 0 6px}.hoshin>b:first-child{color:var(--acc);margin-right:.6em}
 .law+.katex-display,.law+p{margin-top:4px}
 .katex{font-size:1.08em}.katex-display{position:relative;margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:4px 0}summary .ans .katex{font-size:1em}
 </style>
@@ -125,124 +126,124 @@ summary .ans{display:block;margin:4px 0 0 1.6em;font-weight:400;color:var(--mute
 
 <section id="kaisetsu">
 <h2>解答解説</h2>
-<p class="note" style="margin-top:0">見出しを押すと開きます。「この状況にする」で上のアニメーションがその設問の設定になります。前半は鉛直上向きを正とします。図の色：<span class="t-frc">静電気力（赤）</span>、<span class="t-fr">ばねの力（オレンジ）</span>、<span class="t-grav">重力（緑）</span>、<span class="t-fic">手の力 F（紫）</span>、<span class="t-acc">電流 I・コンデンサー（青）</span>。</p>
+<p class="note" style="margin-top:0">見出しを押すと開きます。各設問は「方針 → 解答（法則と式）」を先に短くまとめ、くわしい考え方は下の「式の立て方」「補足」に書いています。「この状況にする」で上のアニメーションがその設問の設定になります。前半は鉛直上向きを正とします。図の色：<span class="t-frc">静電気力（赤）</span>、<span class="t-fr">ばねの力（オレンジ）</span>、<span class="t-grav">重力（緑）</span>、<span class="t-fic">手の力 F（紫）</span>、<span class="t-acc">電流 I・コンデンサー（青）</span>。</p>
 
 <details id="d-I1"><summary>⒜　P₂ にはたらく静電気力 F<sub>E</sub><span class="ans">答 \(F_\mathrm E=-\dfrac{\varepsilon_0SV^2}{2x_0^{\,2}}\)</span></summary><div class="body">
-<p>極板の間隔 \(x_0\) のコンデンサーの電気容量は \(C_0=\dfrac{\varepsilon_0S}{x_0}\) です。電池の電圧 \(V\) がかかるので、P₂ には正、P₁ には負の電気量がたまります。</p>
+<p class="hoshin"><b>方針</b>P₂ にはたらく力は「P₂ の電気量 × 相手の P₁ だけがつくる電場」。P₁ 1枚の電場は極板間の電場の半分。</p>
+<h3>解答</h3>
 <p class="law">コンデンサーの電気量（Q = CV）</p>
 $$Q_2=\frac{\varepsilon_0SV}{x_0},\qquad Q_1=-\frac{\varepsilon_0SV}{x_0}$$
-<p>P₁ だけがつくる電場は、極板の両側に向かって \(\dfrac{|Q_1|}{2\varepsilon_0S}\) の大きさで出入りします。P₂ の位置では P₁ に向かう向き（下向き）です。</p>
-<p class="law">P₁ がつくる電場（実際の極板間の電場の半分）</p>
+<p class="law">P₁ がつくる電場（P₂ の位置）</p>
 $$E_1=\frac{Q_1}{2\varepsilon_0S}=-\frac{V}{2x_0}$$
 <p class="law">静電気力（電気量 × 電場）</p>
-$$\cfrc{F_\mathrm E}=Q_2E_1=-\frac{\varepsilon_0SV^2}{2x_0^{\,2}}$$
-<p>負なので下向き、つまり P₂ は P₁ に引きつけられます。</p>
-<h3>着眼点：なぜ「半分」の電場を使うのか</h3>
-<p>極板間の電場 \(\frac V{x_0}\) は、P₁ がつくる電場と P₂ がつくる電場の重ね合わせです（間では強め合い、外では打ち消し合う）。P₂ 自身がつくる電場は P₂ を押したり引いたりしないので、相手の P₁ がつくる半分だけを使います。全体の電場 \(\frac V{x_0}\) をそのままかけると2倍の間違いになります。</p>
-<div class="box"><b>式の立て方</b>：極板にはたらく力は「自分の電気量 × 相手がつくる電場」で求めます。相手の極板1枚がつくる電場は \(\dfrac{\sigma}{2\varepsilon_0}\)（\(\sigma\) は面密度）です。</div>
+$$\cfrc{F_\mathrm E}=Q_2E_1\qquad\therefore\ \cfrc{F_\mathrm E}=-\frac{\varepsilon_0SV^2}{2x_0^{\,2}}$$
+<div class="box"><b>式の立て方</b>：(1) 電気容量 \(C_0=\dfrac{\varepsilon_0S}{x_0}\) と \(Q=CV\) で電気量を出す、(2) 相手の極板1枚がつくる電場 \(\dfrac{\sigma}{2\varepsilon_0}\)（\(\sigma\) は面密度）を求める、(3) 「自分の電気量 × 相手の電場」で力を出す、の3段です。P₁ は負に帯電しているので、P₁ の電場は P₁ に向かう向き、P₂ の位置では下向き（負）です。答えが負なので、P₂ は下向き、つまり P₁ に引きつけられます。</div>
+<div class="box"><b>補足</b><br><b>なぜ「半分」の電場を使うのか</b>　極板間の電場 \(\frac V{x_0}\) は、P₁ がつくる電場と P₂ がつくる電場の重ね合わせです（間では強め合い、外では打ち消し合う）。P₂ 自身がつくる電場は P₂ を押したり引いたりしないので、相手の P₁ がつくる半分だけを使います。全体の電場 \(\frac V{x_0}\) をそのままかけると2倍の間違いになります。<br><b>別の見方：エネルギーから</b>　電気量 \(Q\) を一定にして間隔を \(\Delta x\) 広げると、静電エネルギー \(\dfrac{Q^2x}{2\varepsilon_0S}\) は \(\dfrac{Q^2}{2\varepsilon_0S}\Delta x\) 増えます。これが引力にさからって外からした仕事なので、引力の大きさは \(\dfrac{Q^2}{2\varepsilon_0S}=\dfrac{\varepsilon_0SV^2}{2x_0^{\,2}}\) で、同じ結果です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：P₁ のまわりの細い矢印が P₁ だけの電場、点線が P₂ だけの電場です。極板の間では同じ向きに重なり、外側では逆向きで打ち消し合っています。</div>
 <button class="goto" data-q="I1">この状況にする</button>
 </div></details>
 
 <details id="d-I2"><summary>⒝　P₂ にはたらく力のつり合い<span class="ans">答 \(-\dfrac{\varepsilon_0SV^2}{2x_0^{\,2}}-k(x_0-L)-mg=0\)</span></summary><div class="body">
-<p>P₂ には、静電気力 \(F_\mathrm E\)、ばねの力、重力の3つがはたらきます。ばねの長さは \(x_0\) なので、自然長からの伸びは \(x_0-L\) です。ばねの力は伸びと逆向きなので \(-k(x_0-L)\) です。</p>
+<p class="hoshin"><b>方針</b>P₂ にはたらく力は静電気力・ばねの力・重力の3つ。上向きを正として符号つきで足す。</p>
+<h3>解答</h3>
 <p class="law">力のつり合い（上向きを正）</p>
 $$\cfrc{-\frac{\varepsilon_0SV^2}{2x_0^{\,2}}}\cfr{-k(x_0-L)}\cgrav{-mg}=0$$
-<p>静電気力も重力も下向きなので、ばねは縮んでいて（\(x_0\lt L\)）、上向きに押し上げています。</p>
-<div class="box"><b>式の立て方</b>：ばねの力は、伸び縮みの向きを考えずに「\(-k\times\)（いまの長さ − 自然長）」と符号つきで書くと、縮んでいる場合も自動で正しい向きになります。</div>
+<div class="box"><b>式の立て方</b>：ばねの長さは \(x_0\) なので、自然長からの伸びは \(x_0-L\) です。ばねの力は、伸び縮みの向きを考えずに「\(-k\times\)（いまの長さ − 自然長）」と符号つきで書くと、伸びていても縮んでいても自動で正しい向きになります。静電気力は ⒜ の値（負）をそのまま、重力は \(-mg\) です。</div>
+<div class="box"><b>補足</b><br><b>ばねは縮んでいる</b>　静電気力も重力も下向きなので、つり合うにはばねの力が上向き、つまり \(-k(x_0-L)>0\) で \(x_0\lt L\) です。ばねは縮んでいて、P₂ を押し上げています。<br><b>この式の使いみち</b>　\(L\) と \(mg\) は問題文で値がわかっていません。この式は次の ⒞ で、別の位置のつり合いの式から引いて \(L\) と \(mg\) を消すために使います。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：上向きのオレンジの矢印（ばね）の長さが、下向きの赤（静電気力）と緑（重力）の合計に等しくなっています。右下の棒グラフでも合計が 0 です。</div>
 <button class="goto" data-q="I2">この状況にする</button>
 </div></details>
 
 <details id="d-I3"><summary>⒞　P₂ を x で静止させる手の力 F<span class="ans">答 (ア) \(k-\dfrac{\varepsilon_0SV^2(x+x_0)}{2x_0^{\,2}x^2}\)</span></summary><div class="body">
-<p>電池はつながったままなので、間隔が \(x\) になると電気量は \(\frac{\varepsilon_0SV}{x}\) に変わり、静電気力は \(-\dfrac{\varepsilon_0SV^2}{2x^2}\) になります。</p>
-<p class="law">力のつり合い（位置 x，手の力 F を加える）</p>
+<p class="hoshin"><b>方針</b>電池がつながったまま（電圧 V 一定）なので、静電気力は \(x_0\) を \(x\) に置きかえたもの。位置 x でのつり合いから ⒝ の式を引き、\(L\) と \(mg\) を消す。</p>
+<h3>解答</h3>
+<p class="law">力のつり合い（位置 x，手の力 F）</p>
 $$\cfic{F}-\frac{\varepsilon_0SV^2}{2x^2}-k(x-L)-mg=0$$
-<p>⒝ の式を引くと、わからない \(L\) と \(mg\) が消えます。</p>
-$$\cfic{F}=k(x-x_0)+\frac{\varepsilon_0SV^2}{2}\Bigl(\frac1{x^2}-\frac1{x_0^{\,2}}\Bigr)$$
-<p>\(\dfrac1{x^2}-\dfrac1{x_0^{\,2}}=-\dfrac{(x-x_0)(x+x_0)}{x^2x_0^{\,2}}\) なので、\((x-x_0)\) でくくれます。</p>
-$$\cfic{F}=(x-x_0)\Bigl\{k-\frac{\varepsilon_0SV^2(x+x_0)}{2x_0^{\,2}x^2}\Bigr\}$$
-<div class="box"><b>式の立て方</b>：同じ物体の2つの状態でつり合いの式を立て、引き算して「共通で変わらない力」（ここでは \(mg\) と \(kL\)）を消します。\(x=x_0\) で \(F=0\) になるはずなので、\((x-x_0)\) でくくれることが検算になります。</div>
+<p class="law">⒝ の式を引く</p>
+$$\cfic{F}=k(x-x_0)+\frac{\varepsilon_0SV^2}{2}\Bigl(\frac1{x^2}-\frac1{x_0^{\,2}}\Bigr)\nobreak\qquad\therefore\ \cfic{F}=(x-x_0)\Bigl\{k-\frac{\varepsilon_0SV^2(x+x_0)}{2x_0^{\,2}x^2}\Bigr\}$$
+<div class="box"><b>式の立て方</b>：同じ物体の2つの状態でつり合いの式を立て、引き算して「どちらの状態でも変わらない力」（ここでは \(mg\) と \(kL\)）を消します。最後は \(\dfrac1{x^2}-\dfrac1{x_0^{\,2}}=\dfrac{x_0^{\,2}-x^2}{x^2x_0^{\,2}}=-\dfrac{(x-x_0)(x+x_0)}{x^2x_0^{\,2}}\) と変形して、\((x-x_0)\) でくくります。</div>
+<div class="box"><b>補足</b><br><b>検算のしかた</b>　\(x=x_0\) では手で支えなくてもつり合うので \(F=0\) のはずです。答えが \((x-x_0)\) でくくれる形になるのはこのためで、くくれなければどこかで計算を間違えています。<br><b>V 一定と Q 一定のちがい</b>　電池をつないだままなら電圧 \(V\) が一定で、静電気力は \(\dfrac{\varepsilon_0SV^2}{2x^2}\) と間隔が狭いほど強くなります。もし電池を外して電気量 \(Q\) を一定にすると、力は \(\dfrac{Q^2}{2\varepsilon_0S}\) で間隔によらなくなります。どちらの条件かを最初に確かめることが大切です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：P₂ をゆっくり上下させています。紫の矢印（手の力）の向きと長さが、右上のグラフの点の高さ（\(F\) の値）と対応しています。</div>
 <button class="goto" data-q="I3">この状況にする</button>
 </div></details>
 
 <details id="d-I4"><summary>⒟　F = 0 となるもう1つの位置 x₁<span class="ans">答 (イ) \(\dfrac{\varepsilon_0SV^2}{4kx_0^{\,2}}\)　(ウ) \(1+\dfrac{8kx_0^{\,3}}{\varepsilon_0SV^2}\)</span></summary><div class="body">
-<p>⒞ の { } の中が 0 になる位置を探します。両辺に \(2x_0^{\,2}x^2\) をかけて整理すると、2次方程式になります。</p>
-<p class="law">F = 0 の条件（{ } の中 = 0）</p>
+<p class="hoshin"><b>方針</b>⒞ の { } の中が 0 になる x を求める。分母を払うと x の2次方程式。</p>
+<h3>解答</h3>
+<p class="law">F = 0 の条件（{ } の中 = 0，両辺に \(2x_0^{\,2}x^2\) をかける）</p>
 $$2kx_0^{\,2}x^2-\varepsilon_0SV^2x-\varepsilon_0SV^2x_0=0$$
 <p class="law">解の公式（x > 0 の解）</p>
-$$\cfic{x_1}=\frac{\varepsilon_0SV^2}{4kx_0^{\,2}}\Bigl(1+\sqrt{1+\frac{8kx_0^{\,3}}{\varepsilon_0SV^2}}\Bigr)$$
-<p>定数項が負なので2つの解は異符号で、正の解は1つだけです。</p>
-<h3>補足：x₁ &lt; x₀ となる条件</h3>
-<p>静電気力の強さを \(a=\dfrac{\varepsilon_0SV^2}{2kx_0^{\,3}}\) とおくと \(\dfrac{x_1}{x_0}=\dfrac a2\bigl(1+\sqrt{1+\frac4a}\bigr)\) で、\(x_1\lt x_0\) となるのは \(a\lt \frac12\) のときです。設定のスライダーはこの \(a\) です。</p>
-<div class="box"><b>式の立て方</b>：分数を含む式が 0 になる条件は、分母を払って多項式にしてから考えます。答えの形 \(\square\times(1+\sqrt{\square})\) に合わせて、解の公式の分子分母を整理します。</div>
+$$\therefore\ \cfic{x_1}=\frac{\varepsilon_0SV^2}{4kx_0^{\,2}}\Bigl(1+\sqrt{1+\frac{8kx_0^{\,3}}{\varepsilon_0SV^2}}\Bigr)$$
+<div class="box"><b>式の立て方</b>：分数を含む式が 0 になる条件は、分母を払って多項式にしてから考えます。解の公式で \(x=\dfrac{\varepsilon_0SV^2\pm\sqrt{(\varepsilon_0SV^2)^2+8kx_0^{\,3}\varepsilon_0SV^2}}{4kx_0^{\,2}}\) となり、根号の中を \((\varepsilon_0SV^2)^2\) でくくり出すと、答えの形 \(\square\times(1+\sqrt{\square})\) にそろいます。定数項が負なので2つの解は異符号で、正の解（＋の方）は1つだけです。</div>
+<div class="box"><b>補足</b><br><b>x₁ &lt; x₀ となる条件</b>　静電気力の強さを表す量 \(a=\dfrac{\varepsilon_0SV^2}{2kx_0^{\,3}}\)（ばねの力にくらべた静電気力の大きさ）を使うと \(\dfrac{x_1}{x_0}=\dfrac a2\bigl(1+\sqrt{1+\frac4a}\bigr)\) と書けます。\(x_1\lt x_0\) となるのは \(a\lt \frac12\) のときです。\(a=\frac12\) で \(x_1=x_0\) となり、それより静電気力が強いと \(x_0\) が安定なつり合いでなくなります。設定のスライダーはこの \(a\) です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：グラフの \(F=0\) の点が2つ（\(x_1\) と \(x_0\)）あります。\(a\) を大きくすると \(x_1\) が \(x_0\) に近づき、\(a=0.5\) で重なります。</div>
 <button class="goto" data-q="I4">この状況にする</button>
 </div></details>
 
 <details id="d-I5"><summary>⒠　F のグラフの形<span class="ans">答 ⑦</span></summary><div class="body">
-<p>\(F=(x-x_0)\times\dfrac{g(x)}{2x_0^{\,2}x^2}\)、\(g(x)=2kx_0^{\,2}x^2-\varepsilon_0SV^2x-\varepsilon_0SV^2x_0\) と書くと、\(g(x)\) は \(x_1\) より左で負、右で正です。符号を表にすると</p>
-<p class="law">符号の表</p>
+<p class="hoshin"><b>方針</b>0 になる点（\(x_1,\ x_0\)）、区間ごとの符号、両端（\(x\to0,\ x\to\infty\)）のふるまいを調べる。</p>
+<h3>解答</h3>
+<p class="law">因数の符号（\(g(x)=2kx_0^{\,2}x^2-\varepsilon_0SV^2x-\varepsilon_0SV^2x_0\)）</p>
 $$\begin{array}{c|ccc}&0\lt x\lt x_1&x_1\lt x\lt x_0&x_0\lt x\\\hline x-x_0&-&-&+\\g(x)&-&+&+\\F&+&-&+\end{array}$$
-<p>さらに、\(x\to0\) では静電気力が \(\frac1{x^2}\) で大きくなるので \(F\to+\infty\)、\(x\) が大きいと静電気力が効かなくなり \(F\) は直線 \(k(x-x_0)\) に近づきます。この4つの特徴をすべて満たすのは ⑦ です。</p>
-<div class="box"><b>式の立て方</b>：グラフを選ぶ問題では、(1) 0 になる点、(2) 区間ごとの符号、(3) 端（\(x\to0\)、\(x\to\infty\)）でのふるまい、の3つを調べれば形が決まります。</div>
+<p class="law">両端</p>
+$$x\to0:\ F\to+\infty,\qquad x\to\infty:\ F\to k(x-x_0)\qquad\therefore\ ⑦$$
+<div class="box"><b>式の立て方</b>：⒞ の答えを \(F=(x-x_0)\times\dfrac{g(x)}{2x_0^{\,2}x^2}\) と書き直します。分母は正なので、\(F\) の符号は \((x-x_0)\) と \(g(x)\) の符号の積で決まります。\(g(x)\) は下に凸の放物線で、正の根が \(x_1\) なので、\(x_1\) より左で負、右で正です。グラフを選ぶ問題では、(1) 0 になる点、(2) 区間ごとの符号、(3) 端でのふるまい、の3つを調べれば形が決まります。</div>
+<div class="box"><b>補足</b><br><b>両端の意味</b>　\(x\to0\) では静電気力が \(\frac1{x^2}\) で強くなり、P₂ を P₁ から引き離しておくのに大きな上向きの力が必要になるので \(F\to+\infty\) です。\(x\) が大きいと静電気力が効かなくなり、手の力はばねの伸びの分だけ、つまり直線 \(k(x-x_0)\) に近づきます。この4つの特徴（2つの零点、符号、2つの端）をすべて満たすのは ⑦ だけです。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：右上のグラフで、点線の直線が \(x\) の大きいところでの近づき先です。\(x_1\) と \(x_0\) の間だけ \(F\) が負（グラフが横軸の下）になっています。</div>
 <button class="goto" data-q="I5">この状況にする</button>
 </div></details>
 
 <details id="d-I6"><summary>⒡　x₁ &lt; x &lt; x₀ で手を放した直後のふるまい<span class="ans">答 ①（x₀ に向かって動き始める）</span></summary><div class="body">
-<p>この範囲では、止めておくのに必要な手の力が \(F\lt 0\)、つまり下向きです。手を放すと、残りの3つの力の合力は \(-F>0\)（上向き）になります。</p>
+<p class="hoshin"><b>方針</b>この範囲では支えに必要な手の力 \(F\lt0\)。手を放すと、残りの力の合力は \(-F\)。</p>
+<h3>解答</h3>
 <p class="law">手を放した直後の運動方程式</p>
-$$m\,a=-\cfic{F}>0$$
-<p>P₂ は上向き、つまり \(x_0\) に向かって動き始めます。</p>
-<h3>着眼点：x₀ は安定、x₁ は不安定</h3>
-<p>\(x_0\) より少し上では \(F>0\)（手で上に支える必要がある）なので、放すと下に戻されます。少し下では上に戻されます。どちらにずれても戻されるので \(x_0\) は安定なつり合いです。逆に \(x_1\) のまわりでは、ずれた向きにさらに押されるので不安定です。\(x_1\) より下で放すと、静電気力に負けて P₁ に引き寄せられてしまいます。</p>
-<div class="box"><b>式の立て方</b>：「つり合いに必要な外力 \(F\)」がわかれば、外力を取り去ったときの合力は \(-F\) です。\(F\) のグラフが右上がりに横軸を横切る点が安定なつり合いの位置です。</div>
+$$m\,a=-\cfic{F}>0\qquad\therefore\ \text{上向き（}x_0\text{ の向き）に動き始める：①}$$
+<div class="box"><b>式の立て方</b>：手で支えている間は「手の力 \(F\) ＋ 残りの力の合力 ＝ 0」です。手を放すと手の力だけがなくなるので、合力は \(-F\) になります。「つり合いに必要な外力 \(F\)」のグラフがわかれば、外力を取り去ったときにどちらへ動くかは \(-F\) の符号で決まります。</div>
+<div class="box"><b>補足</b><br><b>x₀ は安定、x₁ は不安定</b>　\(x_0\) より少し上では \(F>0\)（手で上に支える必要がある）なので、放すと下に戻されます。少し下では上に戻されます。どちらにずれても戻されるので、\(x_0\) は安定なつり合いの位置です。逆に \(x_1\) のまわりでは、ずれた向きにさらに押されるので不安定です。\(x_1\) より下で放すと、静電気力に負けて P₁ に引き寄せられてしまいます。<br><b>グラフで見分ける</b>　\(F\) のグラフが右上がりに横軸を横切る点（\(x_0\)）が安定、右下がりに横切る点（\(x_1\)）が不安定です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：設定の「手を放す位置」を変えてみましょう。\(x_1\) と \(x_0\) の間や \(x_0\) の少し上で放すと \(x_0\) のまわりで振動し、\(x_1\) より下で放すと P₁ に引き寄せられます。\(x_0\) よりずっと上で放すと、勢いがつきすぎて \(x_1\) を越え、やはり引き寄せられます。</div>
 <button class="goto" data-q="I6">この状況にする</button>
 </div></details>
 
 <details id="d-II1"><summary>⒢　操作1で R₁ に発生するジュール熱<span class="ans">答 \(\dfrac12CV^2\)</span></summary><div class="body">
-<p>S₂ が開いているので、電流は「電池 → R₁ → C」の道だけを流れ、十分に時間がたつと C の電圧は \(V\)、電気量は \(Q=CV\) になります。</p>
+<p class="hoshin"><b>方針</b>十分に時間がたつと C は電圧 V で充電完了。ジュール熱は「電池の仕事 − 静電エネルギー」。</p>
+<h3>解答</h3>
 <p class="law">電池がした仕事（電気量 × 起電力）</p>
-$$W=QV=CV^2$$
-<p class="law">静電エネルギー</p>
-$$U_0=\frac12CV^2$$
+$$W=QV=CV\cdot V=CV^2$$
 <p class="law">エネルギー保存則（電池の仕事 ＝ 静電エネルギー ＋ ジュール熱）</p>
-$$\cfr{J_1}=W-U_0=\frac12CV^2$$
-<p>電池がした仕事のちょうど半分が熱になります。\(R_1\) の値によらず、\(R_1\) が小さいと大きな電流が短い時間流れ、大きいと小さな電流が長く流れて、熱の合計は同じです。</p>
-<div class="box"><b>式の立て方</b>：抵抗の熱は \(\int RI^2\,dt\) を計算せず、「電池の仕事 − 静電エネルギーの増加」で求めます。電池の仕事は「通した電気量 × 起電力」です。</div>
+$$CV^2=\frac12CV^2+\cfr{J_1}\qquad\therefore\ \cfr{J_1}=\frac12CV^2$$
+<div class="box"><b>式の立て方</b>：S₂ が開いているので、電流は「電池 → R₁ → C」の道だけを流れます。十分に時間がたつと電流は 0 になり、C の電圧は \(V\)、電気量は \(Q=CV\) です。抵抗の熱は \(\int RI^2\,dt\) を計算せず、「電池の仕事 − 静電エネルギーの増加」で求めます。電池の仕事は「電池を通った電気量 × 起電力」です。</div>
+<div class="box"><b>補足</b><br><b>R₁ の値によらない</b>　電池がした仕事のちょうど半分が熱になります。\(R_1\) が小さいと大きな電流が短い時間流れ、大きいと小さな電流が長い時間流れて、熱の合計は同じです。<br><b>積分で確かめると</b>　電流は \(I=\dfrac V{R_1}e^{-t/(R_1C)}\) と指数関数で減るので、\(\displaystyle\int_0^\infty R_1I^2\,dt=\frac{V^2}{R_1}\cdot\frac{R_1C}{2}=\frac12CV^2\) となり、エネルギーの考え方と一致します（入試ではエネルギーで出せれば十分です）。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：右下の棒グラフで、電池の仕事（灰）が C の静電エネルギー（青）と R₁ の熱（オレンジ）に半分ずつ分かれていきます。\(R_1\) を変えても最後の高さは変わりません。</div>
 <button class="goto" data-q="II1">この状況にする</button>
 </div></details>
 
 <details id="d-II2"><summary>⒣　操作2の後のコンデンサーの静電エネルギー<span class="ans">答 \(\dfrac12C\Bigl(\dfrac{R_2}{R_1+R_2}V\Bigr)^2\)</span></summary><div class="body">
-<p>十分に時間がたつと C には電流が流れず、電流は R₁ と R₂ を直列に流れます。C は R₂ と並列なので、C の電圧は R₂ の電圧に等しくなります。</p>
+<p class="hoshin"><b>方針</b>十分後の C は電流 0（断線と同じ）。R₁ と R₂ の直列回路で電流を求め、C の電圧 ＝ R₂ の電圧。</p>
+<h3>解答</h3>
 <p class="law">キルヒホッフの第2法則（電池 → R₁ → R₂）</p>
 $$V=(R_1+R_2)I\qquad\therefore\ I=\frac{V}{R_1+R_2}$$
 <p class="law">並列の電圧と静電エネルギー</p>
-$$V_\mathrm C=R_2I=\frac{R_2}{R_1+R_2}V,\qquad\cacc{U}=\frac12CV_\mathrm C^{\,2}=\frac12C\Bigl(\frac{R_2}{R_1+R_2}V\Bigr)^2$$
-<div class="box"><b>式の立て方</b>：「十分に時間がたった後」のコンデンサーは電流 0 の断線として扱い、残った抵抗だけの回路で電流と電圧を求めます。コンデンサーの電圧は、並列につながった部分の電圧と同じです。</div>
+$$V_\mathrm C=R_2I=\frac{R_2}{R_1+R_2}V\qquad\therefore\ \cacc{U}=\frac12C\Bigl(\frac{R_2}{R_1+R_2}V\Bigr)^2$$
+<div class="box"><b>式の立て方</b>：「十分に時間がたった後」のコンデンサーは電流が流れないので、断線として扱い、残った抵抗だけの回路で電流と電圧を求めます。C は R₂ と並列につながっているので、C の電圧は R₂ の電圧 \(R_2I\) と同じです。</div>
+<div class="box"><b>補足</b><br><b>分圧の式</b>　直列の抵抗には抵抗値に比例して電圧が分かれる（分圧）ので、\(V_\mathrm C=\dfrac{R_2}{R_1+R_2}V\) はすぐに書けます。<br><b>途中のようす</b>　S₂ を閉じた直後は C の電圧がまだ \(V\) なので、C は R₂ を通して放電し、電圧が \(\frac{R_2}{R_1+R_2}V\) まで下がったところで落ち着きます。下がり方の速さ（時定数）は、C から見た R₁ と R₂ の並列の合成抵抗 \(\dfrac{R_1R_2}{R_1+R_2}\) と \(C\) の積で決まります。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：S₂ を閉じると C の電圧（青い線）が \(V\) から \(\frac{R_2}{R_1+R_2}V\)（点線）まで下がります。\(R_2\) を小さくすると下がり方が大きくなります。</div>
 <button class="goto" data-q="II2">この状況にする</button>
 </div></details>
 
 <details id="d-II3"><summary>⒤　操作1〜4での R₂ の電流 I の変化と最大値<span class="ans">答 ⑧，最大値 \(\dfrac{V}{R_2}\)</span></summary><div class="body">
-<p>どの操作でも、切りかえた瞬間のコンデンサーの電圧は直前の値のままです（電気量は瞬間的には変われないため）。これを使って、各操作の直後と十分に時間がたった後を調べます。</p>
+<p class="hoshin"><b>方針</b>切りかえた瞬間、C の電圧は直前のまま。各操作の「直後」と「十分後」の I を求めてつなぐ。</p>
+<h3>解答</h3>
 <p class="law">操作1（S₂ 開）</p>
-<p>R₂ には電流が流れず \(I=0\)。C は \(V\) まで充電されます。</p>
+$$\cacc{I}=0$$
 <p class="law">操作2（S₂ を閉じる）</p>
 $$\text{直後：}\ \cacc{I}=\frac{V}{R_2},\qquad\text{十分後：}\ \cacc{I}=\frac{V}{R_1+R_2}$$
-<p>閉じた瞬間、R₂ には C の電圧 \(V\) がかかるので大きな電流が流れ、C が放電して減っていきます。</p>
 <p class="law">操作3（S₁ を開く）</p>
-$$\text{直後：}\ \cacc{I}=\frac{V_\mathrm C}{R_2}=\frac{V}{R_1+R_2},\qquad\text{十分後：}\ \cacc{I}=0$$
-<p>C だけが R₂ を通して放電します。電流の向きは同じ（正）で、連続的に 0 まで減ります。</p>
+$$\text{直後：}\ \cacc{I}=\frac{V}{R_1+R_2},\qquad\text{十分後：}\ \cacc{I}=0$$
 <p class="law">操作4（S₁ を閉じる）</p>
 $$\text{直後：}\ \cacc{I}=0,\qquad\text{十分後：}\ \cacc{I}=\frac{V}{R_1+R_2}$$
-<p>C の電圧は 0 なので、並列の R₂ の電圧も 0 から始まり、C の充電とともに増えます。</p>
-<p>「0 → 跳び上がって減る → なめらかに 0 へ → なめらかに増える」の形は ⑧ で、最大値は操作2の直後の \(\dfrac V{R_2}\) です。</p>
-<div class="box"><b>式の立て方</b>：スイッチの切りかえでは、(1) 直後はコンデンサーを「直前と同じ電圧の電池」、(2) 十分後は「断線」として扱い、それぞれキルヒホッフの法則を立てます。電流が跳ぶのは抵抗の電圧が跳ぶところだけです。</div>
+$$\therefore\ ⑧,\qquad\text{最大値}\ \frac{V}{R_2}\ (\text{操作2の直後})$$
+<div class="box"><b>式の立て方</b>：スイッチの切りかえでは、(1) 直後はコンデンサーを「直前と同じ電圧の電池」、(2) 十分後は「断線」として扱い、それぞれキルヒホッフの法則を立てます。<br>・操作1：S₂ が開いていて R₂ には電流が流れません。C は \(V\) まで充電されます。<br>・操作2：閉じた瞬間、R₂ には C の電圧 \(V\) がそのままかかるので \(I=\frac V{R_2}\)。その後 C が放電して ⒣ の状態へ減っていきます。<br>・操作3：電池が切りはなされ、C（電圧 \(\frac{R_2}{R_1+R_2}V\)）だけが R₂ を通して放電します。直後の電流は \(\dfrac{V_\mathrm C}{R_2}=\dfrac V{R_1+R_2}\) で、操作2の終わりの値と同じなので、電流は跳ばずに 0 まで減ります。<br>・操作4：C の電圧は 0 なので、並列の R₂ の電圧も 0 から始まり、C の充電とともに増えていきます。</div>
+<div class="box"><b>補足</b><br><b>電流が跳ぶのはどこか</b>　コンデンサーの電圧（＝電気量）は瞬間的には変われませんが、抵抗の電流は瞬間的に変われます。R₂ は C と並列なので、R₂ の電圧は C の電圧と同じで、跳ぶことができません。それでも操作2で I が跳ぶのは、S₂ が開いていた間は R₂ が回路から切りはなされていて、閉じた瞬間に初めて C の電圧がかかるからです。操作3、4では R₂ はずっと C と並列なので、I はなめらかに変化します。<br><b>グラフの形</b>　「0 → 跳び上がって減る → なめらかに 0 へ → なめらかに増える」の形は ⑧ です。</div>
 <div class="box"><b>アニメーションで確かめよう</b>：右上のグラフに \(I\) が描かれます。操作2の直後だけ電流が跳び上がり、操作3と4では跳ばずになめらかに変化します。\(R_1\)、\(R_2\) を変えると高さと減り方（時定数）が変わっても、形は ⑧ のままです。</div>
 <button class="goto" data-q="II3">この状況にする</button>
 </div></details>
